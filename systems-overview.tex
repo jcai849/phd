@@ -1,0 +1,125 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[style=apa]{biblatex}
+\addbibresource{bib/bibliography.bib}
+\begin{document}
+\title{Systems Overview}
+\maketitle{}
+
+\section{Software}
+\label{sec:software}
+
+\subsection{Hadoop}
+\label{sec:hadoop-1}
+
+Apache Hadoop is a collection of utilities that facilitates cluster
+computing. Hadoop consists of a memory part, known as Hadoop
+Distributed File System (HDFS), and a processing part, known as MapReduce.
+
+In operation, Hadoop splits files into blocks, then distributes them
+across nodes in a cluster, where they are then processed by the node.
+This creates the advantage of data locality, wherein data is processed
+by the node they exist in.
+
+\subsubsection{Hadoop Distributed File System}
+\label{sec:hdfs}
+
+The file system has 5 primary services.
+
+\begin{description}
+\item[Name Node] Contains all of the data and manages the system. The
+  master node.
+  \item[Secondary Name Node] Creates checkpoints of the metadata from
+  the main name node, to potentially restart the single point of
+  failure that is the name node. Not the same as a backup, as it only
+  stores metadata.
+\item[Data Node] Contains the blocks of data. Sends ``Heartbeat
+  Message'' to the name node every 3 seconds. If two minutes passes
+  with no heartbeat message from a particular data node, the name node
+  marks it as dead, and sends it's blocks to another data node.
+\item[Job Tracker] Receives requests for MapReduce from the client,
+  then queries the name node for locations of the data.
+\item[Task Tracker] Takes tasks, code, and locations from the job
+  tracker, then applies such code at the location. The slave node for
+  the job tracker.
+\end{description}
+
+HDFS is written in Java and C.
+
+\subsubsection{MapReduce}
+\label{sec:mapreduce}
+
+MapReduce is a programming model consisting of map and reduce staps,
+alongside making use of keys.
+
+\begin{description}
+\item[Map] applies a ``map'' function to a dataset, in the
+  mathematical sense of the word. The output data is temporarily
+  stored before being shuffled based on output key, and sent to the
+  reduce step.
+\item[Reduce] produces a summary of the dataset yielded by the map operation
+\item[Keys] are associated with the data at both steps. Prior to the
+  application of mapping, the data is sorted and distributed among
+  data nodes by the data's associated keys, with each key being mapped
+  as a logical unit. Likewise, mapping produces output keys for the
+  mapped data, and the data is shuffled based upon these keys, before
+  being reduced.
+\end{description}
+
+After sorting, mapping, shuffling, and reducing, the output is
+collected, sorting by the second keys and given as final output.
+
+The implementation of MapReduce is provided by the HDFS services of
+job tracker and task tracker. The actual processing is performed by
+the task trackers, with scheduling using the job tracker, but other
+scheduling systems are available to be made use of.
+
+\subsection{Spark}
+\label{sec:spark}
+
+Spark is a framework for cluster computing. Much of it's definition is
+in relation to Hadoop, which it hoped to improve upon for certain
+tasks. It's fundamental concept is the Resiliant Distributed Dataset
+(RDD), which is immutable, and generated through external data, as
+well as actions and transformations on prior RDD's. The RDD interface
+is exposed through an API in various languages, including R.
+
+Spark requires a distributed storage system, as well as a cluster
+manager; both can be provided by Hadoop, among others.
+
+A major selling point for Spark is the libraries available that have
+pre-made functions for RDD's, including many iterative algorithms.
+Broadcast variables and accumulators allow for custom iterative
+programming.
+
+\subsection{H2O}
+\label{sec:h2o}
+
+
+
+\subsection{R Packages}
+\label{sec:r-packages}
+
+\begin{description}
+\item[parallel] 
+\item[snow] 
+\end{description}
+
+\section{Comparison between R and Other Software}
+\label{sec:comparison-between-r}
+
+\section{Questions and Notes}
+\label{sec:questions}
+
+When using Hadoop, what happens if the data associated with a
+particular key is too large to fit on any one node?
+
+Google no longer uses much of MapReduce, using stream processing
+technologies such as MillWheel, rather than the batch processing of
+MapReduce
+
+\nocite{zaharia2010spark}
+\nocite{shvachko2010hadoop}
+\nocite{dean2004mapreduce}
+\nocite{ghemawat2003google}
+\printbibliography{}
+\end{document}
