@@ -1,0 +1,74 @@
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
+#+options: author:t broken-links:nil c:nil creator:nil
+#+options: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
+#+options: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+options: timestamp:t title:nil toc:nil todo:t |:t
+
+#+language: en
+#+select_tags: export
+#+exclude_tags: noexport
+#+creator: Emacs 26.1 (Org mode 9.2.3)
+
+#+latex_class: article
+#+LATEX_CLASS_OPTIONS: [a4paper, 11pt]
+#+LATEX_HEADER: \usepackage{mathtools}
+#+LATEX_HEADER: \usepackage{amsfonts}
+
+* General Information
+- [[http://homepage.divms.uiowa.edu/~luke/classes/295-hpc/][Luke Tierney: High Performance Computing in Statistics]] :: Old but
+     possible good information specific to the title of the course
+- [[https://ljdursi.github.io/beyond-single-core-R/#/][Jonathan Dursi Presentation: Beyond Single-Core R]] :: Newer, more
+     comprehensive of R offerings
+
+* R Packages
+- [[https://cran.r-project.org/web/views/HighPerformanceComputing.html][CRAN Task View: High-Performance and Parallel Computing with R]] 
+- [[https://en.wikipedia.org/wiki/Programming_with_Big_Data_in_R][pbdR]] :: Collection of packages allowing for distributed computing
+     with R. 
+- [[https://github.com/HenrikBengtsson/future][future]] :: Lowish-level, can evaluate expressions on clusters
+     provided by =parallel=
+- [[https://github.com/DavisVaughan/furrr][furrr]] :: attaching the =future= backend to the =purrr= frontend
+- [[https://github.com/delta-rho/rhipe][RHIPE]] :: A means of using Hadoop from R, providing an Integrated
+     Programming Environment. Function reference:
+  - [[http://deltarho.org/docs-RHIPE/functionref.html][RHIPE docs]]
+- [[https://github.com/RevolutionAnalytics/foreach][foreach]] :: A high-level looping construct, with various backends
+     (including various clusters as described on it's GitHub page;
+     relevant is [[https://cran.r-project.org/web/packages/doSNOW/index.html][doSNOW]]). Tutorials:
+  - [[https://www.r-bloggers.com/the-wonders-of-foreach/][The Wonders of foreach]]
+- [[https://cran.r-project.org/web/packages/snow/index.html][snow]] :: Parallel and distributed computing in R, now mostly subsumed
+     into the =parallel= package, in turn part of core R. Tutorials:
+  - [[http://www.sfu.ca/~sblay/R/snow.html][snow Simplified]]
+  - [[https://stackoverflow.com/questions/17899756/initializing-mpi-cluster-with-snowfall-r][Info on multiple node setup (using snowfall, a wrapper for snow)]]
+- [[https://cran.r-project.org/web/packages/partools/index.html][partools]] :: Utilities for parallel computation, without
+     Hadoop/Spark. More info:
+  - [[https://matloff.wordpress.com/2015/08/05/partools-a-sensible-r-package-for-large-data-sets/][A Sensible R Package for Large Data Sets]]
+  - Vignette - interesting reading:
+#+BEGIN_SRC R
+vignette("partools")
+#+END_SRC
+- [[https://github.com/RevolutionAnalytics/RHadoop/wiki][RHadoop]] :: A collection of five packages from Revolution Analytics
+     to run Hadoop directly from R. Packages include:
+  - [[https://github.com/RevolutionAnalytics/rmr2][rmr2]] :: To run MapReduce jobs directly from R
+  - [[https://github.com/RevolutionAnalytics/rhdfs][rhdfs]] :: To access HDFS from R
+- [[https://github.com/vertica/DistributedR][DistributedR]] :: Cluster access for various R data structures.
+     Impressively home-made, no Hadoop backend etc. No longer in
+     development (last commit 2015 - did a meteorite hit in that
+     year??). The creators, Vertica, have moved on to offering an
+     enterprise database platform.
+- [[https://cran.r-project.org/web/packages/Rmpi/index.html][Rmpi]] :: An R interface to MPI
+- [[https://www.rforge.net/doc/packages/multicore/multicore.html][multicore]] :: Developed by Simon, enables multicore processing with
+               =mclapply=. Merged with =snow= to form =parallel=.
+               Doesn't work on Windows, as it makes use of forked
+               processes, which is not supported by Windows.
+
+* Other Software and R-Derivatives
+- [[http://deltarho.org][DeltaRho]] :: A simple frontend for and from RHIPE
+- [[https://en.wikipedia.org/wiki/MapR][MapR]] :: Was initially providing R access to Hadoop (Just HDFS as far
+     as I can tell). Bought out by HP in May 2019, only selling an
+     enterprise database platform (+ basic analytics services) running
+     on Hadoop and other backends.
+- [[https://azure.microsoft.com/en-us/services/hdinsight/r-server/#security][R Server for HDInsight]] :: Originally Revolution R, then Microsoft R.
+     A distribution of R with special emphasis on parallel
+     capabilities. Offers multi-threaded maths libraries out the box.
+- [[https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.analyze.doc/doc/t_overview_bigr.html][IBM Big R]] :: Introduction of bigr classes replicating base R types.
+     Runs on the [[https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.welcome.doc/doc/welcome.html][InfoSphere BigInsights]] platform, "powered by Apache
+     Hadoop". Automatic MapReduce.
