@@ -7,3 +7,4 @@
 *.xml
 /urls.tex
 *.out
+/auto/
