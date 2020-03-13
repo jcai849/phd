@@ -1,26 +1,52 @@
 \documentclass[10pt,a4paper]{article}
-\usepackage[style=apa]{biblatex}
+
+\usepackage{hyperref}
+\usepackage[style=reading, sorting=ynt]{biblatex}
 \addbibresource{bib/bibliography.bib}
+\usepackage{csquotes}
+
 \begin{document}
+
 \title{Systems Overview}
+\author{Jason Cairns}
 \maketitle{}
 
-\section{Software}
-\label{sec:software}
-
-\subsection{Hadoop}
+\section{Hadoop}
 \label{sec:hadoop-1}
-
+\nocite{dean2004mapreduce}
+\nocite{ghemawat2003google}
+\nocite{shvachko2010hadoop}
+\nocite{zheludkov2017high}
+\nocite{akidau2013millwheel}
 Apache Hadoop is a collection of utilities that facilitates cluster
-computing. Hadoop consists of a memory part, known as Hadoop
-Distributed File System (HDFS), and a processing part, known as MapReduce.
+computing. Jobs can be sent for parallel processing on the cluster
+directly to the utilities using .jar files, ``streamed'' using any
+executable file, or accessed through language-specific APIs.
+
+The project began in 2006, by Doug Cutting, a Yahoo employee, and Mike
+Cafarella. The inspiration for the project was a paper from Google
+describing the Google File System, which was followed by another
+Google paper detailing the MapReduce programming model.
+
+Hadoop consists of a memory part, known as Hadoop Distributed File
+System (HDFS), described in \ref{sec:hdfs}, and a processing part,
+known as MapReduce, described in \ref{sec:mapreduce}.
 
 In operation, Hadoop splits files into blocks, then distributes them
 across nodes in a cluster, where they are then processed by the node.
 This creates the advantage of data locality, wherein data is processed
 by the node they exist in.
 
-\subsubsection{Hadoop Distributed File System}
+Hadoop has seen extensive industrial use as the premier big data
+platform upon it's release. In recent years it has been overshadowed
+by Spark, due to the greater speed gains offered by spark. The key
+reason Spark is so much faster than Hadoop comes down to their
+different processing approaches: Hadoop MapReduce requires reading
+from disk and writing to it, for the purposes of fault-tolerance,
+while Spark can run processing entirely in-memory. However, in-memory
+MapReduce is provided by another Apache project, Ignite.
+
+\subsection{Hadoop Distributed File System}
 \label{sec:hdfs}
 
 The file system has 5 primary services.
@@ -45,7 +71,7 @@ The file system has 5 primary services.
 
 HDFS is written in Java and C.
 
-\subsubsection{MapReduce}
+\subsection{MapReduce}
 \label{sec:mapreduce}
 
 MapReduce is a programming model consisting of map and reduce staps,
@@ -73,53 +99,249 @@ job tracker and task tracker. The actual processing is performed by
 the task trackers, with scheduling using the job tracker, but other
 scheduling systems are available to be made use of.
 
-\subsection{Spark}
-\label{sec:spark}
+Development at Google no longer makes as much use of MapReduce as they
+originally did, using stream processing technologies such as
+MillWheel, rather than the standard batch processing enabled by
+MapReduce.
 
+\section{Spark}
+\label{sec:spark}
+\nocite{zaharia2010spark}
+\nocite{zaharia2016apache}
 Spark is a framework for cluster computing. Much of it's definition is
-in relation to Hadoop, which it hoped to improve upon for certain
-tasks. It's fundamental concept is the Resiliant Distributed Dataset
-(RDD), which is immutable, and generated through external data, as
-well as actions and transformations on prior RDD's. The RDD interface
-is exposed through an API in various languages, including R.
+in relation to Hadoop, which it intended to improve upon in terms of
+speed and usability for certain tasks.
+
+It's fundamental operating concept is the Resiliant Distributed
+Dataset (RDD), which is immutable, and generated through external
+data, as well as actions and transformations on prior RDD's. The RDD
+interface is exposed through an API in various languages, including R.
 
 Spark requires a distributed storage system, as well as a cluster
 manager; both can be provided by Hadoop, among others.
 
-A major selling point for Spark is the libraries available that have
-pre-made functions for RDD's, including many iterative algorithms.
-Broadcast variables and accumulators allow for custom iterative
+Spark is known for possessing a fairly user-friendly API, intended to
+improve upon the MapReduce interface. Another major selling point for
+Spark is the libraries available that have pre-made functions for
+RDD's, including many iterative algorithms. The availability of
+broadcast variables and accumulators allow for custom iterative
 programming.
 
-\subsection{H2O}
+Spark has seen major use since it's introduction, with effectively all
+major big data companies having some use of Spark.
+
+\section{H2O}
 \label{sec:h2o}
+\nocite{h2o.ai:_h2o}
+\nocite{h2o.ai:_home_open_sourc_leader_ai}
+The H2O software bills itself as,
 
+\begin{displayquote}
+  an in-memory platform for distributed, scalable machine learning.
+  H2O uses familiar interfaces like R, Python, Scala, Java, JSON and
+  the Flow notebook/web interface, and works seamlessly with big data
+  technologies like Hadoop and Spark. H2O provides implementations of
+  many popular algorithms such as GBM, Random Forest, Deep Neural
+  Networks, Word2Vec and Stacked Ensembles. H2O is extensible so that
+  developers can add data transformations and custom algorithms of
+  their choice and access them through all of those clients.
+\end{displayquote}
 
+H2O typically runs on HDFS, along with spark for computation and
+bespoke data structures serving as the backbone of the architecture.
 
-\subsection{R Packages}
+H2O can communicate with R through a REST api. Users write functions
+in R, passing user-made functions to be applied on the objects
+existing in the H2O system.
+
+The company H2O is backed by \$146M in funding, partnering with large
+institutions in the financial and tech world. Their business model
+follows an open source offering with the same moniker as the company,
+and a small set of heavily-marketed proprietary software in aid of it.
+They have some important figures working with them, such as Matt
+Dowle, creator of data.table.
+
+\section{R Packages}
 \label{sec:r-packages}
 
-\begin{description}
-\item[parallel] 
-\item[snow] 
-\end{description}
+\subsection{DistributedR}
+\label{sec:distributedr}
+DistributedR offers cluster access for various R data structures,
+particularly arrays, and providing S3 methods for a fair range of
+standard functions. It has no regular cluster access interface, such
+as with Hadoop or MPI, being made largely from scratch.
 
-\section{Comparison between R and Other Software}
-\label{sec:comparison-between-r}
+The package creators have ceased development as of December 2015. The
+company, Vertica, has moved on to offering an enterprise database
+platform.
 
-\section{Questions and Notes}
-\label{sec:questions}
+\subsection{Foreach and DoX}
+\label{sec:foreach-dox}
+\nocite{microsoft20}
+\nocite{corporation19}
+\nocite{dosnow19}
+\nocite{weston17}
+Foreach offers a high-level looping construct compatible with a
+variety of backends. The backends are provided by other packages,
+typically named with some form of ``Do\textit{X}''. Parallelisation is
+enabled by some backends, with doParallel allowing parallel
+computations, and doMPI allowing for direct MPI access.
 
-When using Hadoop, what happens if the data associated with a
-particular key is too large to fit on any one node?
+Foreach is managed by Revolution Analytics, with many of the
+Do\textit{X} corollary packages also being produced by them.
 
-Google no longer uses much of MapReduce, using stream processing
-technologies such as MillWheel, rather than the batch processing of
-MapReduce
+\subsection{Future and Furrr}
+\label{sec:future-furrr}
+\nocite{bengtsson20}
+\nocite{vaughan18}
+Future captures R expressions for evaluation, allowing them to be
+passed on for parallel and ad-hoc cluster evaluation, through the
+parallel package. Such parallelisation uses the standard MPI or SOCK
+protocols.
 
-\nocite{zaharia2010spark}
-\nocite{shvachko2010hadoop}
-\nocite{dean2004mapreduce}
-\nocite{ghemawat2003google}
-\printbibliography{}
+The author of future is Henrik Bengtsson, Associate Professor at UCSF.
+Development on the package remains strong, with Dr.~Bengtsson
+possessing a completely full commit calendar and 81,328 contributions
+on GitHub.
+
+Furrr is a frontend to future, amending the functions from the package
+purrr to be compatible with future, thus enabling parallelisation in a
+similar form to multicore, though with a tidyverse style.
+
+Furrr is developed by Davis Vaughn, an employee at RStudio.
+
+\subsection{Parallel, Snow, and Multicore}
+\label{sec:parall-snow-mult}
+Parallel is a package included with R, born from the merge of the
+packages snow and multicore. Parallel enables various means of
+performing computations in R in parallel, allowing not only multiple
+cores in a node, but multiple nodes through snow's interfaces to MPI
+and SOCK.
+
+Parallel takes from multicore the ability to perform multicore
+processing, with the mcapply function. Multicore creates forked R
+sessions, which is very resource-efficient, but not supported by
+windows.
+
+From snow, distributed computing is enabled for multiple nodes.
+
+Multicore was developed by Simon Urbanek (!). Snow was developed by
+Luke Tierney, a professor at the University of Iowa, who also
+originated the byte-compiler for R
+
+\subsection{Partools}
+\label{sec:partools}
+\nocite{matloff16:_softw_alchem}
+Partools provide utilities for the parallel package. It offers
+functions to split files and process the splits across nodes provided
+by parallel, along with bespoke statistical functions.
+
+It consists mainly of wrapper functions, designed to follow it's
+philosophy of ``keep it distributed''.
+
+It is authored by Norm Matloff, a professor at UC, Davis.
+
+\subsection{PBDR}
+\label{sec:pbdr}
+\nocite{pbdBASEpackage}
+\nocite{pbdBASEvignette}
+pbdR is a collection of packages allowing for distributed computing
+with R. The packages include communication and computation
+capabilities, including RPC, ZeroMQ, and MPI interfaces.
+
+\subsection{RHadoop}
+\label{sec:rhadoop}
+\nocite{analytics:_rhadoop_wiki}
+RHadoop is a collection of five packages to run Hadoop directly from
+R. The packages are divided by logical function, including rmr2, which
+runs MapReduce jobs, and rhdfs, which can access the HDFS. The
+packages also include plyrmr, which makes available plyr-like data
+manipulation functions, in a similar vein to sparklyr.
+
+It is offered and developed by Revolution Analytics.
+  
+\subsection{RHIPE and DeltaRho}
+\label{sec:rhipe-deltarho}
+\nocite{deltarho:_rhipe}
+RHIPE is a means of ``using Hadoop from R''. The provided functions
+primarily attain this through interfacing and manipulating HDFS, with
+a function, rhwatch, to submit MapReduce jobs. The easiest means of
+setup for it is to use a VM, and for all Hadoop computation, MapReduce
+is directly programmed for by the user.
+
+There is currently no support for the most recent version of Hadoop,
+and it doesn't appear to be under active open development, with the
+last commit being 2015. RHIPE has mostly been subsumed into the
+backend of DeltaRho, a simple frontend.
+  
+\subsection{Rmpi}
+\label{sec:rmpi}
+\nocite{yu02:_rmpi}
+Rmpi is an R interface to MPI. As such, the capabilities enabled by
+the package are best suited for supercomputers, such as Beowulf
+clusters or Cray.
+
+It is authored by Hao Yu, of the University of Western Ontario.
+
+\subsection{Sparklyr}
+\label{sec:sparklyr}
+\nocite{luraschi20}
+Sparklyr is an interface to Spark from within R. The user connects to
+spark and accumulates instructions for the manipulation of a Spark
+DataFrame object using dplyr commands, then executing the request on
+the Spark cluster.
+
+Sparklyr is managed and maintained by RStudio, who also manage the
+rest of the Tidyverse (including dplyr).
+
+\subsection{SparkR}
+\label{sec:sparkr}
+\nocite{venkataraman20:_spark}
+SparkR provides a front-end to Spark from R. Like Sparklyr, it
+provides the DataFrame as the primary object of interest. However,
+there is no support for the dplyr model of programming, with functions
+closer resembling base R being provided by the package instead.
+
+SparkR is maintained directly by Apache Spark, with ongoing regular
+maintenance provided.
+
+\section{R Derivatives}
+\label{sec:r-derivatives}
+
+\subsection{IBM Big R}
+\label{sec:ibm-big-r}
+\nocite{inc.14:_infos_bigin_big_r}
+IBM Big R is a library of functions integrating R with the IBM
+InfoSphere BigInsights platform. This is implemented through the
+introduction of various bigr classes replicating base R types. These
+are then run in the background on the BigInsights platform, which is
+in turn powered by Apache Hadoop. The user is therefore able to run
+MapReduce jobs without having to explicitly write MapReduce-specific
+code.
+
+\subsection{MapR}
+\label{sec:mapr}
+\nocite{mapr19:_indus_next_gener_data_platf_ai_analy}
+MapR initially provided R access to Hadoop, being mainly HDFS access.
+It was then bought out by HP in May 2019, pivoting to selling an
+enterprise database platform and analytics services, running on Hadoop
+among other backends. Development has ceased on R access.
+
+\subsection{R Server for HDInsight}
+\label{sec:r-server-hdinsight}
+\nocite{azure16:_r_server_hdins_r_analy}
+R Server for HDInsight is a distribution of R with particular emphasis
+on parallel capabilities. Specific parallel capabilities advertised
+include multi-threaded mathematics libraries. R Server for HDInsight
+was previously named Revolution R, and developed by Revolution
+Analytics, before being bought out by Microsoft, renamed Microsoft R,
+before acquiring it's current name.
+\defbibfilter{other}{keyword=ignite or keyword=millwheel}
+\printbibheading{}
+\printbibliography[keyword=hadoop, title={Hadoop}]
+\printbibliography[keyword=spark,title={Spark}]
+\printbibliography[keyword=h2o,title=H2O]
+\printbibliography[keyword=rpackage,title={R Packages}]
+\printbibliography[keyword=rderiv,title={R Derivatives}]
+\printbibliography[filter=other,title=Other]
 \end{document}
