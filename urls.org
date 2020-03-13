@@ -20,6 +20,17 @@
 - [[https://ljdursi.github.io/beyond-single-core-R/#/][Jonathan Dursi Presentation: Beyond Single-Core R]] :: Newer, more
      comprehensive of R offerings
 
+* Software
+- [[https://www.h2o.ai/][H20]] :: awful signal to noise ratio on their site. Go straight to
+     documentation. Architecture:
+  - [[http://docs.h2o.ai/h2o/latest-stable/h2o-docs/architecture.html][H2O Architecture]]
+- [[https://hadoop.apache.org/][Hadoop]] :: links:
+  - [[https://hadoop.apache.org/docs/r1.2.1/streaming.html][streaming]]
+- [[https://ignite.apache.org/index.html][Ignite]] :: Database system by Apache, offers [[https://ignite.apache.org/features/mapreduce.html][in-memory MapReduce]]
+- [[https://research.google/pubs/pub41378/][Millwheel]] :: New fault-tolerant streaming platform used at Google in
+     place of MapReduce
+- [[https://spark.apache.org/][Spark]] :: .
+
 * R Packages
 - [[https://cran.r-project.org/web/views/HighPerformanceComputing.html][CRAN Task View: High-Performance and Parallel Computing with R]] 
 - [[https://en.wikipedia.org/wiki/Programming_with_Big_Data_in_R][pbdR]] :: Collection of packages allowing for distributed computing
@@ -59,6 +70,13 @@ vignette("partools")
                =mclapply=. Merged with =snow= to form =parallel=.
                Doesn't work on Windows, as it makes use of forked
                processes, which is not supported by Windows.
+- [[https://spark.apache.org/docs/latest/sparkr.html][SparkR]] :: Provides a front-end to Spark from R. Provides the Spark
+     DataFrame as primary object of interest. Maintained directly by
+     Apache Spark.
+- [[https://spark.rstudio.com/][Sparklyr]] :: Connects to spark from R, using [[https://dplyr.tidyverse.org/index.html][dplyr]] as primary tool of
+     manipulation. Maintained by RStudio. Can connect to H2O using
+     [[https://github.com/h2oai/sparkling-water/tree/master/r][Sparkling Water]], with [[https://github.com/h2oai/rsparkling][rsparkling]] providing conversion. This
+     allows access to the distributed ML algorithms provided by H2O.
 
 * Other Software and R-Derivatives
 - [[http://deltarho.org][DeltaRho]] :: A simple frontend for and from RHIPE
