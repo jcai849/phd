@@ -13,6 +13,7 @@
 #+LATEX_CLASS_OPTIONS: [a4paper, 11pt]
 #+LATEX_HEADER: \usepackage{mathtools}
 #+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{biblatex}
 
 * General Information
 - [[http://homepage.divms.uiowa.edu/~luke/classes/295-hpc/][Luke Tierney: High Performance Computing in Statistics]] :: Old but
