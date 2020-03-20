@@ -3,7 +3,8 @@ options(citation.bibtex.max=999)
 noncran <- c("distributedR", "RHadoop", "RHIPE")
 cran <- c("base", "foreach", "doParallel", "doSNOW", "doMPI",
           "future", "furrr", "partools", "pbdBASE", "Rmpi",
-          "sparklyr", "SparkR")
+          "sparklyr", "SparkR", "doFuture", "future.batchtools",
+          "future.apply", "future.callr", "batchtools", "callr")
 
 ## install.packages(cran)
 
