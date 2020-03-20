@@ -21,3 +21,4 @@ clean:
 	rm -f *.log
 	rm -f *.out
 	rm -f *.xml
+	rm -f *.rip
