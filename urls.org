@@ -46,6 +46,41 @@
      (including various clusters as described on it's GitHub page;
      relevant is [[https://cran.r-project.org/web/packages/doSNOW/index.html][doSNOW]]). Tutorials:
   - [[https://www.r-bloggers.com/the-wonders-of-foreach/][The Wonders of foreach]]
+- [[https://github.com/HenrikBengtsson/doFuture][dofuture]] :: provides an adapter for foreach that works on a
+     future-based backend. Note that this does not mean returning
+     foreach() calls as futures. Claims to enable parallelism, but
+     unclear how this does anything over what the [[https://cran.r-project.org/web/packages/doParallel/index.html][doParallel]] package
+     provides, as they both use them as backends. --- Because future
+     backends can include other clusters, such as those provided by
+     batchtools, so the multicore stuff in future is redundant, but
+     the other backends are not necessarily.
+- [[https://github.com/HenrikBengtsson/future.batchtools][future.batchtools]] :: provides a future API for [[https://cran.r-project.org/web/packages/batchtools/index.html][batchtools]], or
+     equivalently, a batchtools backend for future. Allows the use of
+     various cluster schedulers such as TORQUE, Slurm, Docker Swarm, or
+     custom cluster functions.
+- [[https://github.com/HenrikBengtsson/future.apply][future.apply]] :: provides equivalent functions to R's =apply=
+     functions, with a future backend enabling parallel, cluster, and
+     other functionality as enabled by backends such as batchtools
+     through future.batchtools
+- [[https://github.com/HenrikBengtsson/future.callr][future.callr]] :: provides a callr backend to future, with all of the
+     associated advantages and overhead.
+- [[https://davisvaughan.github.io/furrr/][furrr]] :: allows the use of future as a backend to purrr
+- [[https://purrr.tidyverse.org/][purrr]] :: A set of functional programming tools for R, including map,
+     typed map, reduce, predicates, monads. Much of it is redundant to
+     what already exists in R, but it does have the advantage of
+     adhering to a consistent standard.
+- [[https://cran.r-project.org/web/packages/batchtools/index.html][batchtools]] :: provides a parallel implementation of the Map function
+     for HPC systems, with a variety of schedulers including Slurm,
+     Docker Swarm, TORQUE, etc.
+- [[https://github.com/HenrikBengtsson/future.callr][callr]] :: "call R from R". Provides functions to run expressions in a
+           background R process. Begins a new session, with the
+           associated overhead. Allows more than 125 connections
+           ([[https://github.com/HenrikBengtsson/Wishlist-for-R/issues/28][maximum number of open connections]]), due to not making use
+           of R-specific connections [fn:1]. Additionally, no ports
+           are made use of, unlike SOCKcluster provided by the snow
+           component of parallel.
+- [[https://github.com/s-u/hmr][hmr]] :: an interface to MapReduce from R. Super fast, with chunked
+     data, with automatic R object conversion. Based on [[https://github.com/s-u/iotools][iotools]].
 - [[https://cran.r-project.org/web/packages/snow/index.html][snow]] :: Parallel and distributed computing in R, now mostly subsumed
      into the =parallel= package, in turn part of core R. Tutorials:
   - [[http://www.sfu.ca/~sblay/R/snow.html][snow Simplified]]
@@ -91,3 +126,7 @@ vignette("partools")
 - [[https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.analyze.doc/doc/t_overview_bigr.html][IBM Big R]] :: Introduction of bigr classes replicating base R types.
      Runs on the [[https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.welcome.doc/doc/welcome.html][InfoSphere BigInsights]] platform, "powered by Apache
      Hadoop". Automatic MapReduce.
+
+* Footnotes
+
+[fn:1] [[https://github.com/r-lib/processx/issues/91][Confirmation of external process usage for GitHub version of callr]] 
