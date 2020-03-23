@@ -8,3 +8,5 @@
 /urls.tex
 *.out
 /auto/
+*.toc
+/bib/r-packages.txt
