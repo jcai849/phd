@@ -16,86 +16,84 @@
 #+LATEX_HEADER: \usepackage{biblatex}
 
 * General Information
-- [[http://homepage.divms.uiowa.edu/~luke/classes/295-hpc/][Luke Tierney: High Performance Computing in Statistics]] :: Old but
-     possible good information specific to the title of the course
-- [[https://ljdursi.github.io/beyond-single-core-R/#/][Jonathan Dursi Presentation: Beyond Single-Core R]] :: Newer, more
-     comprehensive of R offerings
+  - [[http://homepage.divms.uiowa.edu/~luke/classes/295-hpc/][Luke Tierney: High Performance Computing in Statistics]] :: Old but
+       possible good information specific to the title of the course
+  - [[https://ljdursi.github.io/beyond-single-core-R/#/][Jonathan Dursi Presentation: Beyond Single-Core R]] :: Newer, more
+       comprehensive of R offerings
 
 * Software
-- [[https://www.h2o.ai/][H20]] :: awful signal to noise ratio on their site. Go straight to
-     documentation. Architecture:
-  - [[http://docs.h2o.ai/h2o/latest-stable/h2o-docs/architecture.html][H2O Architecture]]
-- [[https://hadoop.apache.org/][Hadoop]] :: links:
-  - [[https://hadoop.apache.org/docs/r1.2.1/streaming.html][streaming]]
-- [[https://ignite.apache.org/index.html][Ignite]] :: Database system by Apache, offers [[https://ignite.apache.org/features/mapreduce.html][in-memory MapReduce]]
-- [[https://research.google/pubs/pub41378/][Millwheel]] :: New fault-tolerant streaming platform used at Google in
-     place of MapReduce
-- [[https://spark.apache.org/][Spark]] :: .
+  - [[https://www.h2o.ai/][H20]] :: awful signal to noise ratio on their site. Go straight to
+       documentation. Architecture:
+       - [[http://docs.h2o.ai/h2o/latest-stable/h2o-docs/architecture.html][H2O Architecture]]
+  - [[https://hadoop.apache.org/][Hadoop]] :: links:
+       - [[https://hadoop.apache.org/docs/r1.2.1/streaming.html][streaming]]
+  - [[https://ignite.apache.org/index.html][Ignite]] :: Database system by Apache, offers [[https://ignite.apache.org/features/mapreduce.html][in-memory MapReduce]]
+  - [[https://research.google/pubs/pub41378/][Millwheel]] :: New fault-tolerant streaming platform used at Google in
+       place of MapReduce
+  - [[https://spark.apache.org/][Spark]] :: .
 
 * R Packages
-- [[https://cran.r-project.org/web/views/HighPerformanceComputing.html][CRAN Task View: High-Performance and Parallel Computing with R]] 
-- [[https://en.wikipedia.org/wiki/Programming_with_Big_Data_in_R][pbdR]] :: Collection of packages allowing for distributed computing
-     with R. 
-- [[https://github.com/HenrikBengtsson/future][future]] :: Lowish-level, can evaluate expressions on clusters
-     provided by =parallel=
-- [[https://github.com/DavisVaughan/furrr][furrr]] :: attaching the =future= backend to the =purrr= frontend
-- [[https://github.com/delta-rho/rhipe][RHIPE]] :: A means of using Hadoop from R, providing an Integrated
-     Programming Environment. Function reference:
-  - [[http://deltarho.org/docs-RHIPE/functionref.html][RHIPE docs]]
-- [[https://github.com/RevolutionAnalytics/foreach][foreach]] :: A high-level looping construct, with various backends
-     (including various clusters as described on it's GitHub page;
-     relevant is [[https://cran.r-project.org/web/packages/doSNOW/index.html][doSNOW]]). Tutorials:
-  - [[https://www.r-bloggers.com/the-wonders-of-foreach/][The Wonders of foreach]]
-- [[https://github.com/HenrikBengtsson/doFuture][dofuture]] :: provides an adapter for foreach that works on a
-     future-based backend. Note that this does not mean returning
-     foreach() calls as futures. Claims to enable parallelism, but
-     unclear how this does anything over what the [[https://cran.r-project.org/web/packages/doParallel/index.html][doParallel]] package
-     provides, as they both use them as backends. --- Because future
-     backends can include other clusters, such as those provided by
-     batchtools, so the multicore stuff in future is redundant, but
-     the other backends are not necessarily.
-- [[https://github.com/HenrikBengtsson/future.batchtools][future.batchtools]] :: provides a future API for [[https://cran.r-project.org/web/packages/batchtools/index.html][batchtools]], or
-     equivalently, a batchtools backend for future. Allows the use of
-     various cluster schedulers such as TORQUE, Slurm, Docker Swarm, or
-     custom cluster functions.
-- [[https://github.com/HenrikBengtsson/future.apply][future.apply]] :: provides equivalent functions to R's =apply=
-     functions, with a future backend enabling parallel, cluster, and
-     other functionality as enabled by backends such as batchtools
-     through future.batchtools
-- [[https://github.com/HenrikBengtsson/future.callr][future.callr]] :: provides a callr backend to future, with all of the
-     associated advantages and overhead.
-- [[https://davisvaughan.github.io/furrr/][furrr]] :: allows the use of future as a backend to purrr
-- [[https://purrr.tidyverse.org/][purrr]] :: A set of functional programming tools for R, including map,
-     typed map, reduce, predicates, monads. Much of it is redundant to
-     what already exists in R, but it does have the advantage of
-     adhering to a consistent standard.
-- [[https://cran.r-project.org/web/packages/batchtools/index.html][batchtools]] :: provides a parallel implementation of the Map function
-     for HPC systems, with a variety of schedulers including Slurm,
-     Docker Swarm, TORQUE, etc.
-- [[https://github.com/HenrikBengtsson/future.callr][callr]] :: "call R from R". Provides functions to run expressions in a
-           background R process. Begins a new session, with the
-           associated overhead. Allows more than 125 connections
-           ([[https://github.com/HenrikBengtsson/Wishlist-for-R/issues/28][maximum number of open connections]]), due to not making use
-           of R-specific connections [fn:1]. Additionally, no ports
-           are made use of, unlike SOCKcluster provided by the snow
-           component of parallel.
-- [[https://github.com/s-u/hmr][hmr]] :: an interface to MapReduce from R. Super fast, with chunked
-     data, with automatic R object conversion. Based on [[https://github.com/s-u/iotools][iotools]].
-- [[https://cran.r-project.org/web/packages/snow/index.html][snow]] :: Parallel and distributed computing in R, now mostly subsumed
-     into the =parallel= package, in turn part of core R. Tutorials:
-  - [[http://www.sfu.ca/~sblay/R/snow.html][snow Simplified]]
-  - [[https://stackoverflow.com/questions/17899756/initializing-mpi-cluster-with-snowfall-r][Info on multiple node setup (using snowfall, a wrapper for snow)]]
-- [[https://cran.r-project.org/web/packages/partools/index.html][partools]] :: Utilities for parallel computation, without
-     Hadoop/Spark. More info:
-  - [[https://matloff.wordpress.com/2015/08/05/partools-a-sensible-r-package-for-large-data-sets/][A Sensible R Package for Large Data Sets]]
-  - Vignette - interesting reading:
-#+BEGIN_SRC R
-vignette("partools")
-#+END_SRC
+  - [[https://cran.r-project.org/web/views/HighPerformanceComputing.html][CRAN Task View: High-Performance and Parallel Computing with R]] 
+  - [[https://en.wikipedia.org/wiki/Programming_with_Big_Data_in_R][pbdR]] :: Collection of packages allowing for distributed computing
+       with R. 
+  - [[https://github.com/HenrikBengtsson/future][future]] :: Lowish-level, can evaluate expressions on clusters
+       provided by =parallel=
+  - [[https://github.com/DavisVaughan/furrr][furrr]] :: attaching the =future= backend to the =purrr= frontend
+  - [[https://github.com/delta-rho/rhipe][RHIPE]] :: A means of using Hadoop from R, providing an Integrated
+       Programming Environment. Function reference:
+       - [[http://deltarho.org/docs-RHIPE/functionref.html][RHIPE docs]]
+  - [[https://github.com/RevolutionAnalytics/foreach][foreach]] :: A high-level looping construct, with various backends
+       (including various clusters as described on it's GitHub page;
+       relevant is [[https://cran.r-project.org/web/packages/doSNOW/index.html][doSNOW]]). Tutorials:
+       - [[https://www.r-bloggers.com/the-wonders-of-foreach/][The Wonders of foreach]]
+  - [[https://github.com/HenrikBengtsson/doFuture][dofuture]] :: provides an adapter for foreach that works on a
+       future-based backend. Note that this does not mean returning
+       foreach() calls as futures. Claims to enable parallelism, but
+       unclear how this does anything over what the [[https://cran.r-project.org/web/packages/doParallel/index.html][doParallel]] package
+       provides, as they both use them as backends. --- Because future
+       backends can include other clusters, such as those provided by
+       batchtools, so the multicore stuff in future is redundant, but
+       the other backends are not necessarily.
+  - [[https://github.com/HenrikBengtsson/future.batchtools][future.batchtools]] :: provides a future API for [[https://cran.r-project.org/web/packages/batchtools/index.html][batchtools]], or
+       equivalently, a batchtools backend for future. Allows the use of
+       various cluster schedulers such as TORQUE, Slurm, Docker Swarm, or
+       custom cluster functions.
+  - [[https://github.com/HenrikBengtsson/future.apply][future.apply]] :: provides equivalent functions to R's =apply=
+       functions, with a future backend enabling parallel, cluster, and
+       other functionality as enabled by backends such as batchtools
+       through future.batchtools
+  - [[https://github.com/HenrikBengtsson/future.callr][future.callr]] :: provides a callr backend to future, with all of the
+       associated advantages and overhead.
+  - [[https://davisvaughan.github.io/furrr/][furrr]] :: allows the use of future as a backend to purrr
+  - [[https://purrr.tidyverse.org/][purrr]] :: A set of functional programming tools for R, including map,
+       typed map, reduce, predicates, monads. Much of it is redundant to
+       what already exists in R, but it does have the advantage of
+       adhering to a consistent standard.
+  - [[https://cran.r-project.org/web/packages/batchtools/index.html][batchtools]] :: provides a parallel implementation of the Map function
+       for HPC systems, with a variety of schedulers including Slurm,
+       Docker Swarm, TORQUE, etc.
+  - [[https://github.com/HenrikBengtsson/future.callr][callr]] :: "call R from R". Provides functions to run expressions in a
+       background R process. Begins a new session, with the
+       associated overhead. Allows more than 125 connections
+       ([[https://github.com/HenrikBengtsson/Wishlist-for-R/issues/28][maximum number of open connections]]), due to not making use
+       of R-specific connections [fn:1]. Additionally, no ports
+       are made use of, unlike SOCKcluster provided by the snow
+       component of parallel.
+  - [[https://cran.r-project.org/web/packages/snow/index.html][snow]] :: Parallel and distributed computing in R, now mostly subsumed
+       into the =parallel= package, in turn part of core R. Tutorials:
+       - [[http://www.sfu.ca/~sblay/R/snow.html][snow Simplified]]
+       - [[https://stackoverflow.com/questions/17899756/initializing-mpi-cluster-with-snowfall-r][Info on multiple node setup (using snowfall, a wrapper for snow)]]
+  - [[https://cran.r-project.org/web/packages/partools/index.html][partools]] :: Utilities for parallel computation, without
+       Hadoop/Spark. More info:
+       - [[https://matloff.wordpress.com/2015/08/05/partools-a-sensible-r-package-for-large-data-sets/][A Sensible R Package for Large Data Sets]]
+       - Vignette - interesting reading:
+  #+BEGIN_SRC R
+    vignette("partools")
+  #+END_SRC
 - [[https://github.com/RevolutionAnalytics/RHadoop/wiki][RHadoop]] :: A collection of five packages from Revolution Analytics
      to run Hadoop directly from R. Packages include:
-  - [[https://github.com/RevolutionAnalytics/rmr2][rmr2]] :: To run MapReduce jobs directly from R
-  - [[https://github.com/RevolutionAnalytics/rhdfs][rhdfs]] :: To access HDFS from R
+     - [[https://github.com/RevolutionAnalytics/rmr2][rmr2]] :: To run MapReduce jobs directly from R
+     - [[https://github.com/RevolutionAnalytics/rhdfs][rhdfs]] :: To access HDFS from R
 - [[https://github.com/vertica/DistributedR][DistributedR]] :: Cluster access for various R data structures.
      Impressively home-made, no Hadoop backend etc. No longer in
      development (last commit 2015 - did a meteorite hit in that
@@ -103,9 +101,9 @@ vignette("partools")
      enterprise database platform.
 - [[https://cran.r-project.org/web/packages/Rmpi/index.html][Rmpi]] :: An R interface to MPI
 - [[https://www.rforge.net/doc/packages/multicore/multicore.html][multicore]] :: Developed by Simon, enables multicore processing with
-               =mclapply=. Merged with =snow= to form =parallel=.
-               Doesn't work on Windows, as it makes use of forked
-               processes, which is not supported by Windows.
+     =mclapply=. Merged with =snow= to form =parallel=.
+     Doesn't work on Windows, as it makes use of forked
+     processes, which is not supported by Windows.
 - [[https://spark.apache.org/docs/latest/sparkr.html][SparkR]] :: Provides a front-end to Spark from R. Provides the Spark
      DataFrame as primary object of interest. Maintained directly by
      Apache Spark.
@@ -113,19 +111,105 @@ vignette("partools")
      manipulation. Maintained by RStudio. Can connect to H2O using
      [[https://github.com/h2oai/sparkling-water/tree/master/r][Sparkling Water]], with [[https://github.com/h2oai/rsparkling][rsparkling]] providing conversion. This
      allows access to the distributed ML algorithms provided by H2O.
-
+- [[https://github.com/kaneplusplus/bigmemory][bigmemory]] :: enables the creation of "massive matrices" through a
+     "big.matrix" S4 class with a similar interface to 'matrix'. The
+     massive capacity of big.matrices is through their default memory
+     allocation to shared memory, rather than working memory as in
+     most R objects. The objects are therefore pointers, and the
+     big.matrix "show" method prints a description and memory location
+     instead of a standard matrix display, given that it is likely far
+     too big a matrix to print reasonably. Computations and subsetting
+     of the matrices can take advantage of local parallel processing.
+     Development on the package is still active, however it is stable
+     enough that updates are intermittent.
+     - [[https://cran.r-project.org/web/packages/biganalytics/index.html][biganalytics]] :: Extends bigmemory with matrix summary statistics
+	  such as =colmeans=, =apply=, as well as integration with the
+	  biglm package. Authored by the same creators of the main
+	  bigmemory package.
+     - [[http://www.bigmemory.org][Bigtabulate]] :: Extends bigmemory with tabulation functions and
+	  =tapply=, allowing for contingency tables and =summary= of
+	  big.matrix objects.
+     - [[https://github.com/YaohuiZeng/biglasso][biglasso]] :: extends bigmemory matrices to allow for lasso, ridge
+	  and elastic-net model fitting. Can be run in parallel. Authored
+	  by Yaohui Zeng, and described in detail in
+	  https://arxiv.org/abs/1701.05936
+     - [[http://www.bigmemory.org][bigalgebra]] :: Provides BLAS routines for bigmemory and native R
+	  matrices. Linear Algebra functionality is given through matrix
+	  arithmetic methods, such as =%*%=. Archived on CRAN as of
+	  February 2020, only accessible through R-Forge.
+#+begin_src R
+  install.packages("bigalgebra", repos="http://R-Forge.R-project.org")
+#+end_src
+- [[http://www.netlib.org/lapack/][LAPACK]], [[http://www.netlib.org/blas/][BLAS]] :: BLAS is a specification for a set of low-level
+     "building block" linear algebra routines. Most linear algebra
+     libraries conform to the BLAS specifications, including the most
+     prominent linear algebra library, LAPACK, with it's own set of
+     extensions. LAPACK has been extended in turn to support
+     distributed memory systems, with implementations such as
+     ScaLAPACK
+- [[https://privefl.github.io/bigstatsr][bigstatsr]] :: Originally a set of functions for complex statistical
+     analyses on big.matrices, having since implemented and provided
+     it's own "filebacked big matrices". Functions include matrix
+     operations particularly relating to bioinformatics, such as PCA,
+     sparse linear supervised models, etc. Described in detail in:
+     doi:10.1093/bioinformatics/bty185
+- biglm :: described succinctly as "bounded memory linear and
+           generalized linear models". Developed by Dr. Thomas Lumley.
+           Can integrate with bigmemory matrices through biganalytics.
+- [[https://github.com/jaredhuling/bigFastlm][bigfastlm]] :: Another linear modelling package of large matrices, no
+     longer developed or on CRAN, however.
+- [[https://diskframe.com][disk.frame]] :: Description:
+#+begin_quote
+A disk-based data manipulation tool for working with large-than-RAM
+datasets. Aims to lower the barrier-to-entry for manipulating large
+datasets by adhering closely to popular and familiar data manipulation
+paradigms like dplyr verbs and data.table syntax.
+#+end_quote
+Provides a disk.frame class and derivatives, which model a data.frame,
+with the objects allocated to shared memory, rather than working
+memory. Encapsulation of the class is excellent, with most standard
+manipulations of dataframes being applicable to disk.frame objects.
+- [[http://r-datatable.com][data.table]] :: another dataframe alternative, focussing on speed
+     through multithreading. Introduced a unique syntax for data.table
+     manipulation, which is made available in disk.frame. Large data
+     is an issue, being held in RAM, however it is serialisable, and
+     chunking could possible be made use of.
+- [[https://fstpackage.github.io][fst]] :: A means of serialising dataframes, as an alternative to RDS
+     files. Extremely fast, using compression to minimise disk usage.
+     Performs in parallel. Author Mark Klik and Yann Collet, of
+     Facebook, Inc. A dependency of disk.frame.
+- [[http://www.rforge.net/iotools][iotools]] :: A set of tools for managing I/O, with an emphasis on
+     speed and efficiency for big data through chunking. Provides
+     several functions for creating and manipulating chunks. Authored
+     by Simon Urbanek and Taylor Arnold
+- [[http://ff.r-forge.r-project.org/][ff]] :: Description:
+#+begin_quote
+The ff package provides atomic data structures that are stored on disk
+but behave (almost) as if they were in RAM by mapping only a section
+(pagesize) into main memory (the effective main memory consumption per
+ff object). Several access optimization techniques such as Hyrid Index
+Preprocessing (as.hi, update.ff) and Virtualization (virtual, vt, vw)
+are implemented to achieve good performance even with large datasets.
+#+end_quote
+Provides a disk-based storage for most base types in R. Can share
+objects between different R processes. Authored by a German-based
+team, and maintained by Jens Oehlschlägel, the author of True Cluster.
+There have been no updates since mid-2018.
+- [[https://gitlab.com/jangorecki/big.data.table][big.data.table]] :: uses Rserve (Simon), parallel data table storage
+- [[https://github.com/s-u/hmr][hmr]] :: an interface to MapReduce from R. Super fast, with chunked
+     data, with automatic R object conversion. Based on [[https://github.com/s-u/iotools][iotools]].
 * Other Software and R-Derivatives
-- [[http://deltarho.org][DeltaRho]] :: A simple frontend for and from RHIPE
-- [[https://en.wikipedia.org/wiki/MapR][MapR]] :: Was initially providing R access to Hadoop (Just HDFS as far
-     as I can tell). Bought out by HP in May 2019, only selling an
-     enterprise database platform (+ basic analytics services) running
-     on Hadoop and other backends.
-- [[https://azure.microsoft.com/en-us/services/hdinsight/r-server/#security][R Server for HDInsight]] :: Originally Revolution R, then Microsoft R.
-     A distribution of R with special emphasis on parallel
-     capabilities. Offers multi-threaded maths libraries out the box.
-- [[https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.analyze.doc/doc/t_overview_bigr.html][IBM Big R]] :: Introduction of bigr classes replicating base R types.
-     Runs on the [[https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.welcome.doc/doc/welcome.html][InfoSphere BigInsights]] platform, "powered by Apache
-     Hadoop". Automatic MapReduce.
+  - [[http://deltarho.org][DeltaRho]] :: A simple frontend for and from RHIPE
+  - [[https://en.wikipedia.org/wiki/MapR][MapR]] :: Was initially providing R access to Hadoop (Just HDFS as far
+       as I can tell). Bought out by HP in May 2019, only selling an
+       enterprise database platform (+ basic analytics services) running
+       on Hadoop and other backends.
+  - [[https://azure.microsoft.com/en-us/services/hdinsight/r-server/#security][R Server for HDInsight]] :: Originally Revolution R, then Microsoft R.
+       A distribution of R with special emphasis on parallel
+       capabilities. Offers multi-threaded maths libraries out the box.
+  - [[https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.analyze.doc/doc/t_overview_bigr.html][IBM Big R]] :: Introduction of bigr classes replicating base R types.
+       Runs on the [[https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.welcome.doc/doc/welcome.html][InfoSphere BigInsights]] platform, "powered by Apache
+       Hadoop". Automatic MapReduce.
 
 * Footnotes
 
