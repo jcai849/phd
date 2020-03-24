@@ -22,3 +22,4 @@ clean:
 	rm -f *.out
 	rm -f *.xml
 	rm -f *.rip
+	rm -f *.toc
