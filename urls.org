@@ -204,9 +204,12 @@ There have been no updates since mid-2018.
        as I can tell). Bought out by HP in May 2019, only selling an
        enterprise database platform (+ basic analytics services) running
        on Hadoop and other backends.
-  - [[https://azure.microsoft.com/en-us/services/hdinsight/r-server/#security][R Server for HDInsight]] :: Originally Revolution R, then Microsoft R.
-       A distribution of R with special emphasis on parallel
-       capabilities. Offers multi-threaded maths libraries out the box.
+  - [[https://azure.microsoft.com/en-us/services/hdinsight/r-server/#security][R Server for HDInsight]] :: Originally Revolution R, then
+       Microsoft R. A distribution of R with special emphasis on
+       parallel capabilities. Offers multi-threaded maths libraries
+       out the box. Information keeps changing; see [[https://docs.microsoft.com/en-us/machine-learning-server/r-reference/introducing-r-server-r-package-reference][R package
+       references]] for information on some of the packages made
+       available.
   - [[https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.analyze.doc/doc/t_overview_bigr.html][IBM Big R]] :: Introduction of bigr classes replicating base R types.
        Runs on the [[https://www.ibm.com/support/knowledgecenter/SSPT3X_3.0.0/com.ibm.swg.im.infosphere.biginsights.welcome.doc/doc/welcome.html][InfoSphere BigInsights]] platform, "powered by Apache
        Hadoop". Automatic MapReduce.
