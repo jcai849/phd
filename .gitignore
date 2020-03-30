@@ -10,3 +10,4 @@
 /auto/
 *.toc
 /bib/r-packages.txt
+*.dvi
