@@ -7,7 +7,7 @@ PhD research Repository.
 ├── doc                            Research notes
 │   ├── *.tex                     Specific research notes
 │   ├── urls.org                  Details of recorded urls
-├── log                            Weekly notes. Most recent log: [[file:log/1-2.org][week -2]]
+├── log                            Weekly log. Most recent: [[file:log/1-2.org][week -2]]
 ├── Makefile                       Build pdfs from latex files in doc
 ├── out                            Built pdf directory
 └── R                              Experimental R files
