@@ -1,0 +1,61 @@
+* Objectives
+** Carried [100%]
+- [X] Fill in information on [[file:~/phd/doc/local-systems-overview.tex][local systems]]
+- [X] Get [[file:~/phd/bib/cites.R][R references]] & relevant papers
+- [X] Fix [[file:~/phd/doc/distributed-systems-overview.tex][distributed systems]] papers & references
+- [X] Begin creating simulation of statistics on distributed data
+- [X] Fill in more info on "other packages", including
+  - [X] partools
+  - [X] pbdR
+  - [X] disk.frame
+** New [100%]
+* Journal
+** <2020-03-24 Tue>
+   Writing on bigmemory & associates in [[file:~/phd/doc/local-systems-overview.tex][local systems]]. Meeting
+   cancelled due to Corona Virus lockdown initiation
+** <2020-03-25 Wed>
+- [[file:~/phd/doc/local-systems-overview.tex][Filled in information on local systems]]
+- [[file:~/phd/bib/cites.R][Attained]] R references & relevant papers - references in [[file:~/phd/bib/bibliography.bib][bibliography.bib]]
+- Fixed [[file:~/phd/doc/distributed-systems-overview.tex][distributed systems]] papers & [[file:~/phd/bib/bibliography.bib][references]]
+** <2020-03-26 Thu>
+   Began creating [[file:~/phd/R/nodes-class.R][cluster class for local simulation]] to facilitate
+   simulation of statistics on distributed data, locally. This is in
+   order to consider the use of a simple cluster without the
+   specificities of a particular interface. I found some difficulties in
+   the implementation, which I believe to come down to the following:
+   1. using the incorrect OOP style; I have been trying to force S4
+      into more of a class-based object system like python. If I want
+      to continue with that style, I should be using reference
+      classes. If I want to use S4 as intended, I should be defining
+      replacer functions instead of direct state-changing functions by
+      call.
+   2. Lack of familiarity with quotation. I should explicitly state
+      what I want to be done, such as, "evaluate an expression given
+      as an argument to an outer function, by an environment
+      referenced in an inner function using eval". Possibly draw it.
+      Learn more on expressions and calls through, e.g., Advanced R,
+      while experimenting and recording experimentation of the main
+      quoting functions (documented in LaTeX, not R comments. This
+      should be done with a firmer knowledge of debugging in R; More
+      information should be available for me specifically in the ESS
+      manual, alongside knowledge of the debug family of functions.
+      Failing all of that, the R mailing list should be consulted (or
+      Stack Overflow??).
+** <2020-03-27 Fri>
+   - Further consideration of yesterday's issues: some progress in
+     understanding =substitute()=, environments (just mutable hash
+     tables), and nested substitution for quotation. Staying away from
+     =rlang=.
+   - Continuation of distributed statistics simulation without cluster
+     simulation in [[file:~/phd/R/basic-stats-on-dist-data.R][basic-stats-on-dist-data.R]]
+** <2020-03-30 Mon>
+   - More research on other packages, especially partools, pbdR, and disk.frame
+* Discuss [3/3]
+  - [X] /Is Bioconductor relevant?/ Similar project, but it is a
+    specific project made to solve specific problems (bioinformatics).
+  - [X] /Fragmented nature of ecosystem. Future parallel backends
+    redundant in face of =parallel= & co., cf: [[https://github.com/HenrikBengtsson/future.apply#Role][future.apply]]/. Verified:
+    this project should fix that!!
+  - [X] /Worth retrying cluster simulation, work on something more
+    complex?/ Yes. E.g. biglm on cluster
+ 
