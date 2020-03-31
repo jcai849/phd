@@ -18,14 +18,14 @@
 ** <2020-03-11 Wed>
    - Go-ahead on course; emailed Dr. Nicolescu re: sitting in
    - Added S&P to repos
-   - Browsed long list of relevant R packages, added to the [[file:~/phd/doc/urls.org][urls]] file
-   - [[file:~/phd/doc/distributed-systems-overview.tex][Some notes on H2O]]
+   - Browsed long list of relevant R packages, added to the [[../doc/urls.org][urls]] file
+   - [[../doc/distributed-systems-overview.tex][Some notes on H2O]]
 ** <2020-03-12 Thu>
-   - [[file:~/phd/doc/distributed-systems-overview.tex][More writing on R packages]]
+   - [[../doc/distributed-systems-overview.tex][More writing on R packages]]
 ** <2020-03-13 Fri>
    - Unlucky day, not going outside
-   - [[file:~/phd/doc/distributed-systems-overview.tex][Finished writing on R packages]]
-   - Added a [[file:~/phd/bib/bibliography.bib][bibliography]]
+   - [[../doc/distributed-systems-overview.tex][Finished writing on R packages]]
+   - Added a [[../bib/bibliography.bib][bibliography]]
 ** <2020-03-16 Mon>
    - Miscellaneous; read on parallel algorithms
    - Little research done; finalising a survey for a friend
