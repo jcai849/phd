@@ -12,3 +12,4 @@
 /bib/r-packages.txt
 *.dvi
 /log/*.tex
+/*/_region_.tex
