@@ -2,13 +2,14 @@
 
 \usepackage{hyperref}
 \usepackage{biblatex}
-\addbibresource{bib/bibliography.bib}
+\addbibresource{../bib/bibliography.bib}
 \usepackage{csquotes}
 
 \begin{document}
 
 \title{Local Systems Overview}
 \author{Jason Cairns}
+\year=2020 \month=3 \day=23
 \maketitle{}
 
 \section{Bigmemory Collection}
@@ -69,7 +70,7 @@ support a variety of systems, with implementations such as ScaLAPACK
 being introduced to attend to distributed memory
 systems\cite{choi1992scalapack}.
      
-\section{Disk.frame}
+\section{disk.frame}
 \label{sec:disk.frame}
 
 The package description outlines disk.frame with the following:
@@ -81,18 +82,18 @@ The package description outlines disk.frame with the following:
   manipulation paradigms like dplyr verbs and data.table syntax.
 \end{displaycquote}
 
-Disk.frame provides a disk.frame class and derivatives, which model a
+disk.frame provides a disk.frame class and derivatives, which model a
 data.frame. The primary functional difference is that disk.frames can
 be far larger than total RAM. This is enabled through the disk.frame
 objects being allocated to shared memory, rather than working memory
-as in data.frames. The abstraction offered by the class is well-known
+as in data.frames. The transparency offered by the class is well-known
 to be at a very high level, with most standard manipulations of
-dataframes being applicable to disk.frame objects.
+dataframes being applicable to disk.frame objects. I have written more on disk.frame in the document, \href{how-disk.frame-works.pdf}{How disk.frame Works}
 
-\section{Data.table}
+\section{data.table}
 \label{sec:data.table}
 
-Data.table is another dataframe alternative, focussing on speed
+data.table is another dataframe alternative, focussing on speed
 through multithreading and well-tuned database
 algorithms\cite{dowle19}. The package has introduced a unique syntax
 for data.table manipulation, which is also made available in
@@ -104,25 +105,25 @@ currently an employee at H2O.ai. An overview is given in
 \textcite{dowle19:_introd}, with extensive benchmarking available in
 \textcite{dowle19:_bench}.
 
-\section{Fst}
+\section{fst}
 \label{sec:fst}
 
-Fst is a means of serialising dataframes, as an alternative to RDS
+fst is a means of serialising dataframes, as an alternative to RDS
 files\cite{klik19}. Serialisation takes place extremely fast, using compression to
 minimise disk usage. The package speed is increased through parallel
-computation. Author Mark Klik and Yann Collet, of Facebook, Inc. Fst
+computation. Author Mark Klik and Yann Collet, of Facebook, Inc. fst
 is a dependency of disk.frame, performing some of the background
 functionality.
 
 \section{iotools}
 \label{sec:iotools}
 
-Iotools is a set of tools for managing big I/O, with an emphasis on
+iotools is a set of tools for managing big I/O, with an emphasis on
 speed and efficiency for big data through chunking\cite{urbanek20b}.
 The package provides several functions for creating and manipulating
 chunks directly. Authored by Simon Urbanek and Taylor Arnold.
 
-\section{Ff}
+\section{ff}
 \label{sec:ff}
 
 The package description outlines ff with the following:
@@ -138,7 +139,7 @@ The package description outlines ff with the following:
 \end{displaycquote}
 
 The package provides a disk-based storage for most base types in R.
-This also enables sharing of objects between different R processes. Ff
+This also enables sharing of objects between different R processes. ff
 is authored by a German-based team, and maintained by Jens
 Oehlschlägel, the author of True Cluster. First introduced in
 2008\cite{adler08:_large_r}, there have been no updates since
@@ -154,11 +155,11 @@ mid-2018.
   ``ffbase2''\cite{jonge15}.
 \end{description}
 
-\section{Biglm}
+\section{biglm}
 \label{sec:biglm}
 
-Biglm is described succinctly as \enquote{bounded memory linear and
-  generalized linear models}\cite{lumley13}. Biglm has been extended
+biglm is described succinctly as \enquote{bounded memory linear and
+  generalized linear models}\cite{lumley13}. biglm has been extended
 by other packages, and can integrate with bigmemory matrices through
 biganalytics. The package is developed by Dr.~Thomas Lumley of the
 University of Auckland.
