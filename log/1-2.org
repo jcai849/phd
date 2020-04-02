@@ -1,14 +1,18 @@
 * Objectives
 ** Carried [100%]
 ** New [33%]
-- [X] Create weekly logs
-- [X] Rearrange repositories
-- [ ] Write in more depth on packages; the *what* is done, now look at *how*:
-  - [ ] disk.frame <2020-03-31 Tue>, <2020-04-01 Wed>
-  - [ ] foreach <2020-04-02 Thu>
-- [ ] Take notes on reweighted least squares as an example iterative algorithm <2020-04-03 Fri>
+- [X] Create weekly logs <2020-03-31 Tue>
+- [X] Rearrange repositories <2020-03-31 Tue>
+- [-] Write in more depth on packages; the *what* is done, now look at *how*:
+  - [X] disk.frame <2020-03-31 Tue>, <2020-04-01 Wed>, <2020-04-02 Thu>
+  - [ ] foreach <2020-04-02 Thu> <2020-04-03 Fri> (also see if it
+    bears resemblance to the function of the same name in csh and
+    make)
+- [ ] Take notes on reweighted least squares as an example iterative
+  algorithm <2020-04-03 Fri>
 - [ ] Retry cluster simulation <2020-04-06 Mon>
-- [ ] Run more complex statistics on cluster; e.g. biglm <2020-04-06 Mon>--<2020-04-07 Tue>
+- [ ] Run more complex statistics on cluster; e.g. biglm
+  <2020-04-06 Mon>--<2020-04-07 Tue>
 * Journal
 ** <2020-03-31 Tue>
    - Created [[file:][logs]]
@@ -17,7 +21,27 @@
      submodules, etc. keeping it simple. moved all documents to "[[../doc/][doc]]"
    - Remade makefile to accomodate movement
    - Began reading disk.frame vignettes and source in detail
-* Discuss [0/3] 
+** <2020-04-01 Wed>
+   - Wrote on [[../doc/how-disk.frame-works.tex][how disk.frame works]] as a case study
+   - Re-remade makefile to accomodate directory movement
+** <2020-04-02 Thu>
+   - Finished writing on [[../doc/how-disk.frame-works.tex][disk.frame]]
+   - Fixed names of packages in documents (accepting their lower-case naming)
+   - Began reading on foreach internals
+* Discuss [0/7] 
   - [ ] /Is Hadoop dead? Too many people with opinions online/
   - [ ] /How relevant are applications such as xgboost and redis?/
-  - [ ] /Is [[https://arxiv.org/abs/1409.5827][software alchemy]] a failed meme?/ 
+  - [ ] /Is [[https://arxiv.org/abs/1409.5827][software alchemy]] a failed meme?/
+  - [ ] /More thoughts on relevance of disk.frame?/
+  - [ ] Thoughts on tool complexity; I think familiarity is sometimes
+    more relevant than complexity in terms of ease. E.g., quick to
+    whip up some text on MS Word, but familiarity with latex makes it
+    just as quick, and then when more complex demands are required in
+    the future, the word document requires costly conversion to a more
+    suitable format. A kind of anti-agile, "do it right the first
+    time" kind of idea. I'm swayed to the application of this logic in
+    favouring S4 over S3 classes in R. Am I missing something?
+  - [ ] Can much of the problem be summed up in the notion that
+    movement of data is what kills performance?
+  - [ ] What's up with ff? There are more papers written by the team
+    than lines of code, are they onto something big?
