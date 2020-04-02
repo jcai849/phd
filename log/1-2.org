@@ -1,3 +1,10 @@
+#+LATEX_HEADER: \DeclareUnicodeCharacter{2610}{$\square$}
+#+LATEX_HEADER: \DeclareUnicodeCharacter{2612}{$\boxtimes$}
+#+LATEX_HEADER: \DeclareUnicodeCharacter{2680}{$\boxdot$}
+# $\square$   ☐ 2610
+# $\boxtimes$ ☒ 2612
+# $\boxdot$   ⚀ 2680
+
 * Objectives
 ** Carried [100%]
 ** New [33%]
@@ -7,7 +14,7 @@
   - [X] disk.frame <2020-03-31 Tue>, <2020-04-01 Wed>, <2020-04-02 Thu>
   - [ ] foreach <2020-04-02 Thu> <2020-04-03 Fri> (also see if it
     bears resemblance to the function of the same name in csh and
-    make)
+    make, and write on the iterators package that supports it)
 - [ ] Take notes on reweighted least squares as an example iterative
   algorithm <2020-04-03 Fri>
 - [ ] Retry cluster simulation <2020-04-06 Mon>
@@ -28,11 +35,46 @@
    - Finished writing on [[../doc/how-disk.frame-works.tex][disk.frame]]
    - Fixed names of packages in documents (accepting their lower-case naming)
    - Began reading on foreach internals
-* Discuss [0/7] 
+** <2020-04-03 Fri>
+   - Laid out thoughts on organisation of research
+* Discuss [0/10] 
+  - [ ] /Any other thoughts on my conclusions to disk.frame and foreach?/
+  - [ ] Organisation of my research, with some ideas for more: N.B.
+    Surveys are broad looks at a wide range of components. Case
+    Studies draw from pieces in a survey deemed important, being
+    similar platforms which I can learn from. Details are mostly drawn
+    from case studies, being related and worth looking at in-depth, or
+    otherwise identified as worth knowing more of specifically, but
+    are not of a similar form to the intended platform.
+    - Large-Scale Computing with R
+      | Survey                                             | Case Study   | Detail      |
+      |----------------------------------------------------+--------------+-------------|
+      | ☒ R packages for Distributed Large-Scale Computing | ☒ disk.frame | ☒ future    |
+      | ☒ R packages for Local Large-Scale Computing       | ☐ sparklyr   | ☐ foreach   |
+      | ⚀ R packages for Large-Scale Statistical Modelling | ☐ Rhadoop    | ☐ iterators |
+      | ☒ R Derivatives for Large-Scale Computing          |              |             |
+    - Large-scale Computing
+      | Survey                                     | Case Study | Detail                                               |
+      |--------------------------------------------+------------+------------------------------------------------------|
+      | ⚀ Distributed Computing Systems            | ☐ Hadoop   | ☐ Local Cluster Simulation                           |
+      | ☐ Large-scale computing in Other Languages | ☐ Spark    | ☐ Functional Aspects: Tail Recursion & Continuations |
+      | ☐ Parallel Computing Background            |            |                                                      |
+      | ☐ Abstract interfaces for iteration        |            |                                                      |
+    - Statistical Modelling at Scale
+      | Survey                        | Case Study | Detail |
+      |-------------------------------+------------+--------|
+      | ☐ Statistical Models at Scale | ☐ biglm    |        |
+  - [ ] I'm increasingly thinking that the way iteration is handled
+    will determine much of the success of the project, as it is
+    essential to complex algorithms. I know that it is handled very
+    differently by other languages; e.g., Common Lisp has the famous
+    =do= and =loop= macros, idiomatic scheme relies on tail recursion,
+    of which continuations can serve an important role in the
+    implementation. See for example, the [[https://rosettacode.org/wiki/Euler_method][rosetta code entry for
+    Euler's Method]] for the myriad representations of a basic
+    recurrence relation. There is also the [[https://iterativemapreduce.weebly.com/haloop.html][Haloop]] project, to get
+    looping into Hadoop.
   - [ ] /Is Hadoop dead? Too many people with opinions online/
-  - [ ] /How relevant are applications such as xgboost and redis?/
-  - [ ] /Is [[https://arxiv.org/abs/1409.5827][software alchemy]] a failed meme?/
-  - [ ] /More thoughts on relevance of disk.frame?/
   - [ ] Thoughts on tool complexity; I think familiarity is sometimes
     more relevant than complexity in terms of ease. E.g., quick to
     whip up some text on MS Word, but familiarity with latex makes it
@@ -45,3 +87,5 @@
     movement of data is what kills performance?
   - [ ] What's up with ff? There are more papers written by the team
     than lines of code, are they onto something big?
+  - [ ] /Is [[https://arxiv.org/abs/1409.5827][software alchemy]] a failed meme?/
+  - [ ] /How relevant are applications such as xgboost and redis?/
