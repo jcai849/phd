@@ -8,7 +8,7 @@
 \usepackage{csquotes}
 
 \begin{document}
-\title{How Disk.Frame Works}
+\title{A Disk.Frame Case Study}
 \author{Jason Cairns}
 \year=2020 \month=4 \day=1
 \maketitle{}
@@ -59,8 +59,8 @@ dealing with a single monolithic file\cite{zj19:_inges_data}.
 Fst is a means of serialising dataframes, as an alternative to RDS
 files\cite{klik19}. It makes use of an extremely fast compression
 algorithm developed at facebook, with the R package enabling fst
-written on in \href{local-systems-overview.pdf}{local systems
-  overview}.
+written on in \href{survey-r-packages-for-local-large-scale-computing.pdf}{R
+  Packages for Local Large-Scale Computing}.
 
 % \item fst [ interface for disk.frame using fst backend, see internals
 From inspection of the source code, data.table manipulations are
@@ -195,7 +195,7 @@ function mappings on chunks making use of
 \texttt{future::future\_lapply()} to have each chunk mapped with the
 intended function in parallel. Future is a package with complexities
 in it's own right; I have written more on future in the document,
-\href{more-on-future.pdf}{More on Future}
+\href{detail-future.pdf}{A Detail of Future}
 
 % \item setup\_disk.frame()
 % \item https://diskframe.com/articles/concepts.html
@@ -238,9 +238,7 @@ system utilities such as \texttt{sort} on UNIX-based systems.
 The type of file may also be open to extension, with other file
 formats competing for high speeds and cross-language communication
 including \href{https://github.com/wesm/feather}{feather}, developed
-by Hadley Wickham and his python doppelganger, Wes
-McKinney\cite{wes16}.
-
+by Wes McKinney and Hadley Wickham\cite{wes16}.
 
 In terms of finer-grained extension, more functionality for direct
 manipulation of individual chunks would potentially aid computation
@@ -252,7 +250,6 @@ when performing iterative algorithms and others of greater complexity.
 % \item single-chunk applications? map\_chunk\_id() map function on
 %   individual chunk by id
 % \item more external file operations on fst files outside R
-
 
 \printbibliography{}
 \end{document}

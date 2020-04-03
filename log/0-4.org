@@ -21,11 +21,11 @@
 ** <2020-03-18 Wed>
    - No research done; tying up professional obligations today
 ** <2020-03-19 Thu>
-   Began writing on future at [[../doc/more-on-future.tex][more-on-future]]
+   Began writing on future at [[../doc/detail-future.tex][detail-future.tex]]
 ** <2020-03-20 Fri>
-   Finished writing on future, [[../R/future-console.R][began testing a multicore R console using future]]
+   Finished writing on future, [[../R/detail-future.R][began testing a multicore R console using future]]
 ** <2020-03-23 Mon>
-   Began work on [[../doc/local-systems-overview.tex][local systems]] (seeing what has been created for stats
+   Began work on [[../doc/survey-r-packages-for-local-large-scale-computing.tex][local systems]] (seeing what has been created for stats
    in the abscence of scale)
 * Discuss [0/1]
   - [ ] /How relevant are applications such as xgboost and redis?/

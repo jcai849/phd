@@ -1,0 +1,47 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+
+\begin{document}
+\title{A Survey of R Derivatives for Large-Scale Computing}
+\author{Jason Cairns}
+\year=2020 \month=3 \day=11
+\maketitle{}
+\tableofcontents{}
+
+\section{ML Services on HDInight}
+\label{sec:r-server-hdinsight}
+
+ML Services on HDInsight, also referred to as R Server, is a
+distribution of R with particular emphasis on parallel and
+capabilities\cite{azure16:_r_server_hdins_r_analy}. Specific parallel
+capabilities advertised include multi-threaded mathematics libraries.
+R Server for HDInsight was previously named Revolution R, and
+developed by Revolution Analytics, before being bought out by
+Microsoft, renamed Microsoft R, before acquiring the name R server for
+HDInsight, before changing to ML Services.
+
+\section{IBM Big R}
+\label{sec:ibm-big-r}
+
+IBM Big R is a library of functions integrating R with the IBM
+InfoSphere BigInsights platform\cite{inc.14:_infos_bigin_big_r}. This
+is implemented through the introduction of various bigr classes
+replicating base R types. These are then run in the background on the
+BigInsights platform, which is in turn powered by Apache Hadoop. The
+user is therefore able to run MapReduce jobs without having to
+explicitly write MapReduce-specific code.
+
+\section{MapR}
+\label{sec:mapr}
+
+MapR initially provided R access to Hadoop, being mainly HDFS
+access\cite{mapr19:_indus_next_gener_data_platf_ai_analy}. It was then
+bought out by HP in May 2019, pivoting to selling an enterprise
+database platform and analytics services, running on Hadoop among
+other backends. Development has ceased on R access.
+
+\printbibliography{}
+\end{document}

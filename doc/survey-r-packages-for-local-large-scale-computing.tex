@@ -7,10 +7,11 @@
 
 \begin{document}
 
-\title{Local Systems Overview}
+\title{A Survey of R Packages for Local Large-Scale Computing}
 \author{Jason Cairns}
 \year=2020 \month=3 \day=23
 \maketitle{}
+\tableofcontents{}
 
 \section{Bigmemory Collection}
 \label{sec:bigmemory-collection}
@@ -88,7 +89,9 @@ be far larger than total RAM. This is enabled through the disk.frame
 objects being allocated to shared memory, rather than working memory
 as in data.frames. The transparency offered by the class is well-known
 to be at a very high level, with most standard manipulations of
-dataframes being applicable to disk.frame objects. I have written more on disk.frame in the document, \href{how-disk.frame-works.pdf}{How disk.frame Works}
+dataframes being applicable to disk.frame objects. I have written more
+on disk.frame in the document, \href{case-study-disk.frame.pdf}{A
+  disk.frame Case Study}
 
 \section{data.table}
 \label{sec:data.table}
@@ -154,15 +157,6 @@ mid-2018.
   functionality for dplyr on ff objects, under the title,
   ``ffbase2''\cite{jonge15}.
 \end{description}
-
-\section{biglm}
-\label{sec:biglm}
-
-biglm is described succinctly as \enquote{bounded memory linear and
-  generalized linear models}\cite{lumley13}. biglm has been extended
-by other packages, and can integrate with bigmemory matrices through
-biganalytics. The package is developed by Dr.~Thomas Lumley of the
-University of Auckland.
 
 \printbibliography{}
 

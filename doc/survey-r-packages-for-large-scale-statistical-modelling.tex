@@ -1,0 +1,79 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+\usepackage{csquotes}
+
+\begin{document}
+
+\title{A Survey of R Packages for Large-Scale Statistical Modelling}
+\author{Jason Cairns}
+\year=2020 \month=3 \day=11
+\maketitle{}
+\tableofcontents{}
+
+\section{partools}
+\label{sec:partools}
+
+partools provides utilities for the parallel
+package\cite{matloff16:_softw_alchem}. It offers functions to split
+files and process the splits across nodes provided by parallel, along
+with bespoke statistical functions.
+
+It consists mainly of wrapper functions, designed to follow it's
+philosophy of ``keep it distributed''. 
+
+It is authored by Norm Matloff, a professor at UC, Davis and current
+Editor-in-Chief of the R Journal.
+
+In more detail, \textcite{matloff15} and \textcite{matloff17} presents
+the motivation behind partools with reference to Hadoop and Spark.
+Matloff describes partools as more ``sensible'' for large data sets
+than Hadoop and Spark, due to their difficulty of setup, abstract
+programming paradigms, and the overhead caused by their fault
+tolerance. The alternative approach favoured by partools, termed
+``software alchemy'', is to use base R to split the data into
+distributed chunks, run analyses on each chunk, then average the
+results. This is proven to have asymptotic equivalence to standard
+analyses under certain assumptions, such as iid data. Effectively, it
+is a map-reduce, with map being some analysis, and reduce being an
+average.
+
+The analyses amenable to software alchemy have bespoke functions for
+them in the package, typically consisting of their base R name with
+the prefix ``ca'' alluding to ``chunk averaging'', such as
+\texttt{calm()}. Other functions in which it doesn't make sense to
+average are also supported, such as column sums, which also have
+specific functions made for them. Complex cases such as fitting LASSO
+models, in which each chunk may have settled on different explanatory
+variables, are catered for in partools through subsetting them.
+Finally, aggregate functions, akin to R's aggregate function, provide
+for arbitrary functions to be applied to distributed data.
+
+In terms of applications of the package, it is difficult to estimate
+the usage of it; as it has a more complex setup than a simple
+\texttt{library} call, it won't be included in many other packages.
+Similarly, the nature of the work skews towards interactive usage, and
+custom business-specific programs that are difficult to attain data
+on. The reverse dependencies/imports have all been authored by
+Matloff, so aren't entirely informative, but their usage is
+interesting: one package (cdparcoord) to plot coordinates for large
+datasets in parallel, and one (polyreg) to form and evaluate
+polynomial regression models.
+
+\section{biglm}
+\label{sec:biglm}
+
+biglm is described succinctly as \enquote{bounded memory linear and
+  generalized linear models}\cite{lumley13}. biglm has been extended
+by other packages, and can integrate with bigmemory matrices through
+biganalytics. The package is developed by Dr.~Thomas Lumley of the
+University of Auckland.
+
+% possibility for inclusion: randomforest, with it's combine()
+% function allowing for streaming
+
+\printbibliography{}
+
+\end{document}

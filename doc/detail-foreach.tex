@@ -1,0 +1,188 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{hyperref}
+\usepackage{biblatex}
+\usepackage{csquotes}
+\addbibresource{../bib/bibliography.bib}
+\usepackage{listings}
+
+\begin{document}
+\title{A Detail of foreach}
+\author{Jason Cairns}
+\year=2020 \month=4 \day=2
+\maketitle{}
+
+
+\section{Introduction}
+\label{sec:introduction}
+
+% \item package intro on cran
+foreach introduces itself on CRAN with the following description:
+\begin{displaycquote}{microsoft20}
+  Support for the foreach looping construct. Foreach is an idiom that
+  allows for iterating over elements in a collection, without the use
+  of an explicit loop counter. This package in particular is intended
+  to be used for its return value, rather than for its side effects.
+  In that sense, it is similar to the standard lapply function, but
+  doesn't require the evaluation of a function. Using foreach without
+  side effects also facilitates executing the loop in parallel.
+\end{displaycquote}
+
+% \item simple, few moving parts
+From the user end, the package is conceptually simple, revolving
+entirely around a looping construct and the one-off backend
+registration.
+
+% \item main purpose abstraction for sake of parallelisation enabled
+%   through backend transparency
+The principal goal of the package, which it hasn't strayed from, is
+the enabling of parallelisation through backend transparency within
+the foreach construct. Notably, more complex functionality, such as
+side effects and parallel recurrance, are not part of the package's
+intention.
+
+% \item useful because of other backends
+Thus, the primary driver for the practicality of the package, beyond
+the support offered for parallel backends, is the backends themselves,
+currently enabling a broad variety of parallel systems.
+
+foreach is developed by Steve Weston and Hoong Ooi.
+
+\section{Usage}
+\label{sec:usage}
+
+% \item setup (doParallel::registerDoParallel())
+foreach doesn't require setup for simple serial execution, but
+parallel backends require registration by the user, typically with a
+single function as in the registration for doParallel,
+\texttt{registerDoParallel()}.
+
+% \item syntax https://cran.r-project.org/web/packages/foreach/vignettes/foreach.html
+The syntax of foreach consists of a \texttt{foreach()} function call
+next to a \texttt{\%do\%} operator, and some expression to the
+right\cite{weston19:_using}. Without loss in generality, the syntactic
+form is given in Listing~\ref{lst:syntax}.
+\begin{lstlisting}[caption={Standard foreach syntax},label=lst:syntax,language=R]
+foreach(i=1:n) %do% {expr}
+\end{lstlisting}
+
+% \item arguments
+The \texttt{foreach()} function can take other arguments including
+changing the means of combination along iterations, whether iterations
+should be performed in order, as well as the export of environmental
+variables and packages to each iteration instance.
+
+% \item other additions: %dopar%, %when%, %:%, %dopar%  https://cran.r-project.org/web/packages/foreach/vignettes/nested.html
+In addition to \texttt{\%do\%}, other binary operators can be appended
+or substituted. Parallel iteration is performed by simply replacing
+\texttt{\%do\%} with \texttt{\%dopar\%}. Nested loops can be created
+by inserting \texttt{\%:\%} between main and nested foreach functions,
+prior to the \texttt{\%do\%} call\cite{weston19:_nestin_loops}. The
+last step to composition of foreach as capable of list comprehension
+is the filtering function \texttt{\%when\%}, which filters iterables
+based on some predicate to control evaluation.
+
+% \item CAN manage recurrance in sequence, but not in parallel
+Worth noting is the capacity of foreach to handle recurrance; it
+doesn't work with any naive implementation in parallel, but it does in
+fact work in serial with a simple \texttt{\%do\%} call. For example,
+Listing \ref{lst:serial} returns a list of 5 numerics from 11 to 15,
+as would be expected with a standard \texttt{for} loop. However, the
+parallel equivalent in Listing \ref{lst:parallel} returns a list of 5
+repetitions of 11.
+
+\begin{lstlisting}[float,language=R,caption={Serial Iteration},label=lst:serial]
+x <- 10
+foreach(i=1:5) %do% {x <- x+1}
+\end{lstlisting}
+\begin{lstlisting}[float,language=R,caption={Parallel Iteration},label=lst:parallel]
+doParallel::registerDoParallel
+x <- 10
+foreach(i=1:5) %dopar% {x <- x+1}
+\end{lstlisting}
+
+\section{Implementation}
+\label{sec:implementation}
+
+% \item foreach returns an iterable, \%do\% and derivatives do most of
+%   the functional work, being a binary function operating on an
+%   iterable on the left, and an expression on the right
+The mechanism of action in foreach is often forgotten in the face of
+the atypical form of the standard syntax. Going one-by-one, the
+\texttt{foreach()} function returns an iterable object,
+\texttt{\%do\%} and derivatives are binary functions operating on the
+iterable object returned by \texttt{foreach()} on the left, and the
+expression on the right; the rightmost expression is simply captured
+as such in \texttt{\%do\%}. Thus, the main beast of burder is the
+\texttt{\%do\%} function, where the evaluation of the iteration takes
+place.
+
+% \item \%do\% captures and creates environments, enabling sequential
+%   evaluation, with dopar also doing work on capturing references to
+%   variables in expressions and adding them to evaluation environment.
+In greater detail, \texttt{\%do\%} captures and creates environments,
+enabling sequential evaluation, with \texttt{\%dopar\%} doing
+additional work on capturing references to variables in expressions
+and adding them to evaluation environment.
+
+% \item getDoPar, getDoSeq return lists including the registered
+%   backend, which contain a function used to operate on the
+%   expressions along with other environmental data
+\texttt{\%do\%} and \texttt{\%dopar\%}, after correct error checking,
+send calls to \texttt{getDoSeq()} and \texttt{getDoPar()}
+respectively, which return lists determined by the registered backend,
+which contain a function used backend, used to operate on the main
+expression along with other environmental data.
+
+% \item Custom iterators enabled through iterators package
+foreach depends strongly upon the iterators package, which gives the
+ability to construct custom iterators. These custom iterators can be
+used in turn with the \texttt{foreach()} function, as the interface to
+them is transparent.
+
+\section{Extensions}
+\label{sec:extensions}
+
+% \item key to success of foreach extensibility
+The key point of success in foreach is it's backend extensibility,
+without which, foreach would lack any major advantages over a standard
+\texttt{for} loop.
+
+% \item other parallel backends enabled through foreach-ext.R
+%   (https://github.com/RevolutionAnalytics/foreach/blob/master/R/foreach-ext.R)
+%   involving accumulators and iterator methods
+Other parallel backends are enabled through specific functions made
+available by the foreach package. The packages define their parallel
+evaluation procedures with reference to the iterator and accumulator
+methods from foreach.
+
+% \item others: doParallel,doRedis,doAzure,doFuture
+Numerous backends exist, most notably:
+\begin{description}
+\item[doParallel] the primary parallel backend for foreach, using the
+  parallel package\cite{corporation19}.
+\item[doRedis]  provides a Redis backend, through the redux package\cite{lewis20}.
+\item[doFuture] uses the future package to make use of future's many
+  backends\cite{bengtsson20do}.
+\item[doAzureParallel] allows for direct submission of parallel
+  workloads to an Azure Virtual Machine\cite{hoang20}.
+\item[doMPI] provides MPI access as a backend, using Rmpi\cite{weston17}.
+\item[doRNG] provides for reproducible random number usage within
+  parallel iterations, using L'Ecuyer's method; provides
+  \texttt{\%dorng\%}\cite{gaujoux20}.
+\item[doSNOW] provides an ad-hoc cluster backend, using the snow
+  package\cite{dosnow19}.
+\end{description}
+
+\section{Relevance}
+\label{sec:relevance}
+
+foreach serves as an example of a well-constructed package supported
+by it's transparency and extensibility.
+
+For packages looking to provide any parallel capabilities, a foreach
+extension would certainly aid it's potential usefulness and
+visibility.
+
+\printbibliography{}
+\end{document}

@@ -22,22 +22,24 @@
   <2020-04-06 Mon>--<2020-04-07 Tue>
 * Journal
 ** <2020-03-31 Tue>
-   - Created [[file:][logs]]
+   - Created [[../log/][logs]]
    - Rearranged repositories; moved the contents of [[https://github.com/jcai849/phd-src][phd-src]] to just be
      a subdirectory of [[https://github.com/jcai849/phd][phd]] named "[[../R/][R]]", with no git weirdness like
      submodules, etc. keeping it simple. moved all documents to "[[../doc/][doc]]"
    - Remade makefile to accomodate movement
    - Began reading disk.frame vignettes and source in detail
 ** <2020-04-01 Wed>
-   - Wrote on [[../doc/how-disk.frame-works.tex][how disk.frame works]] as a case study
+   - Wrote on [[../doc/case-study-disk.frame.tex][how disk.frame works]] as a case study
    - Re-remade makefile to accomodate directory movement
 ** <2020-04-02 Thu>
-   - Finished writing on [[../doc/how-disk.frame-works.tex][disk.frame]]
+   - Finished writing on [[../doc/case-study-disk.frame.tex][disk.frame]]
    - Fixed names of packages in documents (accepting their lower-case naming)
    - Began reading on foreach internals
 ** <2020-04-03 Fri>
    - Laid out thoughts on organisation of research
-* Discuss [0/10] 
+   - Began writing up detail of foreach
+   - Renamed files to reflect organisation, fixed links
+* Discuss [0/11] 
   - [ ] /Any other thoughts on my conclusions to disk.frame and foreach?/
   - [ ] Organisation of my research, with some ideas for more: N.B.
     Surveys are broad looks at a wide range of components. Case
@@ -61,9 +63,11 @@
       | ☐ Parallel Computing Background            |            |                                                      |
       | ☐ Abstract interfaces for iteration        |            |                                                      |
     - Statistical Modelling at Scale
-      | Survey                        | Case Study | Detail |
-      |-------------------------------+------------+--------|
-      | ☐ Statistical Models at Scale | ☐ biglm    |        |
+      | Survey                              | Case Study                 | Detail                      |
+      |-------------------------------------+----------------------------+-----------------------------|
+      | ☐ Statistical Models at Scale       | ☐ biglm                    | ☐ Re-Weighted Least Squares |
+      | ⚀ Basic Statistics Distributed Data | ☐ RWLS on Distributed Data |                             |
+  - [ ] Next steps based on research organisation?
   - [ ] I'm increasingly thinking that the way iteration is handled
     will determine much of the success of the project, as it is
     essential to complex algorithms. I know that it is handled very
@@ -72,9 +76,9 @@
     of which continuations can serve an important role in the
     implementation. See for example, the [[https://rosettacode.org/wiki/Euler_method][rosetta code entry for
     Euler's Method]] for the myriad representations of a basic
-    recurrence relation. There is also the [[https://iterativemapreduce.weebly.com/haloop.html][Haloop]] project, to get
-    looping into Hadoop.
-  - [ ] /Is Hadoop dead? Too many people with opinions online/
+    recurrence relation. There is also [[https://homes.cs.washington.edu/~mernst/pubs/haloop-vldb2012.pdf][Haloop]], enabling iteration in
+    hadoop.
+  - [ ] /Is Hadoop dead? Too many people with opinions gonline/
   - [ ] Thoughts on tool complexity; I think familiarity is sometimes
     more relevant than complexity in terms of ease. E.g., quick to
     whip up some text on MS Word, but familiarity with latex makes it
@@ -82,7 +86,9 @@
     the future, the word document requires costly conversion to a more
     suitable format. A kind of anti-agile, "do it right the first
     time" kind of idea. I'm swayed to the application of this logic in
-    favouring S4 over S3 classes in R. Am I missing something?
+    favouring S4 over S3 classes in R. Am I missing something? After
+    all, developers much smarter and more experience than I regularly
+    use S3; cf. foreach, disk.frame, both S&P's packages
   - [ ] Can much of the problem be summed up in the notion that
     movement of data is what kills performance?
   - [ ] What's up with ff? There are more papers written by the team

@@ -1,8 +1,8 @@
 * Objectives
 ** Carried [100%]
-- [X] Fill in information on [[../doc/local-systems-overview.tex][local systems]]
+- [X] Fill in information on [[../doc/survey-r-packages-for-local-large-scale-computing.tex][local systems]]
 - [X] Get [[../bib/cites.R][R references]] & relevant papers
-- [X] Fix [[../doc/distributed-systems-overview.tex][distributed systems]] papers & references
+- [X] Fix [[../doc/survey-r-packages-for-distributed-large-scale-computing.tex][distributed systems]] papers & references
 - [X] Begin creating simulation of statistics on distributed data
 - [X] Fill in more info on "other packages", including
   - [X] partools
@@ -11,14 +11,14 @@
 ** New [100%]
 * Journal
 ** <2020-03-24 Tue>
-   Writing on bigmemory & associates in [[../doc/local-systems-overview.tex][local systems]]. Meeting
+   Writing on bigmemory & associates in [[../doc/survey-r-packages-for-local-large-scale-computing.tex][local systems]]. Meeting
    cancelled due to Corona Virus lockdown initiation
 ** <2020-03-25 Wed>
-- [[../doc/local-systems-overview.tex][Filled in information on local systems]]
+- [[../doc/survey-r-packages-for-local-large-scale-computing.tex][Filled in information on local systems]]
 - [[../bib/cites.R][Attained]] R references & relevant papers - references in [[../bib/bibliography.bib][bibliography.bib]]
 - Fixed [[../doc/distributed-systems-overview.tex][distributed systems]] papers & [[../bib/bibliography.bib][references]]
 ** <2020-03-26 Thu>
-   Began creating [[../R/nodes-class.R][cluster class for local simulation]] to facilitate
+   Began creating [[../R/local-cluster-simulation.R][cluster class for local simulation]] to facilitate
    simulation of statistics on distributed data, locally. This is in
    order to consider the use of a simple cluster without the
    specificities of a particular interface. I found some difficulties in
@@ -47,7 +47,7 @@
      tables), and nested substitution for quotation. Staying away from
      =rlang=.
    - Continuation of distributed statistics simulation without cluster
-     simulation in [[../R/basic-stats-on-dist-data.R][basic-stats-on-dist-data.R]]
+     simulation in [[../R/basic-statistics-on-distributed-data.R][basic-stats-on-dist-data.R]]
 ** <2020-03-30 Mon>
    - More research on other packages, especially partools, pbdR, and disk.frame
 * Discuss [3/3]

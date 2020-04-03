@@ -1,0 +1,169 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+\usepackage{csquotes}
+
+\begin{document}
+
+\title{A Survey of Distributed Computing Systems}
+\author{Jason Cairns}
+\year=2020 \month=3 \day=11
+\maketitle{}
+\tableofcontents{}
+
+\section{Hadoop}
+\label{sec:hadoop-1}
+
+Apache Hadoop is a collection of utilities that facilitates cluster
+computing. Jobs can be sent for parallel processing on the cluster
+directly to the utilities using .jar files, ``streamed'' using any
+executable file, or accessed through language-specific APIs.
+
+The project began in 2006, by Doug Cutting, a Yahoo employee, and Mike
+Cafarella. The inspiration for the project was a paper from Google
+describing the Google File System (described in
+\textcite{ghemawat2003google}), which was followed by another Google
+paper detailing the MapReduce programming model,
+\textcite{dean2004mapreduce}.
+
+Hadoop consists of a memory part, known as Hadoop Distributed File
+System (HDFS), described in Section~\ref{sec:hdfs}, and a processing part,
+known as MapReduce, described in Section~\ref{sec:mapreduce}.
+
+In operation, Hadoop splits files into blocks, then distributes them
+across nodes in a cluster, where they are then processed by the node.
+This creates the advantage of data locality, wherein data is processed
+by the node they exist in.
+
+Hadoop has seen extensive industrial use as the premier big data
+platform upon it's release. In recent years it has been overshadowed
+by Spark, due to the greater speed gains offered by spark. The key
+reason Spark is so much faster than Hadoop comes down to their
+different processing approaches: Hadoop MapReduce requires reading
+from disk and writing to it, for the purposes of fault-tolerance,
+while Spark can run processing entirely in-memory. However, in-memory
+MapReduce is provided by another Apache project,
+Ignite\cite{zheludkov2017high}.
+
+
+\subsection{Hadoop Distributed File System}
+\label{sec:hdfs}
+
+The file system has 5 primary services.
+
+\begin{description}
+\item[Name Node] Contains all of the data and manages the system. The
+  master node.
+  \item[Secondary Name Node] Creates checkpoints of the metadata from
+  the main name node, to potentially restart the single point of
+  failure that is the name node. Not the same as a backup, as it only
+  stores metadata.
+\item[Data Node] Contains the blocks of data. Sends ``Heartbeat
+  Message'' to the name node every 3 seconds. If two minutes passes
+  with no heartbeat message from a particular data node, the name node
+  marks it as dead, and sends it's blocks to another data node.
+\item[Job Tracker] Receives requests for MapReduce from the client,
+  then queries the name node for locations of the data.
+\item[Task Tracker] Takes tasks, code, and locations from the job
+  tracker, then applies such code at the location. The slave node for
+  the job tracker.
+\end{description}
+
+HDFS is written in Java and C. It is described in more detail in
+\textcite{shvachko2010hadoop}
+
+
+\subsection{MapReduce}
+\label{sec:mapreduce}
+
+MapReduce is a programming model consisting of map and reduce staps,
+alongside making use of keys.
+
+\begin{description}
+\item[Map] applies a ``map'' function to a dataset, in the
+  mathematical sense of the word. The output data is temporarily
+  stored before being shuffled based on output key, and sent to the
+  reduce step.
+\item[Reduce] produces a summary of the dataset yielded by the map operation
+\item[Keys] are associated with the data at both steps. Prior to the
+  application of mapping, the data is sorted and distributed among
+  data nodes by the data's associated keys, with each key being mapped
+  as a logical unit. Likewise, mapping produces output keys for the
+  mapped data, and the data is shuffled based upon these keys, before
+  being reduced.
+\end{description}
+
+After sorting, mapping, shuffling, and reducing, the output is
+collected, sorting by the second keys and given as final output.
+
+The implementation of MapReduce is provided by the HDFS services of
+job tracker and task tracker. The actual processing is performed by
+the task trackers, with scheduling using the job tracker, but other
+scheduling systems are available to be made use of.
+
+Development at Google no longer makes as much use of MapReduce as they
+originally did, using stream processing technologies such as
+MillWheel, rather than the standard batch processing enabled by
+MapReduce\cite{akidau2013millwheel}.
+
+\section{Spark}
+\label{sec:spark}
+
+Spark is a framework for cluster computing\cite{zaharia2010spark}. Much of it's definition is
+in relation to Hadoop, which it intended to improve upon in terms of
+speed and usability for certain tasks.
+
+It's fundamental operating concept is the Resiliant Distributed
+Dataset (RDD), which is immutable, and generated through external
+data, as well as actions and transformations on prior RDD's. The RDD
+interface is exposed through an API in various languages, including R.
+
+Spark requires a distributed storage system, as well as a cluster
+manager; both can be provided by Hadoop, among others.
+
+Spark is known for possessing a fairly user-friendly API, intended to
+improve upon the MapReduce interface. Another major selling point for
+Spark is the libraries available that have pre-made functions for
+RDD's, including many iterative algorithms. The availability of
+broadcast variables and accumulators allow for custom iterative
+programming.
+
+Spark has seen major use since it's introduction, with effectively all
+major big data companies having some use of Spark. It's features and
+implementations are outlined in \textcite{zaharia2016apache}.
+ 
+
+\section{H2O}
+\label{sec:h2o}
+
+The H2O software bills itself as,
+
+\begin{displaycquote}{h2o.ai:_home_open_sourc_leader_ai}
+  an in-memory platform for distributed, scalable machine learning.
+  H2O uses familiar interfaces like R, Python, Scala, Java, JSON and
+  the Flow notebook/web interface, and works seamlessly with big data
+  technologies like Hadoop and Spark. H2O provides implementations of
+  many popular algorithms such as GBM, Random Forest, Deep Neural
+  Networks, Word2Vec and Stacked Ensembles. H2O is extensible so that
+  developers can add data transformations and custom algorithms of
+  their choice and access them through all of those clients.
+\end{displaycquote}
+
+H2O typically runs on HDFS, along with spark for computation and
+bespoke data structures serving as the backbone of the architecture.
+
+H2O can communicate with R through a REST api. Users write functions
+in R, passing user-made functions to be applied on the objects
+existing in the H2O system\cite{h2o.ai:_h2o}.
+
+The company H2O is backed by \$146M in funding, partnering with large
+institutions in the financial and tech world. Their business model
+follows an open source offering with the same moniker as the company,
+and a small set of heavily-marketed proprietary software in aid of it.
+They have some important figures working with them, such as Matt
+Dowle, creator of data.table.
+
+\printbibliography{}
+\end{document}

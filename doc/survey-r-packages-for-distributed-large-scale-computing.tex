@@ -1,0 +1,213 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+\usepackage{csquotes}
+
+\begin{document}
+
+\title{A Survey of R Packages for Distributed Large-Scale Computing}
+\author{Jason Cairns}
+\year=2020 \month=3 \day=11
+\maketitle{}
+
+\tableofcontents{}
+
+\section{DistributedR}
+\label{sec:distributedr}
+DistributedR offers cluster access for various R data structures,
+particularly arrays, and providing S3 methods for a fair range of
+standard functions. It has no regular cluster access interface, such
+as with Hadoop or MPI, being made largely from scratch.
+
+The package creators have ceased development as of December 2015. The
+company, Vertica, has moved on to offering an enterprise database
+platform\cite{vertica:_distr}.
+
+\section{foreach and doX}
+\label{sec:foreach-dox}
+
+foreach offers a high-level looping construct compatible with a
+variety of backends\cite{microsoft20}. The backends are provided by
+other packages, typically named with some form of ``Do\textit{X}''.
+Parallelisation is enabled by some backends, with doParallel allowing
+parallel computations\cite{corporation19}, doSNOW enabling cluster
+access through the SNOW package\cite{dosnow19}, and doMPI allowing for
+direct MPI access\cite{weston17}.
+
+foreach is managed by Revolution Analytics, with many of the
+Do\textit{X} corollary packages also being produced by them. Further
+information of foreach is given in \textcite{weston19:_using}.
+
+I have written more on future in \href{detail-foreach.pdf}{A Detail of foreach}
+
+\section{future}
+\label{sec:future-furrr}
+
+future captures R expressions for evaluation, allowing them to be
+passed on for parallel and ad-hoc cluster evaluation, through the
+parallel package\cite{bengtsson20}. Such parallelisation uses the
+standard MPI or SOCK protocols.
+
+The author of future is Henrik Bengtsson, Associate Professor at UCSF.
+Development on the package remains strong, with Dr.~Bengtsson
+possessing a completely full commit calendar and 81,328 contributions
+on GitHub. I have written more on future in the
+document,\href{detail-future.pdf}{A Detail of future}. future has many
+aspects to it, captured in it's extensive series of
+vignettes\cite{bengtsson20:_futur_r}\cite{bengtsson20:_futur_r2}\cite{bengtsson20:_futur_r3}\cite{bengtsson20:_futur_r4}\cite{bengtsson20:_futur_r5}\cite{bengtsson20:_futur_r6}.
+
+Furrr is a frontend to future, amending the functions from the package
+purrr to be compatible with future, thus enabling parallelisation in a
+similar form to multicore, though with a tidyverse
+style\cite{vaughan18}.
+
+Furrr is developed by Matt Dancho, and Davis Vaughn, an employee at
+RStudio. 
+
+\section{Parallel, snow, and multicore}
+\label{sec:parall-snow-mult}
+Parallel is a package included with R, born from the merge of the
+packages snow and multicore\cite{core:_packag}. Parallel enables
+various means of performing computations in R in parallel, allowing
+not only multiple cores in a node, but multiple nodes through snow's
+interfaces to MPI and SOCK\cite{tierney18}.
+
+Parallel takes from multicore the ability to perform multicore
+processing, with the mcapply function. multicore creates forked R
+sessions, which is very resource-efficient, but not supported by
+windows.
+
+From snow, distributed computing is enabled for multiple nodes.
+
+multicore was developed by Simon Urbanek (!). snow was developed by
+Luke Tierney, a professor at the University of Iowa, who also
+originated the byte-compiler for R
+
+\section{pbdR}
+\label{sec:pbdr}
+
+
+pbdR is a collection of packages allowing for distributed computing
+with R\cite{pbdBASEpackage}, with the name being the abbreviation of
+Programming with Big Data in R. The packages include high-performance
+communication and computation capabilities, including RPC, ZeroMQ, and
+MPI interfaces.
+
+The collection is extensive, offering several packages for each of the
+main categories of application functionality, communication,
+computation, development, I/O, and profiling.
+
+Some selected packages of interest include the following:
+
+\begin{description}
+\item[pbdBASE] Includes the base utilities for distributed matrices
+  used in the project, including bindings and extensions to ScaLAPACK\cite{pbdBASEpackage}.
+\item[pbdDMAT] Higher level classes and methods for distributed
+  matrices, including manipulation, linear algebra, and statistics
+  routines. Uses the same syntax as base R through S4\cite{pbdDMATpackage}.
+\item[pbdMPI] Offers a high-level interface to MPI, using the S4
+  system to program in the SPMD style, with no ``master'' nodes\cite{Chen2012pbdMPIpackage}.
+\item[pbdCS] A client/server framework for pbdR packages\cite{Schmidt2015pbdCSpackage}. 
+\item[pbdML] Offers machine learning algorithms, consisting at present
+  of only PCA and similar linear algebra routines, primarily for
+  demonstration purposes\cite{schmidt20}.
+\item[hpcvis] Provides profiler visualisations generated by the other
+  profiler packages within the collection\cite{hpcvis}.
+\end{description}
+
+The project is funded by major government sources and research labs in
+the US. In 2016, the project won the Oak Ridge National Laboratory
+2016 Significant Event Award; as per \textcite{pbdR2012},
+\enquote{OLCF is the Oak Ridge Leadership Computing Facility, which
+  currently includes Summit, the most powerful computer system in the
+  world.}
+
+More detail is given in \textcite{pbdBASEvignette}.
+
+
+\section{RHadoop}
+\label{sec:rhadoop}
+
+RHadoop is a collection of five packages to run Hadoop directly from
+R\textcite{analytics:_rhadoop_wiki}. The packages are divided by
+logical function, including rmr2, which runs MapReduce jobs, and
+rhdfs, which can access the HDFS. The packages also include plyrmr,
+which makes available plyr-like data manipulation functions, in a
+similar vein to sparklyr.
+
+It is offered and developed by Revolution Analytics.
+  
+\section{RHIPE and DeltaRho}
+\label{sec:rhipe-deltarho}
+
+RHIPE is a means of ``using Hadoop from R''\cite{deltarho:_rhipe}. The
+provided functions primarily attain this through interfacing and
+manipulating HDFS, with a function, rhwatch, to submit MapReduce jobs.
+The easiest means of setup for it is to use a VM, and for all Hadoop
+computation, MapReduce is directly programmed for by the user.
+
+There is currently no support for the most recent version of Hadoop,
+and it doesn't appear to be under active open development, with the
+last commit being 2015. RHIPE has mostly been subsumed into the
+backend of DeltaRho, a simple frontend.
+  
+\section{Rmpi}
+\label{sec:rmpi}
+
+Rmpi is an R interface for MPI\cite{yu02:_rmpi}. As such, the
+capabilities enabled by the package are best suited for
+supercomputers, such as Beowulf clusters or Cray.
+
+It is authored by Hao Yu, of the University of Western Ontario.
+
+\section{sparklyr}
+\label{sec:sparklyr}
+
+sparklyr is an interface to Spark from within R\cite{luraschi20}. The user connects to
+spark and accumulates instructions for the manipulation of a Spark
+DataFrame object using dplyr commands, then executing the request on
+the Spark cluster.
+
+sparklyr is managed and maintained by RStudio, who also manage the
+rest of the Tidyverse (including dplyr).
+
+\section{SparkR}
+\label{sec:sparkr}
+
+SparkR provides a front-end to Spark from
+R\cite{venkataraman20:_spark}. Like sparklyr, it provides the
+DataFrame as the primary object of interest. However, there is no
+support for the dplyr model of programming, with functions closer
+resembling base R being provided by the package instead.
+
+SparkR is maintained directly by Apache Spark, with ongoing regular
+maintenance provided. Usage of the package is described in the
+vignette, \textcite{venktaraman19:_spark_pract_guide}, with
+implementation explained in \textcite{venkataraman2016sparkr}.
+
+\section{hmr}
+\label{sec:hmr}
+
+hmr is an interface to MapReduce from R\cite{urbanek20}. It runs super
+fast, making use of chunked data. Much of the process is handled by
+the package, with automatic R object conversion. hmr integrates with
+iotools, of which it is based upon. The author, like that of iotools,
+is Simon Urbanek.
+
+\section{big.data.table}
+\label{sec:big.data.table}
+
+big.data.table runs data.table over many nodes in an ad-hoc
+cluster\cite{gorecki16}. This allows for big data manipulation using a
+data.table interface. The package makes use of Rserve (authored by
+Simon Urbanek) to facilitate communication between nodes when running
+from R. Alternatively, the nodes can be run as docker services, for
+fast remote environment setup, using RSclient for connections. Beyond
+greater storage capacity, speed is increased through manipulations on
+big.data.tables occurring in parallel. The package is authored by Jan
+Gorecki, but hasn't been actively developed since mid-2016.
+
+\printbibliography{}
+\end{document}
