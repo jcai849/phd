@@ -9,6 +9,7 @@ DOCS	:= $(wildcard $(DOCDIR)/*.tex)
 all: $(addprefix $(OUTDIR)/, $(notdir $(DOCS:.tex=.pdf)))
 
 $(OUTDIR)/%.pdf: $(DOCDIR)/%.tex
+	mkdir -p $(OUTDIR)
 	cd $(DOCDIR); pdflatex -output-directory ../$(OUTDIR) $(notdir $(basename $<))
 	cd $(DOCDIR); biber --input-directory ../$(OUTDIR) $(notdir $(basename $<))
 	cd $(DOCDIR); pdflatex -output-directory ../$(OUTDIR) $(notdir $(basename $<))
