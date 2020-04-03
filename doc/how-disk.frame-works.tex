@@ -41,6 +41,8 @@ implementation (alongside special functions). Another component that
 isn't mentioned in the explanation, but is crucial to performance, is
 the parallelisation offered transparently by the package.
 
+disk.frame is developed by Dai ZJ.
+
 \section{Chunks and Chunking}
 \label{sec:chunking}
 
@@ -232,6 +234,13 @@ depth, focussing on interaction with faster external tools for file
 manipulation; this would lead to issues with portability, but with
 reasonable checks, could enable great speedups through making use of
 system utilities such as \texttt{sort} on UNIX-based systems.
+
+The type of file may also be open to extension, with other file
+formats competing for high speeds and cross-language communication
+including \href{https://github.com/wesm/feather}{feather}, developed
+by Hadley Wickham and his python doppelganger, Wes
+McKinney\cite{wes16}.
+
 
 In terms of finer-grained extension, more functionality for direct
 manipulation of individual chunks would potentially aid computation
