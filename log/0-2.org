@@ -1,4 +1,3 @@
-
 #+LATEX_HEADER: \DeclareUnicodeCharacter{2610}{$\square$}
 #+LATEX_HEADER: \DeclareUnicodeCharacter{2612}{$\boxtimes$}
 #+LATEX_HEADER: \DeclareUnicodeCharacter{2680}{$\boxdot$}
@@ -8,19 +7,20 @@
 
 * Objectives
 ** Carried [100%]
-** New [33%]
+** New [50%]
 - [X] Create weekly logs <2020-03-31 Tue>
 - [X] Rearrange repositories <2020-03-31 Tue>
-- [-] Write in more depth on packages; the *what* is done, now look at *how*:
+- [X] Write in more depth on packages; the *what* is done, now look at *how*:
   - [X] disk.frame <2020-03-31 Tue>, <2020-04-01 Wed>, <2020-04-02 Thu>
-  - [ ] foreach <2020-04-02 Thu> <2020-04-03 Fri> (also see if it
+  - [X] foreach <2020-04-02 Thu> <2020-04-03 Fri> (also see if it
     bears resemblance to the function of the same name in csh and
     make, and write on the iterators package that supports it)
-- [ ] Take notes on reweighted least squares as an example iterative
-  algorithm <2020-04-03 Fri>
-- [ ] Retry cluster simulation <2020-04-06 Mon>
+- [-] Learn more on reweighted least squares as an example iterative
+  algorithm
+  - [X] Read on reweighted least squares
+  - [ ] Take notes 
+- [ ] Retry cluster simulation
 - [ ] Run more complex statistics on cluster; e.g. biglm
-  <2020-04-06 Mon>--<2020-04-07 Tue>
 * Journal
 ** <2020-03-31 Tue>
    - Created [[../log/][logs]]
@@ -38,11 +38,16 @@
    - Began reading on foreach internals
 ** <2020-04-03 Fri>
    - Laid out thoughts on organisation of research
-   - Began writing up detail of foreach
+   - [[../doc/detail-foreach.tex][detail of foreach]]
    - Renamed files to reflect organisation, fixed links
+** <2020-04-06 Mon>
+   - Reading ESL, wikipedia on reweighted least squares
+   - Math revision
+   - created template for notes on reweighted least squares
 * Discuss
   1. Any other thoughts on my conclusions to disk.frame and foreach?
-  2. Organisation of my research, with some ideas for more: N.B.
+  2. No longer have access to uni cluster - I think my IP may be dynamic
+  3. Organisation of my research, with some ideas for more: N.B.
      Surveys are broad looks at a wide range of components. Case
      Studies draw from pieces in a survey deemed important, being
      similar platforms which I can learn from. Details are mostly drawn
@@ -53,7 +58,7 @@
        | Survey                                             | Case Study   | Detail      |
        |----------------------------------------------------+--------------+-------------|
        | ☒ R packages for Distributed Large-Scale Computing | ☒ disk.frame | ☒ future    |
-       | ☒ R packages for Local Large-Scale Computing       | ☐ sparklyr   | ☐ foreach   |
+       | ☒ R packages for Local Large-Scale Computing       | ☐ sparklyr   | ☒ foreach    |
        | ⚀ R packages for Large-Scale Statistical Modelling | ☐ Rhadoop    | ☐ iterators |
        | ☒ R Derivatives for Large-Scale Computing          | ☐ caret      |             |
      - Large-scale Computing
@@ -69,8 +74,8 @@
        | ☐ Statistical Models at Scale       | ☐ biglm                    | ☐ Re-Weighted Least Squares |
        | ⚀ Basic Statistics Distributed Data | ☐ RWLS on Distributed Data |                             |
        |                                     | ☐ caret                    |                             |
-  3. Next steps based on research organisation?
-  4. I'm increasingly thinking that the way iteration is handled
+  4. Next steps based on research organisation?
+  5. I'm increasingly thinking that the way iteration is handled
      will determine much of the success of the project, as it is
      essential to complex algorithms. I know that it is handled very
      differently by other languages; e.g., Common Lisp has the famous
@@ -80,7 +85,7 @@
      Euler's Method]] for the myriad representations of a basic
      recurrence relation. There is also [[https://homes.cs.washington.edu/~mernst/pubs/haloop-vldb2012.pdf][Haloop]], enabling iteration in
      hadoop.
-  5. Thoughts on modularity: Should more data manipulation be occuring
+  6. Thoughts on modularity: Should more data manipulation be occuring
      outside of R in tools specialised for data manipulation, such as
      SQL? This is a case of using the right tool for the job. The only
      exception that I can think of is tapply-like grouped operations
@@ -96,8 +101,8 @@
      composability? With this in mind, our focus should be more on
      playing to R's strengths of statistical modelling and development
      of models, rather than data shaping.
-  6. /Is Hadoop dead? Too many people with opinions online/
-  7. Thoughts on tool complexity; I think that in terms of ease of use
+  7. /Is Hadoop dead? Too many people with opinions online/
+  8. Thoughts on tool complexity; I think that in terms of ease of use
      of a tool, familiarity is sometimes more relevant than
      complexity. E.g., quick to whip up some text on MS Word, but
      familiarity with latex makes it just as quick, and then when more
@@ -108,9 +113,13 @@
      in R. Am I missing something? After all, developers much smarter
      and more experience than I regularly use S3; cf. foreach,
      disk.frame, both S&P's packages
-  8. Can much of the problem be summed up in the notion that
+  9. Can much of the problem be summed up in the notion that
      movement of data is what kills performance?
-  9. What's up with ff? There are more papers written by the team
-     than lines of code, are they onto something big?
-  10. /Is [[https://arxiv.org/abs/1409.5827][software alchemy]] at all relevant to anyone?/
-  11. /How relevant are applications such as xgboost and redis?/
+  10. Is there value in setting up a hadoop cluster? Would I learn
+      anything from, e.g., setting up a raspberry pi cluster?
+  11. What's up with ff? There are more papers written by the team
+      than lines of code, are they onto something big?
+  12. /Is [[https://arxiv.org/abs/1409.5827][software alchemy]] at all relevant to anyone?/
+  13. /How relevant are applications such as xgboost and redis?/
+  14. Locked out of library: Jason Cairns (jcai849): Your NetAccount
+      is not currently authorised for access...
