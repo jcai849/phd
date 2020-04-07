@@ -33,30 +33,30 @@ the package is still active, however it is stable enough that updates
 are intermittent. Some of the main extension packages:
 
 \begin{description}
-\item[biganalytics] Extends bigmemory with matrix summary statistics
-  such as \texttt{colmeans}, \texttt{apply}, as well as integration
-  with the biglm package\cite{emerson16}. Biganalytics is authored by
-  the same creators of the main bigmemory package.
-\item[bigtabulate] Extends bigmemory with tabulation functions and
-  \texttt{tapply}, allowing for contingency tables and
-  \texttt{summary} of big.matrix objects\parencite{kane16}.
-\item[biglasso] Extends bigmemory matrices to allow for lasso, ridge
-  and elastic-net model fitting. It can be take advantage of multicore
-  machines, with the ability to be run in parallel. Biglasso is
-  authored by Yaohui Zeng, and described in detail in
-  \textcite{zeng2017biglasso}.
-\item[bigalgebra] Provides BLAS routines for bigmemory and native R
-  matrices. Linear Algebra functionality is given through matrix
-  arithmetic methods, such as the standard \texttt{\%*\%}. The package
-  is archived on CRAN as of February 2020, only being accessible
-  through R-Forge. This is likely due to a merger with the main
-  bigmemory package (must investigate).
-\item[bigstatsr] Was originally a set of functions for complex
-  statistical analyses on big.matrices, having since implemented and
-  provided it's own ``filebacked big matrices''\cite{prive2018efficient}. The provided
-  functions include matrix operations particularly relating to
-  bioinformatics, such as PCA, sparse linear supervised models, etc.
-  Bigstatsr is described in detail in \textcite{prive2018efficient}.
+	\item[biganalytics] Extends bigmemory with matrix summary statistics
+	      such as \texttt{colmeans}, \texttt{apply}, as well as integration
+	      with the biglm package\cite{emerson16}. Biganalytics is authored by
+	      the same creators of the main bigmemory package.
+	\item[bigtabulate] Extends bigmemory with tabulation functions and
+	      \texttt{tapply}, allowing for contingency tables and
+	      \texttt{summary} of big.matrix objects\parencite{kane16}.
+	\item[biglasso] Extends bigmemory matrices to allow for lasso, ridge
+	      and elastic-net model fitting. It can be take advantage of multicore
+	      machines, with the ability to be run in parallel. Biglasso is
+	      authored by Yaohui Zeng, and described in detail in
+	      \textcite{zeng2017biglasso}.
+	\item[bigalgebra] Provides BLAS routines for bigmemory and native R
+	      matrices. Linear Algebra functionality is given through matrix
+	      arithmetic methods, such as the standard \texttt{\%*\%}. The package
+	      is archived on CRAN as of February 2020, only being accessible
+	      through R-Forge. This is likely due to a merger with the main
+	      bigmemory package (must investigate).
+	\item[bigstatsr] Was originally a set of functions for complex
+	      statistical analyses on big.matrices, having since implemented and
+	      provided it's own ``filebacked big matrices''\cite{prive2018efficient}. The provided
+	      functions include matrix operations particularly relating to
+	      bioinformatics, such as PCA, sparse linear supervised models, etc.
+	      Bigstatsr is described in detail in \textcite{prive2018efficient}.
 \end{description}
 
 \subsection{LAPACK, BLAS, ATLAS}
@@ -70,17 +70,17 @@ extensions\cite{demmel1989lapack}. LAPACK has been extended in turn to
 support a variety of systems, with implementations such as ScaLAPACK
 being introduced to attend to distributed memory
 systems\cite{choi1992scalapack}.
-     
+
 \section{disk.frame}
 \label{sec:disk.frame}
 
 The package description outlines disk.frame with the following:
 
 \begin{displaycquote}{zj20}
-  A disk-based data manipulation tool for working with large-than-RAM
-  datasets. Aims to lower the barrier-to-entry for manipulating large
-  datasets by adhering closely to popular and familiar data
-  manipulation paradigms like dplyr verbs and data.table syntax.
+	A disk-based data manipulation tool for working with large-than-RAM
+	datasets. Aims to lower the barrier-to-entry for manipulating large
+	datasets by adhering closely to popular and familiar data
+	manipulation paradigms like dplyr verbs and data.table syntax.
 \end{displaycquote}
 
 disk.frame provides a disk.frame class and derivatives, which model a
@@ -91,7 +91,7 @@ as in data.frames. The transparency offered by the class is well-known
 to be at a very high level, with most standard manipulations of
 dataframes being applicable to disk.frame objects. I have written more
 on disk.frame in the document, \href{case-study-disk.frame.pdf}{A
-  disk.frame Case Study}
+	disk.frame Case Study}
 
 \section{data.table}
 \label{sec:data.table}
@@ -132,13 +132,13 @@ chunks directly. Authored by Simon Urbanek and Taylor Arnold.
 The package description outlines ff with the following:
 
 \begin{displaycquote}{adler18}
-  The ff package provides atomic data structures that are stored on
-  disk but behave (almost) as if they were in RAM by mapping only a
-  section (pagesize) into main memory (the effective main memory
-  consumption per ff object). Several access optimization techniques
-  such as Hyrid Index Preprocessing (as.hi, update.ff) and
-  Virtualization (virtual, vt, vw) are implemented to achieve good
-  performance even with large datasets.
+	The ff package provides atomic data structures that are stored on
+	disk but behave (almost) as if they were in RAM by mapping only a
+	section (pagesize) into main memory (the effective main memory
+	consumption per ff object). Several access optimization techniques
+	such as Hyrid Index Preprocessing (as.hi, update.ff) and
+	Virtualization (virtual, vt, vw) are implemented to achieve good
+	performance even with large datasets.
 \end{displaycquote}
 
 The package provides a disk-based storage for most base types in R.
@@ -149,13 +149,13 @@ Oehlschlägel, the author of True Cluster. First introduced in
 mid-2018.
 
 \begin{description}
-\item[ffbase\cite{jonge20}] is an extension to ff, providing standard
-  statistical methods for ff objects. The package is still actively
-  maintained. The package has been the subject of several talks, most
-  notably the author's overview, \textcite{wijffels13}. The package is
-  currently being revised for a second version that provides generics
-  functionality for dplyr on ff objects, under the title,
-  ``ffbase2''\cite{jonge15}.
+	\item[ffbase\cite{jonge20}] is an extension to ff, providing standard
+	      statistical methods for ff objects. The package is still actively
+	      maintained. The package has been the subject of several talks, most
+	      notably the author's overview, \textcite{wijffels13}. The package is
+	      currently being revised for a second version that provides generics
+	      functionality for dplyr on ff objects, under the title,
+	      ``ffbase2''\cite{jonge15}.
 \end{description}
 
 \printbibliography{}

@@ -18,22 +18,22 @@
 \nocite{bengtsson19:_futur_r}
 
 future is introduced with the following summary: \blockquote{The
-  purpose of this package is to provide a lightweight and unified
-  future API for sequential and parallel processing of R expression
-  via futures. The simplest way to evaluate an expression in parallel
-  is to use \texttt{x \%<-\% { expression }} with
-  \texttt{plan(multiprocess)}. This package implements sequential,
-  multicore, multisession, and cluster futures. With these, R
-  expressions can be evaluated on the local machine, in parallel a set
-  of local machines, or distributed on a mix of local and remote
-  machines. Extensions to this package implement additional backends
-  for processing futures via compute cluster schedulers etc. Because
-  of its unified API, there is no need to modify any code in order
-  switch from sequential on the local machine to, say, distributed
-  processing on a remote compute cluster. Another strength of this
-  package is that global variables and functions are automatically
-  identified and exported as needed, making it straightforward to
-  tweak existing code to make use of futures.\cite{bengtsson20}}
+purpose of this package is to provide a lightweight and unified
+future API for sequential and parallel processing of R expression
+via futures. The simplest way to evaluate an expression in parallel
+is to use \texttt{x \%<-\% { expression }} with
+\texttt{plan(multiprocess)}. This package implements sequential,
+multicore, multisession, and cluster futures. With these, R
+expressions can be evaluated on the local machine, in parallel a set
+of local machines, or distributed on a mix of local and remote
+machines. Extensions to this package implement additional backends
+for processing futures via compute cluster schedulers etc. Because
+of its unified API, there is no need to modify any code in order
+switch from sequential on the local machine to, say, distributed
+processing on a remote compute cluster. Another strength of this
+package is that global variables and functions are automatically
+identified and exported as needed, making it straightforward to
+tweak existing code to make use of futures.\cite{bengtsson20}}
 futures are abstractions for values that may be available at some
 point in the future, taking the form of objects possessing state,
 being either resolved and therefore available immediately, or
@@ -73,42 +73,42 @@ them in the background and presenting them upon request when complete.
 Error handling and shared variables are not implemented.
 
 \lstinputlisting[language=R, frame=single, float, caption={Usage of
-  future to implement a basic multicore
-  console}, label=lst:console]{../R/detail-future.R}
+			future to implement a basic multicore
+			console}, label=lst:console]{../R/detail-future.R}
 
 \section{Extension Packages}
 \label{sec:extension-packages}
 
 \begin{description}
-\item[doFuture]\cite{bengtsson20do} provides an adapter for
-  foreach\cite{microsoft20} that works on a future-based backend. Note
-  that this does does not return foreach() calls as futures. The
-  multicore features enabled with future are redundant over the
-  existing parallel package, but because future backends can include
-  other clusters, such as those provided by batchtools, there is some
-  additional functionality, including additional degrees of control
-  over backends.
-\item[future.batchtools]\cite{bengtsson19batch} provides a future API
-  for batchtools\cite{lang17}, or equivalently, a batchtools backend
-  for future. This allows the use of various cluster schedulers such
-  as TORQUE, Slurm, Docker Swarm, as well as custom cluster functions.
-\item[future.apply]\cite{bengtsson20apply} provides equivalent
-  functions to R's \texttt{apply} procedures, with a future backend
-  enabling parallel, cluster, and other functionality as enabled by
-  backends such as batchtools through future.batchtools.
-\item[future.callr]\cite{bengtsson19callr} provides a
-  callr\cite{csárdi20} backend to future, with all of the associated
-  advantages and overhead. Callr \enquote{call[s] R from R}. It
-  provides functions to run expressions in a background R process,
-  beginning a new session. An advantage of callr is that it allows
-  more than 125 connections, due to not making use of R-specific
-  connections. Additionally, no ports are made use of, unlike the
-  SOCKcluster provided by the snow component of parallel.
-\item[furrr]\cite{vaughan18} allows the use of future as a backend to
-  purrr functions. purrr is a set of functional programming tools for
-  R, including map, typed map, reduce, predicates, and monads. Much of
-  it is redundant to what already exists in R, but it has the
-  advantage and goal of adhering to a consistent standard.
+	\item[doFuture]\cite{bengtsson20do} provides an adapter for
+	      foreach\cite{microsoft20} that works on a future-based backend. Note
+	      that this does does not return foreach() calls as futures. The
+	      multicore features enabled with future are redundant over the
+	      existing parallel package, but because future backends can include
+	      other clusters, such as those provided by batchtools, there is some
+	      additional functionality, including additional degrees of control
+	      over backends.
+	\item[future.batchtools]\cite{bengtsson19batch} provides a future API
+	      for batchtools\cite{lang17}, or equivalently, a batchtools backend
+	      for future. This allows the use of various cluster schedulers such
+	      as TORQUE, Slurm, Docker Swarm, as well as custom cluster functions.
+	\item[future.apply]\cite{bengtsson20apply} provides equivalent
+	      functions to R's \texttt{apply} procedures, with a future backend
+	      enabling parallel, cluster, and other functionality as enabled by
+	      backends such as batchtools through future.batchtools.
+	\item[future.callr]\cite{bengtsson19callr} provides a
+	      callr\cite{csardi20} backend to future, with all of the associated
+	      advantages and overhead. Callr \enquote{call[s] R from R}. It
+	      provides functions to run expressions in a background R process,
+	      beginning a new session. An advantage of callr is that it allows
+	      more than 125 connections, due to not making use of R-specific
+	      connections. Additionally, no ports are made use of, unlike the
+	      SOCKcluster provided by the snow component of parallel.
+	\item[furrr]\cite{vaughan18} allows the use of future as a backend to
+	      purrr functions. purrr is a set of functional programming tools for
+	      R, including map, typed map, reduce, predicates, and monads. Much of
+	      it is redundant to what already exists in R, but it has the
+	      advantage and goal of adhering to a consistent standard.
 \end{description}
 
 \section{Potential Uses}

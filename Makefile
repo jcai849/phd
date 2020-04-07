@@ -1,10 +1,9 @@
 DOCDIR	:= doc
 OUTDIR	:= out
+BIBDIR  := bib
 DOCS	:= $(wildcard $(DOCDIR)/*.tex)
 
-
-
-.PHONY: all clean
+.PHONY: all clean format-bib format-tex
 
 all: $(addprefix $(OUTDIR)/, $(notdir $(DOCS:.tex=.pdf)))
 
@@ -24,4 +23,10 @@ clean:
 	rm -f */*.xml
 	rm -f */*.rip
 	rm -f */*.toc
+	rm -f */*.bak*
 
+format-bib:
+	biber --tool --output-encoding=ascii --output-align --output-file=$(BIBDIR)/bibliography.bib $(BIBDIR)/bibliography.bib
+
+format-tex:
+	ls $(DOCDIR)/*.tex | xargs -I {} -n 1 latexindent -w -s -m {}

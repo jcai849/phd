@@ -20,20 +20,20 @@ The mechanism of disk.frame is introduced on it's homepage with the
 following explanation:
 
 \begin{displaycquote}{zj20:_larger_ram_disk_based_data}
-  {disk.frame} works by breaking large datasets into smaller
-  individual chunks and storing the chunks in fst files inside a
-  folder. Each chunk is a fst file containing a data.frame/data.table.
-  One can construct the original large dataset by loading all the
-  chunks into RAM and row-bind all the chunks into one large
-  data.frame. Of course, in practice this isn’t always possible; hence
-  why we store them as smaller individual chunks.
+	{disk.frame} works by breaking large datasets into smaller
+	individual chunks and storing the chunks in fst files inside a
+	folder. Each chunk is a fst file containing a data.frame/data.table.
+	One can construct the original large dataset by loading all the
+	chunks into RAM and row-bind all the chunks into one large
+	data.frame. Of course, in practice this isn’t always possible; hence
+	why we store them as smaller individual chunks.
 
-  {disk.frame} makes it easy to manipulate the underlying chunks by
-  implementing dplyr functions/verbs and other convenient functions
-  (e.g. the (\texttt{cmap(a.disk.frame, fn, lazy = F)} function which
-  applies the function fn to each chunk of a.disk.frame in parallel).
-  So that {disk.frame} can be manipulated in a similar fashion to
-  in-memory data.frames.
+		{disk.frame} makes it easy to manipulate the underlying chunks by
+	implementing dplyr functions/verbs and other convenient functions
+	(e.g. the (\texttt{cmap(a.disk.frame, fn, lazy = F)} function which
+	applies the function fn to each chunk of a.disk.frame in parallel).
+	So that {disk.frame} can be manipulated in a similar fashion to
+	in-memory data.frames.
 \end{displaycquote}
 
 It works through two main principles: chunking, and generic function
@@ -60,7 +60,7 @@ Fst is a means of serialising dataframes, as an alternative to RDS
 files\cite{klik19}. It makes use of an extremely fast compression
 algorithm developed at facebook, with the R package enabling fst
 written on in \href{survey-r-packages-for-local-large-scale-computing.pdf}{R
-  Packages for Local Large-Scale Computing}.
+	Packages for Local Large-Scale Computing}.
 
 % \item fst [ interface for disk.frame using fst backend, see internals
 From inspection of the source code, data.table manipulations are

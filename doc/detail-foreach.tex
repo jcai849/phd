@@ -12,20 +12,19 @@
 \year=2020 \month=4 \day=2
 \maketitle{}
 
-
 \section{Introduction}
 \label{sec:introduction}
 
 % \item package intro on cran
 foreach introduces itself on CRAN with the following description:
 \begin{displaycquote}{microsoft20}
-  Support for the foreach looping construct. Foreach is an idiom that
-  allows for iterating over elements in a collection, without the use
-  of an explicit loop counter. This package in particular is intended
-  to be used for its return value, rather than for its side effects.
-  In that sense, it is similar to the standard lapply function, but
-  doesn't require the evaluation of a function. Using foreach without
-  side effects also facilitates executing the loop in parallel.
+	Support for the foreach looping construct. Foreach is an idiom that
+	allows for iterating over elements in a collection, without the use
+	of an explicit loop counter. This package in particular is intended
+	to be used for its return value, rather than for its side effects.
+	In that sense, it is similar to the standard lapply function, but
+	doesn't require the evaluation of a function. Using foreach without
+	side effects also facilitates executing the loop in parallel.
 \end{displaycquote}
 
 % \item simple, few moving parts
@@ -159,19 +158,19 @@ methods from foreach.
 % \item others: doParallel,doRedis,doAzure,doFuture
 Numerous backends exist, most notably:
 \begin{description}
-\item[doParallel] the primary parallel backend for foreach, using the
-  parallel package\cite{corporation19}.
-\item[doRedis]  provides a Redis backend, through the redux package\cite{lewis20}.
-\item[doFuture] uses the future package to make use of future's many
-  backends\cite{bengtsson20do}.
-\item[doAzureParallel] allows for direct submission of parallel
-  workloads to an Azure Virtual Machine\cite{hoang20}.
-\item[doMPI] provides MPI access as a backend, using Rmpi\cite{weston17}.
-\item[doRNG] provides for reproducible random number usage within
-  parallel iterations, using L'Ecuyer's method; provides
-  \texttt{\%dorng\%}\cite{gaujoux20}.
-\item[doSNOW] provides an ad-hoc cluster backend, using the snow
-  package\cite{dosnow19}.
+	\item[doParallel] the primary parallel backend for foreach, using the
+	      parallel package\cite{corporation19}.
+	\item[doRedis]  provides a Redis backend, through the redux package\cite{lewis20}.
+	\item[doFuture] uses the future package to make use of future's many
+	      backends\cite{bengtsson20do}.
+	\item[doAzureParallel] allows for direct submission of parallel
+	      workloads to an Azure Virtual Machine\cite{hoang20}.
+	\item[doMPI] provides MPI access as a backend, using Rmpi\cite{weston17}.
+	\item[doRNG] provides for reproducible random number usage within
+	      parallel iterations, using L'Ecuyer's method; provides
+	      \texttt{\%dorng\%}\cite{gaujoux20}.
+	\item[doSNOW] provides an ad-hoc cluster backend, using the snow
+	      package\cite{dosnow19}.
 \end{description}
 
 \section{Relevance}
