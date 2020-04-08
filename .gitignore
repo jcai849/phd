@@ -13,3 +13,5 @@
 *.dvi
 /log/*.tex
 /*/_region_.tex
+/*/*.html
+*.swp
