@@ -1,0 +1,53 @@
+== Objectives
+
+=== Carried [100%]
+
+=== New [100%]
+
+* [X] Email Paul & Simon re: CS course details
+* [X] Set up repositories & let S&P know
+* [X] Complete notes on H2O and R packages
+* [X] Get new journal
+* [X] Read on how to take better notes on papers
+* [X] read background of iterative parallel algorithms, e.g., ADMM
+
+== Journal
+
+=== <2020-03-10 Tue>
+
+* Emailed S&P re: course details, awaiting go-ahead to contact course
+coordinator
+* Created git and github repo's, awaiting S&P username information.
+Github URL's:
+** https://github.com/jcai849/phd[phd]
+** https://github.com/jcai849/phd-src[phd-src]
+
+=== <2020-03-11 Wed>
+
+* Go-ahead on course; emailed Dr. Nicolescu re: sitting in
+* Added S&P to repos
+* Browsed long list of relevant R packages, added to the
+link:../doc/urls.org[urls] file
+* link:../doc/survey-distributed-computing-systems.tex[Some notes on
+H2O]
+
+=== <2020-03-12 Thu>
+
+* link:../doc/survey-distributed-computing-systems.tex[More writing on R
+packages]
+
+=== <2020-03-13 Fri>
+
+* Unlucky day, not going outside
+* link:../doc/survey-distributed-computing-systems.tex[Finished writing
+on R packages]
+* Added a link:../bib/bibliography.bib[bibliography]
+
+=== <2020-03-16 Mon>
+
+* Miscellaneous; read on parallel algorithms
+* Little research done; finalising a survey for a friend
+
+== Discuss [0/0]
+
+* [ ] _Is Hadoop dead? Too many people with opinions online_

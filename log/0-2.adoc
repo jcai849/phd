@@ -1,0 +1,157 @@
+== Objectives
+
+=== Carried [100%]
+
+=== New [50%]
+
+* [X] Create weekly logs <2020-03-31 Tue>
+* [X] Rearrange repositories <2020-03-31 Tue>
+* [X] Write in more depth on packages; the *what* is done, now look at
+*how*:
+** [X] disk.frame <2020-03-31 Tue>, <2020-04-01 Wed>, <2020-04-02 Thu>
+** [X] foreach <2020-04-02 Thu> <2020-04-03 Fri> (also see if it bears
+resemblance to the function of the same name in csh and make, and write
+on the iterators package that supports it)
+* [-] Learn more on reweighted least squares as an example iterative
+algorithm
+** [X] Read on reweighted least squares
+** [ ] Take notes
+* [ ] Retry cluster simulation
+* [ ] Run more complex statistics on cluster; e.g. biglm
+
+== Journal
+
+=== <2020-03-31 Tue>
+
+* Created link:../log/[logs]
+* Rearranged repositories; moved the contents of
+https://github.com/jcai849/phd-src[phd-src] to just be a subdirectory of
+https://github.com/jcai849/phd[phd] named "link:../R/[R]", with no git
+weirdness like submodules, etc. keeping it simple. moved all documents
+to "link:../doc/[doc]"
+* Remade makefile to accomodate movement
+* Began reading disk.frame vignettes and source in detail
+
+=== <2020-04-01 Wed>
+
+* Wrote on link:../doc/case-study-disk.frame.tex[how disk.frame works]
+as a case study
+* Re-remade makefile to accomodate directory movement
+
+=== <2020-04-02 Thu>
+
+* Finished writing on link:../doc/case-study-disk.frame.tex[disk.frame]
+* Fixed names of packages in documents (accepting their lower-case
+naming)
+* Began reading on foreach internals
+
+=== <2020-04-03 Fri>
+
+* Laid out thoughts on organisation of research
+* link:../doc/detail-foreach.tex[detail of foreach]
+* Renamed files to reflect organisation, fixed links
+
+=== <2020-04-06 Mon>
+
+* Reading ESL, wikipedia on reweighted least squares
+* Math revision
+* created template for notes on reweighted least squares
+
+== Discuss
+
+. Any other thoughts on my conclusions to disk.frame and foreach?
+. No longer have access to uni cluster - I think my IP may be dynamic
+. Organisation of my research, with some ideas for more: N.B. Surveys
+are broad looks at a wide range of components. Case Studies draw from
+pieces in a survey deemed important, being similar platforms which I can
+learn from. Details are mostly drawn from case studies, being related
+and worth looking at in-depth, or otherwise identified as worth knowing
+more of specifically, but are not of a similar form to the intended
+platform.
+* Large-Scale Computing with R
++
+[cols=",,",options="header",]
+|=======================================================================
+|Survey |Case Study |Detail
+|☒ R packages for Distributed Large-Scale Computing |☒ disk.frame |☒
+future
+
+|☒ R packages for Local Large-Scale Computing |☐ sparklyr |☒ foreach
+
+|⚀ R packages for Large-Scale Statistical Modelling |☐ Rhadoop |☐
+iterators
+
+|☒ R Derivatives for Large-Scale Computing |☐ caret |
+|=======================================================================
+* Large-scale Computing
++
+[cols=",,",options="header",]
+|=======================================================================
+|Survey |Case Study |Detail
+|⚀ Distributed Computing Systems |☐ Hadoop |☐ Local Cluster Simulation
+
+|☐ Large-scale computing in Other Languages |☐ Spark |☐ Functional
+Aspects: Tail Recursion & Continuations
+
+|☐ Parallel Computing Background | |
+
+|☐ Abstract interfaces for iteration | |
+|=======================================================================
+* Statistical Modelling at Scale
++
+[cols=",,",options="header",]
+|===================================================================
+|Survey |Case Study |Detail
+|☐ Statistical Models at Scale |☐ biglm |☐ Re-Weighted Least Squares
+|⚀ Basic Statistics Distributed Data |☐ RWLS on Distributed Data |
+| |☐ caret |
+|===================================================================
+. Next steps based on research organisation?
+. I'm increasingly thinking that the way iteration is handled will
+determine much of the success of the project, as it is essential to
+complex algorithms. I know that it is handled very differently by other
+languages; e.g., Common Lisp has the famous `do` and `loop` macros,
+idiomatic scheme relies on tail recursion, of which continuations can
+serve an important role in the implementation. See for example, the
+https://rosettacode.org/wiki/Euler_method[rosetta code entry for Euler's
+Method] for the myriad representations of a basic recurrence relation.
+There is also
+https://homes.cs.washington.edu/~mernst/pubs/haloop-vldb2012.pdf[Haloop],
+enabling iteration in hadoop.
+. Thoughts on modularity: Should more data manipulation be occuring
+outside of R in tools specialised for data manipulation, such as SQL?
+This is a case of using the right tool for the job. The only exception
+that I can think of is tapply-like grouped operations that require R for
+performing operations on the data. In that case, perhaps it makes more
+sense to call R from the database, or in a more unix-y way, if the data
+is file-based, to split files based on the levels of some column, then
+call R on each file. I'm thinking that some ways of working are
+redundant to what already exists in a better form outside of R, treating
+R as a multitool, possibly leading it to becoming monolith along the
+same path that other languages have suffered from, e.g. javascript with
+node.js. Is this a fair line of thought, or is this naively concerned
+with composability? With this in mind, our focus should be more on
+playing to R's strengths of statistical modelling and development of
+models, rather than data shaping.
+. _Is Hadoop dead? Too many people with opinions online_
+. Thoughts on tool complexity; I think that in terms of ease of use of a
+tool, familiarity is sometimes more relevant than complexity. E.g.,
+quick to whip up some text on MS Word, but familiarity with latex makes
+it just as quick, and then when more complex demands are required in the
+future, the word document requires costly conversion to a more suitable
+format. A kind of anti-agile, "do it right the first time" kind of idea.
+I'm swayed to the application of this logic in favouring S4 over S3
+classes in R. Am I missing something? After all, developers much smarter
+and more experience than I regularly use S3; cf. foreach, disk.frame,
+both S&P's packages
+. Can much of the problem be summed up in the notion that movement of
+data is what kills performance?
+. Is there value in setting up a hadoop cluster? Would I learn anything
+from, e.g., setting up a raspberry pi cluster?
+. What's up with ff? There are more papers written by the team than
+lines of code, are they onto something big?
+. _Is https://arxiv.org/abs/1409.5827[software alchemy] at all relevant
+to anyone?_
+. _How relevant are applications such as xgboost and redis?_
+. Locked out of library: Jason Cairns (jcai849): Your NetAccount is not
+currently authorised for access…
