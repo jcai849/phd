@@ -1,0 +1,46 @@
+(Preparing for) Getting My Hands Dirty
+======================================
+
+== Objectives ==
+
+.Carried
+* [-] Learn more on reweighted least squares as an example iterative
+algorithm
+** [X] Read on reweighted least squares
+** [ ] Take notes
+* [ ] Determine if sparklyr mutate occurs locally
+* [ ] Retry cluster simulation
+* [ ] Run more complex statistics on cluster; e.g. biglm
+
+.New
+* [ ] Determine means of foreach global variable detection
+* [ ] Determine if futures can be persisted
+* [ ] Consider attributes important to large-scale R platforms, e.g. API or
+	generic classes; Arbitrary code evaluation; persistence of objects;
+	communication between nodes
+	** [ ] Make a comparison table
+* [ ] More on pbdR, with examples:
+	** [ ] Do they offer a specialised API, or generics
+	** [ ] What does it take to set up?
+	** [ ] Do objects persist at nodes?
+	** [ ] Implement reweighted least squares
+* [ ] Write on LASSO with reference to the bigmemory implementation
+* [ ] Write on other algorithms: ADMM, Random Forest
+* [ ] Research possible graph-based algorithms to require node communication
+
+== Journal ==
+
+[horizontal]
+*Tuesday*::
+	- Learned vim
+	- Learned asciidoc
+	- Learned tmux
+	- Fixed makefile
+*Wednesday*::
+	- Finished reading 4.2 ESL
+	- Completed log fixing
+	- Not productive day; had to help with house
+*Thursday*::
+	- Plan: knock out multiple easy targets from lists
+
+== Discuss ==
