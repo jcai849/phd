@@ -65,12 +65,12 @@ expression instead.
 \section{Example Usage}
 \label{sec:examples}
 
-Through substitution and quoting, R can run a console within the
-language. futures allows the extension of this to a parallel
-evaluation scheme. Listing \ref{lst:console} gives a simple implementation
-of this idea: a console that accepts basic expressions, evaluating
-them in the background and presenting them upon request when complete.
-Error handling and shared variables are not implemented.
+Through substitution and quoting, R can, for example, run a console within the
+language. Futures allows the extension of this to a parallel evaluation scheme.
+Listing \ref{lst:console} gives a simple implementation of this idea: a console
+that accepts basic expressions, evaluating them in the background and
+presenting them upon request when complete.  Error handling and shared
+variables are not implemented.
 
 \lstinputlisting[language=R, frame=single, float, caption={Usage of
 			future to implement a basic multicore
@@ -111,13 +111,29 @@ Error handling and shared variables are not implemented.
 	      advantage and goal of adhering to a consistent standard.
 \end{description}
 
-\section{Potential Uses}
-\label{sec:potential-uses}
+\section{Further Considerations}
+\label{sec:further-considerations}
 
-It seems likely that the future package will have some value to it's
-use, especially if asynchronous processing is required on the R end;
-aside from making use of C++ from Rcpp, it is the only reasonable way
-to enable asynchrony.
+One initial drawback to future is the lack of callback functionality, which
+would open enormous potential. However, this feature is made available in the
+\textit{promises} package, which has been developed by Joe Cheng at RStudio,
+which allows for user-defined handlers to be applied to futures upon
+resolution\cite{Cheng19}.
+
+Issues that aren't resolved by other packages include the copying of objects
+referenced by future, with mutable objects thereby unable to be directly
+updated by future (though this may be ameliorated with well-defined callbacks).
+This also means that data movement is mandatory, and costly; future raises an
+error if the data to be processed is over 500Mb, though this can be overridden.
+
+Referencing variables automatically is a major unsung feature of future, though
+it doesn't always work reliably; future relies on code inspection, and allows a
+\texttt{global} parameter to have manual variable specification.
+
+It seems likely that the future package will have some value to it's use,
+especially if asynchronous processing is required on the R end; it is the
+simplest means of enabling asynchrony in R without having to manipulate
+networks or threads.
 
 \printbibliography{}
 
