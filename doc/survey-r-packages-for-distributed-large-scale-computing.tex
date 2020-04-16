@@ -163,10 +163,25 @@ It is authored by Hao Yu, of the University of Western Ontario.
 \section{sparklyr}
 \label{sec:sparklyr}
 
-sparklyr is an interface to Spark from within R\cite{luraschi20}. The user connects to
-spark and accumulates instructions for the manipulation of a Spark
-DataFrame object using dplyr commands, then executing the request on
-the Spark cluster.
+sparklyr is an interface to Spark from within R\cite{luraschi20}. The user
+connects to spark and accumulates instructions for the manipulation of a Spark
+DataFrame object using dplyr commands, then executing the request on the Spark
+cluster.
+
+Of particular interest is the capacity to execute arbitrary R functions on the
+Spark cluster. This can be performed directly, with the \texttt{spark\_apply()}
+function, taking a user-defined function as a formal parameter. It can also be
+used as part of a dplyr chain through the \texttt{mutate()} function. Extending
+these, Spark-defined hive functions and windowing functions are enabled for use
+in \texttt{mutate()} calls. Limitations to arbitrary code execution include the
+lack of support for global references due to the underlying lack in the
+\texttt{serialize} package.
+
+Some support for graphs and graph manipulation is enabled via usage with the
+\textit{graphframes} package, which follows the Tidyverse pattern of working
+solely with dataframes and dataframe derivatives\cite{kuo18}. This binds to the GraphX
+component of Spark, enabling manipulation of graphs in Spark through
+pre-defined commands.
 
 sparklyr is managed and maintained by RStudio, who also manage the
 rest of the Tidyverse (including dplyr).

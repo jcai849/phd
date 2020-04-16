@@ -8,9 +8,8 @@
 algorithm
 ** [X] Read on reweighted least squares
 ** [ ] Take notes
-* [ ] Determine if sparklyr mutate occurs locally
+* [X] Determine if sparklyr mutate occurs locally
 * [ ] Retry cluster simulation
-* [ ] Run more complex statistics on cluster; e.g. biglm
 
 .New
 * [ ] Determine means of foreach global variable detection
@@ -50,11 +49,33 @@ algorithm
 	- Reading on sparklyr, future, foreach 
 *Wednesday*::
 	- Crawling through source code of future
-	- Writing more detail on sparklyr, file:../doc/detail-future.tex[future], foreach
+	- Writing more detail on file:../doc/detail-future.tex[future]
+	persistence
+*Thursday*::
+	- More detail on file:../doc/survey-r-packages-for-distributed-large-scale-computing.tex[sparklyr]
+	arbitrary code execution
+	- More detail on file:../doc/detail-foreach.tex[foreach]
+	means of global variable detection
 	- Writing on attributes important to large-scale R platforms
+*Friday*::
+	- pbdR
 
 == Discuss ==
 
 * The mechanism of future is very difficult to understand - no documentation
-* Would the promises package be useful to look into?
-	and the code is quite unclear
+and the code is quite unclear
+* Would the promises package be useful to look into? See, for example,
+[source, R]
+----
+promises::then(future::future({
+	Sys.sleep(10)
+	"Done"
+	}))
+"Something else"
+----
+* I should also look at other programming languages that have solved a similar
+problem. Through playing with the python server, I came into contact with
+python's asynchronous constructs such as `asyncio`. Further searching
+revealed interesting asynchronous API's such as Kotlin's coroutines
+(concurrent, but not quite parallel), and Julia's `Distributed` library, with
+an interesting API derived from MPI, and simplified.

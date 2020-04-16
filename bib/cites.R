@@ -10,7 +10,7 @@ cran <- c("base", "foreach", "doParallel", "doSNOW", "doMPI",
           "snow", "bigmemory", "biganalytics", "bigtabulate",
           "biglasso", "bigstatsr", "disk.frame", "data.table", "fst",
           "iotools", "ff", "biglm", "ffbase", "pbdMPI", "doRNG",
-          "doRedis")
+          "doRedis", "promises", "graphframes")
 
 
 ## remotes::install_github(c("wrathematics/getip", "RBigData/hpcvis", "RBigData/pbdCS", "RBigData/pbdDMAT", "RBigData/pbdML", "edwindj/ffbase2", "Azure/rAzureBatch", "Azure/doAzureParallel"))
