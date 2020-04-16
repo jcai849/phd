@@ -1,0 +1,76 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+
+\begin{document}
+\title{A Survey of Large-Scale Platform Features}
+\author{Jason Cairns}
+\year=2020 \month=4 \day=16
+\maketitle
+
+\section{Introduction}\label{sec:intro}
+
+To guide the development of the platform, desirable features are drawn from
+existing platforms; inferred as logical extensions; and arrived at through
+identification of needs. Some features are mutually exclusive, others are
+suggestive of each other, but are worth considering and contrasting their
+merits.
+
+\section{Feature List}\label{sec:feature-list}
+
+A list of features and their descriptions follows:
+
+\begin{description}
+\item[Distributed Functionality] The ability to spread computation and data
+over separate computers
+\item[Arbitrary Code Evaluation] The ability to make use of user-specified code
+in processing
+\item[Arbitrary Iterative Code Evaluation] The ability to process
+user-specified code involving iteration over the whole dataset, as opposed to a
+simple mapping
+\item[Object Persistence at Nodes] The ability to retain objects at their point
+of processing
+\item[Support for HDFS] Capacity to work with data and computation on the
+Hadoop Distributed File System
+\item[Ease of Setup] Is setup suitable for a computationally-focussed
+statistician, or does it require a system administrator?
+\item[Inter-Node Communication] Can any pair of nodes communicate with each
+other, or do they only report to a master node? 
+\item[Backend Decoupling] The implementation is maintained entirely separately
+to the interface
+\item[Evaluation of Arbitrary Classes] Any class, including user-defined
+classes can be used in evaluation
+\item[Direct API] The platform is explicitly programmed against at an interface
+\item[Class for Generics] The platform may be set up, then programming makes
+use of standard generics that are then utilised
+\item[dplyr Compatible] The platform makes use of dplyr as the standard
+generics to implicitly program over
+\end{description}
+
+\section{Comparison Table}\label{sec:comp-tab}
+
+\begin{table}[h]
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\multicolumn{1}{c}{Feature}         & \multicolumn{4}{c}{Platform}           &         \\ \midrule
+                                    & RHadoop & Sparklyr & pbdR & disk.frame & foreach \\ \cmidrule(l){2-6} 
+Distributed Functionality           &         &          &      &            &         \\
+Arbitrary Code Evaluation           &         &          &      &            &         \\
+Arbitrary Iterative Code Evaluation &         &          &      &            &         \\
+Object Persistence at Nodes         &         &          &      &            &         \\
+Support for HDFS                    &         &          &      &            &         \\
+Ease of Setup                       &         &          &      &            &         \\
+Inter-Node Communication            &         &          &      &            &         \\
+Backend Decoupling                  &         &          &      &            &         \\
+Evaluation of Arbitrary Classes     &         &          &      &            &         \\
+Direct API                          &         &          &      &            &         \\
+Class for Generics                  &         &          &      &            &         \\
+dplyr Compatible                    &         &          &      &            &         \\ \bottomrule
+\end{tabular}
+\caption{Comparison of major features among platforms\label{tab:compare-features}}
+\end{table}
+
+\end{document}
