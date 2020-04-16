@@ -65,8 +65,12 @@ algorithm
 * The mechanism of future is very difficult to understand - no documentation
 and the code is quite unclear
 * Would the promises package be useful to look into? See, for example,
-[source, R] ---- promises::then(future::future({ Sys.sleep(10) "Done" }))
-"Something else" ----
++
+[source, R]
+---- 
+promises::then(future::future({ Sys.sleep(10) "Done" }))
+"Something else"
+----
 * I should also look at other programming languages that have solved a similar
 problem. Through playing with the python server, I came into contact with
 python's asynchronous constructs such as `asyncio`. Further searching revealed
