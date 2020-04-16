@@ -116,13 +116,13 @@ as such in \texttt{\%do\%}. Thus, the main beast of burder is the
 \texttt{\%do\%} function, where the evaluation of the iteration takes
 place.
 
-% \item \%do\% captures and creates environments, enabling sequential
-%   evaluation, with dopar also doing work on capturing references to
-%   variables in expressions and adding them to evaluation environment.
-In greater detail, \texttt{\%do\%} captures and creates environments,
-enabling sequential evaluation, with \texttt{\%dopar\%} doing
-additional work on capturing references to variables in expressions
-and adding them to evaluation environment.
+In greater detail, \texttt{\%do\%} captures and creates environments, enabling
+sequential evaluation. \texttt{\%dopar\%} captures the environment of an
+expression, as well taking as a formal parameter a vector of names of libraries
+used in the expression, then passing that to the backend, which will in turn do
+additional work on capturing references to variables in expressions and adding
+them to evaluation environment, as well as ensure packages are loaded on worker
+nodes. 
 
 % \item getDoPar, getDoSeq return lists including the registered
 %   backend, which contain a function used to operate on the

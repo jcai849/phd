@@ -12,7 +12,7 @@ algorithm
 * [ ] Retry cluster simulation
 
 .New
-* [ ] Determine means of foreach global variable detection
+* [X] Determine means of foreach global variable detection
 * [X] Determine if futures can be persisted
 * [ ] Consider attributes important to large-scale R platforms, e.g. API or
 	generic classes; Arbitrary code evaluation; persistence of objects;
