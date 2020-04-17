@@ -1,0 +1,77 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+
+\begin{document}
+\title{A Detail of pbdR}
+\author{Jason Cairns}
+\year=2020 \month=4 \day=17
+\maketitle
+
+\section{Introduction}
+\label{sec:pbdr}
+
+pbdR is a collection of packages allowing for distributed computing with
+R\cite{pbdBASEpackage}. The name is an acronym for the collection's purpose;
+Programming with Big Data in R. It is introduced on it's main page with the
+following description:
+\begin{quote}
+	The ``Programming with Big Data in R'' project (pbdR) is a set of highly scalable
+	R packages for distributed computing and profiling in data science.
+
+	Our packages include high performance, high-level interfaces to MPI, ZeroMQ,
+	ScaLAPACK, NetCDF4, PAPI, and more. While these libraries shine brightest on
+	large distributed systems, they also work rather well on small clusters and
+	usually, surprisingly, even on a laptop with only two cores.
+
+	Winner of the Oak Ridge National Laboratory 2016 Significant Event Award for
+	``Harnessing HPC Capability at OLCF with the R Language for Deep Data Science.''
+	OLCF is the Oak Ridge Leadership Computing Facility, which currently includes
+	Summit, the most powerful computer system in the world.\cite{pbdR2012}
+\end{quote}
+
+\section{Interface and Backend}
+The project seeks to exist as a minimal wrapper around the BLAS and LAPACK
+libraries, creating minimal overhead. Standard R also uses routines from the
+library for most matrix operations, but suffers from numerous inefficiencies
+relating to the structure of the language; for example, copies of all objects
+being manipulated will be typically be created, often having devastating
+performance aspects unless specific functions are used for linear algebra
+operations, as discussed in \citeauthor{schmidt2017programming} (e.g.,
+\texttt{crossprod(X)} instead of \texttt{t(X) \%*\% X})
+
+Distributed linear algebra operations in pbdR depend further on the ScaLAPACK
+library, provided through the pbdSLAP package \cite{Chen2012pbdSLAPpackage}.
+
+The principal interface for distributed computations is the pbdMPI package,
+which presents a simplified API to MPI through R \cite{Chen2012pbdMPIpackage}.
+All major MPI libraries are supported, but in workshop materials, the project
+recommends openMPI. A major note is that pbdMPI can only be used in batch mode
+through MPI, rather than interactively as in Rmpi.
+
+The actual manipulation of distributed matrices is enabled through the pbdDMAT
+package, which offers S4 classes over a single program/multiple data (SPMD)
+programming paradigm \cite{pbdDMATpackage}. These are specialised for dense
+matrices through the \texttt{ddmatrix} class, though the project offers some
+support for other matrices. The \texttt{ddmatrix} class has nearly all of the
+standard matrix generics implemented for it, with nearly identical syntax for
+all.
+
+\section{Package Interaction}
+The packages can be made to interact directly, for example with pbdDMAT
+constructing and performing basic manipulations on distributed matrices, and
+pbdMPI being used to perform further fine-tuned processing through
+communicating results across nodes manually, taking advantage of the
+persistence of objects at nodes through MPI.
+
+\section{Setup}
+The setup for pbdR is simple, but requires a definitely nontrivial environment
+to work in, including well set up BLAS, LAPACK and derivatives, a parallel file
+system with data in an appropriate format such as HDF5, and a standard MPI
+library. Much of the pain of setup is ameliorated with a docker container,
+provided in workshops by the project.
+
+\printbibliography{}
+\end{document}

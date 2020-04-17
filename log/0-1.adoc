@@ -6,9 +6,9 @@
 .Carried
 * [-] Learn more on reweighted least squares as an example iterative
 algorithm
-** [X] Read on reweighted least squares
+** [*] Read on reweighted least squares
 ** [ ] Take notes
-* [X] Determine if sparklyr mutate occurs locally
+* [*] Determine if sparklyr mutate occurs locally
 * [ ] Retry cluster simulation
 
 .New
@@ -17,9 +17,9 @@ algorithm
 * [X] Consider attributes important to large-scale R platforms
 	** [X] Make a comparison table
 * [ ] More on pbdR, with examples:
-	** [ ] Do they offer a specialised API, or generics
-	** [ ] What does it take to set up?
-	** [ ] Do objects persist at nodes?
+	** [X] Do they offer a specialised API, or generics
+	** [X] What does it take to set up?
+	** [X] Do objects persist at nodes?
 	** [ ] Implement reweighted least squares
 * [ ] Write on LASSO with reference to the bigmemory implementation
 * [ ] Write on other algorithms: ADMM, Random Forest
@@ -47,18 +47,26 @@ algorithm
 	- Reading on sparklyr, future, foreach 
 *Wednesday*::
 	- Crawling through source code of future
-	- Writing more detail on file:../doc/detail-future.tex[future]
+	- Writing more detail on link:../doc/detail-future.tex[future]
 	persistence
 *Thursday*::
 	- More detail on
-	  file:../doc/survey-r-packages-for-distributed-large-scale-computing.tex[sparklyr]
+	  link:../doc/survey-r-packages-for-distributed-large-scale-computing.tex[sparklyr]
 	  arbitrary code execution
-	- More detail on file:../doc/detail-foreach.tex[foreach]
+	- More detail on link:../doc/detail-foreach.tex[foreach]
 	  means of global variable detection
 	- Writing on attributes important to large-scale R platforms
-	  file:../doc/survey-large-scale-features.tex[Feature Survey]
+	  link:../doc/survey-large-scale-features.tex[Feature Survey]
 *Friday*::
-	- pbdR
+	- Learned Docker
+	- Read _Programming with BIG data in R: Scaling analytics from one to
+	  thousands of nodes_ ; very worthwhile read
+	- Followed the https://pbdr.org/tutorials/jsm2017/[pbdR Essentials
+	  course]
+	- link:../doc/detail-pbdr.tex[Wrote on pbdR in more detail]
+*Monday*::
+	- implement reweighted least squares using pbdR (with their workshop
+	  docker image)
 
 == Discuss ==
 
@@ -72,16 +80,17 @@ promises::then(future::future({ Sys.sleep(10) "Done" }))
 "Something else"
 ----
 * I should also look at other programming languages that have solved a similar
-problem. Through playing with the python server, I came into contact with
-python's asynchronous constructs such as `asyncio`. Further searching revealed
-interesting asynchronous API's such as Kotlin's coroutines (concurrent, but not
-quite parallel), and Julia's `Distributed` library, with an interesting API
-derived from MPI, and simplified. None of these are quite what we're looking
-for (Julia is the closest) but there's definitely info there on what to do and
-avoid in creating API's. cf:
-https://quentin.pradet.me/blog/using-asynchronous-for-loops-in-python.html[asynchronous
-iteration in python],
-https://docs.julialang.org/en/v1/manual/parallel-computing/#Multi-Core-or-Distributed-Processing-1[Distributed
-processing with Julia],
-https://kotlinlang.org/docs/reference/coroutines/basics.html[Coroutines in
-Kotlin]
+  problem. Through playing with the python server, I came into contact with
+  python's asynchronous constructs such as `asyncio`. Further searching revealed
+  interesting asynchronous API's such as Kotlin's coroutines (concurrent, but not
+  quite parallel), and Julia's `Distributed` library, with an interesting API
+  derived from MPI, and simplified. None of these are quite what we're looking
+  for (Julia is the closest) but there's definitely info there on what to do and
+  avoid in creating API's. cf:
+  https://quentin.pradet.me/blog/using-asynchronous-for-loops-in-python.html[asynchronous
+  iteration in python],
+  https://docs.julialang.org/en/v1/manual/parallel-computing/#Multi-Core-or-Distributed-Processing-1[Distributed
+  processing with Julia]
+* Docker seems quite promising to ease setup if needed. How about Kubernetes
+  for cluster management? I don't know much about it but hear it referenced
+  enough
