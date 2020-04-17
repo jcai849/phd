@@ -12,14 +12,14 @@ algorithm
 * [ ] Retry cluster simulation
 
 .New
-* [X] Determine means of foreach global variable detection
-* [X] Determine if futures can be persisted
-* [X] Consider attributes important to large-scale R platforms
-	** [X] Make a comparison table
-* [ ] More on pbdR, with examples:
-	** [X] Do they offer a specialised API, or generics
-	** [X] What does it take to set up?
-	** [X] Do objects persist at nodes?
+* [*] Determine means of foreach global variable detection
+* [*] Determine if futures can be persisted
+* [*] Consider attributes important to large-scale R platforms
+	** [*] Make a comparison table
+* [-] More on pbdR, with examples:
+	** [*] Do they offer a specialised API, or generics
+	** [*] What does it take to set up?
+	** [*] Do objects persist at nodes?
 	** [ ] Implement reweighted least squares
 * [ ] Write on LASSO with reference to the bigmemory implementation
 * [ ] Write on other algorithms: ADMM, Random Forest
