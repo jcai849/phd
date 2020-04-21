@@ -65,8 +65,9 @@ algorithm
 	  course]
 	- link:../doc/detail-pbdr.tex[Wrote on pbdR in more detail]
 *Monday*::
-	- implement reweighted least squares using pbdR (with their workshop
-	  docker image)
+	- implement reweighted least squares locally link:../R/local-rwls.R
+*Tuesday*::
+	- implement reweighted least squares using pbdDMAT link:../R/pbdr-rwls.R
 
 == Discuss ==
 
@@ -94,3 +95,6 @@ promises::then(future::future({ Sys.sleep(10) "Done" }))
 * Docker seems quite promising to ease setup if needed. How about Kubernetes
   for cluster management? I don't know much about it but hear it referenced
   enough
+* MPI makes use of a limited primary set of verbs, such as `gather`, `scatter`,
+  `send`, `receive`, etc., which has proven to be quite powerful, possibly
+  worth borrowing?
