@@ -1,53 +1,52 @@
 == Objectives
 
-=== Carried [100%]
+=== Carried [0%]
 
-=== New [100%]
+* [ ] References & papers for last week's work
 
-* [X] Email Paul & Simon re: CS course details
-* [X] Set up repositories & let S&P know
-* [X] Complete notes on H2O and R packages
-* [X] Get new journal
-* [X] Read on how to take better notes on papers
-* [X] read background of iterative parallel algorithms, e.g., ADMM
+=== New [80%]
+
+* [X] Write on and try future and furrr
+* [X] Other packages to write on:
+** [X] partools
+** [X] pbdR
+** [X] sparklyr: see if dead or not
+** [X] disk.frame
+** [X] RHIPE
+* [X] Search for packages created for stats in absence of scale
+* [X] Write on and try biglm, bigmemory, etc., as well as other
+discovered packages
+* [ ] Simulations of statistics on distributed data
 
 == Journal
 
-=== <2020-03-10 Tue>
+=== <2020-03-17 Tue>
 
-* Emailed S&P re: course details, awaiting go-ahead to contact course
-coordinator
-* Created git and github repo's, awaiting S&P username information.
-Github URL's:
-** https://github.com/jcai849/phd[phd]
-** https://github.com/jcai849/phd-src[phd-src]
+* Read on parallel iterative algorithms
+* Meeting
+* Consideration of next steps (big)
 
-=== <2020-03-11 Wed>
+=== <2020-03-18 Wed>
 
-* Go-ahead on course; emailed Dr. Nicolescu re: sitting in
-* Added S&P to repos
-* Browsed long list of relevant R packages, added to the
-link:../doc/urls.org[urls] file
-* link:../doc/survey-distributed-computing-systems.tex[Some notes on
-H2O]
+* No research done; tying up professional obligations today
 
-=== <2020-03-12 Thu>
+=== <2020-03-19 Thu>
 
-* link:../doc/survey-distributed-computing-systems.tex[More writing on R
-packages]
+Began writing on future at
+link:../doc/detail-future.tex[detail-future.tex]
 
-=== <2020-03-13 Fri>
+=== <2020-03-20 Fri>
 
-* Unlucky day, not going outside
-* link:../doc/survey-distributed-computing-systems.tex[Finished writing
-on R packages]
-* Added a link:../bib/bibliography.bib[bibliography]
+Finished writing on future, link:../R/detail-future.R[began testing a
+multicore R console using future]
 
-=== <2020-03-16 Mon>
+=== <2020-03-23 Mon>
 
-* Miscellaneous; read on parallel algorithms
-* Little research done; finalising a survey for a friend
+Began work on
+link:../doc/survey-r-packages-for-local-large-scale-computing.tex[local
+systems] (seeing what has been created for stats in the abscence of
+scale)
 
-== Discuss [0/0]
+== Discuss [0/1]
 
-* [ ] _Is Hadoop dead? Too many people with opinions online_
+* [ ] _How relevant are applications such as xgboost and redis?_
