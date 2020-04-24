@@ -34,7 +34,13 @@ XX XXXXXX
 	- Write on issues with pbdR RWLS
 *Friday*::
 	- University enrolment
-	- Install spark, start running tests
+	- Install spark
+	- Needing su access to install the myriad dependencies for sparklyr
+*Monday*::
+	- Install dependencies for sparklyr
+	- Install sparklyr
+	- test sparklyr
 
 == Discuss ==
-
+* Should I go into detail on sparkr as well?
+* PhD admin: needs analysis etc.
