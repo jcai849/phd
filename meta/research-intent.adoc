@@ -1,0 +1,20 @@
+Statement of Research Intent
+============================
+
+A Platform for Large-scale Statistical Modelling using R
+--------------------------------------------------------
+
+The growing sizes of data sets make it increasingly challenging to fit models
+and perform analytics on a single computer. Distributed computing
+infrastructure and projects like Hadoop or Spark make it possible to leverage a
+large number of compute nodes, but they offer only a limited set of tools and
+algorithms or their extendibility is limited by performance or programming
+requirements. R on the other hand provides a vast variety of efficient tools
+for statistical computing, but it is typically limited to a single machine. The
+aim of this project is to leverage the versatility and power of R in a
+distributed environment like Hadoop by allowing R users to define and run
+complex distributed algorithms using R. This will allow statisticians to vastly
+expand the space of models available for large-scale data modelling. As part of
+the project we will illustrate the use of such methodology by implementing
+distributed iterative models in R and applying it to real-world tasks on
+large-scale problems.
