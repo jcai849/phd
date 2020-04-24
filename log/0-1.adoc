@@ -11,7 +11,7 @@ XX XXXXXX
 * [ ] Research possible graph-based algorithms to require node communication
 
 .New
-** [ ] Setup Spark on the minicluster
+* [ ] Setup Spark on the minicluster
 ** [ ] Run some tests involving mutate and spark_apply
 ** [ ] Implement Reweighted Least Squares with sparklyr
 ** [ ] Reference this within the RWLS document
@@ -29,6 +29,11 @@ XX XXXXXX
 	- Fix up bibliography, add sources in preparation for more scholaraly
 	  justification
 *Thursday*::
+	- Finish bibliography fixes
+	- Paperwork for and acceptance
+	- Write on issues with pbdR RWLS
+*Friday*::
+	- University enrolment
 	- Install spark, start running tests
 
 == Discuss ==

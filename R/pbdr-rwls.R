@@ -28,31 +28,56 @@ dy <- as.ddmatrix(x=y, bldim=bldim)
 
 logReg <- function(X, y, maxIter=80, tolerance=0.01){
 	pr <- function(X, B){
-		1 / (1 + exp(-X  %*% B))
+		ddmatrix(1 / (1 + exp(-X  %*% B)),
+			    bldim=bldim)
 	}
-	##
+	## generating a distributed matrix of weights over the cluster is
+	## decidedly nontrivial; see section 7 of Guide to the pbdDMAT package,
+	## April 2020. Here I'll just generate one on just one node, then
+	## broadcast it.
 	weights <- function(X, B, y){
-		W <- ddmatrix(0, N, N, bldim=bldim)
-		diag(W) <- pr(X, B)
-		W
+		if (comm.rank() == 0){
+			W <- matrix(0, N, N)
+			diag(W) <- pr(X, B)
+		} else {
+			W <- NULL
+		}
+		as.ddmatrix(x=W, bldim=bldim)
 	}
 	##
 	N <- nrow(X)
-	oldB <- matrix(c(Inf,Inf))
-	newB <- matrix(c(0, 0))
+	if (comm.rank() ==0){
+		oldB <- matrix(c(Inf,Inf))
+	} else {
+		oldB <- NULL
+	}
+	doldB <- as.ddmatrix(x=oldB, bldim=bldim)
+	if (comm.rank() == 0){
+		newB <- matrix(c(0, 0))
+	} else {
+		newB <- NULL
+	}
+	dnewB <- as.ddmatrix(x=newB, bldim=bldim)
 	nIter <- 0
-	while (colSums((newB - oldB)^2) > tolerance &&
-	       nIter < maxIter) {
-		oldB <- newB
+	truemat <- ddmatrix(TRUE, bldim=bldim)
+	comm.print(nIter)
+	## Danger with predicates is that they too are dense distributed
+	## matrices, and can't be &&'ed with logical vectors
+	cont <- TRUE
+	while (cont) {
+		doldB <- dnewB
 	## N-R as RWLS
-		W <- weights(X, oldB, y)
+		W <- weights(X, doldB, y)
 		hessian <- - t(X) %*% W %*% X
-		z <- X %*% oldB + solve(W) %*% (y - pr(X, oldB))
-		newB <- solve(-hessian) %*% crossprod(X, W %*% z)
+		z <- X %*% doldB + solve(W) %*% (y - pr(X, doldB))
+		dnewB <- solve(-hessian) %*% crossprod(X, W %*% z)
 	##
 		nIter <- nIter + 1
+		comm.print(nIter)
+		cont <- all.equal(colSums((dnewB - doldB)^2) > tolerance, truemat) &&
+	       nIter < maxIter
 	}
-	newB
+	dnewB
 }
 
 dHatB <- logReg(dX, dy, tolerance=1E-6, maxIter=100)
