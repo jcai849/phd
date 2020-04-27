@@ -1,0 +1,36 @@
+0a1,3
+> suppressMessages(library(pbdDMAT))
+> init.grid()
+> 
+5c8
+< B <- matrix(c(1,3))
+---
+> B <- ddmatrix(c(1,3))
+8c11
+< X <- cbind(x0, x1)
+---
+> X <- as.ddmatrix(cbind(x0, x1))
+10c13
+< y <- rbinom(n, 1, p)
+---
+> y <- ddmatrix(rbinom(n, 1, as.vector(p)))
+23c26
+< 		diag(as.vector(pr(X, B)))
+---
+> 		diag(as.vector(pr(X, B)), type="ddmatrix")
+26,30c29,34
+< 	oldB <- matrix(c(Inf,Inf))
+< 	newB <- matrix(c(0, 0))
+< 	nIter <- 0
+< 	while (colSums((newB - oldB)^2) > tolerance &&
+< 	       nIter < maxIter) {
+---
+> 	oldB <- ddmatrix(c(Inf,Inf))
+> 	newB <- ddmatrix(c(0, 0))
+> 	nIter <- ddmatrix(0)
+> 	maxIter <- as.ddmatrix(maxIter)
+> 	while (as.matrix(colSums((newB - oldB)^2) > tolerance &
+> 	       nIter < maxIter)) {
+43a48,49
+> 
+> finalize()

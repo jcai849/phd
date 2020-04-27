@@ -3,7 +3,17 @@
 \usepackage{hyperref}
 \usepackage{biblatex}
 \addbibresource{../bib/bibliography.bib}
-
+\usepackage[svgnames]{xcolor}
+  \definecolor{diffstart}{named}{Grey}
+  \definecolor{diffincl}{named}{Green}
+  \definecolor{diffrem}{named}{OrangeRed}
+\usepackage{listings}
+  \lstdefinelanguage{diff}{
+    basicstyle=\ttfamily\small,
+    morecomment=[f][\color{diffstart}]{@@},
+    morecomment=[f][\color{diffincl}]{>\ },
+    morecomment=[f][\color{diffrem}]{<\ },
+  }
 \begin{document}
 \title{A Detail of pbdR}
 \author{Jason Cairns}
@@ -33,45 +43,118 @@ following description:
 \end{quote}
 
 \section{Interface and Backend}
+
 The project seeks to exist as a minimal wrapper around the BLAS and LAPACK
-libraries, creating minimal overhead. Standard R also uses routines from the
-library for most matrix operations, but suffers from numerous inefficiencies
-relating to the structure of the language; for example, copies of all objects
-being manipulated will be typically be created, often having devastating
-performance aspects unless specific functions are used for linear algebra
-operations, as discussed in \citeauthor{schmidt2017programming} (e.g.,
+libraries along with their distributed derivatives, with the intention of
+introducing as little overhead as possible.  Standard R also uses routines from
+the library for most matrix operations, but suffers from numerous
+inefficiencies relating to the structure of the language; for example, copies
+of all objects being manipulated will be typically be created, often having
+devastating performance aspects unless specific functions are used for linear
+algebra operations, as discussed in \citeauthor{schmidt2017programming} (e.g.,
 \texttt{crossprod(X)} instead of \texttt{t(X) \%*\% X})
 
 Distributed linear algebra operations in pbdR depend further on the ScaLAPACK
-library, provided through the pbdSLAP package \cite{Chen2012pbdSLAPpackage}.
+library, which can be provided through the pbdSLAP package \cite{Chen2012pbdSLAPpackage}.
 
-The principal interface for distributed computations is the pbdMPI package,
-which presents a simplified API to MPI through R \cite{Chen2012pbdMPIpackage}.
-All major MPI libraries are supported, but in workshop materials, the project
-recommends openMPI. A major note is that pbdMPI can only be used in batch mode
-through MPI, rather than interactively as in Rmpi.
+The principal interface for direct distributed computations is the pbdMPI
+package, which presents a simplified API to MPI through R
+\cite{Chen2012pbdMPIpackage}.  All major MPI libraries are supported, but the
+project tends to make use of openMPI in explanatory documentation. A very
+important consideration that isn't immediately clear  is that pbdMPI can only
+be used in batch mode through MPI, rather than any interactive option as in
+Rmpi \cite{yu02:_rmpi}.
 
 The actual manipulation of distributed matrices is enabled through the pbdDMAT
-package, which offers S4 classes over a single program/multiple data (SPMD)
-programming paradigm \cite{pbdDMATpackage}. These are specialised for dense
-matrices through the \texttt{ddmatrix} class, though the project offers some
-support for other matrices. The \texttt{ddmatrix} class has nearly all of the
-standard matrix generics implemented for it, with nearly identical syntax for
-all.
+package, which offers S4 classes encapsulating distributed matrices
+\cite{pbdDMATpackage}. These are specialised for dense matrices through the
+\texttt{ddmatrix} class, though the project offers some support for other
+matrices. The \texttt{ddmatrix} class has nearly all of the standard matrix
+generics implemented for it, with nearly identical syntax for all.
 
 \section{Package Interaction}
+
 The packages can be made to interact directly, for example with pbdDMAT
 constructing and performing basic manipulations on distributed matrices, and
 pbdMPI being used to perform further fine-tuned processing through
 communicating results across nodes manually, taking advantage of the
 persistence of objects at nodes through MPI.
 
+\section{pbdR in Practice}
+
+The package is geared heavily towards matrix operations in a statistical
+programming language, so a test of it's capabilities would quite reasonably
+involve statistical linear algebra. An example non-trivial routine is that of
+generating data, to test randomisation capability, then fitting a generalised
+linear model to the data through iteratively reweighted least squares. In this
+way, not only are the basic algebraic qualities considered, but communication
+over iteration on distributed objects is tested.
+
+To work comparatively, a simple working local-only version of the algorithm is
+produced in listing \ref{src:local-rwls}.
+\lstinputlisting[float, language=R, frame=L, 
+caption={Local GLM with RWLS},
+label=src:local-rwls]{../R/local-rwls.R}
+It outputs a \(\hat{\beta}\) matrix after several seconds of computation.
+
+Were pbdDMAT to function transparently as regular matrices, as the package
+README implies, then all that would be required to convert a local algorithm to
+distributed would be to prefix a \texttt{dd} to every \texttt{matrix} call, and
+bracket the program with a template as per listing \ref{src:bracket}. 
+\begin{lstlisting}[float, language=R, frame=L,
+caption={Idealised Common Wrap for Local to Distributed Matrices},
+label=src:bracket]
+suppressMessages(library(pbdDMAT))
+init.grid()
+
+# program code with `dd` prefixed to every `matrix` call
+
+finalize()
+\end{lstlisting}
+This is the form of transparency offered by packages such as \textit{parallel},
+\textit{foreach}, or \textit{sparklyr} in relation to dplyr.
+The program would then be written to disk, then executed, for example with the
+following:
+\begin{lstlisting}
+mpirun -np <# of cores> Rscript <script name>
+\end{lstlisting}
+The program halts however, as forms of matrix creation other than through
+explicit \texttt{matrix()} calls are not necessarily picked up by that process;
+\texttt{cbind} requires a second formation of a \texttt{ddmatrix}. The first
+issue comes when performing conditional evaluation;
+predicates involving distributed matrices are themselves distributed matrices,
+and can't be mixed in logical evaluation with local predicates.
+
+Turning local predicates to distributed matrices, then converting them all back
+to a local matrix for the loop to understand, finally results in a program run,
+however the results are still not accurate.  This is due to \texttt{diag()<-}
+assignment not having been implemented, so several further changes are
+necessary, including specifying return type of the diag matrix as a replacement.
+The final working code of pbdDMAT GLM through RWLS is given in listing 
+\ref{src:dmat}, with the code diff given in listing \ref{src:diff}.
+Execution time was longer for the pbdR code on a dual-core laptop, however it
+is likely faster over a cluster. %% TEST THIS!!
+
+\lstinputlisting[float, language=R, frame=L, 
+caption={pbdDMAT GLM with RWLS},
+label=src:dmat]{../R/naive-pbdr-rwls.R}
+
+\lstinputlisting[float, language=diff, frame=L, 
+caption={Diff between local and pbdR code},
+label=src:diff]{../R/local-rwls-to-pbdr.diff}
+
+It is worth noting that options for optimisation and tuning are far more
+extensive than those utilised in this example, including the capacity to set
+grid parameters, blocking factors, and BLACS contexts, among others.
+
 \section{Setup}
-The setup for pbdR is simple, but requires a definitely nontrivial environment
-to work in, including well set up BLAS, LAPACK and derivatives, a parallel file
-system with data in an appropriate format such as HDF5, and a standard MPI
-library. Much of the pain of setup is ameliorated with a docker container,
-provided in workshops by the project.
+
+The setup for pbdR is simple, being no more than a CRAN installation, but a
+well tuned environment, which is the main purpose for using the package in the
+first place, requires BLAS, LAPACK and derivatives, a parallel file system with
+data in an appropriate format such as HDF5, and a standard MPI library. Much of
+the pain of setup is ameliorated with a docker container, provided by the
+project.
 
 \printbibliography{}
 \end{document}
