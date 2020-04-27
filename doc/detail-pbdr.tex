@@ -8,8 +8,25 @@
   \definecolor{diffincl}{named}{Green}
   \definecolor{diffrem}{named}{OrangeRed}
 \usepackage{listings}
+\usepackage{color}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ 
+  backgroundcolor=\color{white},   
+  basicstyle=\ttfamily\small,
+  breaklines=true,                 
+  captionpos=b,                    
+  commentstyle=\color{mygreen},    
+  frame=single,	                   
+  keepspaces=true,                 
+  keywordstyle=\color{blue},       
+  stringstyle=\color{mymauve},     
+  tabsize=2,	                   
+}
   \lstdefinelanguage{diff}{
-    basicstyle=\ttfamily\small,
     morecomment=[f][\color{diffstart}]{@@},
     morecomment=[f][\color{diffincl}]{>\ },
     morecomment=[f][\color{diffrem}]{<\ },
@@ -92,15 +109,15 @@ over iteration on distributed objects is tested.
 
 To work comparatively, a simple working local-only version of the algorithm is
 produced in listing \ref{src:local-rwls}.
-\lstinputlisting[float, language=R, frame=L, 
-caption={Local GLM with RWLS},
-label=src:local-rwls]{../R/local-rwls.R}
+\lstinputlisting[float, language=R,
+	caption={Local GLM with RWLS},
+	label=src:local-rwls]{../R/local-rwls.R}
 It outputs a \(\hat{\beta}\) matrix after several seconds of computation.
 
 Were pbdDMAT to function transparently as regular matrices, as the package
 README implies, then all that would be required to convert a local algorithm to
 distributed would be to prefix a \texttt{dd} to every \texttt{matrix} call, and
-bracket the program with a template as per listing \ref{src:bracket}. 
+bracket the program with a template as per listing \ref{src:bracket}.
 \begin{lstlisting}[float, language=R, frame=L,
 caption={Idealised Common Wrap for Local to Distributed Matrices},
 label=src:bracket]
@@ -130,18 +147,18 @@ to a local matrix for the loop to understand, finally results in a program run,
 however the results are still not accurate.  This is due to \texttt{diag()<-}
 assignment not having been implemented, so several further changes are
 necessary, including specifying return type of the diag matrix as a replacement.
-The final working code of pbdDMAT GLM through RWLS is given in listing 
+The final working code of pbdDMAT GLM through RWLS is given in listing
 \ref{src:dmat}, with the code diff given in listing \ref{src:diff}.
 Execution time was longer for the pbdR code on a dual-core laptop, however it
 is likely faster over a cluster. %% TEST THIS!!
 
-\lstinputlisting[float, language=R, frame=L, 
-caption={pbdDMAT GLM with RWLS},
-label=src:dmat]{../R/naive-pbdr-rwls.R}
+\lstinputlisting[float, language=R,
+	caption={pbdDMAT GLM with RWLS},
+	label=src:dmat]{../R/naive-pbdr-rwls.R}
 
-\lstinputlisting[float, language=diff, frame=L, 
-caption={Diff between local and pbdR code},
-label=src:diff]{../R/local-rwls-to-pbdr.diff}
+\lstinputlisting[float, language=diff,
+	caption={Diff between local and pbdR code},
+	label=src:diff]{../R/local-rwls-to-pbdr.diff}
 
 It is worth noting that options for optimisation and tuning are far more
 extensive than those utilised in this example, including the capacity to set
