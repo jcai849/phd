@@ -1,0 +1,14 @@
+PhD research Repository
+.
+├── bib				Bibliographic information 
+│   ├── bibliography.bib	Biblatex citation database             
+│   ├── cites.R			Generate citations from R packages used
+│   └── Notes                   Notes on specific resources, named by keyword
+├── doc                         Research notes
+│   ├── *.tex			Specific research notes
+│   └── urls.org		Details of recorded urls               
+├── log                         Weekly log                             
+├── meta                        Documents relating to enrolment
+├── Makefile			Build pdfs from latex files in doc
+├── out                         Built pdf directory
+└── R                           R files
