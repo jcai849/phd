@@ -4,7 +4,7 @@ XX XXXXXX
 == Objectives ==
 
 .Carried
-* [ ] Implement Reweighted Least Squares with pbdR
+* [*] Implement Reweighted Least Squares with pbdR
 ** [ ] Fill in RWLS document with reference to the pbdR implementation
 * [ ] Write on LASSO with reference to the bigmemory implementation
 * [ ] Write on other algorithms: ADMM, Random Forest
@@ -36,11 +36,8 @@ XX XXXXXX
 	- University enrolment
 	- Install spark
 	- Needing su access to install the myriad dependencies for sparklyr
-*Monday*::
-	- Install dependencies for sparklyr
-	- Install sparklyr
-	- test sparklyr
 
 == Discuss ==
 * Should I go into detail on sparkr as well?
+* Requiring sudo for sparklyr dependencies
 * PhD admin: needs analysis etc.
