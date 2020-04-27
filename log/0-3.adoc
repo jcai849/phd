@@ -4,17 +4,17 @@
 
 === New [50%]
 
-* [X] Create weekly logs <2020-03-31 Tue>
-* [X] Rearrange repositories <2020-03-31 Tue>
-* [X] Write in more depth on packages; the *what* is done, now look at
+* [*] Create weekly logs <2020-03-31 Tue>
+* [*] Rearrange repositories <2020-03-31 Tue>
+* [*] Write in more depth on packages; the *what* is done, now look at
 *how*:
-** [X] disk.frame <2020-03-31 Tue>, <2020-04-01 Wed>, <2020-04-02 Thu>
-** [X] foreach <2020-04-02 Thu> <2020-04-03 Fri> (also see if it bears
+** [*] disk.frame <2020-03-31 Tue>, <2020-04-01 Wed>, <2020-04-02 Thu>
+** [*] foreach <2020-04-02 Thu> <2020-04-03 Fri> (also see if it bears
 resemblance to the function of the same name in csh and make, and write
 on the iterators package that supports it)
 * [-] Learn more on reweighted least squares as an example iterative
 algorithm
-** [X] Read on reweighted least squares
+** [*] Read on reweighted least squares
 ** [ ] Take notes
 * [ ] Retry cluster simulation
 * [ ] Run more complex statistics on cluster; e.g. biglm

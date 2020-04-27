@@ -65,9 +65,9 @@ algorithm
 	  course]
 	- link:../doc/detail-pbdr.tex[Wrote on pbdR in more detail]
 *Monday*::
-	- implement reweighted least squares locally link:../R/local-rwls.R
+	- implement reweighted least squares locally link:../R/local-rwls.R[local RWLS]
 *Tuesday*::
-	- implement reweighted least squares using pbdDMAT link:../R/pbdr-rwls.R
+	- implement reweighted least squares using pbdDMAT link:../R/pbdr-rwls.R[pbdDMAT]
 
 == Discuss ==
 

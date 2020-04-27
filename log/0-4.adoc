@@ -2,18 +2,18 @@
 
 === Carried [100%]
 
-* [X] Fill in information on
+* [*] Fill in information on
 link:../doc/survey-r-packages-for-local-large-scale-computing.tex[local
 systems]
-* [X] Get link:../bib/cites.R[R references] & relevant papers
-* [X] Fix
+* [*] Get link:../bib/cites.R[R references] & relevant papers
+* [*] Fix
 link:../doc/survey-r-packages-for-distributed-large-scale-computing.tex[distributed
 systems] papers & references
-* [X] Begin creating simulation of statistics on distributed data
-* [X] Fill in more info on "other packages", including
-** [X] partools
-** [X] pbdR
-** [X] disk.frame
+* [*] Begin creating simulation of statistics on distributed data
+* [*] Fill in more info on "other packages", including
+** [*] partools
+** [*] pbdR
+** [*] disk.frame
 
 === New [100%]
 
@@ -76,11 +76,11 @@ disk.frame
 
 == Discuss [3/3]
 
-* [X] _Is Bioconductor relevant?_ Similar project, but it is a specific
+* [*] _Is Bioconductor relevant?_ Similar project, but it is a specific
 project made to solve specific problems (bioinformatics).
-* [X] _Fragmented nature of ecosystem. Future parallel backends
+* [*] _Fragmented nature of ecosystem. Future parallel backends
 redundant in face of `parallel` & co., cf:
 https://github.com/HenrikBengtsson/future.apply#Role[future.apply]_.
 Verified: this project should fix that!!
-* [X] _Worth retrying cluster simulation, work on something more
+* [*] _Worth retrying cluster simulation, work on something more
 complex?_ Yes. E.g. biglm on cluster

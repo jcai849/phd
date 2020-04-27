@@ -6,15 +6,15 @@
 
 === New [80%]
 
-* [X] Write on and try future and furrr
-* [X] Other packages to write on:
-** [X] partools
-** [X] pbdR
-** [X] sparklyr: see if dead or not
-** [X] disk.frame
-** [X] RHIPE
-* [X] Search for packages created for stats in absence of scale
-* [X] Write on and try biglm, bigmemory, etc., as well as other
+* [*] Write on and try future and furrr
+* [*] Other packages to write on:
+** [*] partools
+** [*] pbdR
+** [*] sparklyr: see if dead or not
+** [*] disk.frame
+** [*] RHIPE
+* [*] Search for packages created for stats in absence of scale
+* [*] Write on and try biglm, bigmemory, etc., as well as other
 discovered packages
 * [ ] Simulations of statistics on distributed data
 

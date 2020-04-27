@@ -4,12 +4,12 @@
 
 === New [100%]
 
-* [X] Email Paul & Simon re: CS course details
-* [X] Set up repositories & let S&P know
-* [X] Complete notes on H2O and R packages
-* [X] Get new journal
-* [X] Read on how to take better notes on papers
-* [X] read background of iterative parallel algorithms, e.g., ADMM
+* [*] Email Paul & Simon re: CS course details
+* [*] Set up repositories & let S&P know
+* [*] Complete notes on H2O and R packages
+* [*] Get new journal
+* [*] Read on how to take better notes on papers
+* [*] read background of iterative parallel algorithms, e.g., ADMM
 
 == Journal
 
