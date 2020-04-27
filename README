@@ -11,4 +11,4 @@ PhD research Repository
 ├── meta                        Documents relating to enrolment
 ├── Makefile			Build pdfs from latex files in doc
 ├── out                         Built pdf directory
-└── R                           R files
+└── R                           R scripts
