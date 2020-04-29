@@ -1,0 +1,35 @@
+Establishing, Spark, and Features
+=================================
+
+== Objectives ==
+
+.Carried
+* [ ] Setup Spark on the minicluster
+** [ ] Run some tests involving mutate and spark_apply
+** [ ] Implement Reweighted Least Squares with sparklyr
+** [ ] Compare self-made glm with MLLib glm
+** [ ] Reference this within the RWLS document
+** [ ] Write on potential and limitations of mutate (with references)
+** [ ] Look in detail at how sparklyr performs mutate functions
+* [ ] Justify desired features
+* [ ] Record the backends commonly supported by backend-powered packages
+* [ ] Write on LASSO with reference to the bigmemory implementation
+* [ ] Write on other algorithms: ADMM, Random Forest
+* [ ] Research possible graph-based algorithms to require node communication
+
+.New
+* [ ] More on RWLS document
+** [ ] Reference the GLM implementations in sparklyr and pbdR
+* [ ] Especial note on debugging ease through interactivity in the features
+      survey document
+
+== Journal ==
+
+[horizontal]
+*Thursday*::
+	- Get VPN working
+	- Finalise install of Spark (include details in script)
+	- Setup directory profile
+	- Download more papers on platform features
+
+== Discuss ==

@@ -5,7 +5,6 @@ pbdR, Spark, and Enrolment
 
 .Carried
 * [*] Implement Reweighted Least Squares with pbdR
-** [ ] Fill in RWLS document with reference to the pbdR implementation
 * [ ] Write on LASSO with reference to the bigmemory implementation
 * [ ] Write on other algorithms: ADMM, Random Forest
 * [ ] Research possible graph-based algorithms to require node communication
