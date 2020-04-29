@@ -1,0 +1,11 @@
+Iterative Reweighted Least Squares
+==================================
+:keywords: linear algebra, statistics, iterative
+
+* part of a large family of methods.
+* A means of approximation of the beta vector in overdetermined set of equations y=Xb
+* solved thorough minimising some function of the error vector e=Xb-y, typically the norm
+* Norm can be weighted for emphasis on certain components (equation given p2 (eq. 8))
+* sparsity can be increased through greater l_p norms
+* iteratively reweighted least squares develops from the inductive equations 16 & 17 p5
+*
