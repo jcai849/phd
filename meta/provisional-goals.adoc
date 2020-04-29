@@ -14,17 +14,6 @@ Goal 3::
 	Presentation of the proposal and/or work in progress to an appropriate
 	forum e.g. seminar, research group, conference, to the satisfaction of
 	the supervisors.
-Goal 4::
-	Ethics approval/s and/or permissions obtained for the research (if
-	required).
-Goal 5::
-	Attendance at one of the Doctoral Skills Programme Induction Days.
-Goal 7::
-	A needs analysis to determine training and other requirements that must
-	be completed before candidature can be confirmed.
-Goal 8::
-	Completion of a health and safety risk assessment and training for any
-	laboratory/studio/field and related work activities.
 Goal 10::
 	Write a review of existing methods and literature on approaches to
 	distributed computing with R and current solutions in other
@@ -53,8 +42,19 @@ Goal 14::
 Complete
 --------
 
+Goal 4::
+	Ethics approval/s and/or permissions obtained for the research (if
+	required).
+Goal 5::
+	Attendance at one of the Doctoral Skills Programme Induction Days.
 Goal 6::
 	Successful completion of the Academic Integrity Module.
+Goal 7::
+	A needs analysis to determine training and other requirements that must
+	be completed before candidature can be confirmed.
+Goal 8::
+	Completion of a health and safety risk assessment and training for any
+	laboratory/studio/field and related work activities.
 Goal 9::
 	Undertake Diagnostic English Language Needs Assessment (DELNA) online
 	screening. If a full assessment is advised, complete full diagnostic
