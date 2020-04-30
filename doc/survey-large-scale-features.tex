@@ -26,30 +26,53 @@ A list of features and their descriptions follows:
 \begin{description}
 	\item[Distributed Functionality] The ability to spread computation and data
 	      over separate computers
+		%% cite: importance of concurrancy - mccarthy1983reminiscences
+	      %% capacity to handle big data: size & fault-tolerance - ghemawat2003google
 	\item[Arbitrary Code Evaluation] The ability to make use of user-specified code
 	      in processing
+		%% contrast those enabled with those unable to
 	\item[Arbitrary Iterative Code Evaluation] The ability to process
 	      user-specified code involving iteration over the whole dataset, as opposed to a
 	      simple mapping
+		%% criticism of mapreduce in zaharia2010spark
 	\item[Object Persistence at Nodes] The ability to retain objects at their point
 	      of processing
+		%% maybe see 1611.09177
 	\item[Support for HDFS] Capacity to work with data and computation on the
 	      Hadoop Distributed File System
+		%% benefits of hdfs - shvachko2010hadoop
 	\item[Ease of Setup] Is setup suitable for a computationally-focussed
 	      statistician, or does it require a system administrator?
+		%% R made for statisticians - rcore2020intro
+	      %% lapack setup difficult (example) - quick installation guide (25 pages)
 	\item[Inter-Node Communication] Can any pair of nodes communicate with each
 	      other, or do they only report to a master node?
+		%% benefits shown in MPI - walker1996mpi
 	\item[Interactive Usage] The ability to make use of the package in an
 	      interactive R session, without mandatory batch execution
+		%% Especial notes on debugging
+		%% repl importance from mccarthy1978history
 	\item[Backend Decoupling] The implementation is maintained entirely separately
 	      to the interface
+		%% separation of concerns - dijkstra1982role
+		%% current performant r systems - eddelbuettel2019parallel
 	\item[Evaluation of Arbitrary Classes] Any class, including user-defined
 	      classes can be used in evaluation
+		%% limitations of just matrices as with pbdR
+		%% limitations of just dataframes with anything 'tidy' and spark
+		%% value of rich user-defined objects - dahl2004birth 
 	\item[Direct API] The platform is explicitly programmed against at an interface
+		%% contrast with generics, give examples (foreach)
 	\item[Class for Generics] The platform may be set up, then programming makes
 	      use of standard generics that are then utilised
+	      %% contrast with API, give examples (pbdDMAT, more)
 	\item[dplyr Compatible] The platform makes use of dplyr as the standard
 	      generics to implicitly program over
+	      %% ubiquity of dplyr (try put in something about Rstudio being the 
+	      %% Red Hat of R, and dplyr being often redundant to things there 
+	      %% before as well as their non-acknowledgement of everything prior 
+	      %% (that typically do things better and faster), almost at a level of 
+	      %% plaigiarism
 \end{description}
 
 \section{Comparison Table}\label{sec:comp-tab}
