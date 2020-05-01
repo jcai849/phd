@@ -24,16 +24,37 @@ merits.
 A list of features and their descriptions follows:
 
 \begin{description}
-	\item[Distributed Functionality] The ability to spread computation and data
-	      over separate computers
-		%% cite: importance of concurrancy - mccarthy1983reminiscences
-	      %% capacity to handle big data: size & fault-tolerance - ghemawat2003google
-	\item[Arbitrary Code Evaluation] The ability to make use of user-specified code
-	      in processing
-		%% contrast those enabled with those unable to
+	\item[Distributed Functionality]
+		The ability to spread computation and data over separate
+		computers.
+		The value of distributed computing is well recognised for
+		large-scale computing, in the increased capacity for
+		processing, memory, and storage.
+		Distributed computing typically gains latency speedup
+		through parallel processing; both Amdahl's law and Gustafson's
+		law give theoretical speedups for parallel jobs
+		\cite{amdahl1967law} \cite{gustafson1988law}.  
+		In addition, each node typically adds more working memory to the
+		distributed system, allowing for larger datasets to be
+		manipulated in-memory.  
+		For exceedingly large datasets, the benefits of distributed
+		file systems commonly allow for resiliant storage, with well-regarded
+		examples including HDFS and the Google File System it is based
+		upon \cite{shvachko2010hadoop} \cite{ghemawat2003google}.
+	\item[Arbitrary Code Evaluation] 
+		The ability to make use of user-specified code in processing.
+		Most R packages for large-scale computing do enable arbitrary code,
+		however they typically have some limitations, such as an inability to
+		recognise global variables, as is the case with sparklyr and to a lesser
+		extent future \cite{sparklyr2020limitations} \cite{microsoft20}.
+		The ability for a system to adhere to a similar interface despite 
+		changes in internal behaviour is useful for the sake of referential
+		transparency, as well as human-computer interaction considerations
+		\cite{sondergaard1990Rtda} \cite{norman2013design}.
 	\item[Arbitrary Iterative Code Evaluation] The ability to process
 	      user-specified code involving iteration over the whole dataset, as opposed to a
-	      simple mapping
+	      simple mapping.
+
 		%% criticism of mapreduce in zaharia2010spark
 	\item[Object Persistence at Nodes] The ability to retain objects at their point
 	      of processing
@@ -99,4 +120,5 @@ A list of features and their descriptions follows:
 	\caption{Comparison of major features among platforms\label{tab:compare-features}}
 \end{table}
 
+\printbibliography{}
 \end{document}

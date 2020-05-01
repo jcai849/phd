@@ -1,0 +1,10 @@
+Reminiscences on the History of Timesharing
+===========================================
+
+* McCarthy considered it around 1955
+* Timesharing defined by him to be an operating system permitting multiple
+  users to each consider himself as sole user
+* Christopher Strachey conceived of time sharing as between programs to run
+  together, as multi--programming to avoid waiting for peripherals; paper
+  presented as cite:strachey1959time
+* Principal cited benefits was the advantage of on-line debugging
