@@ -25,70 +25,157 @@ A list of features and their descriptions follows:
 
 \begin{description}
 	\item[Distributed Functionality]
-		The ability to spread computation and data over separate
-		computers.
-		The value of distributed computing is well recognised for
-		large-scale computing, in the increased capacity for
-		processing, memory, and storage.
-		Distributed computing typically gains latency speedup
-		through parallel processing; both Amdahl's law and Gustafson's
-		law give theoretical speedups for parallel jobs
-		\cite{amdahl1967law} \cite{gustafson1988law}.  
-		In addition, each node typically adds more working memory to the
-		distributed system, allowing for larger datasets to be
-		manipulated in-memory.  
-		For exceedingly large datasets, the benefits of distributed
-		file systems commonly allow for resiliant storage, with well-regarded
-		examples including HDFS and the Google File System it is based
-		upon \cite{shvachko2010hadoop} \cite{ghemawat2003google}.
-	\item[Arbitrary Code Evaluation] 
-		The ability to make use of user-specified code in processing.
-		Most R packages for large-scale computing do enable arbitrary code,
-		however they typically have some limitations, such as an inability to
-		recognise global variables, as is the case with sparklyr and to a lesser
-		extent future \cite{sparklyr2020limitations} \cite{microsoft20}.
-		The ability for a system to adhere to a similar interface despite 
-		changes in internal behaviour is useful for the sake of referential
-		transparency, as well as human-computer interaction considerations
-		\cite{sondergaard1990Rtda} \cite{norman2013design}.
-	\item[Arbitrary Iterative Code Evaluation] The ability to process
-	      user-specified code involving iteration over the whole dataset, as opposed to a
-	      simple mapping.
-
-		%% criticism of mapreduce in zaharia2010spark
-	\item[Object Persistence at Nodes] The ability to retain objects at their point
-	      of processing
-		%% maybe see 1611.09177
-	\item[Support for HDFS] Capacity to work with data and computation on the
-	      Hadoop Distributed File System
-		%% benefits of hdfs - shvachko2010hadoop
-	\item[Ease of Setup] Is setup suitable for a computationally-focussed
+	      The ability to spread computation and data over separate
+	      computers.
+	      The value of distributed computing is well recognised for
+	      large-scale computing, in the increased capacity for
+	      processing, memory, and storage.
+	      Distributed computing typically gains latency speedup through
+	      parallel processing; both Amdahl's law and Gustafson's law give
+	      theoretical speedups for parallel jobs \cite{amdahl1967law}
+	      \cite{gustafson1988law}.
+	      In addition, each node typically adds more working memory to
+	      the distributed system, allowing for larger datasets to be
+	      manipulated in-memory.
+	      For exceedingly large datasets, the benefits of distributed
+	      file systems commonly allow for resiliant storage, with
+	      well-regarded examples including HDFS and the Google File
+	      System it is based upon \cite{shvachko2010hadoop}
+	      \cite{ghemawat2003google}.
+	\item[Arbitrary Code Evaluation]
+	      The ability to make use of user-specified code in processing.
+	      Most R packages for large-scale computing do enable arbitrary
+	      code, however they typically have some limitations, such as an
+	      inability to recognise global variables, as is the case with
+	      sparklyr and to a lesser extent future
+	      \cite{sparklyr2020limitations} \cite{microsoft20}.
+	      The ability for a system to adhere to a similar interface
+	      despite changes in internal behaviour is useful for the sake of
+	      referential transparency, as well as human-computer interaction
+	      considerations \cite{sondergaard1990Rtda}
+	      \cite{norman2013design}.
+	\item[Arbitrary Iterative Code Evaluation]
+	      The ability to process user-specified code involving iteration
+	      over the whole dataset, as opposed to a simple mapping.
+	      This reflects the inherently iterative nature of many
+	      statistical algorithms.
+	      Furthermore, this shouldn't initiate a new job or process for
+	      every new iteration.
+	      This is seen as important enough that it is cited in
+	      \citeauthor{zaharia2010spark} as a major deficiency of Hadoop
+	      to lack such iterative support, and a motivating factor behing
+	      Spark's development.
+	\item[Object Persistence at Nodes]
+	      The ability to retain objects in-memory at their point of
+	      processing.
+	      The standard motivation for such a feature revolves around a
+	      reduction in data movement, which serves to slow down
+	      processing enormously through forcing programs to be I/O bound.
+	      In-memory persistence is closely related to the capacity for
+	      iterative code evaluation in a distributed system, and was
+	      similarly referenced by \citeauthor{zaharia2010spark} as an
+	      apparent benefit of Spark.
+	\item[Support for HDFS]
+	      Capacity to work with data and computation on the Hadoop
+	      Distributed File System (HDFS).
+	      As a well-established distributed file system, HDFS is targeted
+	      by a number of R packages, as well as serving as a file
+	      system base for other platforms such as spark
+	      \cite{analytics:_rhadoop_wiki} \cite{deltarho:_rhipe}
+	      \cite{urbanek20} \cite{zaharia2016apache}.
+	      HDFS offers several features that make it particularly
+	      attractive as a filesystem for a large-scale statistical
+	      analysis;
+	      being distributed and capable of running on commodity hardware
+	      allows for truly big data analysis.
+	      In addition, the system is built to be resiliant to hardware
+	      failure, so long-running analyses aren't cut short or forced to
+	      revert to a checkpoint because of singular component failure
+	      \cite{shvachko2010hadoop}.
+	\item[Ease of Setup]
+	      Is setup suitable for a computationally-focussed
 	      statistician, or does it require a system administrator?
-		%% R made for statisticians - rcore2020intro
+	      At it's base, R is a statistical programming language
+	      \cite{rcore2020intro}.
+	      The particular skills of statisticians seldom correspond to the
+	      those requisite of system administration, with such a focus
+	      unlikely to compete successfully with their main research.
+	      Ease of deployment can determine a platform's success, with
+	      such a feature being one of the many motivations for the use
+	      and development of tools such as docker in recent years.
 	      %% lapack setup difficult (example) - quick installation guide (25 pages)
-	\item[Inter-Node Communication] Can any pair of nodes communicate with each
-	      other, or do they only report to a master node?
-		%% benefits shown in MPI - walker1996mpi
-	\item[Interactive Usage] The ability to make use of the package in an
-	      interactive R session, without mandatory batch execution
-		%% Especial notes on debugging
-		%% repl importance from mccarthy1978history
-	\item[Backend Decoupling] The implementation is maintained entirely separately
-	      to the interface
-		%% separation of concerns - dijkstra1982role
-		%% current performant r systems - eddelbuettel2019parallel
-	\item[Evaluation of Arbitrary Classes] Any class, including user-defined
-	      classes can be used in evaluation
-		%% limitations of just matrices as with pbdR
-		%% limitations of just dataframes with anything 'tidy' and spark
-		%% value of rich user-defined objects - dahl2004birth 
-	\item[Direct API] The platform is explicitly programmed against at an interface
-		%% contrast with generics, give examples (foreach)
-	\item[Class for Generics] The platform may be set up, then programming makes
-	      use of standard generics that are then utilised
-	      %% contrast with API, give examples (pbdDMAT, more)
-	\item[dplyr Compatible] The platform makes use of dplyr as the standard
-	      generics to implicitly program over
+	\item[Inter-Node Communication]
+	      Can any pair of nodes communicate with each other, or do they
+	      only report to a master node?
+	      While many tasks process efficiently within a standard
+	      master-slave architecture, and inter-node communication is
+	      inherently expensive, there is still a large class of tasks
+	      that benefit from inter-node communication\cite{walker1996mpi};
+	      particularly graph-based statistical methods.
+	\item[Interactive Usage]
+	      The ability to make use of the package in an interactive R
+	      session, without mandatory batch execution.
+	      A major benefit of R as being interpreted is the availability
+	      of the REPL. The benefits of interactivity stemming from a REPL
+	      are well-documented, most notably aiding debugging
+	      \cite{mccarthy1978history}.
+	      Ideally, a platform would preserve as much of this property as
+	      possible.
+	\item[Backend Decoupling]
+	      The implementation is maintained entirely separately to the
+	      interface.
+	      This is standard in most of the performant parallel R systems
+	      as described by \cite{eddelbuettel2019parallel}, including
+	      \cite{microsoft20} as a key example.
+	      As a software pattern, this is a case of separation of
+	      concerns, described in detail by \cite{dijkstra1982role}.
+	      Such a pattern fosters modularity and allows for a broader
+	      range of backends to be made use of, maximising the uptake of
+	      the platform.
+	\item[Evaluation of Arbitrary Classes]
+	      Any class, including user-defined classes, can be used in
+	      evaluation.
+	      There is proven value in rich user-defined objects, with the
+	      weight of much of the object-oriented programming paradigm
+	      serving to further that point \cite{dahl2004simula}.
+	      Conversely, many major packages limit themselves through
+	      provisioning only a few classes, such as pbdDMAT with
+	      distributed matrices, or the tidyverse and it's derivatives
+	      including sparklyr with ``tibbles'' \cite{pbdDMATpackage}
+	      \cite{wickham2019welcome}
+	\item[Direct API]
+	      The platform is explicitly programmed against at an interface.
+	      This is in contrast with generics;
+	      at a loss of general transparency, API's can ensure greater
+	      encapsulation and a closer mapping of code with the underlying
+	      implementation, thus potentially resulting in performance gains
+	      \cite{bierhoff2009api}.
+	      An example in R is the interface to the foreach package not
+	      overloading the existing for-loop syntax in R, but defining
+	      it's own interface \cite{microsoft20}.
+	      %% contrast with generics, give examples (foreach)
+	\item[Class for Generics]
+	      The platform may be set up, then programming makes use of
+	      standard generics that are then utilised.
+	      This is in contrast with a direct API, though it is not entirely
+	      mutually exclusive;
+	      classes can be defined with generics overloaded such that
+	      programming is entirely equivalent to programming with base
+	      R objects, and a further API can be made available.
+	      pbdDMAT takes this approach, as well as
+	      bigmemory\cite{pbdDMATpackage}\cite{kane13:bigmemory}.
+	\item[dplyr Compatible]
+	      The platform makes use of dplyr as the standard generics to
+	      implicitly program over.
+	      Using a dplyr interface is a common trend in several R packages
+	      including sparklyr, disk.frame, and many database interfaces
+	      \cite{luraschi20}\cite{zj20}.
+	      Such an interface is claimed by the dplyr creators to aid
+	      beginners through being simple to remember \cite{wickham2019welcome}.
+	      It may serve as a simple, though somewhat powerful, introduction
+	      to data manipulation using the platform within the confines
+	      of familiarity to those who have learnt R through the ``tidy''
+	      paradigm.
 	      %% ubiquity of dplyr (try put in something about Rstudio being the 
 	      %% Red Hat of R, and dplyr being often redundant to things there 
 	      %% before as well as their non-acknowledgement of everything prior 

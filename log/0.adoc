@@ -12,11 +12,11 @@ Establishing, Spark, and Features
 ** [ ] Reference this within the RWLS document
 ** [ ] Write on potential and limitations of mutate (with references)
 ** [ ] Look in detail at how sparklyr performs mutate functions
-* [ ] Justify desired features
+* [*] Justify desired features
 ** [*] Attain backing literature
-** [ ] Read and take further notes on backing literature
-** [ ] Compose argument
-** [ ] Especial note on ease of debugging when REPL available
+** [*] Read and take further notes on backing literature
+** [*] Compose argument
+** [*] Especial note on ease of debugging when REPL available
 * [ ] Record the backends commonly supported by backend-powered packages
 	(include these in the survey-large-scale-platforms document, including
 	revis and other distributed databases)
@@ -36,8 +36,12 @@ Establishing, Spark, and Features
 	- Finalise install of Spark (include details in script)
 	- Setup directory profile
 	- Download more papers on platform features
+*Friday*::
+	- Reading and writing on platform features
+*Monday*::
+	- Cleanup after backup failure
 
 == Discuss ==
-* Spark not connecting to yarn-client; is yarn set up on cluster?
+* Spark not connecting to yarn-client; how is yarn set up on cluster?
 * Uni offers an svn server (lol)
 * VPN painless when using https://uoaprod.service-now.com/sp?id=kb_article&sys_id=29e0cb28db3b0050d096cd0514961964[openfortivpn without gui]
