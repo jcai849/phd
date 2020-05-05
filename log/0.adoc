@@ -40,8 +40,10 @@ Establishing, Spark, and Features
 	- Reading and writing on platform features
 *Monday*::
 	- Cleanup after backup failure
+	- Last polish of platform features
+*Tuesday*::
+	- Spark install
+	- Meeting
 
 == Discuss ==
 * Spark not connecting to yarn-client; how is yarn set up on cluster?
-* Uni offers an svn server (lol)
-* VPN painless when using https://uoaprod.service-now.com/sp?id=kb_article&sys_id=29e0cb28db3b0050d096cd0514961964[openfortivpn without gui]
