@@ -1,3 +1,5 @@
+*.epub
+*.mobi
 *.pdf
 *.aux
 *.log
