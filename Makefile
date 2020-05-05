@@ -1,9 +1,8 @@
 DOCDIR	:= doc
 OUTDIR	:= out
 BIBDIR  := bib
-LOGDIR  := log
 DOCS	:= $(wildcard $(DOCDIR)/*.tex)
-LOGS	:= $(wildcard $(LOGDIR)/*.adoc)
+LOGS	:= LOG
 
 .PHONY: all clean format-bib format-tex logs
 
@@ -35,7 +34,5 @@ format-bib:
 format-tex: $(DOCS)
 	ls $(DOCDIR)/*.tex | xargs -I {} -n 1 latexindent -w -s -m {}
 
-logs: $(LOGS:.adoc=.html)
-
-$(LOGDIR)/%.html: $(LOGDIR)/%.adoc
+LOG.html: LOG
 	asciidoc -o $@ $<

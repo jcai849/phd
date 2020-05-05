@@ -1,0 +1,21 @@
+. sparklyr testing
+.. Setup Spark on the minicluster
+.. Run some tests involving mutate and spark_apply
+.. Implement Reweighted Least Squares with sparklyr
+.. Compare self-made glm with MLLib glm
+.. Reference this within the RWLS document
+.. Write on potential and limitations of mutate (with references)
+.. Look in detail at how sparklyr performs mutate functions
+. Justify desired features
+.. Attain backing literature
+.. Read and take further notes on backing literature
+.. Compose argument
+.. Especial note on ease of debugging when REPL available
+. Record the backends commonly supported by backend-powered packages (include
+  these in the survey-large-scale-platforms document, including revis and other
+  distributed databases)
+. Write on LASSO with reference to the bigmemory implementation
+. Write on other algorithms: ADMM, Random Forest
+. Research possible graph-based algorithms to require node communication
+. More on RWLS document
+.. Reference the GLM implementations in sparklyr and pbdR

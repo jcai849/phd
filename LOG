@@ -1,0 +1,161 @@
+2020-05-05::
+	- Spark install
+	- Meeting
+2020-05-04::
+	- Cleanup after backup failure
+	- Last polish of platform features:
+	  link:doc/survey-large-scale-features.tex[platform features]
+2020-05-01::
+	- Reading and writing on platform features
+	- Technically first day of registration
+2020-04-30::
+	- Get VPN working
+	- Finalise install of Spark (include details in script)
+	- Setup directory profile
+	- Download more papers on platform features
+2020-04-24::
+	- University enrolment
+	- Install spark
+	- Needing su access to install the myriad dependencies for sparklyr
+2020-04-23::
+	- Finish bibliography fixes
+	- Paperwork for and acceptance
+	- Write on issues with pbdR RWLS
+2020-04-22::
+	- Continue RWLS with pbdR; created test programs in learn-pbdr
+	  directory
+	- Fix up bibliography, add sources in preparation for more scholaraly
+	  justification
+2020-04-21::
+	- implement reweighted least squares using pbdDMAT
+	  link:R/pbdr-rwls.R[pbdDMAT]
+2020-04-20::
+	- implement reweighted least squares locally
+	  link:R/local-rwls.R[local RWLS]
+2020-04-17::
+	- Learned Docker
+	- Read _Programming with BIG data in R: Scaling analytics from one to
+	  thousands of nodes_ ; very worthwhile read
+	- Followed the https://pbdr.org/tutorials/jsm2017/[pbdR Essentials
+	  course]
+	- link:doc/detail-pbdr.tex[Wrote on pbdR in more detail]
+2020-04-16::
+	- More detail on
+	  link:doc/survey-r-packages-for-distributed-large-scale-computing.tex[sparklyr]
+	  arbitrary code execution
+	- More detail on link:doc/detail-foreach.tex[foreach]
+	  means of global variable detection
+	- Writing on attributes important to large-scale R platforms
+	  link:doc/survey-large-scale-features.tex[Feature Survey]
+2020-04-15::
+	- Crawling through source code of future
+	- Writing more detail on link:doc/detail-future.tex[future]
+	persistence
+2020-04-14::
+	- Meeting postponed for more work to be completed
+	- Reading on sparklyr, future, foreach 
+2020-04-09::
+	- learned vimscript, started work on
+	  https://github.com/jcai849/send-to-pane[plugin] to send text from vim
+	  to R 
+2020-04-08::
+	- Finished reading 4.2 ESL
+	- Completed log fixing
+2020-04-07::
+	- Learned vim
+	- Learned asciidoc
+	- Learned tmux
+	- Fixed makefile
+2020-04-06::
+	- Reading ESL, wikipedia on reweighted least squares
+	- Math revision
+	- created template for notes on reweighted least squares
+2020-04-03::
+	- Laid out thoughts on organisation of research
+	- link:doc/detail-foreach.tex[detail of foreach]
+	- Renamed files to reflect organisation, fixed links
+2020-04-02::
+	- Finished writing on link:doc/case-study-disk.frame.tex[disk.frame]
+	- Fixed names of packages in documents (accepting their lower-case
+	naming)
+	- Began reading on foreach internals
+2020-04-01::
+	- Wrote on link:doc/case-study-disk.frame.tex[how disk.frame works]
+	as a case study
+	- Re-remade makefile to accomodate directory movement
+2020-03-31::
+	- Created link:log/[logs]
+	- Rearranged repositories; moved the contents of
+	https://github.com/jcai849/phd-src[phd-src] to just be a subdirectory of
+	https://github.com/jcai849/phd[phd] named "link:R/[R]", with no git
+	weirdness like submodules, etc. keeping it simple. moved all documents
+	to "link:doc/[doc]"
+	- Remade makefile to accomodate movement
+	- Began reading disk.frame vignettes and source in detail
+2020-03-30::
+	- More research on other packages, especially partools, pbdR, and
+	disk.frame
+2020-03-27::
+	- Further consideration of yesterday's issues: some progress in
+	understanding `substitute()`, environments (just mutable hash tables),
+	and nested substitution for quotation. Staying away from `rlang`.
+	- Continuation of distributed statistics simulation without cluster
+	simulation in
+	link:R/basic-statistics-on-distributed-data.R[basic-stats-on-dist-data.R]
+2020-03-26::
+	Began creating link:R/local-cluster-simulation.R[cluster class for
+	local simulation] to facilitate simulation of statistics on distributed
+	data, locally. 
+2020-03-25::
+	- link:doc/survey-r-packages-for-local-large-scale-computing.tex[Filled
+	in information on local systems]
+	- link:bib/cites.R[Attained] R references & relevant papers -
+	references in link:bib/bibliography.bib[bibliography.bib]
+	- Fixed link:doc/distributed-systems-overview.tex[distributed
+	systems] papers & link:bib/bibliography.bib[references]
+2020-03-24::
+	- Writing on bigmemory & associates in
+	link:doc/survey-r-packages-for-local-large-scale-computing.tex[local
+	systems]. Meeting cancelled due to Corona Virus lockdown initiation
+2020-03-23::
+	- Began work on
+	link:doc/survey-r-packages-for-local-large-scale-computing.tex[local
+	systems] (seeing what has been created for stats in the abscence of
+	scale)
+2020-03-20::
+	- Finished writing on future, link:R/detail-future.R[began testing a
+	multicore R console using future]
+2020-03-19::
+	- Began writing on future at
+	link:doc/detail-future.tex[detail-future.tex]
+2020-03-18::
+	- No research done; tying up professional obligations today
+2020-03-17::
+	- Read on parallel iterative algorithms
+	- Meeting
+	- Consideration of next steps (big)
+2020-03-16::
+	- Miscellaneous; read on parallel algorithms
+	- Little research done; finalising a survey for a friend
+2020-03-13::
+	- Unlucky day, not going outside
+	- link:doc/survey-distributed-computing-systems.tex[Finished writing
+	on R packages]
+	- Added a link:bib/bibliography.bib[bibliography]
+2020-03-12::
+	- link:doc/survey-distributed-computing-systems.tex[More writing on R
+	packages]
+2020-03-11::
+	- Go-ahead on course; emailed Dr. Nicolescu re: sitting in
+	- Added S&P to repos
+	- Browsed long list of relevant R packages, added to the
+	link:doc/urls.org[urls] file
+	- link:doc/survey-distributed-computing-systems.tex[Some notes on
+	H2O]
+2020-03-10::
+	- Emailed S&P re: course details, awaiting go-ahead to contact course
+	coordinator
+	- Created git and github repo's, awaiting S&P username information.
+	Github URL's:
+	-- https://github.com/jcai849/phd[phd]
+	-- https://github.com/jcai849/phd-src[phd-src]
