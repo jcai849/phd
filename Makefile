@@ -2,9 +2,8 @@ DOCDIR	:= doc
 OUTDIR	:= out
 BIBDIR  := bib
 DOCS	:= $(wildcard $(DOCDIR)/*.tex)
-LOGS	:= LOG
 
-.PHONY: all clean format-bib format-tex logs
+.PHONY: all clean format-bib format-tex
 
 all: $(addprefix $(OUTDIR)/, $(notdir $(DOCS:.tex=.pdf)))
 
@@ -33,6 +32,3 @@ format-bib:
 
 format-tex: $(DOCS)
 	ls $(DOCDIR)/*.tex | xargs -I {} -n 1 latexindent -w -s -m {}
-
-LOG.html: LOG
-	asciidoc -o $@ $<
