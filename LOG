@@ -1,3 +1,12 @@
+2020-05-06::
+	11:20:46::: Send PReSS information to S&P
+	13:25:33::: Fix
+	link:doc/survey-large-scale-features.tex[platform features] as
+	per S&P's recommendations
+	14:29:54::: Determine appropriate reading on Hadoop/Spark/Yarn
+	18:15:51::: Read Hadoop: The Definitive Guide:
+	            1. Meet Hadoop
+		    2. MapReduce
 2020-05-05::
 	- Spark install
 	- Meeting

@@ -1,0 +1,94 @@
+Hadoop: The Definitive Guide
+============================
+
+1. Meet Hadoop
+--------------
+
+* Author argues that big data is relevant to everyone, affecting individuals
+  as well as organisations; gives example of large amount of data generated
+  through photos & recordings.
+* The problem of big data is that storage capacities of hard drives have
+  massively increased, but access speeds have not kept up.
+* A potential solution is to read from multiple disks simultaneously, however
+  there are drawbacks:
+** Potential hardware failure
+** Analysis requires combination of data between disks
+* MapReduce is for batch processing, not suitable for interactive analysis
+* Hadoop (being more than just MR) enables interactive analysis
+* ``YARN is a cluster resource management system, which allows any distributed
+    program (not just MapReduce) to run on data in a Hadoop cluster.''
+* Comparison with multi-disk databases:
+** B-trees as data structures form the backbone of most RDBMSs, is limited by
+   seek time (seek time being the time to move the disk head to a location,
+   paired with transfer rate, the disks bandwidth)
+** MapReduce streams through a disk, thus limited by bandwidth
+** Technologically, seek time improvement is slower than bandwidth improvement.
+** Thus, RDBMSs are better for small updates, MapReduce better for full-data
+   updates, and especially better for semi-structured or unstructured data
+* Comparison with HPC:
+** HPC approach is to distribute processing across a cluster, connected with 
+   shared filesystem, using an API such as MPI for communication
+** HPC works well for compute-bound jobs
+** Hadoop offers data-locality, co-locating data with compute nodes, so data
+   access is faster
+** MPI in particular gives more programmer control, but this comes at the cost
+   of manual data-flow manipulation, checkpoint, and recovery management
+* History: Created by Doug Cutting, named after his child's toy elephant, used
+  at Yahoo!, Facebook, etc. Broke world records in sorting big data
+
+2. MapReduce
+------------
+
+* Single-machine processing limited, especially with resource management.
+* ``MapReduce works by breaking the processing into two phases: the map phase
+   and the reduce phase. Each phase has key-value pairs as input and output''
+* Terminology:
+Job:: The unit of work that the client want to be performed; it consists of the
+      input data, the MapReduce program, and configuration information
+Task:: Hadoop runs the job by dividing it into tasks, of which there are two
+       types: map tasks and resuce tasks. The tasks are scheduled using YARN
+       and run on nodes in the cluster. If a task fails, it will be
+       automatically rescheduled to run on a different node.
+Split:: Hadoop divides the input to a MapReduce job into fixed-size pieces
+	called input splits, or just splits. Hadoop creates one map task for
+	each split, which runs the user-defined map function for each record in
+	the split
+* Load balancing is better when splits are smaller, to allow faster machines to
+  take more splits. However, if splits are too small, too much processing goes
+  into the overhead of managing splits. The recommended split size tends to be
+  the size of an HDFS block (128Mb by default).
+Data locality optimisation:: Hadoop tries to run the map task on a node where
+	the input data resides in HDFS, to not use cluster bandwidth.
+* Map tasks write their output to the local disk, not to HDFS, as they are only
+  meant to be temporary results
+Combiner:: Combiner functions can be defined which run on the map output at the
+	   location of the mapper, serving to reduce the information sent
+	   across the cluster to reducers, saving bandwidth.
+* Hadoop can make use of arbitrary programs to serve as mappers and reducers,
+  through streaming to stdin and stdout of the programs; this allows arbitrary
+  languages to run MapReduce.
+
+3. The Hadoop Distributed Filesystem
+------------------------------------
+
+4. YARN
+-------
+
+5. Hadoop I/O
+-------------
+
+10. Setting Up a Hadoop Cluster
+-------------------------------
+
+11. Administering Hadoop
+------------------------
+
+17. Hive
+--------
+
+19. Spark
+---------
+
+A. Installing Apache Hadoop
+---------------------------
+
