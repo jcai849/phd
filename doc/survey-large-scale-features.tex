@@ -54,6 +54,10 @@ A list of features and their descriptions follows:
 	      referential transparency, as well as human-computer interaction
 	      considerations \cite{sondergaard1990Rtda}
 	      \cite{norman2013design}.
+	      For example, the foreach package can change parallel adaptors in
+		a single line of setup, without needing any changes made in the
+		code referencing future, despite making use of a different internal
+		interface \cite{weston19:_using}
 	\item[Arbitrary Iterative Code Evaluation]
 	      The ability to process user-specified code involving iteration
 	      over the whole dataset, as opposed to a simple mapping.
@@ -61,10 +65,10 @@ A list of features and their descriptions follows:
 	      statistical algorithms.
 	      Furthermore, this shouldn't initiate a new job or process for
 	      every new iteration.
-	      This is seen as important enough that it is cited in
-	      \citeauthor{zaharia2010spark} as a major deficiency of Hadoop
-	      to lack such iterative support, and a motivating factor behing
-	      Spark's development.
+	      This is seen as important enough that it serves as a major
+		motivating factor behind Spark's development, overcoming a
+		perceived major deficiency of Hadoop by Spark's developers
+		\cite{zaharia2010spark}.
 	\item[Object Persistence at Nodes]
 	      The ability to retain objects in-memory at their point of
 	      processing.
@@ -73,8 +77,8 @@ A list of features and their descriptions follows:
 	      processing enormously through forcing programs to be I/O bound.
 	      In-memory persistence is closely related to the capacity for
 	      iterative code evaluation in a distributed system, and was
-	      similarly referenced by \citeauthor{zaharia2010spark} as an
-	      apparent benefit of Spark.
+	      similarly referenced by the Spark developers as an
+	      apparent benefit of Spark\cite{zaharia2010spark}.
 	\item[Support for HDFS]
 	      Capacity to work with data and computation on the Hadoop
 	      Distributed File System (HDFS).
@@ -118,9 +122,10 @@ A list of features and their descriptions follows:
 	      A major benefit of R as being interpreted is the availability
 	      of the REPL. The benefits of interactivity stemming from a REPL
 	      are well-documented, most notably aiding debugging
-	      \cite{mccarthy1978history}.
-	      Ideally, a platform would preserve as much of this property as
-	      possible.
+	      \cite{mccarthy1978history}. For statistical analysese in 
+	      particular, interactive analyses play a major role in 
+	      exploratory data analysis, wherein insights can be tested
+	      and arrived at rapidly with an interactive session.
 	\item[Backend Decoupling]
 	      The implementation is maintained entirely separately to the
 	      interface.
@@ -144,24 +149,26 @@ A list of features and their descriptions follows:
 	      including sparklyr with ``tibbles'' \cite{pbdDMATpackage}
 	      \cite{wickham2019welcome}
 	\item[Direct API]
-	      The platform is explicitly programmed against at an interface.
-	      This is in contrast with generics;
-	      at a loss of general transparency, API's can ensure greater
-	      encapsulation and a closer mapping of code with the underlying
-	      implementation, thus potentially resulting in performance gains
-	      \cite{bierhoff2009api}.
+	      The platform is explicitly programmed against at a
+	      platform-specific, mostly monomorphic interface. 
+	      This is in contrast with packages providing methods which
+	      overload standard generics or language structure;
+	      at a loss of general transparency, direct API's can ensure
+	      greater encapsulation and a closer mapping of code with the
+	      underlying implementation, thus potentially resulting in
+	      performance gains \cite{bierhoff2009api}.
 	      An example in R is the interface to the foreach package not
-	      overloading the existing for-loop syntax in R, but defining
-	      it's own interface \cite{microsoft20}.
-	      %% contrast with generics, give examples (foreach)
-	\item[Class for Generics]
-	      The platform may be set up, then programming makes use of
-	      standard generics that are then utilised.
+	      overloading the existing for-loop syntax in R, but defining it's
+	      own specific interface \cite{microsoft20}. 
+      \item[Class for Generics]
+	      The platform is programmed against using a polymorphic interface,
+	      with the package methods taking advantage of standard generics.
 	      This is in contrast with a direct API, though it is not entirely
 	      mutually exclusive;
-	      classes can be defined with generics overloaded such that
-	      programming is entirely equivalent to programming with base
-	      R objects, and a further API can be made available.
+	      methods can be defined alongside package classes, which overload
+	      generics such that programming with the package is nearly
+	      entirely equivalent to programming with standard R objects,
+	      though a further API can be made available.
 	      pbdDMAT takes this approach, as well as
 	      bigmemory\cite{pbdDMATpackage}\cite{kane13:bigmemory}.
 	\item[dplyr Compatible]
@@ -172,10 +179,7 @@ A list of features and their descriptions follows:
 	      \cite{luraschi20}\cite{zj20}.
 	      Such an interface is claimed by the dplyr creators to aid
 	      beginners through being simple to remember \cite{wickham2019welcome}.
-	      It may serve as a simple, though somewhat powerful, introduction
-	      to data manipulation using the platform within the confines
-	      of familiarity to those who have learnt R through the ``tidy''
-	      paradigm.
+	      In this way, it may serve to ease the learning curve for the platform.
 	      %% ubiquity of dplyr (try put in something about Rstudio being the 
 	      %% Red Hat of R, and dplyr being often redundant to things there 
 	      %% before as well as their non-acknowledgement of everything prior 
@@ -185,7 +189,7 @@ A list of features and their descriptions follows:
 
 \section{Comparison Table}\label{sec:comp-tab}
 
-\begin{table}[h]
+\begin{table}[h!]
 	\begin{tabular}{@{}llllll@{}}
 		\toprule
 		\multicolumn{1}{c}{Feature}         & \multicolumn{4}{c}{Platform} &                                        \\ \midrule
