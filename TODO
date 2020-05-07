@@ -1,10 +1,5 @@
-. Install Hadoop locally, run basic JAR on it
-.. A. Installing Apache Hadoop
+. Write up notes on chapters 3, 4, 5, 7
 . Read Hadoop: The Definitive Guide
-.. 3. The Hadoop Distributed Filesystem
-.. 4. YARN
-.. 5. Hadoop I/O
-.. 7. How MapReduce Works
 .. 10. Setting Up a Hadoop Cluster
 .. 11. Administering Hadoop
 .. 17. Hive
@@ -18,9 +13,9 @@
 .. 18. Monitoring and Debugging
 .. 24. Advanced Analytics and Machine Learning Overview
 .. 32.2. R on Spark
-. Look at some workshops as per S&P's suggestions
 . Fill in matrix in link:doc/survey-large-scale-features.tex
 . Discuss why spark no longer has RDDs as main objects
+. Begin sparklyr review
 . sparklyr testing
 .. Setup Spark on the minicluster
 .. Run some tests involving mutate and spark_apply
@@ -29,6 +24,7 @@
 .. Reference this within the RWLS document
 .. Write on potential and limitations of mutate (with references)
 .. Look in detail at how sparklyr performs mutate functions
+.. Test sparklyr 1.2 feature; registerDoSpark() with foreach
 . Record the backends commonly supported by backend-powered packages (include
   these in the survey-large-scale-platforms document, including revis and other
   distributed databases)

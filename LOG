@@ -1,3 +1,14 @@
+2020-05-07::
+	13:49:24::: - Read A. Installing Apache Hadoop
+	            - Install and run Hadoop locally
+		    - Rename docs to follow a more standard convention
+	18:12:34::: Read Hadoop: The Definitive Guide
+		    3. The Hadoop Distributed Filesystem
+		    4. YARN 
+		    5. Hadoop I/O 
+		    7. How MapReduce Works
+	21:04:49::: Trial HDFS setup with pseudodistributed Hadoop
+	21:52:56::: Write up notes on setup
 2020-05-06::
 	11:20:46::: Send PReSS information to S&P
 	13:25:33::: Fix
