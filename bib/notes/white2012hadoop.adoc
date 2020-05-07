@@ -75,6 +75,54 @@ Combiner:: Combiner functions can be defined which run on the map output at the
 3. The Hadoop Distributed Filesystem
 ------------------------------------
 
+* The key to understanding HDFS is that it is designed around a write-once,
+  read many times access pattern. Analyses are typically performed on whole or
+  majority of a large dataset, so throughput is far more important than latency
+  in seek time, and it optimises for the former at the expense of the latter.
+  Examples of the expense include:
+** No support for multiple writers
+** No support for modifications at arbitrary file offsets (append-only writes)
+* Hadoop blocks are a major point of difference between HDFS and a standard
+  single-disk filesystem:
+** They are very large, to  minimise seek cost
+** files smaller than a block do not occupy the full block's worth of storage
+** files can be larger than any disk; blocks do not have to be contiguous
+** Each block is replicated (default 3 times) to protect against corruption
+* A list of all file blocks can be given with the following command:
++
+[source,sh]
+--------------------------
+hdfs fsck / -files -blocks
+--------------------------
+
+* Two types of nodes make up a cluster:
+Namenode:: Master; manages filesystem namespace and maintains a record of
+	   metadata and filesystem and datanodes
+Datanode:: Slave; Store and retrieve the blocks, performing direct operations
+           on them
+
+* If the namenode disappeared in a setup like this, all data would be lost,
+  as there are no other means of knowing what is stored where, and on whom
+* Multiple namenodes were introduced in hadoop 2 as _HDFS Federation_, not
+  necessarily to solve this problem, but to allow greater scaling; in this
+  setup, namenodes manage portions of the filesystem at various mount points,
+  though datanodes, while registered to specific namenodes, store blocks from
+  more than just that namenode's block pool.
+* Namenodes still remain a single point of failure, thus _HDFS High
+  Availability_ was introduced as well, wherein a pair of namenodes read and
+  write to shared memory.
+* Caching is available and useful for frequently accessed files, in the
+  datanode's memory, rather than the usual reads from disk. This is performed
+  through the client adding a cache directive to a cache pool for the namenode
+  to direct.
+
+NOTE: Hadoop runs with security disabled by default; client's identities are
+      not authenticated
+
+ * Access to hadoop file systems is available through the URI scheme; HDFS can
+   be accessed through many including HTTP, NFS, FUSE, etc.
+ 
+
 .Setting up a Pseudo-Distributed Cluster
 . A stable version of Hadoop to be downloaded (better to just use the binaries)
   Older versions are more stable, as well as better supported by spark and 3rd
@@ -146,8 +194,51 @@ stop-dfs.sh
 4. YARN
 -------
 
+* Yet Another Resource Negotiator
+* Provides APIs for requesting and working with cluster resources, and has
+  multiple schemes to manage and allocate resources (CPU & Memory)
+* Introduced in Hadoop 2, improving MapReduce, but allowing other distributed
+  paradigms as well
+* Applications typically run on top of YARN, which runs on top of HDFS (cf. fig
+  4-1)
+* Services given by two daemons:
++
+Resource Manager:: Manages the use of cluster resources (only one per cluster)
+Node Manager:: Launches and monitors containers (one on each node)
+* Containers execute application-specific processes with constrained resources
+* Application run process: Client asks resource manager to run an application
+  master process, which the resource manager finds a node manager to launch in
+  a container
+* Spark makes use of running one application per session, reusing the same
+  containers; MapReduce uses one application per job.
+* YARN contrasts with MapReduce1 in that MapReduce1 has jobtracker and
+  tasktracker daemons to handle scheduling
+* YARN offers various modes of scheduling, including FIFO, DRF, etc.
+
 5. Hadoop I/O
 -------------
+
+* HDFS checksums all data written to it, as well as verifying checksums when reading
+* Corrupted blocks can be healed through copying from valid replica blocks
+* Checksums can be directly accessed through:
++
+[source,sh]
+-------------------
+hadoop fs -checksum
+-------------------
+
+* Compression is useful for obvious reasons, but the compression format should
+  allow splitting (e.g. bzip2) in order to be useful to MapReduce
+Codec:: The implementation of a (de)?compression algorithm
+* Hadoop comes with several codec interfaces for various compression formats
+Serialisation:: The process of turning structured objects into a byte stream
+* Serialisation made use of in distributed systems for interprocess
+  communication, and storage; formats with very different lifetimes and
+  requirements of the serialisation process
+* Hadoop uses it's own serialisation format; Writables, which has the
+  limitation of being very Java-centric
+* Avro is an alternative serialisation system designed to overcome the issues
+  that Writables has
 
 10. Setting Up a Hadoop Cluster
 -------------------------------
@@ -161,6 +252,8 @@ stop-dfs.sh
 19. Spark
 ---------
 
-A. Installing Apache Hadoop
----------------------------
+Further Reading
+---------------
+* Chansler et al., The Hadoop Distributed File System
+* Murthy et al., Apache Hadoop YARN (Addison-Wesley, 2014)
 
