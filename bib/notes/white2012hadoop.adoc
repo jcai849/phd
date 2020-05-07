@@ -39,6 +39,10 @@ Hadoop: The Definitive Guide
 2. MapReduce
 ------------
 
+* Running a MapReduce job with hadoop directly is a little unnerving;
+  It is extremely verbose, and your eye picks up ``ERROR'' everywhere
+** Mapper, Reducer, and the main classes are defined, then wrapped in .jar and
+   run with hadoop. `HADOOP_CLASSPATH` should be set as the path of the .jar
 * Single-machine processing limited, especially with resource management.
 * ``MapReduce works by breaking the processing into two phases: the map phase
    and the reduce phase. Each phase has key-value pairs as input and output''
