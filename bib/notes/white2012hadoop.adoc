@@ -75,6 +75,74 @@ Combiner:: Combiner functions can be defined which run on the map output at the
 3. The Hadoop Distributed Filesystem
 ------------------------------------
 
+.Setting up a Pseudo-Distributed Cluster
+. A stable version of Hadoop to be downloaded (better to just use the binaries)
+  Older versions are more stable, as well as better supported by spark and 3rd
+  party documentation (you're going to need it)
+. Set up environment variable HADOOP_HOME, and add the bin and sbin folders to
+  PATH
+. Configuration files are essential; 
+.. Setup a configuration folder (or use the etc directory in HADOOP_HOME;
+   external folder is better) and point environment variable HADOOP_CONF_DIR
+   to the folder
+.. Fill it with config files: I used the files from
+   https://github.com/tomwhite/hadoop-book/tree/master/conf[the book's GitHub
+   repo]. Amusingly, the ``definitive guide'' required more than what was 
+   provided, including a `capacity-scheduler.xml` file, from
+   http://svn.apache.org/viewvc/hadoop/common/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-tests/src/test/resources/capacity-scheduler.xml?revision=1495684
+.. Add localhost to the slave file for YARN to setup the ResourceManager
+. Now the cluster can be started. Format the namenode with 
++
+[source,sh]
+--------------------
+hdfs namenode -format
+---------------------
+. Start the HDFS, YARN, and MapReduce daemons (in that order) with
++
+[source,sh]
+----------------------------------------
+start-dfs.sh
+start-yarn.sh
+mr-jobhistory-daemon start historyserver
+----------------------------------------
++
+The effects can be checked through several ways:
+
+.. Checking the logs in the $HADOOP_HOME/logs directory
+.. `jps` to see what Java processes are running
+.. `hdfs getconf -namenodes` and co. for direct queries
+.. Web interface with the namenode on port 50070
+. If that's all working, make a user directory with
++
+[source,sh]
+-------------------------------
+hadoop fs -mkdir -p /user/$USER
+-------------------------------
++
+the command has a few other standard unix navigation utilities. A `tail` but
+no `head` though, due to the HDFS block structure!
+
+. Copy the local files of interest over with
++
+[source,sh]
+--------------------------------------------------------------------------------
+hadoop fs -copyFromLocal <local> hdfs://localhost/user/$USER/<intended-location>
+--------------------------------------------------------------------------------
++
+Worth noting that hdfs is the default, and relative paths can be given
+
+. Run the MapReduce job in the standard manner on the HDFS files; see
+  $HADOOP_HOME/log if it doesn't work
+
+. Stop the daemons in reverse order with
++
+[source,sh]
+----------------------------------------
+mr-jobhistory-daemon stop historyserver
+stop-yarn.sh
+stop-dfs.sh
+----------------------------------------
+
 4. YARN
 -------
 
