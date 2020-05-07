@@ -15,7 +15,7 @@
 *.dvi
 /log/*.tex
 /*/_region_.tex
-/*/*.html
+*.html
 *.swp
 *.Rhistory
 *.ps
