@@ -243,17 +243,73 @@ Serialisation:: The process of turning structured objects into a byte stream
 10. Setting Up a Hadoop Cluster
 -------------------------------
 
+Setup differs a fair bit from pseudodistributed setup (beyond the obvious
+additional hosts)
+* Cluster manager tools are recommnded (unsure if this is good advice; usually
+  not). Category includes Cloudera Manager and Apache Ambari
+* Hadoop runs on commodity hardware, but this is not the same as low end; low
+  end being false economy from maintenance requirements. Typical node RAM 65Gb+
+* No benefit to using RAID due to replication already occuring between nodes.
+  RAID does find use in naamenode storage
+* High Availability not covered in book
+* Network topology specified through java interface; not relevant for same-rack
+  setups
+* set ENV vars and ssh as per pseudo distributed, on all nodes (use
+  `ssh-agent`)
+* Install hadoop on all nodes in network
+* Good practice to create separate user accounts for each set of processes;
+  `hdfs`, `hadoop`, `yarn`, etc.
+* Recommended to unpack distribution contents to `/usr/local` or `/opt`.
+  change the owner to `hadoop`, follow the pseudodistributed pattern for PATH
+  etc.
+* All nodes require appropriate configurations. If all nodes are equivalent,
+  they can have the same configuration
+* As in pseudodistributed, `slaves` holds all the slave node names. This file
+  doesn't need to be distributed to the slaves
+* `hadoop-env.sh` wasn't mentioned earlier, but it is sourced by hadoop and a
+  good place to put ENV vars including JAVA_HOME. There exist equivalent files
+  for yarn and mapreduce
+* `start-dfs.sh` as `hdfs` user:
+** Starts namenode
+** Starts datanode on every slave listed in `slaves` file
+** Starts secondary namenode
+* `start-yarn.sh`:
+** Starts resource manager on local machine
+** Starts node manager on each slave
+* Important configuration files given in table 10-1 (I found the ones on the
+  official documentation to be better though)
+* HADOOP_LOG_DIR can be set, recommended as `/var/log/hadoop`
+* ``Hadoop has a bewilderin number of configuration properties''
+* Hadoop relies on kerberos for security
+* Benchmarking is useful to test if hadoop is working. It comes with several
+  tests located in $HADOOP_HOME/share/hadoop/mapreduce/*tests.jar
+
 11. Administering Hadoop
 ------------------------
+
+* `fsck` checks the filesystem for file health
+* Blocks are verified every three weeks
+* Snapshots are possible on HDFS and are cheap too; simply a copy of the
+  namenode filesystem data
 
 17. Hive
 --------
 
+A framework for data warehousing built on top of hadoop. Not particularly
+relevant right now
+
 19. Spark
 ---------
+
+* Doesn't need to be installed on all nodes; YARN distributed relevant JARs to
+  all executors
+* YARN client mode is required for programs that have any interactive
+  component, which differs from YARN cluster mode in the location of executor
+  launches
 
 Further Reading
 ---------------
 * Chansler et al., The Hadoop Distributed File System
 * Murthy et al., Apache Hadoop YARN (Addison-Wesley, 2014)
-
+* Sammer, Hadoop Operations (O'Reilly, 2012)
+* Hammerbacher, Information Systems and the Rise of the Data Scientist
