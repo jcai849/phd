@@ -1,4 +1,4 @@
-. Fill in matrix in link:doc/survey-large-scale-features.tex
+. Deploy Spark on the cluster
 . Read Spark: The Definitive Guide
 .. 1. What Is Apache Spark?
 .. 2. A Gentle Introduction to Spark
@@ -19,6 +19,8 @@
 .. Write on potential and limitations of mutate (with references)
 .. Look in detail at how sparklyr performs mutate functions
 .. Test sparklyr 1.2 feature; registerDoSpark() with foreach
+. Determine possibility and mechanism of recurrance iterators through foreach
+  on a cluster, possibly with sparklyr as backend
 . Record the backends commonly supported by backend-powered packages (include
   these in the survey-large-scale-platforms document, including revis and other
   distributed databases)
@@ -27,3 +29,4 @@
 . Research possible graph-based algorithms to require node communication
 . More on RWLS document
 .. Reference the GLM implementations in sparklyr and pbdR
+. Cease UTF-8 to ascii conversion in the bibtex formatter
