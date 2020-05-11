@@ -11,12 +11,12 @@ cran <- c("base", "foreach", "doParallel", "doSNOW", "doMPI",
           "biglasso", "bigstatsr", "disk.frame", "data.table", "fst",
           "iotools", "ff", "biglm", "ffbase", "pbdMPI", "doRNG",
           "doRedis", "promises", "graphframes", "rbenchmark", "microbenchmark",
-	  "kazaam")
+	  "kazaam", "tidyverse")
 
-## install.packages(cran)
-## remotes::install_github(c("wrathematics/getip", "RBigData/hpcvis", "RBigData/pbdCS", "RBigData/pbdDMAT", "RBigData/pbdML", "edwindj/ffbase2", "Azure/rAzureBatch", "Azure/doAzureParallel", "RBigData/pmclust", "RBigData/pbdSLAP"))
-## install.packages(c("RSclient","Rserve", "hmr"), repos = "https://rforge.net")
-## install.packages("big.data.table", repos = "http://jangorecki.gitlab.io/big.data.table")
+install.packages(cran)
+remotes::install_github(c("wrathematics/getip", "RBigData/hpcvis", "RBigData/pbdCS", "RBigData/pbdDMAT", "RBigData/pbdML", "edwindj/ffbase2", "Azure/rAzureBatch", "Azure/doAzureParallel", "RBigData/pmclust", "RBigData/pbdSLAP"))
+install.packages(c("RSclient","Rserve", "hmr"), repos = "https://rforge.net")
+install.packages("big.data.table", repos = "http://jangorecki.gitlab.io/big.data.table")
 
 sink("r-packages.txt")
 sapply(x,

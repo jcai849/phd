@@ -1,8 +1,10 @@
 \documentclass[a4paper,10pt]{article}
 
+%\usepackage{threeparttable}
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{biblatex}
+\usepackage{ctable}
 \addbibresource{../bib/bibliography.bib}
 
 \begin{document}
@@ -24,7 +26,7 @@ merits.
 A list of features and their descriptions follows:
 
 \begin{description}
-	\item[Distributed Functionality]
+	\item[Distributed Computation]
 	      The ability to spread computation and data over separate
 	      computers.
 	      The value of distributed computing is well recognised for
@@ -55,12 +57,13 @@ A list of features and their descriptions follows:
 	      considerations \cite{sondergaard1990Rtda}
 	      \cite{norman2013design}.
 	      For example, the foreach package can change parallel adaptors in
-		a single line of setup, without needing any changes made in the
-		code referencing future, despite making use of a different internal
-		interface \cite{weston19:_using}
+              a single line of setup, without needing any changes made in the
+              code referencing future, despite making use of a different internal
+              interface \cite{weston19:_using}
 	\item[Arbitrary Iterative Code Evaluation]
 	      The ability to process user-specified code involving iteration
-	      over the whole dataset, as opposed to a simple mapping.
+	      over the whole dataset natively, keeping iterative results in
+	      memory, as opposed to a simple mapping. 
 	      This reflects the inherently iterative nature of many
 	      statistical algorithms.
 	      Furthermore, this shouldn't initiate a new job or process for
@@ -107,6 +110,9 @@ A list of features and their descriptions follows:
 	      Ease of deployment can determine a platform's success, with
 	      such a feature being one of the many motivations for the use
 	      and development of tools such as docker in recent years.
+	      The easiest possible setup would be a regular
+	      \texttt{install.packages()}, with no more than several lines
+	      specifying the platform configuration.
 	      %% lapack setup difficult (example) - quick installation guide (25 pages)
 	\item[Inter-Node Communication]
 	      Can any pair of nodes communicate with each other, or do they
@@ -148,10 +154,10 @@ A list of features and their descriptions follows:
 	      distributed matrices, or the tidyverse and it's derivatives
 	      including sparklyr with ``tibbles'' \cite{pbdDMATpackage}
 	      \cite{wickham2019welcome}
-	\item[Direct API]
-	      The platform is explicitly programmed against at a
-	      platform-specific, mostly monomorphic interface. 
-	      This is in contrast with packages providing methods which
+	\item[Package-specific API as Primary Interface]
+	      The platform is primarily explicitly programmed against at a
+	      package-specific interface. 
+	      This is in contrast to packages mostly providing methods which
 	      overload standard generics or language structure;
 	      at a loss of general transparency, direct API's can ensure
 	      greater encapsulation and a closer mapping of code with the
@@ -160,10 +166,10 @@ A list of features and their descriptions follows:
 	      An example in R is the interface to the foreach package not
 	      overloading the existing for-loop syntax in R, but defining it's
 	      own specific interface \cite{microsoft20}. 
-      \item[Class for Generics]
-	      The platform is programmed against using a polymorphic interface,
-	      with the package methods taking advantage of standard generics.
-	      This is in contrast with a direct API, though it is not entirely
+      \item[Methods for Common Generics as Primary Interface]
+	      The platform is primarily programmed against using a polymorphic interface,
+	      with the package methods taking advantage of common generics.
+	      This is in contrast with a direct API, though they are not entirely
 	      mutually exclusive;
 	      methods can be defined alongside package classes, which overload
 	      generics such that programming with the package is nearly
@@ -189,27 +195,112 @@ A list of features and their descriptions follows:
 
 \section{Comparison Table}\label{sec:comp-tab}
 
-\begin{table}[h!]
-	\begin{tabular}{@{}llllll@{}}
-		\toprule
-		\multicolumn{1}{c}{Feature}         & \multicolumn{4}{c}{Platform} &                                        \\ \midrule
-		                                    & RHadoop                      & Sparklyr & pbdR & disk.frame & foreach \\ \cmidrule(l){2-6}
-		Distributed Functionality           &                              &          &      &            &         \\
-		Arbitrary Code Evaluation           &                              &          &      &            &         \\
-		Arbitrary Iterative Code Evaluation &                              &          &      &            &         \\
-		Object Persistence at Nodes         &                              &          &      &            &         \\
-		Support for HDFS                    &                              &          &      &            &         \\
-		Ease of Setup                       &                              &          &      &            &         \\
-		Inter-Node Communication            &                              &          &      &            &         \\
-		Interactive Usage                   &                              &          &      &            &         \\
-		Backend Decoupling                  &                              &          &      &            &         \\
-		Evaluation of Arbitrary Classes     &                              &          &      &            &         \\
-		Direct API                          &                              &          &      &            &         \\
-		Class for Generics                  &                              &          &      &            &         \\
-		dplyr Compatible                    &                              &          &      &            &         \\ \bottomrule
-	\end{tabular}
-	\caption{Comparison of major features among platforms\label{tab:compare-features}}
-\end{table}
+\ctable[
+	caption = {Comparison of major features among packages, focussing on
+	idiomatic use rather than theoretical capability},
+	label   = tab:compare-features,
+	%pos     = h
+	sideways %% Very useful feature! don't use with pos
+	]{@{}llllll@{}}{
+		% RHadoop
+		\tnote[1,1]{Use of HDFS through rhdfs\cite{revo2013rhdfs}, and
+		MapReduce through rmr2\cite{revo2014plyrmr}}
+		\tnote[2,1]{rmr2\cite{revo2015rmr2} allows for arbitrary R code
+		to be executed through MapReduce}
+		\tnote[5,1]{Direct access to HDFS through rhdfs\cite{revo2013rhdfs}}
+		\tnote[6,1]{Source repositories only exist on GitHub, following
+		a non-standard package structure at the root level, and Hadoop
+		is required to be set up beforehand}
+		\tnote[9,1]{While the collection is separate from Hadoop, it is
+		entirely tied to Hadoop and MapReduce, and can't be switched to
+		any other distributed platform}
+		\tnote[10,1]{Within the \texttt{mapreduce()} function from
+		rmr2, no prescription is given for any particular class over
+		another}
+		\tnote[11,1]{rmr2 has the package-specific \texttt{mapreduce()}
+		function as the primary interface}
+		\tnote[13,1]{The collection has suffered from the lack of
+		updates; plyrmr provides functionality that is near-transparent
+		to plyr, but this is still some distance from
+		dplyr\cite{revo2014plyrmr}.}
 
+		% sparklyr
+		\tnote[1,2]{Use of Spark\cite{luraschi20}}
+		\tnote[2,2]{Provides \texttt{mutate()} function to enable
+		user-defined code, however there are limitations in not being
+		capable of parsing global variables}
+		\tnote[3,2]{Spark Dataframes can be cached (persisted), with
+		each node storing partitions of the Dataframe for future
+		iterative usage\cite{spark2020rdd}. sparklyr offers an
+		\texttt{sdf\_persist()} function to force computation and
+		cache; This could be used in a for-loop for iteration.}
+		\tnote[4,2]{See \textit{2,3}}
+		\tnote[5,2]{Allows for Spark over HDFS, but offers no
+		HDFS-specific filesystem manipulation functions}
+		\tnote[6,2]{Installs from CRAN, requires Spark set up
+		beforehand and environmental variables configured}
+		\tnote[9,2]{Package tied to Spark as evaluative backend}
+		\tnote[10,2]{S3 Objects that have an \texttt{sdf\_import()}
+		method implemented can make use of the \texttt{sdf\_copy\_to()}
+		function to copy objects from R to Spark}
+		\tnote[12,2]{The principal interaction is via dplyr generics,
+		albeit with a difference of lazy evaluation}
+
+		% pbdR
+		\tnote[1,3]{Distributed computation performed by pbdMPI, with
+		support for several remote messaging
+		protocols\cite{Chen2012pbdMPIpackage}\cite{Schmidt2015pbdCSpackage}}
+		\tnote[2,3]{Adhering to a SPMD paradigm}
+		\tnote[6,3]{Installation can be performed with
+		\texttt{install.packages()} alongside the installation of
+		\texttt{openmpi} externally}
+		\tnote[7,3]{Inter-node communication facilitated through pbdMPI
+		wrappers to standard MPI communication functions such as
+		\texttt{scatter}, \texttt{gather}, \texttt{send}, etc.}
+		\tnote[9,3]{Tied to the usage of the MPI protocol}
+		\tnote[10,3]{Arbitrary classes may be made use of and passed
+		through the communicator generics when methods are defined for
+		them, using pbdMPI}
+		\tnote[11,3]{pbdMPI provides package-specific generics to use
+		and define further methods for}
+		\tnote[12,3]{pbdDMAT provides a distributed matrix class with
+		methods defined to make transparent usage of standard matrix
+		manipulation generics}
+
+		% disk.frame
+		\tnote[2,4]{Many functions used for grouped summarisation are
+		only estimates, such as \texttt{median}\cite{zj19:_group_by}}
+
+		% foreach
+		\tnote[1,5]{Through the use of additional packages such as
+		doMPI and sparklyr\cite{weston17}\cite{luraschi20}}
+		\tnote[2,5]{\texttt{\%dopar\%} accepts any expression, and
+		tries its best to handle references to global variables,
+		however it is still recommended to manually define the global
+		references as well as packages used}
+		\tnote[3,5]{foreach makes use of iterators, which can be
+		defined to perform recurrance relations (see example code in
+		\texttt{R/iterators.R}) but these rely on closures and may in
+		fact be slower than serial relations}
+		\tnote[10,5]{foreach makes use of iterator objects, which any
+		class can inherit from to define \texttt{nextElem()}}
+		}{
+		\toprule
+		\multicolumn{1}{c}{Feature}         & \multicolumn{4}{c}{Platform} &                                           \\ \midrule
+		                                    & RHadoop        & sparklyr       & pbdR         & disk.frame   & foreach      \\ \cmidrule(l){2-6}
+		Distributed Computation             & yes\tmark[1,1] & yes\tmark[1,2] & yes\tmark[1,3] & no & yes\tmark[1,5] \\
+		Arbitrary Code Evaluation           & yes\tmark[2,1] & mostly\tmark[2,2] & mostly\tmark[2,3] & somewhat\tmark[2,4] & mostly\tmark[2,5] \\
+		Arbitrary Iterative Code Evaluation & no             & yes\tmark[3,2] & yes          & no\tmark[3,4] & unclear\tmark[3,5] \\
+		Object Persistence at Nodes         & no             & yes\tmark[4,2] & yes           & NA          & no \\
+		Support for HDFS                    & yes\tmark[5,1] & yes\tmark[5,2] & no          & no            & no \\
+		Ease of Setup                       & mediocre\tmark[6,1] & acceptable\tmark[6,3] & acceptable\tmark[6,3] & simple & simple \\
+		Inter-Node Communication            & no             & no            & yes\tmark[7,3] & NA          & no \\
+		Interactive Usage                   & yes            & yes           & no           & yes           & yes \\
+		Backend Decoupling                  & no\tmark[9,1]  & no\tmark[9,2] & no\tmark[9,3] & no           & yes \\
+		Evaluation of Arbitrary Classes     & yes\tmark[10,1] & somewhat\tmark[10,2] & yes\tmark[10,3] & no & yes\tmark[10,5] \\
+		Package-specific API as primary interface & yes\tmark[11,1] & no     & yes\tmark[11,3] & no         & yes \\
+		Methods for Common Generics as Primary Interface & no & yes\tmark[12,2] & yes\tmark[12,3] & yes & no  \\
+		dplyr Compatible                    & no\tmark[13,1]   & yes        & no                & yes & no \\ \bottomrule
+		}
 \printbibliography{}
 \end{document}
