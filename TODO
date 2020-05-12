@@ -1,4 +1,4 @@
-. Deploy Spark on the cluster
+. Get hadoop and spark web ui ports forwarded correctly to local host
 . Read Spark: The Definitive Guide
 .. 1. What Is Apache Spark?
 .. 2. A Gentle Introduction to Spark

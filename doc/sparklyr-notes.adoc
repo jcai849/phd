@@ -1,0 +1,29 @@
+Notes on Running sparklyr
+=========================
+
+Installation
+------------
+
+Spark needs to be installed; this is captured in
+link:../scripts/spark-install[the spark install script]
+
+Usage
+-----
+
+Ensure that all the necessary daemons for yarn are running, with `jps`.
+Connect to spark on yarn using
+[source,R]
+-----------------------------------------------------
+config <- spark_config()
+sc <- spark_connect(master = "yarn", config = config)
+-----------------------------------------------------
+
+NOTE: The https://spark.rstudio.com/examples/yarn-cluster-emr/[sparklyr
+documentation] specifies `master = "yarn-client"`, but this leads to errors,
+presumably due to different versions of yarn.
+Files on HDFS can be accessed using `hdfs://` or without, e.g.,
+[source,R]
+------------------------------------------------------------------------
+x <- spark_read_csv(sc, "taxi", "taxi/2015/yellow_tripdata_2015-01.csv")
+------------------------------------------------------------------------
+
