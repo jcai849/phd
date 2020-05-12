@@ -27,8 +27,3 @@ clean:
 	rm -f */*.toc
 	rm -f */*.bak*
 
-format-bib:
-	biber --tool --output-encoding=ascii --output-align --output-file=$(BIBDIR)/bibliography.bib $(BIBDIR)/bibliography.bib
-
-format-tex: $(DOCS)
-	ls $(DOCDIR)/*.tex | xargs -I {} -n 1 latexindent -w -s -m {}
