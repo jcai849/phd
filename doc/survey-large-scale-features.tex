@@ -1,11 +1,25 @@
 \documentclass[a4paper,10pt]{article}
 
-%\usepackage{threeparttable}
+\usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{biblatex}
 \usepackage{ctable}
 \addbibresource{../bib/bibliography.bib}
+
+\definecolor{green}{HTML}{61D04F}
+\definecolor{yellow}{HTML}{F5C710}
+\definecolor{red}{HTML}{DF536B}
+\definecolor{gray62}{gray}{0.62}
+\newcommand{\yes}{\textcolor{green}{yes}}
+\newcommand{\simple}{\textcolor{green}{simple}}
+\newcommand{\mostly}{\textcolor{yellow}{mostly}}
+\newcommand{\acceptable}{\textcolor{yellow}{acceptable}}
+\newcommand{\some}{\textcolor{yellow}{some}}
+\newcommand{\mediocre}{\textcolor{red}{mediocre}}
+\newcommand{\no}{\textcolor{red}{no}}
+\newcommand{\NA}{\textcolor{gray62}{NA}}
+\newcommand{\unclear}{\textcolor{gray62}{unclear}}
 
 \begin{document}
 \title{A Survey of Large-Scale Platform Features}
@@ -26,171 +40,167 @@ merits.
 A list of features and their descriptions follows:
 
 \begin{description}
-	\item[Distributed Computation]
-	      The ability to spread computation and data over separate
-	      computers.
-	      The value of distributed computing is well recognised for
-	      large-scale computing, in the increased capacity for
-	      processing, memory, and storage.
-	      Distributed computing typically gains latency speedup through
-	      parallel processing; both Amdahl's law and Gustafson's law give
-	      theoretical speedups for parallel jobs \cite{amdahl1967law}
-	      \cite{gustafson1988law}.
-	      In addition, each node typically adds more working memory to
-	      the distributed system, allowing for larger datasets to be
-	      manipulated in-memory.
-	      For exceedingly large datasets, the benefits of distributed
-	      file systems commonly allow for resiliant storage, with
-	      well-regarded examples including HDFS and the Google File
-	      System it is based upon \cite{shvachko2010hadoop}
-	      \cite{ghemawat2003google}.
-	\item[Arbitrary Code Evaluation]
-	      The ability to make use of user-specified code in processing.
-	      Most R packages for large-scale computing do enable arbitrary
-	      code, however they typically have some limitations, such as an
-	      inability to recognise global variables, as is the case with
-	      sparklyr and to a lesser extent future
-	      \cite{sparklyr2020limitations} \cite{microsoft20}.
-	      The ability for a system to adhere to a similar interface
-	      despite changes in internal behaviour is useful for the sake of
-	      referential transparency, as well as human-computer interaction
-	      considerations \cite{sondergaard1990Rtda}
-	      \cite{norman2013design}.
-	      For example, the foreach package can change parallel adaptors in
-              a single line of setup, without needing any changes made in the
-              code referencing future, despite making use of a different internal
-              interface \cite{weston19:_using}
-	\item[Arbitrary Iterative Code Evaluation]
-	      The ability to process user-specified code involving iteration
-	      over the whole dataset natively, keeping iterative results in
-	      memory, as opposed to a simple mapping. 
-	      This reflects the inherently iterative nature of many
-	      statistical algorithms.
-	      Furthermore, this shouldn't initiate a new job or process for
-	      every new iteration.
-	      This is seen as important enough that it serves as a major
-		motivating factor behind Spark's development, overcoming a
-		perceived major deficiency of Hadoop by Spark's developers
-		\cite{zaharia2010spark}.
-	\item[Object Persistence at Nodes]
-	      The ability to retain objects in-memory at their point of
-	      processing.
-	      The standard motivation for such a feature revolves around a
-	      reduction in data movement, which serves to slow down
-	      processing enormously through forcing programs to be I/O bound.
-	      In-memory persistence is closely related to the capacity for
-	      iterative code evaluation in a distributed system, and was
-	      similarly referenced by the Spark developers as an
-	      apparent benefit of Spark\cite{zaharia2010spark}.
-	\item[Support for HDFS]
-	      Capacity to work with data and computation on the Hadoop
-	      Distributed File System (HDFS).
-	      As a well-established distributed file system, HDFS is targeted
-	      by a number of R packages, as well as serving as a file
-	      system base for other platforms such as spark
-	      \cite{analytics:_rhadoop_wiki} \cite{deltarho:_rhipe}
-	      \cite{urbanek20} \cite{zaharia2016apache}.
-	      HDFS offers several features that make it particularly
-	      attractive as a filesystem for a large-scale statistical
-	      analysis;
-	      being distributed and capable of running on commodity hardware
-	      allows for truly big data analysis.
-	      In addition, the system is built to be resiliant to hardware
-	      failure, so long-running analyses aren't cut short or forced to
-	      revert to a checkpoint because of singular component failure
-	      \cite{shvachko2010hadoop}.
-	\item[Ease of Setup]
-	      Is setup suitable for a computationally-focussed
-	      statistician, or does it require a system administrator?
-	      At it's base, R is a statistical programming language
-	      \cite{rcore2020intro}.
-	      The particular skills of statisticians seldom correspond to the
-	      those requisite of system administration, with such a focus
-	      unlikely to compete successfully with their main research.
-	      Ease of deployment can determine a platform's success, with
-	      such a feature being one of the many motivations for the use
-	      and development of tools such as docker in recent years.
-	      The easiest possible setup would be a regular
-	      \texttt{install.packages()}, with no more than several lines
-	      specifying the platform configuration.
-	      %% lapack setup difficult (example) - quick installation guide (25 pages)
-	\item[Inter-Node Communication]
-	      Can any pair of nodes communicate with each other, or do they
-	      only report to a master node?
-	      While many tasks process efficiently within a standard
-	      master-slave architecture, and inter-node communication is
-	      inherently expensive, there is still a large class of tasks
-	      that benefit from inter-node communication\cite{walker1996mpi};
-	      particularly graph-based statistical methods.
-	\item[Interactive Usage]
-	      The ability to make use of the package in an interactive R
-	      session, without mandatory batch execution.
-	      A major benefit of R as being interpreted is the availability
-	      of the REPL. The benefits of interactivity stemming from a REPL
-	      are well-documented, most notably aiding debugging
-	      \cite{mccarthy1978history}. For statistical analysese in 
-	      particular, interactive analyses play a major role in 
-	      exploratory data analysis, wherein insights can be tested
-	      and arrived at rapidly with an interactive session.
-	\item[Backend Decoupling]
-	      The implementation is maintained entirely separately to the
-	      interface.
-	      This is standard in most of the performant parallel R systems
-	      as described by \cite{eddelbuettel2019parallel}, including
-	      \cite{microsoft20} as a key example.
-	      As a software pattern, this is a case of separation of
-	      concerns, described in detail by \cite{dijkstra1982role}.
-	      Such a pattern fosters modularity and allows for a broader
-	      range of backends to be made use of, maximising the uptake of
-	      the platform.
-	\item[Evaluation of Arbitrary Classes]
-	      Any class, including user-defined classes, can be used in
-	      evaluation.
-	      There is proven value in rich user-defined objects, with the
-	      weight of much of the object-oriented programming paradigm
-	      serving to further that point \cite{dahl2004simula}.
-	      Conversely, many major packages limit themselves through
-	      provisioning only a few classes, such as pbdDMAT with
-	      distributed matrices, or the tidyverse and it's derivatives
-	      including sparklyr with ``tibbles'' \cite{pbdDMATpackage}
-	      \cite{wickham2019welcome}
-	\item[Package-specific API as Primary Interface]
-	      The platform is primarily explicitly programmed against at a
-	      package-specific interface. 
-	      This is in contrast to packages mostly providing methods which
-	      overload standard generics or language structure;
-	      at a loss of general transparency, direct API's can ensure
-	      greater encapsulation and a closer mapping of code with the
-	      underlying implementation, thus potentially resulting in
-	      performance gains \cite{bierhoff2009api}.
-	      An example in R is the interface to the foreach package not
-	      overloading the existing for-loop syntax in R, but defining it's
-	      own specific interface \cite{microsoft20}. 
-      \item[Methods for Common Generics as Primary Interface]
-	      The platform is primarily programmed against using a polymorphic interface,
-	      with the package methods taking advantage of common generics.
-	      This is in contrast with a direct API, though they are not entirely
-	      mutually exclusive;
-	      methods can be defined alongside package classes, which overload
-	      generics such that programming with the package is nearly
-	      entirely equivalent to programming with standard R objects,
-	      though a further API can be made available.
-	      pbdDMAT takes this approach, as well as
-	      bigmemory\cite{pbdDMATpackage}\cite{kane13:bigmemory}.
-	\item[dplyr Compatible]
-	      The platform makes use of dplyr as the standard generics to
-	      implicitly program over.
-	      Using a dplyr interface is a common trend in several R packages
-	      including sparklyr, disk.frame, and many database interfaces
-	      \cite{luraschi20}\cite{zj20}.
-	      Such an interface is claimed by the dplyr creators to aid
-	      beginners through being simple to remember \cite{wickham2019welcome}.
-	      In this way, it may serve to ease the learning curve for the platform.
-	      %% ubiquity of dplyr (try put in something about Rstudio being the 
-	      %% Red Hat of R, and dplyr being often redundant to things there 
-	      %% before as well as their non-acknowledgement of everything prior 
-	      %% (that typically do things better and faster), almost at a level of 
-	      %% plaigiarism
+\item[Distributed Computation]
+      The ability to spread computation and data over separate computers.
+      The value of distributed computing is well recognised for
+      large-scale computing, in the increased capacity for
+      processing, memory, and storage.
+      Distributed computing typically gains latency speedup through
+      parallel processing; both Amdahl's law and Gustafson's law give
+      theoretical speedups for parallel jobs \cite{amdahl1967law}
+      \cite{gustafson1988law}.
+      In addition, each node typically adds more working memory to
+      the distributed system, allowing for larger datasets to be
+      manipulated in-memory.
+      For exceedingly large datasets, the benefits of distributed
+      file systems commonly allow for resiliant storage, with
+      well-regarded examples including HDFS and the Google File
+      System it is based upon \cite{shvachko2010hadoop}
+      \cite{ghemawat2003google}.
+\item[Evaluation of User-Specified Code]
+      The ability to make use of user-specified code in processing.
+	Most R packages for large-scale computing interact well with
+	arbitrary code, however they typically have some limitations,
+	such as an inability to recognise global variables, as is the
+	case with sparklyr and to a lesser extent future
+      \cite{sparklyr2020limitations} \cite{microsoft20}.
+\item[Native Support for Iteration]
+      The ability to process user-specified code involving iteration
+      over the whole dataset natively, keeping results in
+      memory between iterations.
+      This reflects the inherently iterative nature of many
+      statistical algorithms.
+      Furthermore, this shouldn't initiate a new job or process for
+      every new iteration.
+      This is seen as important enough that it serves as a major
+	motivating factor behind Spark's development, overcoming a
+	perceived major deficiency of Hadoop by Spark's developers
+	\cite{zaharia2010spark}.
+\item[Object Persistence at Nodes]
+      The ability to retain objects in-memory at their point of
+      processing.
+      The standard motivation for such a feature revolves around a
+      reduction in data movement, which serves to slow down
+      processing enormously through forcing programs to be I/O bound.
+      In-memory persistence is closely related to the capacity for
+      iterative code evaluation in a distributed system, and was
+      similarly referenced by the Spark developers as an
+      apparent benefit of Spark\cite{zaharia2010spark}.
+\item[Support for HDFS]
+      Capacity to work with data and computation on the Hadoop
+      Distributed File System (HDFS).
+      As a well-established distributed file system, HDFS is targeted
+      by a number of R packages, as well as serving as a file
+      system base for other platforms such as spark
+      \cite{analytics:_rhadoop_wiki} \cite{deltarho:_rhipe}
+      \cite{urbanek20} \cite{zaharia2016apache}.
+      HDFS offers several features that make it particularly
+      attractive as a filesystem for a large-scale statistical
+      analysis;
+      being distributed and capable of running on commodity hardware
+      allows for truly big data analysis.
+      In addition, the system is built to be resiliant to hardware
+      failure, so long-running analyses aren't cut short or forced to
+      revert to a checkpoint because of singular component failure
+      \cite{shvachko2010hadoop}.
+\item[Ease of Setup]
+      Is setup suitable for a computationally-focussed
+      statistician, or does it require a system administrator?
+      At it's base, R is a statistical programming language
+      \cite{rcore2020intro}.
+      The particular skills of statisticians seldom correspond to the
+      those requisite of system administration, with such a focus
+      unlikely to compete successfully with their main research.
+      Ease of deployment can determine a platform's success, with
+      such a feature being one of the many motivations for the use
+      and development of tools such as docker in recent years.
+      The easiest possible setup would be a regular
+      \texttt{install.packages()}, with no more than several lines
+      specifying the platform configuration.
+      %% lapack setup difficult (example) - quick installation guide (25 pages)
+\item[Inter-Node Communication]
+      Can any pair of nodes communicate with each other, or do they
+      only report to a master node?
+      While many tasks process efficiently within a standard
+      master-slave architecture, and inter-node communication is
+      inherently expensive, there is still a large class of tasks
+      that benefit from inter-node communication\cite{walker1996mpi};
+      particularly graph-based statistical methods.
+\item[Interactive Usage]
+      The ability to make use of the package in an interactive R
+      session, without mandatory batch execution.
+      A major benefit of R as being interpreted is the availability
+      of the REPL. The benefits of interactivity stemming from a REPL
+      are well-documented, most notably aiding debugging
+      \cite{mccarthy1978history}. For statistical analysese in 
+      particular, interactive analyses play a major role in 
+      exploratory data analysis, wherein insights can be tested
+      and arrived at rapidly with an interactive session.
+\item[Backend Decoupling]
+      The implementation is maintained entirely separately to the
+      interface.
+      This is standard in most of the performant parallel R systems
+      as described by \citeauthor{eddelbuettel2019parallel}, including
+      foreach as a key example\cite{microsoft20}.
+      As a software pattern, this is a case of separation of
+      concerns, described in detail by \cite{dijkstra1982role}.
+      Such a pattern fosters modularity and allows for a broader
+      range of backends to be made use of, maximising the uptake of
+      the platform.
+      The ability for a system to adhere to a similar interface despite
+	changes in internal behaviour is additionally useful for the sake of
+	referential transparency, which prevents the need to rewrite
+	programs upon making changes, as well as for human-computer
+	interaction considerations \cite{sondergaard1990Rtda}
+	\cite{norman2013design}.
+      For example, the foreach package can change parallel adaptors in
+      a single line of setup, without needing any changes made in the
+      code referencing future, despite making use of a different internal
+      interface \cite{weston19:_using}.
+\item[Evaluation of Arbitrary Classes]
+      Any class, including user-defined classes, can be used in
+      evaluation.
+      There is proven value in rich user-defined objects, with the
+      weight of much of the object-oriented programming paradigm
+      serving to further that point \cite{dahl2004simula}.
+      Conversely, many major packages limit themselves through
+      provisioning only a few classes, such as pbdDMAT with
+      distributed matrices, or the tidyverse and it's derivatives
+      including sparklyr with ``tibbles'' \cite{pbdDMATpackage}
+      \cite{wickham2019welcome}
+\item[Package-specific API]
+      The platform is primarily explicitly programmed against at a
+      package-specific interface. 
+      This is in contrast to packages mostly providing methods which
+      overload standard generics or language structure;
+      at a loss of general transparency, direct API's can ensure
+      greater encapsulation and a closer mapping of code with the
+      underlying implementation, thus potentially resulting in
+      performance gains \cite{bierhoff2009api}.
+      An example in R is the interface to the foreach package not
+      overloading the existing for-loop syntax in R, but defining it's
+      own specific interface \cite{microsoft20}. 
+\item[Methods for Standard Generics]
+      The platform is primarily programmed against using a polymorphic
+      interface, with the package methods taking advantage of common
+      generics.
+      pbdDMAT takes this approach, as well as bigmemory, in providing
+      matrix-like classes which are operated upon using standard matrix
+      generics\cite{pbdDMATpackage}\cite{kane13:bigmemory}.
+\item[Methods for dplyr Generics]
+      The platform makes use of dplyr functions as the primary set of
+      generics to program over.
+      Using a dplyr interface is a common trend in several R packages
+      including sparklyr, disk.frame, and many database interfaces
+      \cite{luraschi20}\cite{zj20}.
+      Such an interface is claimed by the dplyr creators to aid
+      beginners through being simple to remember \cite{wickham2019welcome}.
+      In this way, it may serve to ease the learning curve for the platform.
+      %% ubiquity of dplyr (try put in something about Rstudio being the 
+      %% Red Hat of R, and dplyr being often redundant to things there 
+      %% before as well as their non-acknowledgement of everything prior 
+      %% (that typically do things better and faster), almost at a level of 
+      %% plaigiarism
 \end{description}
 
 \section{Comparison Table}\label{sec:comp-tab}
@@ -199,108 +209,111 @@ A list of features and their descriptions follows:
 	caption = {Comparison of major features among packages, focussing on
 	idiomatic use rather than theoretical capability},
 	label   = tab:compare-features,
-	%pos     = h
+	%pos     = h,
 	sideways %% Very useful feature! don't use with pos
-	]{@{}llllll@{}}{
-		% RHadoop
-		\tnote[1,1]{Use of HDFS through rhdfs\cite{revo2013rhdfs}, and
-		MapReduce through rmr2\cite{revo2014plyrmr}}
-		\tnote[2,1]{rmr2\cite{revo2015rmr2} allows for arbitrary R code
-		to be executed through MapReduce}
-		\tnote[5,1]{Direct access to HDFS through rhdfs\cite{revo2013rhdfs}}
-		\tnote[6,1]{Source repositories only exist on GitHub, following
-		a non-standard package structure at the root level, and Hadoop
-		is required to be set up beforehand}
-		\tnote[9,1]{While the collection is separate from Hadoop, it is
-		entirely tied to Hadoop and MapReduce, and can't be switched to
-		any other distributed platform}
-		\tnote[10,1]{Within the \texttt{mapreduce()} function from
-		rmr2, no prescription is given for any particular class over
-		another}
-		\tnote[11,1]{rmr2 has the package-specific \texttt{mapreduce()}
-		function as the primary interface}
-		\tnote[13,1]{The collection has suffered from the lack of
-		updates; plyrmr provides functionality that is near-transparent
-		to plyr, but this is still some distance from
-		dplyr\cite{revo2014plyrmr}.}
+	%maxwidth = \textwidth
+	]{Xlllll}{
+% RHadoop
+\tnote[1,1]{Use of HDFS through rhdfs\cite{revo2013rhdfs}, and MapReduce
+through rmr2\cite{revo2014plyrmr}}
+\tnote[2,1]{rmr2\cite{revo2015rmr2} allows for arbitrary R code
+to be executed through MapReduce}
+\tnote[5,1]{Direct access to HDFS through rhdfs\cite{revo2013rhdfs}}
+\tnote[6,1]{Source repositories only exist on GitHub, following
+a non-standard package structure at the root level, and Hadoop
+is required to be set up beforehand}
+\tnote[9,1]{While the collection is separate from Hadoop, it is
+entirely tied to Hadoop and MapReduce, and can't be switched to
+any other distributed platform}
+\tnote[10,1]{Within the \texttt{mapreduce()} function from
+rmr2, no prescription is given for any particular class over
+another}
+\tnote[11,1]{rmr2 has the package-specific \texttt{mapreduce()}
+function as the primary interface}
+\tnote[13,1]{The collection has suffered from the lack of
+updates; plyrmr provides functionality that is near-transparent
+to plyr, but this is still some distance from
+dplyr\cite{revo2014plyrmr}.}
 
-		% sparklyr
-		\tnote[1,2]{Use of Spark\cite{luraschi20}}
-		\tnote[2,2]{Provides \texttt{mutate()} function to enable
-		user-defined code, however there are limitations in not being
-		capable of parsing global variables}
-		\tnote[3,2]{Spark Dataframes can be cached (persisted), with
-		each node storing partitions of the Dataframe for future
-		iterative usage\cite{spark2020rdd}. sparklyr offers an
-		\texttt{sdf\_persist()} function to force computation and
-		cache; This could be used in a for-loop for iteration.}
-		\tnote[4,2]{See \textit{2,3}}
-		\tnote[5,2]{Allows for Spark over HDFS, but offers no
-		HDFS-specific filesystem manipulation functions}
-		\tnote[6,2]{Installs from CRAN, requires Spark set up
-		beforehand and environmental variables configured}
-		\tnote[9,2]{Package tied to Spark as evaluative backend}
-		\tnote[10,2]{S3 Objects that have an \texttt{sdf\_import()}
-		method implemented can make use of the \texttt{sdf\_copy\_to()}
-		function to copy objects from R to Spark}
-		\tnote[12,2]{The principal interaction is via dplyr generics,
-		albeit with a difference of lazy evaluation}
+% sparklyr
+\tnote[1,2]{Use of Spark\cite{luraschi20}}
+\tnote[2,2]{Provides \texttt{mutate()} function to enable
+user-defined code, however there are limitations in not being
+capable of parsing global variables}
+\tnote[3,2]{Spark Dataframes can be cached (persisted), with
+each node storing partitions of the Dataframe for future
+iterative usage\cite{spark2020rdd}. sparklyr offers an
+\texttt{sdf\_persist()} function to force computation and
+cache; This could be used in a for-loop for iteration.}
+\tnote[4,2]{See \textit{2,3}}
+\tnote[5,2]{Allows for Spark over HDFS, but offers no
+HDFS-specific filesystem manipulation functions}
+\tnote[6,2]{Installs from CRAN, requires Spark set up
+beforehand and environmental variables configured}
+\tnote[9,2]{Package tied to Spark as evaluative backend}
+\tnote[10,2]{S3 Objects that have an \texttt{sdf\_import()}
+method implemented can make use of the \texttt{sdf\_copy\_to()}
+function to copy objects from R to Spark}
+\tnote[12,2]{The principal interaction is via dplyr generics,
+albeit with a difference of lazy evaluation}
 
-		% pbdR
-		\tnote[1,3]{Distributed computation performed by pbdMPI, with
-		support for several remote messaging
-		protocols\cite{Chen2012pbdMPIpackage}\cite{Schmidt2015pbdCSpackage}}
-		\tnote[2,3]{Adhering to a SPMD paradigm}
-		\tnote[6,3]{Installation can be performed with
-		\texttt{install.packages()} alongside the installation of
-		\texttt{openmpi} externally}
-		\tnote[7,3]{Inter-node communication facilitated through pbdMPI
-		wrappers to standard MPI communication functions such as
-		\texttt{scatter}, \texttt{gather}, \texttt{send}, etc.}
-		\tnote[9,3]{Tied to the usage of the MPI protocol}
-		\tnote[10,3]{Arbitrary classes may be made use of and passed
-		through the communicator generics when methods are defined for
-		them, using pbdMPI}
-		\tnote[11,3]{pbdMPI provides package-specific generics to use
-		and define further methods for}
-		\tnote[12,3]{pbdDMAT provides a distributed matrix class with
-		methods defined to make transparent usage of standard matrix
-		manipulation generics}
+% pbdR
+\tnote[1,3]{Distributed computation performed by pbdMPI, with
+support for several remote messaging
+protocols\cite{Chen2012pbdMPIpackage}\cite{Schmidt2015pbdCSpackage}}
+\tnote[2,3]{Adhering to a SPMD paradigm}
+\tnote[6,3]{Installation can be performed with
+\texttt{install.packages()} alongside the installation of
+\texttt{openmpi} externally}
+\tnote[7,3]{Inter-node communication facilitated through pbdMPI
+wrappers to standard MPI communication functions such as
+\texttt{scatter}, \texttt{gather}, \texttt{send}, etc.}
+\tnote[9,3]{Tied to the usage of the MPI protocol}
+\tnote[10,3]{Arbitrary classes may be made use of and passed
+through the communicator generics when methods are defined for
+them, using pbdMPI}
+\tnote[11,3]{pbdMPI provides package-specific generics to use
+and define further methods for}
+\tnote[12,3]{pbdDMAT provides a distributed matrix class with
+methods defined to make transparent usage of standard matrix
+manipulation generics}
 
-		% disk.frame
-		\tnote[2,4]{Many functions used for grouped summarisation are
-		only estimates, such as \texttt{median}\cite{zj19:_group_by}}
+% disk.frame
+\tnote[2,4]{Many functions used for grouped summarisation are only estimates,
+such as \texttt{median}\cite{zj19:_group_by}}
 
-		% foreach
-		\tnote[1,5]{Through the use of additional packages such as
-		doMPI and sparklyr\cite{weston17}\cite{luraschi20}}
-		\tnote[2,5]{\texttt{\%dopar\%} accepts any expression, and
-		tries its best to handle references to global variables,
-		however it is still recommended to manually define the global
-		references as well as packages used}
-		\tnote[3,5]{foreach makes use of iterators, which can be
-		defined to perform recurrance relations (see example code in
-		\texttt{R/iterators.R}) but these rely on closures and may in
-		fact be slower than serial relations}
-		\tnote[10,5]{foreach makes use of iterator objects, which any
-		class can inherit from to define \texttt{nextElem()}}
-		}{
-		\toprule
-		\multicolumn{1}{c}{Feature}         & \multicolumn{4}{c}{Platform} &                                           \\ \midrule
-		                                    & RHadoop        & sparklyr       & pbdR         & disk.frame   & foreach      \\ \cmidrule(l){2-6}
-		Distributed Computation             & yes\tmark[1,1] & yes\tmark[1,2] & yes\tmark[1,3] & no & yes\tmark[1,5] \\
-		Arbitrary Code Evaluation           & yes\tmark[2,1] & mostly\tmark[2,2] & mostly\tmark[2,3] & somewhat\tmark[2,4] & mostly\tmark[2,5] \\
-		Arbitrary Iterative Code Evaluation & no             & yes\tmark[3,2] & yes          & no\tmark[3,4] & unclear\tmark[3,5] \\
-		Object Persistence at Nodes         & no             & yes\tmark[4,2] & yes           & NA          & no \\
-		Support for HDFS                    & yes\tmark[5,1] & yes\tmark[5,2] & no          & no            & no \\
-		Ease of Setup                       & mediocre\tmark[6,1] & acceptable\tmark[6,3] & acceptable\tmark[6,3] & simple & simple \\
-		Inter-Node Communication            & no             & no            & yes\tmark[7,3] & NA          & no \\
-		Interactive Usage                   & yes            & yes           & no           & yes           & yes \\
-		Backend Decoupling                  & no\tmark[9,1]  & no\tmark[9,2] & no\tmark[9,3] & no           & yes \\
-		Evaluation of Arbitrary Classes     & yes\tmark[10,1] & somewhat\tmark[10,2] & yes\tmark[10,3] & no & yes\tmark[10,5] \\
-		Package-specific API as primary interface & yes\tmark[11,1] & no     & yes\tmark[11,3] & no         & yes \\
-		Methods for Common Generics as Primary Interface & no & yes\tmark[12,2] & yes\tmark[12,3] & yes & no  \\
-		dplyr Compatible                    & no\tmark[13,1]   & yes        & no                & yes & no \\ \bottomrule
-		}
+% foreach
+\tnote[1,5]{Through the use of additional packages such as doMPI and
+sparklyr\cite{weston17}\cite{luraschi20}}
+\tnote[2,5]{\texttt{\%dopar\%} accepts any expression, and tries its best to
+handle references to global variables, however it is still recommended to
+manually define the global references as well as packages used}
+\tnote[3,5]{foreach makes use of iterators, which can be defined to perform
+recurrance relations (see example code in \texttt{R/iterators.R}) but these
+rely on closures and may in fact be slower than serial relations}
+\tnote[5,5]{Through sparklyr as a backend}
+\tnote[10,5]{foreach makes use of iterator objects, which any class can inherit
+from to define \texttt{nextElem()}}
+}{
+\toprule
+\multicolumn{1}{c}{Feature}       & \multicolumn{4}{c}{Platform}                                                                    & \\ 
+\midrule
+                                  & RHadoop              & sparklyr                 & pbdR                   & disk.frame           & foreach \\ 
+\cmidrule(l){2-6}
+Distributed Computation           & \yes\tmark[1,1]      & \yes\tmark[1,2]          & \yes\tmark[1,3]        & \no                  & \yes\tmark[0,5] \\
+Evaluation of User-Specified Code & \yes\tmark[2,1]      & \mostly\tmark[2,2]       & \mostly\tmark[2,3]     & \some\tmark[2,4]     & \mostly\tmark[2,5] \\
+Native Support for Iteration      & \no                  & \yes\tmark[3,2]          & \yes                   & \no\tmark[3,4]       & \unclear\tmark[3,5] \\
+Object Persistence at Nodes       & \no                  & \yes\tmark[4,2]          & \yes                   & \NA                  & \no \\
+Support for HDFS                  & \yes\tmark[5,1]      & \yes\tmark[5,2]          & \no                    & \no                  & \yes\tmark[5,5] \\
+Ease of Setup                     & \mediocre\tmark[6,1] & \acceptable\tmark[6,3]   & \acceptable\tmark[6,3] & \simple              & \simple \\
+Inter-Node Communication          & \no                  & \no                      & \yes\tmark[7,3]        & \NA                  & \no \\
+Interactive Usage                 & \yes                 & \yes                     & \no                    & \yes                 & \yes \\
+Backend Decoupling                & \no\tmark[9,1]       & \no\tmark[9,2]           & \no\tmark[9,3]         & \no                  & \yes \\
+Evaluation of Arbitrary Classes   & \yes\tmark[10,1]     & \some\tmark[10,2]        & \yes\tmark[10,3]       & \no                  & \yes\tmark[10,5] \\
+Package-specific API              & \yes\tmark[11,1]     & \yes                     & \yes\tmark[11,3]       & \no                  & \yes \\
+Methods for Standard Generics     & \no                  & \no                      & \some\tmark[12,3]      & \no                  & \no  \\
+Methods for dplyr Generics        & \no\tmark[13,1]      & \yes\tmark[12,2]         & \no                    & \yes                 & \no \\ 
+\bottomrule
+}
 \printbibliography{}
 \end{document}

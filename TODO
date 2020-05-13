@@ -1,4 +1,21 @@
-. Get hadoop and spark web ui ports forwarded correctly to local host
+. Begin sparklyr review
+. sparklyr testing
+.. Test iteration through `sdf_persist()`
+.. Run some tests involving mutate and spark_apply
+.. Look in detail at how sparklyr performs mutate functions
+.. See if global variables can be attained in mutates with `bquote()`
+.. Write on potential and limitations of mutate (with references)
+.. Implement Reweighted Least Squares with sparklyr; use pbdR work and Simon's
+   hmr version as starting points
+.. Compare self-made glm with MLLib glm
+.. Reference this within the RWLS document
+.. Test sparklyr 1.2 feature; registerDoSpark() with foreach
+. Determine possibility and mechanism of recurrance iterators through foreach
+  on a cluster, possibly with sparklyr as backend
+. Begin prototyping; see ROctopus as relevant experiment
+. Remove table notes from link:doc/survey-large-scale-features.tex[Large Scale
+  Features document] and add them to their appropriate sections; consider how to
+  do this neatly.
 . Read Spark: The Definitive Guide
 .. 1. What Is Apache Spark?
 .. 2. A Gentle Introduction to Spark
@@ -9,18 +26,6 @@
 .. 24. Advanced Analytics and Machine Learning Overview
 .. 32.2. R on Spark
 . Discuss why spark no longer has RDDs as main objects
-. Begin sparklyr review
-. sparklyr testing
-.. Setup Spark on the minicluster
-.. Run some tests involving mutate and spark_apply
-.. Implement Reweighted Least Squares with sparklyr
-.. Compare self-made glm with MLLib glm
-.. Reference this within the RWLS document
-.. Write on potential and limitations of mutate (with references)
-.. Look in detail at how sparklyr performs mutate functions
-.. Test sparklyr 1.2 feature; registerDoSpark() with foreach
-. Determine possibility and mechanism of recurrance iterators through foreach
-  on a cluster, possibly with sparklyr as backend
 . Record the backends commonly supported by backend-powered packages (include
   these in the survey-large-scale-platforms document, including revis and other
   distributed databases)
@@ -29,4 +34,4 @@
 . Research possible graph-based algorithms to require node communication
 . More on RWLS document
 .. Reference the GLM implementations in sparklyr and pbdR
-. Cease UTF-8 to ascii conversion in the bibtex formatter
+. Write on comparative benefits and drawbacks in majore packages
