@@ -1,0 +1,84 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+
+\begin{document}
+\title{A Review of Iteration with sparklyr}
+\author{Jason Cairns}
+\year=2020 \month=5 \day=14
+\maketitle{}
+
+\section{Introduction}
+Given that iteration is cited by a principal author of Spark in
+\citeauthor{zaharia2010spark} as a motivating factor in it's development when
+compared to Hadoop, it is reasonable to expect sparklyr, as the most popular R
+interface to Spark, to have excellent support for iteration.
+One immediate hesitation to the suitability of sparklyr to iteration is the
+syntactic rooting in dplyr; dplyr is a ``Grammar of Data Manipulation'', part
+of the tidyverse, which in turn is an ecosystem of packages with a shared
+philosophy. 
+The tidyverse philosophy and ecosystem is expounded in
+\citeauthor{wickham2019welcome}, and at length in \citeauthor{wickham2016r}. 
+The paradigm promoted is functional in nature, with iteration using for loops
+in R being described as not as important in other languages, with map functions
+from the tidyverse purrr package being promoted as taking much less time to
+solve iteration problems.
+Maps do provide a simple abstraction for traversing over a collection, similar
+to internal iterators, however they offer no control of the form of traversal,
+and most importantly, lack mutable state between iterations that typical for
+loops or generators allow.
+A common functional strategy for handling a changing state is to make use of
+recursion, with tail-recursive functions specifically referred to as iteration
+in \citeauthor{abelson1996structure}.
+Reliance on recursion for iteration is not possible in R however, as it lacks
+tail-call optimisation.
+Thus the tidyverse philosophy is not entirely amenable to efficient iteration
+using R, given that it is not as functional a language as the tidyverse
+philosophy considers it to be, and sparklyr's attachment to the the ecosystem
+prevents a cohesive model of iteration.
+
+The recent support of sparklyr as a backend for foreach implies some potential
+support for iteration proper;
+Foreach makes use of iterators as internal iterators, executing expressions
+with each element of the iterator collection, acting in a similar manner to a
+map, however parent environments and closures can be mutated with traversal,
+thereby allowing for complete iteration.
+Whether this can be performed with the sparklyr backend is considered in
+section \ref{sec:for-iter}.
+
+\section{Iteration}
+
+Iteration takes place in Spark through caching results in memory, allowing
+faster access speed and decreased data movement than MapReduce.
+sparklyr can use this functionality through the \texttt{tbl\_cache()} function
+to cache Spark dataframes in memory, as well as the ability to persist Spark
+Dataframes to memory after forcing evaluation through \texttt{sdf\_persist()}.
+This is 
+% taking advantage of caching and collection after a loop
+% test with fixed point square root
+
+\section{Mutation}
+% How sparklyr performs mutates; see guide and source code
+% tricking mutate into accepting global variables with bquotes (wrap entire
+% expression in them?) document failures
+
+\section{Iteration with Mutation}
+
+\section{Example: Reweighted Least Squares}
+% . Implement Reweighted Least Squares with sparklyr; use pbdR work and Simon's
+%   hmr version as starting points
+% . Compare self-made glm with MLLib glm
+% . Reference this within the RWLS document
+
+\section{Foreach Traversal}
+
+\section{Foreach Iteration}\label{sec:for-iter}
+% effectively creating a generator
+% test with fixed point square root
+% if working, test with RWLS
+
+\printbibliography{}
+
+\end{document}

@@ -1,17 +1,8 @@
-. Begin sparklyr review
-. sparklyr testing
-.. Test iteration through `sdf_persist()`
-.. Run some tests involving mutate and spark_apply
-.. Look in detail at how sparklyr performs mutate functions
-.. See if global variables can be attained in mutates with `bquote()`
-.. Write on potential and limitations of mutate (with references)
-.. Implement Reweighted Least Squares with sparklyr; use pbdR work and Simon's
-   hmr version as starting points
-.. Compare self-made glm with MLLib glm
-.. Reference this within the RWLS document
-.. Test sparklyr 1.2 feature; registerDoSpark() with foreach
-. Determine possibility and mechanism of recurrance iterators through foreach
-  on a cluster, possibly with sparklyr as backend
+. run spark on the local pseudodistributed cluster
+. test sparklyr table names, see if they correspond completely to R variables (can names be used in R?)
+. Implement Babylonian method for sparklyr
+. Copy to cluster, test
+. Complete link:doc/review-sparklyr-iteration.tex[sparklyr iteration doc]
 . Begin prototyping; see ROctopus as relevant experiment
 . Remove table notes from link:doc/survey-large-scale-features.tex[Large Scale
   Features document] and add them to their appropriate sections; consider how to
