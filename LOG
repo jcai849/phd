@@ -1,3 +1,7 @@
+2020-05-17:: Realise it was all down to a typo; cry
+	18:09:14::: Complete script for Spark on Pseudo Distributed Hadoop
+		    Cluster setup on YARN; tested and working
+2020-05-16:: Spend all day fighting computer; lose
 2020-05-14::
 	17:00:43::: Begin Spark Review:
 		* Make and skeleton link:doc/review-sparklyr-iteration.tex

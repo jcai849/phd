@@ -1,5 +1,3 @@
-. run spark on the local pseudodistributed cluster
-. test sparklyr table names, see if they correspond completely to R variables (can names be used in R?)
 . Implement Babylonian method for sparklyr
 . Copy to cluster, test
 . Complete link:doc/review-sparklyr-iteration.tex[sparklyr iteration doc]
