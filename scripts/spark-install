@@ -1,7 +1,0 @@
-#!/bin/bash
-cd /shared
-wget https://www.apache.org/dyn/closer.lua/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz
-tar -xzf spark-3.0.0-preview2-bin-hadoop3.2.tgz
-ln spark-3.0.0-preview2-bin-hadoop3.2 spark
-sudo Rscript -e 'install.packages(c("SparkR", "tidyverse", "dbplyr", "sparklyr"))'
-# addition of SPARK_HOME, HADOOP_CONF_DIR env vars and spark bin to PATH in ~/.profile

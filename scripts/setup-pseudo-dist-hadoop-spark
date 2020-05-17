@@ -1,0 +1,50 @@
+#!bin/bash
+
+# NB. Java and ssh should already be set up before running this script;
+# $JAVA_HOME must point to Java 8 only (openJDK is ok, set in .profile and
+# /etc/environment as well), and ssh should be passwordless, using ssh-agent
+# etc.
+
+INSTALL_DIR=/shared
+HADOOP_HOME=/shared/hadoop
+HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
+HADOOP_LOG_DIR=${HADOOP_HOME}/logs
+PATH=${PATH}:${HADOOP_HOME}/sbin:${HADOOP_HOME}/bin
+SPARK_HOME=/shared/spark
+PATH=$PATH:${SPARK_HOME}/sbin:${SPARK_HOME}/bin
+
+hadoop-install () {
+	sudo mkdir -p ${INSTALL_DIR}
+	sudo wget -nc -P ${INSTALL_DIR} https://apache.inspire.net.nz/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz
+	sudo tar -xzf ${INSTALL_DIR}/hadoop-3.2.1.tar.gz -C ${INSTALL_DIR}
+	sudo ln -s ${INSTALL_DIR}/hadoop-3.2.1 ${INSTALL_DIR}/hadoop
+	echo 'export HADOOP_HOME=/shared/hadoop' >> ~/.profile
+	echo 'export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop' >> ~/.profile
+	echo 'export HADOOP_LOG_DIR=${HADOOP_HOME}/logs' >> ~/.profile
+	echo 'export PATH=${PATH}:${HADOOP_HOME}/sbin:${HADOOP_HOME}/bin' >> ~/.profile
+}
+
+hadoop-configure () {
+	sudo chmod -R 777 ${HADOOP_HOME}
+	cp conf/* ${HADOOP_CONF_DIR}/
+	mkdir -p $HADOOP_LOG_DIR
+	hdfs namenode -format
+	start-dfs.sh
+	start-yarn.sh
+	hdfs dfs -mkdir /user
+	hdfs dfs -mkdir /user/user
+	hdfs dfs -mkdir input
+	hdfs dfs -put ${HADOOP_CONF_DIR}/*.xml input
+}
+
+spark-install () {
+	sudo wget -nc -P ${INSTALL_DIR} https://apache.inspire.net.nz/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz 
+	sudo tar -xzf ${INSTALL_DIR}/spark-3.0.0-preview2-bin-hadoop3.2.tgz -C ${INSTALL_DIR}
+	sudo ln -s ${INSTALL_DIR}/spark-3.0.0-preview2-bin-hadoop3.2 ${INSTALL_DIR}/spark
+	echo 'export SPARK_HOME=/shared/spark' >> ~/.profile
+	echo 'export PATH=$PATH:${SPARK_HOME}/sbin:${SPARK_HOME}/bin' >> ~/.profile
+}
+
+hadoop-install
+hadoop-configure
+spark-install
