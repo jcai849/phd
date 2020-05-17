@@ -3,7 +3,7 @@
 # NB. Java and ssh should already be set up before running this script;
 # $JAVA_HOME must point to Java 8 only (openJDK is ok, set in .profile and
 # /etc/environment as well), and ssh should be passwordless, using ssh-agent
-# etc.
+# etc. test with `ssh localhost` -- shouldn't ask for a password!
 
 INSTALL_DIR=/shared
 HADOOP_HOME=/shared/hadoop
