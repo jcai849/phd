@@ -16,14 +16,14 @@ $(OUTDIR)/%.pdf: $(DOCDIR)/%.tex
 print-%  : ; @echo $* = $($*)
 
 clean:
-	rm -f */*.aux
-	rm -f */*.bbl
-	rm -f */*.blg
-	rm -f */*.bcf
-	rm -f */*.log
-	rm -f */*.out
-	rm -f */*.xml
-	rm -f */*.rip
-	rm -f */*.toc
-	rm -f */*.bak*
+	rm -f out/*.aux
+	rm -f out/*.bbl
+	rm -f out/*.blg
+	rm -f out/*.bcf
+	rm -f out/*.log
+	rm -f out/*.out
+	rm -f out/*.xml
+	rm -f out/*.rip
+	rm -f out/*.toc
+	rm -f out/*.bak*
 

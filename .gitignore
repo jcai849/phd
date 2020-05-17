@@ -6,7 +6,6 @@
 *.bbl
 *.bcf
 *.blg
-*.xml
 /urls.tex
 *.out
 /auto/
