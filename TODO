@@ -1,6 +1,8 @@
-. Implement Babylonian method for sparklyr
-. Copy to cluster, test
+. Write on functional iterative interface
 . Complete link:doc/review-sparklyr-iteration.tex[sparklyr iteration doc]
+. Notes on Hadoop Monitoring links
+. Generalise features to have "distributed file system" instead of HDFS
+  specifically
 . Begin prototyping; see ROctopus as relevant experiment
 . Remove table notes from link:doc/survey-large-scale-features.tex[Large Scale
   Features document] and add them to their appropriate sections; consider how to
