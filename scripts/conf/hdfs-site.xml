@@ -3,4 +3,12 @@
         <name>dfs.replication</name>
         <value>1</value>
     </property>
+    <property>
+	    <name>dfs.namenode.name.dir</name>
+	    <value>/shared/hadoop/namenode</value>
+    </property>
+    <property>
+	    <name>dfs.datanode.data.dir</name>
+	    <value>/shared/hadoop/datanode</value>
+    </property>
 </configuration>

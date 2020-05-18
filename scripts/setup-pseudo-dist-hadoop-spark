@@ -1,12 +1,16 @@
 #!bin/bash
 
+# Don't run this as root
+
 # NB. Java and ssh should already be set up before running this script;
 # $JAVA_HOME must point to Java 8 only (openJDK is ok, set in .profile and
 # /etc/environment as well), and ssh should be passwordless, using ssh-agent
 # etc. test with `ssh localhost` -- shouldn't ask for a password!
 
 INSTALL_DIR=/shared
-HADOOP_HOME=/shared/hadoop
+HADOOP_HOME=/shared/hadoop 
+# if needing to change $HADOOP_HOME, change the location in conf/hdfs-site.xml
+# as well
 HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
 HADOOP_LOG_DIR=${HADOOP_HOME}/logs
 PATH=${PATH}:${HADOOP_HOME}/sbin:${HADOOP_HOME}/bin
@@ -27,12 +31,14 @@ hadoop-install () {
 hadoop-configure () {
 	sudo chmod -R 777 ${HADOOP_HOME}
 	cp conf/* ${HADOOP_CONF_DIR}/
+	mkdir -p ${HADOOP_HOME}/{name,data}node
+	sudo chmod 755 ${HADOOP_HOME}/{name,data}node
 	mkdir -p $HADOOP_LOG_DIR
 	hdfs namenode -format
 	start-dfs.sh
 	start-yarn.sh
 	hdfs dfs -mkdir /user
-	hdfs dfs -mkdir /user/user
+	hdfs dfs -mkdir /user/$(whoami)
 	hdfs dfs -mkdir input
 	hdfs dfs -put ${HADOOP_CONF_DIR}/*.xml input
 }
