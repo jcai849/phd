@@ -1,0 +1,44 @@
+Considerations on a Functional Iterative Interface
+==================================================
+Jason Cairns
+2020-05-19
+
+Introduction
+------------
+
+// Iterative functions
+// Why functional?
+// Referential transparency
+// close mathematical mapping - particularly for statistics
+// Contrast with non-functional approaches; object based generators etc.
+
+latexmath:[f^0 = id_x]
+latexmath:[f^{n+1} = f \circ f^n]
+latexmath:[x_{n+1} = x_n]
+
+
+A Higher-Order Model for Iterative Functions
+--------------------------------------------
+
+// draft interface
+[src,R]
+------------------
+iter(x0, P, xn, ...) 
+------------------
+Where x0 is the initial object to iterate upon,
+P is the predicate upon to stop iteration
+xn is the iterative function,
+\... is additional arguments
+// has this not been done before?? seems too simple
+
+Implementation Details
+----------------------
+
+// value of referential transparency allows for backends
+Internally, a while loop with predicate `P` runs function `xn` on it's returned
+output, starting with `x0`
+
+Optimisations can include substituting the body of the function to avoid
+copying variables for the sake of memory.
+
+
