@@ -2,43 +2,181 @@ Considerations on a Functional Iterative Interface
 ==================================================
 Jason Cairns
 2020-05-19
+:bibtex-file: bib/bibliography.bib
+:stem:
+:source-highlighter: rouge
 
 Introduction
 ------------
 
-// Iterative functions
-// Why functional?
-// Referential transparency
-// close mathematical mapping - particularly for statistics
-// Contrast with non-functional approaches; object based generators etc.
+A ``functional'' iterative interface may be a suitable interface to the
+platform.
+An explicit interface has benefits over recursion in that R has little
+optimisation for recursion either through tail call elimination or call stack
+manipulation.
+Being ``functional'' entails referential transparency, purity, and operational
+access through functions.
+The benefits brought by referential transparency include most notably for this
+platform, sufficient encapsulation such that backends can be switched out
+without requiring alteration of the code.
+Additionally, the design and terminology of the function offers a close mapping
+to the mathematical notation of a recurrence relation.
 
-latexmath:[f^0 = id_x]
-latexmath:[f^{n+1} = f \circ f^n]
-latexmath:[x_{n+1} = x_n]
+This can be contrasted with a non-functional approach, which in it's most
+efficient form would entail defining a generator, and pulling the act of
+implementation closer to the details of object definition rather than, as on
+paper, the function definition.
 
+This particular interface attempts to emulate notation of iterated functions of
+the following form:
+
+[latexmath]
++++++++++++++
+x_{n+1} = x_n
++++++++++++++
+
+With the function body aiming to map as closely as possible a standard
+mathematical notion of iterated functions:
+
+[latexmath]
+++++++++++
+f^0 = id_x
+++++++++++
+[latexmath]
++++++++++++++++++++++
+f^{n+1} = f \circ f^n
++++++++++++++++++++++
 
 A Higher-Order Model for Iterative Functions
 --------------------------------------------
 
-// draft interface
-[src,R]
+A draft interface sees a function taking the following form:
+
+[source,R]
 ------------------
-iter(x0, P, xn, ...) 
+iter(x0, P, fn, ...) 
 ------------------
-Where x0 is the initial object to iterate upon,
-P is the predicate upon to stop iteration
-xn is the iterative function,
-\... is additional arguments
-// has this not been done before?? seems too simple
+
+Where the formal parameters include,
+x0:: as the initial object to iterate upon; 
+P:: as the predicate to cease iteration upon evaluating false;
+fn:: as the iterated function, and 
+...:: stands for additional arguments to the iterated function
+
+A means of referring to the returned object of `fn` within P would have to be
+defined.
+This could take the form of reserved names such as `xn`, `xn_1`, ... `xn_n` to
+refer to the output of `fn`, the prior output of `fn`, and so on, respectively.
+Memory could be spared through parsing `P` and only keeping the value of those
+names which are referenced in `P`.
+
+The additional arguments are necessary, as partial function application or
+currying are not posssible with a fixed function.
+Through this interface, iterated functions are clearly defined without the need
+for explicit syntactical control structures, and through the transparancy of
+the function, may swap in backend-specific mechanisms of action.
+This function may be defined as a generic, with appropriate backend-specific
+methods dispatched based on the class of `x0`.
+
+As an example of an iterated function, a GLM can be defined using this
+interface, as outlined in the following listing:
+
+[source,R]
+-----------------------------------------------
+# include definitions for X and y
+
+pr <- function(X, B){
+	1 / (1 + exp(-X  %*% B))
+}
+
+fn <- function(B){
+	W <- diag(as.vector(pr(X, B)))
+	hessian <- - t(X) %*% W %*% X
+	z <- X %*% B + solve(W) %*% (y - pr(X, B))
+	B <- solve(-hessian) %*% crossprod(X, W %*% z)
+	B
+}
+
+x0 <- matrix(x(0,0))
+
+P <- quote(colSums(xn_1 - xn)^2) > tolerance)
+
+iter(x0, P, fn)
+-----------------------------------------------
 
 Implementation Details
 ----------------------
 
-// value of referential transparency allows for backends
-Internally, a while loop with predicate `P` runs function `xn` on it's returned
-output, starting with `x0`
+Internally, a while loop with predicate `P` runs function `fn` on it's returned
+output, starting with `x0`.
+A basic, non-generic implementation could take the following form:
 
-Optimisations can include substituting the body of the function to avoid
-copying variables for the sake of memory.
+[source,R]
+--------------------------------
+iter <- function(x0, P, fn){
+	if (P) xn <- fn(x0)
+	ModifyBaseEnv(P)		<1>
+	while (P) {
+		xn <- fn(xn)
+		ModifyLoopEnv(P)	<2>
+	}
+	xn
+}
+--------------------------------
 
+<1> This is required in the case that `P` references variables such as `xn_1`;
+    in this case `P` is replaced with `TRUE` in order to allow the function to
+    run until such variables are generated, and the original `P` is stored in a
+    temporary variable, to be made use of until the existence of said
+    variables.
+<2> This is required in the same case as 1., wherein the environment is
+    modified to hold the additional variable references, as well as return `P`
+    from `TRUE` upon generation of the necessary variables referenced in `P`.
 
+Optimisations can include inlining the function through substitution in order
+to minimise object movement
+
+Various backends could be used.
+As an example, sparklyr could be run through being passed an `x0` of class
+`spark_tbl`, wherein the appropriate method would be dispatched.
+This method would enclose the `fn` function calls within `mutate`, and perform
+other enhancements such as caching directives.
+sparklyr could just as easily be bypassed, with some serialisation of the
+closure `fn` performed and sent directly to Spark, if Spark allows for such an
+operation.
+
+Potential Further Developments
+------------------------------
+
+Explicit (embarrassing) parallelism may be specified as additional arguments;
+With an appropriate backend, these parallel functions are changed to be
+processed in parallel, with the changed functions fed into the environment of
+the iterated function.
+As a corollary, the partitioning of data may be manually specified to ensure
+good performance under parallelisation.
+
+Communicative parallelism is significantly more difficult to capture in the
+design of such an interface, with most parallel R packages ignoring such a
+construct.
+However, it is conceivable that such functions can also be delivered as formal
+parameters to the `iter` function, though it is as yet unclear how to integrate
+this cleanly.
+
+Conclusion
+----------
+
+While this functional API does provide a simple abstract interface, it comes at
+the cost of lacking clear communication directives.
+Multivariable iterated functions are also difficult to manage;
+they can be contained in a list as a single formal parameter, but this limits
+the generic capability of the function to dispatch methods based on the class
+of the initial object `x0` cite:[Chen2012pbdMPIpackage].
+Such a cost is bearable by some applications, but limits the platform
+excessively at this early stage;
+it may be better to pursue this idea at a later stage, pending development of
+the more primitive platform details.
+
+Bibliography
+------------
+
+bibliography::[]
