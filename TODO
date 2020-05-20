@@ -1,16 +1,19 @@
-. Write on functional iterative interface
+. Write on iteration vs traversal in foreach document
 . Complete link:doc/review-sparklyr-iteration.tex[sparklyr iteration doc]
-.. foreach sections
 .. referencing
-.. (glm)?
-. Notes on Hadoop Monitoring links (which port for what, etc.)
+.. notes on why no GLM
 . Generalise features to have "distributed file system" instead of HDFS
   specifically
+. Notes on Hadoop Monitoring links (which port for what, etc.)
 . Begin prototyping; see ROctopus as relevant experiment
+.. Read through ROctopus source code
+.. Take notes, gather ideas
 . Remove table notes from link:doc/survey-large-scale-features.tex[Large Scale
   Features document] and add them to their appropriate sections; consider how to
   do this neatly.
 . Revisit table with reference to sparklyr-iteration
+. Add "degree of control" to the large scale features; capturing how much is
+  abstracted vs. still able to be specified by the programmer
 . Read Spark: The Definitive Guide
 .. 1. What Is Apache Spark?
 .. 2. A Gentle Introduction to Spark
@@ -21,6 +24,8 @@
 .. 24. Advanced Analytics and Machine Learning Overview
 .. 32.2. R on Spark
 . Discuss why spark no longer has RDDs as main objects
+. Determine feasibility of Spark making use of R blobs in a long-running R
+  process
 . (Look at sparkR)?
 . Record the backends commonly supported by backend-powered packages (include
   these in the survey-large-scale-platforms document, including revis and other
