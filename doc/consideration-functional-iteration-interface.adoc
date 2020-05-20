@@ -13,19 +13,19 @@ A ``functional'' iterative interface may be a suitable interface to the
 platform.
 An explicit interface has benefits over recursion in that R has little
 optimisation for recursion either through tail call elimination or call stack
-manipulation.
+manipulation cite:[rcore2020lang].
 Being ``functional'' entails referential transparency, purity, and operational
-access through functions.
+access through functions cite:[cousineau1998functional].
 The benefits brought by referential transparency include most notably for this
 platform, sufficient encapsulation such that backends can be switched out
-without requiring alteration of the code.
+without requiring alteration of the code cite:[strachey2000fundamental].
 Additionally, the design and terminology of the function offers a close mapping
 to the mathematical notation of a recurrence relation.
 
 This can be contrasted with a non-functional approach, which in it's most
-efficient form would entail defining a generator, and pulling the act of
-implementation closer to the details of object definition rather than, as on
-paper, the function definition.
+efficient form in R would entail defining an iterator object, which pulls the
+act of implementation closer to the details of object definition rather than,
+as on paper, the function definition cite:[analytics19].
 
 This particular interface attempts to emulate notation of iterated functions of
 the following form:
@@ -134,7 +134,7 @@ iter <- function(x0, P, fn){
     from `TRUE` upon generation of the necessary variables referenced in `P`.
 
 Optimisations can include inlining the function through substitution in order
-to minimise object movement
+to minimise object movement.
 
 Various backends could be used.
 As an example, sparklyr could be run through being passed an `x0` of class
@@ -148,16 +148,17 @@ operation.
 Potential Further Developments
 ------------------------------
 
-Explicit (embarrassing) parallelism may be specified as additional arguments;
+Explicit embarrassing parallel sections may be specified as additional
+arguments;
 With an appropriate backend, these parallel functions are changed to be
-processed in parallel, with the changed functions fed into the environment of
+processed in parallel, with the converted functions fed into the environment of
 the iterated function.
 As a corollary, the partitioning of data may be manually specified to ensure
 good performance under parallelisation.
 
 Communicative parallelism is significantly more difficult to capture in the
 design of such an interface, with most parallel R packages ignoring such a
-construct.
+construct cite:[bengtsson20,core:_packag,matloff16softw_alchemy,vaughan18].
 However, it is conceivable that such functions can also be delivered as formal
 parameters to the `iter` function, though it is as yet unclear how to integrate
 this cleanly.
@@ -170,7 +171,7 @@ the cost of lacking clear communication directives.
 Multivariable iterated functions are also difficult to manage;
 they can be contained in a list as a single formal parameter, but this limits
 the generic capability of the function to dispatch methods based on the class
-of the initial object `x0` cite:[Chen2012pbdMPIpackage].
+of the initial object `x0`.
 Such a cost is bearable by some applications, but limits the platform
 excessively at this early stage;
 it may be better to pursue this idea at a later stage, pending development of
