@@ -1,4 +1,5 @@
 *.epub
+*.run.xml
 *.djvu
 *.mobi
 *.pdf
