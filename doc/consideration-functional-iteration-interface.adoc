@@ -58,6 +58,7 @@ iter(x0, ..., P, fn)
 ------------------
 
 Where the formal parameters include,
+
 x0:: as the initial object to iterate upon; 
 ...:: as additional objects to iterate upon;
 P:: as the predicate to cease iteration upon evaluating false, and;
@@ -117,7 +118,7 @@ iter <- function(x0, P, fn){
 	ModifyBaseEnv(P, fn)		<1>
 	while (P) {
 		xn <- fn(xn)
-		ModifyLoopEnv(P)	<2>
+		ModifyLoopEnv(P)		<2>
 	}
 	xn
 }
@@ -125,13 +126,10 @@ iter <- function(x0, P, fn){
 
 <1> This is required in the case that `P` or `fn`  references variables such as
     `xn_1`;
-    in this case `P` is replaced with `TRUE` in order to allow the function to
-    run until such variables are generated, and the original `P` is stored in a
-    temporary variable, to be made use of until the existence of said
-    variables.
+    In this case, the reserved names are linked to the initial input variables
+    up to the n'th input variable.
 <2> This is required in the same case as 1., wherein the environment is
-    modified to hold the additional variable references, as well as return `P`
-    from `TRUE` upon generation of the necessary variables referenced in `P`.
+    modified to hold the additional variable references.
 
 Optimisations can include inlining the function through substitution in order
 to minimise object movement.
