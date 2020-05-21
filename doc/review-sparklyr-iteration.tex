@@ -1,0 +1,208 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+\usepackage{listings}
+\usepackage{color} 
+ 
+\definecolor{mygreen}{rgb}{0,0.6,0} 
+\definecolor{mygray}{rgb}{0.5,0.5,0.5} 
+\definecolor{mymauve}{rgb}{0.58,0,0.82} 
+ 
+\lstset{  
+  backgroundcolor=\color{white},    
+  basicstyle=\ttfamily\small, 
+  breaklines=true,                  
+  captionpos=b,                     
+  commentstyle=\color{mygreen},     
+  frame=single,                     
+  keepspaces=true,                  
+  keywordstyle=\color{blue},        
+  stringstyle=\color{mymauve},      
+  tabsize=2,                        
+} 
+
+
+\begin{document}
+\title{A Review of Iteration with sparklyr}
+\author{Jason Cairns}
+\year=2020 \month=5 \day=14
+\maketitle{}
+
+\section{Introduction}
+Given that iteration is cited by a principal author of Spark as a motivating
+factor in it's development when compared to Hadoop, it is reasonable to
+consider whether the most popular R interface to Spark, sparklyr, has support
+for iteration\cite{zaharia2010spark}\cite{luraschi20}.
+One immediate hesitation to the suitability of sparklyr to iteration is the
+syntactic rooting in dplyr; dplyr is a ``Grammar of Data Manipulation'' and part
+of the tidyverse, which in turn is an ecosystem of packages with a shared
+philosophy\cite{wickham2019welcome}\cite{wickham2016r}. 
+The promoted paradigm is functional in nature, with iteration using for loops
+in R being described as ``not as important'' as in other languages; 
+map functions from the tidyverse purrr package are instead promoted as
+providing greater abstraction and taking much less time to solve iteration
+problems.
+Maps do provide a simple abstraction for function application over elements in
+a collection, similar to internal iterators, however they offer no control over
+the form of traversal, and most importantly, lack mutable state between
+iterations that standard loops or generators allow\cite{cousineau1998functional}.
+A common functional strategy for handling a changing state is to make use of
+recursion, with tail-recursive functions specifically referred to as a form of
+iteration in \citeauthor{abelson1996structure}.
+Reliance on recursion for iteration is naively non-optimal in R however, as it
+lacks tail-call elimination and call stack optimisations\cite{rcore2020lang};
+at present the elements for efficient, idiomatic functional iteration are not
+present in R, given that it is not as functional a language as the tidyverse
+philosophy considers it to be, and sparklyr's attachment to the the ecosystem
+prevents a cohesive model of iteration until said elements are in place.
+
+\section{Iteration}
+
+Iteration takes place in Spark through caching results in memory, allowing
+faster access speed and decreased data movement than
+MapReduce\cite{zaharia2010spark}.
+sparklyr can use this functionality through the \texttt{tbl\_cache()} function
+to cache Spark dataframes in memory, as well as caching upon import with
+\texttt{memory=TRUE} as a formal parameter to \texttt{sdf\_copy\_to()}. 
+Iteration can also make use of persisting Spark Dataframes to memory, forcing
+evaluation then caching; performed in sparklyr through \texttt{sdf\_persist()}.
+
+The Babylonian method for calculating a square root is a simple iterative
+procedure, used here as an example.
+A standard form in R with non-optmimised initial value is given in listing
+\ref{lst:basicbab}.
+
+\begin{lstlisting}[language=R, caption={Simple Iteration with the Babylonian Method}, label=lst:basicbab]
+basic_sqrt <- function(S, frac_tolerance=0.01, initial=1){
+	x <- initial
+	while(abs(x\^2 - S)/S > frac_tolerance){
+		x <- (x + S/x)/2
+	}
+	x
+}
+\end{lstlisting}
+
+This iterative function is trivial, but translation to sparklyr is not entirely so.
+
+The first aspect that must be considered is that sparklyr works on Spark Data
+Frames;
+\texttt{x} and \texttt{S} must be copied to Spark with the aforementioned
+\texttt{sdf\_copy\_to()} function.
+
+The execution of the function in Spark is the next consideration, and sparklyr
+provides two means for this to occur;
+\texttt{spark\_apply()} launches R to evaluate a user-defined function over a
+specific Spark Data Frame. 
+Such an evaluation strategy is unsuitable in this instance as it is excessive
+overhead to be launched every iteration. 
+The other form of evaluation is through using dplyr generics, which is what
+will be made use of in this example.
+
+An important aspect of consideration is that sparklyr methods for dplyr
+generics execute through a translation of the formal parameters to Spark SQL.
+This is particularly relevant in that separate Spark Data Frames can't be
+accessed together as in a multivariable function.
+In addition, very R-specific functions such as those from the \texttt{stats}
+and \texttt{matrix} core libraries are not able to be evaluated, as there is no
+Spark SQL cognate for them.
+The SQL query generated by the methods can be accessed and ``explained''
+through \texttt{show\_query()} and \texttt{explain()} respectively;
+When attempting to combine two Spark Data Frames in a single query without 
+joining them, \texttt{show\_query()} reveals that the Data Frame that is
+referenced through the \texttt{.data} variable is translated, but the other
+Data Frame has it's list representation passed through, which Spark SQL doesn't
+have the capacity to parse; 
+an example is given in listing \ref{lst:computer-no} (generated through listing
+\ref{lst:bad}), showing an attempt to create a new column from the difference
+between two seperate Data Frames
+
+\begin{lstlisting}[language=R, caption={Attempt in R to form new column from the difference between two separate Spark data frames \texttt{S} and \texttt{x}}, label=lst:bad]
+show_query(mutate(S, S = S - x)
+\end{lstlisting}
+
+\begin{lstlisting}[language=SQL, caption={Spark SQL query generated from attempt to form the difference from two seperate data frames}, label=lst:computer-no]
+SELECT `S` - list(con = list(master = "yarn", method = "shell", app_name = "sparklyr", config = list(spark.env.SPARK_LOCAL_IP.local = "127.0.0.1", sparklyr.connect.csv.embedded = "\^1.*", spark.sql.legacy.utcTimestampFunc.enabled = TRUE, sparklyr.connect.cores.local = 4, spark.sql.shuffle.partitions.local = 4), state = <environment>, extensions = list(jars = character(0), packages = character(0), initializers = list(), catalog_jars = character(0)), spark_home = "/shared/spark-3.0.0-preview2-bin-hadoop3.2", backend = 4,
+    monitoring = 5, gateway = 3, output_file = "/tmp/Rtmpbi2dqk/file44ec187daaf4_spark.log", sessionId = 58600, home_version = "3.0.0")) AS `S1`, `S` - list(x = "x", vars = "initial") AS `S2`
+FROM `S`
+\end{lstlisting}
+
+Global variables that evaluate to SQL-friendly objects can be passed and are
+evaluated prior to translation.
+An example is given through listing \ref{lst:global-ok}, generated through
+listing \ref{lst:ok-generator}, where the difference between a variable holding
+a numeric and a Spark Data Frame is translated into the evaluation of the
+variable, transformed to a float for Spark SQL, and its difference with the
+Spark Data Frame, referenced directly.
+
+\begin{lstlisting}[language=SQL, caption={Spark SQL query generated from attempt to form the difference between a data frame and a numeric}, label=lst:global-ok]
+SELECT `S` - 3.0 AS `S`
+FROM `S`
+\end{lstlisting}
+
+\begin{lstlisting}[language=R, caption={Capacity in sparklyr to form new column from the difference between a spark data frame and a numeric}, label=lst:ok-generator]
+S
+# Source: spark<S> [?? x 1]
+#      S
+#  <dbl>
+#     9
+x = 3
+mutate(S, S = S - x)
+# Source: spark<?> [?? x 1]
+#      S
+#  <dbl>
+#     6
+\end{lstlisting}
+
+A reasonable approach to implementing a Babylonian method in sparklyr is then
+to combine \texttt{S} and \texttt{x} in one dataframe, and iterate within
+columns.
+
+\begin{lstlisting}[language=R, caption={Babylonian method implementation using sparklyr}, label=lst:sparklyr-bab]
+library(sparklyr)
+
+sc <- spark_connect(master = "yarn")
+
+sparklyr_sqrt <- function(S, sc, frac_tolerance=0.01, initial=1){
+        bab = sdf_copy_to(sc,
+                          data.frame(x=initial, S=S, unfinished=TRUE),
+                          "bab", memory = TRUE, overwrite = TRUE)
+	while(any(collect(bab)\$unfinished)){
+                compute(mutate(bab, x = (x + S/x)/2,
+                               unfinished = abs(x^2 - S)/S > frac_tolerance),
+                        "bab")
+        }
+        collect(bab)$x
+}
+\end{lstlisting}
+
+% A sneaky optimised version using global variables evaluated purely with SQL
+
+\section{Conclusion}\label{sec:conclusion}
+
+sparklyr is excellent when used for what it is designed for.
+Iteration, in the form of an iterated function, does not appear to be part of
+this design;
+this was clear in the abuse required to implement a simple iterated function in
+the form of the Babylonian Method.
+Furthermore, all references to ``iteration'' in the primary sparklyr literature
+refer either to the iteration inherent in the inbuilt Spark ML functions, or
+the ``wrangle-visualise-model'' process popularised by Hadley
+Wickham\cite{luraschi2019mastering}\cite{wickham2016r}.
+None of such references connect with iterated functions.
+
+Thus, it is fair to conclude that sparklyr is incapable of sensible iteration
+of arbitrary R code beyond what maps directly to SQL; 
+even with mutate, it is a very convoluted interface for attempting any
+iteration more complex than the Babylonian Method.
+Implementation of a GLM function with sparklyr iteration was initially planned,
+but the point was already proven by something far simpler, and the point is one
+that did not need to be laboured.
+
+Ultimately, sparklyr is excellent at what it does, but convoluted and inefficient when
+abused, as when attempting to implement iterated functions.
+
+\printbibliography{}
+
+\end{document}
