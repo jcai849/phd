@@ -27,7 +27,7 @@ print-%  : ; @echo $* = $($*)
 
 clean:
 	rm -f out/*.aux
-	rm -r out/*.svg
+	rm -f out/*.svg
 	rm -f out/*.bbl
 	rm -f out/*.blg
 	rm -f out/*.bcf
