@@ -7,7 +7,7 @@
 \usepackage{listings}
 
 \begin{document}
-\title{A Detail of foreach}
+\title{A Review of foreach}
 \author{Jason Cairns}
 \year=2020 \month=4 \day=2
 \maketitle{}
@@ -15,7 +15,6 @@
 \section{Introduction}
 \label{sec:introduction}
 
-% \item package intro on cran
 foreach introduces itself on CRAN with the following description:
 \begin{displaycquote}{microsoft20}
 	Support for the foreach looping construct. Foreach is an idiom that
@@ -27,20 +26,16 @@ foreach introduces itself on CRAN with the following description:
 	side effects also facilitates executing the loop in parallel.
 \end{displaycquote}
 
-% \item simple, few moving parts
 From the user end, the package is conceptually simple, revolving
 entirely around a looping construct and the one-off backend
 registration.
 
-% \item main purpose abstraction for sake of parallelisation enabled
-%   through backend transparency
 The principal goal of the package, which it hasn't strayed from, is
 the enabling of parallelisation through backend transparency within
 the foreach construct. Notably, more complex functionality, such as
 side effects and parallel recurrance, are not part of the package's
 intention.
 
-% \item useful because of other backends
 Thus, the primary driver for the practicality of the package, beyond
 the support offered for parallel backends, is the backends themselves,
 currently enabling a broad variety of parallel systems.
@@ -50,13 +45,11 @@ foreach is developed by Steve Weston and Hoong Ooi.
 \section{Usage}
 \label{sec:usage}
 
-% \item setup (doParallel::registerDoParallel())
 foreach doesn't require setup for simple serial execution, but
 parallel backends require registration by the user, typically with a
 single function as in the registration for doParallel,
 \texttt{registerDoParallel()}.
 
-% \item syntax https://cran.r-project.org/web/packages/foreach/vignettes/foreach.html
 The syntax of foreach consists of a \texttt{foreach()} function call
 next to a \texttt{\%do\%} operator, and some expression to the
 right\cite{weston19:_using}. Without loss in generality, the syntactic
@@ -65,13 +58,11 @@ form is given in Listing~\ref{lst:syntax}.
 foreach(i=1:n) %do% {expr}
 \end{lstlisting}
 
-% \item arguments
 The \texttt{foreach()} function can take other arguments including
 changing the means of combination along iterations, whether iterations
 should be performed in order, as well as the export of environmental
 variables and packages to each iteration instance.
 
-% \item other additions: %dopar%, %when%, %:%, %dopar%  https://cran.r-project.org/web/packages/foreach/vignettes/nested.html
 In addition to \texttt{\%do\%}, other binary operators can be appended
 or substituted. Parallel iteration is performed by simply replacing
 \texttt{\%do\%} with \texttt{\%dopar\%}. Nested loops can be created
@@ -81,31 +72,10 @@ last step to composition of foreach as capable of list comprehension
 is the filtering function \texttt{\%when\%}, which filters iterables
 based on some predicate to control evaluation.
 
-% \item CAN manage recurrance in sequence, but not in parallel
-Worth noting is the capacity of foreach to handle recurrance; it
-doesn't work with any naive implementation in parallel, but it does in
-fact work in serial with a simple \texttt{\%do\%} call. For example,
-Listing \ref{lst:serial} returns a list of 5 numerics from 11 to 15,
-as would be expected with a standard \texttt{for} loop. However, the
-parallel equivalent in Listing \ref{lst:parallel} returns a list of 5
-repetitions of 11.
-
-\begin{lstlisting}[float,language=R,caption={Serial Iteration},label=lst:serial]
-x <- 10
-foreach(i=1:5) %do% {x <- x+1}
-\end{lstlisting}
-\begin{lstlisting}[float,language=R,caption={Parallel Iteration},label=lst:parallel]
-doParallel::registerDoParallel
-x <- 10
-foreach(i=1:5) %dopar% {x <- x+1}
-\end{lstlisting}
 
 \section{Implementation}
 \label{sec:implementation}
 
-% \item foreach returns an iterable, \%do\% and derivatives do most of
-%   the functional work, being a binary function operating on an
-%   iterable on the left, and an expression on the right
 The mechanism of action in foreach is often forgotten in the face of
 the atypical form of the standard syntax. Going one-by-one, the
 \texttt{foreach()} function returns an iterable object,
@@ -124,38 +94,101 @@ additional work on capturing references to variables in expressions and adding
 them to evaluation environment, as well as ensure packages are loaded on worker
 nodes.
 
-% \item getDoPar, getDoSeq return lists including the registered
-%   backend, which contain a function used to operate on the
-%   expressions along with other environmental data
 \texttt{\%do\%} and \texttt{\%dopar\%}, after correct error checking,
 send calls to \texttt{getDoSeq()} and \texttt{getDoPar()}
 respectively, which return lists determined by the registered backend,
 which contain a function used backend, used to operate on the main
 expression along with other environmental data.
 
-% \item Custom iterators enabled through iterators package
 foreach depends strongly upon the iterators package, which gives the
 ability to construct custom iterators. These custom iterators can be
 used in turn with the \texttt{foreach()} function, as the interface to
 them is transparent.
 
+\section{Form of Iteration}\label{sec:form-iter}
+
+The name of the package and function interface refer to the \texttt{foreach}
+programming language construct, present in many other languages.
+By definition, the \texttt{foreach} construct performs traversal over some
+collection, not necessarily requiring any traversal order.
+In this case, the collection is an iterator object or an object coercible to
+one, but in other languages with foreach as part of the core language, such as
+python (whose for loop is actually only a foreach loop), collections can
+include sets, lists, and a variety of other classes which have an
+\texttt{\_\_iter\_\_} and \texttt{\_\_next\_\_} defined\cite{python2020iter}.
+
+Due to the constraints imposed by a foreach construct, loop optimisation is
+simplified relative to a for loop, and the lack of explicit traversal ordering
+permits parallelisation, which is the primary reason for usage of the
+\texttt{foreach} package.
+The constraints are not insignificant however, and they do impose a limit on
+what can be expressed through their usage.
+Most notably, iterated functions, wherein the function depends on it's prior
+output, are not necessarily supported, and certainly not supported in parallel.
+This is a result of the order of traversal being undefined, and when order is
+essential to maintain coherent state, as in iterated functions, the two
+concepts are mutually exclusive.
+
+In spite of the constraints, iterated functions can actually be emulated in
+foreach through the use of destructive reassignment within the passed
+expression, or through the use of stateful iterators.
+Examples of both are given in listings \ref{lst:serial} and \ref{lst:serial-iter}.
+
+\begin{lstlisting}[language=R,caption={Serial iterated function through destructive reassignment},label=lst:serial]
+x <- 10
+foreach(i=1:5) %do% {x <- x+1}
+\end{lstlisting}
+
+\begin{lstlisting}[language=R,caption={Serial iterated function through creation of a stateful iterator},label=lst:serial-iter]
+addsone <- function(start, to) {
+	nextEl <- function(){
+		start <<- start + 1
+		if (start >= to) {
+			stop('StopIteration')
+		}
+		start}
+	obj <- list(nextElem=nextEl)
+	class(obj) <- c('addsone', 'abstractiter', 'iter')
+	obj
+}
+
+it <- addsone(10, 15)
+nextElem(it)
+
+foreach(i = addsone(10, 15), .combine = c) %do% i
+\end{lstlisting}
+
+As alluded to earlier, the functionality breaks down when attempting to run
+them in parallel.
+Listings \ref{lst:parallel} and \ref{lst:parallel-iter} demonstrate attempts to
+evaluate these iterated functions in parallel.
+They only return a list of 5 repetitions of the same ``next'' number, not
+iterating beyond it.
+
+\begin{lstlisting}[language=R,caption={Parallel Iteration attempt through destructive reassignment},label=lst:parallel]
+cl <- makeCluster(2)
+doParallel::registerDoParallel(cl)
+x <- 10
+foreach(i=1:5) %dopar% {x <- x+1}
+\end{lstlisting}
+
+\begin{lstlisting}[language=R,caption={Parallel Iteration attempt through a stateful iterator},label=lst:parallel-iter]
+doParallel::registerDoParallel
+foreach(i = addsone(10, 15), .combine = c) %dopar% i
+\end{lstlisting}
+
 \section{Extensions}
 \label{sec:extensions}
 
-% \item key to success of foreach extensibility
 The key point of success in foreach is it's backend extensibility,
 without which, foreach would lack any major advantages over a standard
 \texttt{for} loop.
 
-% \item other parallel backends enabled through foreach-ext.R
-%   (https://github.com/RevolutionAnalytics/foreach/blob/master/R/foreach-ext.R)
-%   involving accumulators and iterator methods
 Other parallel backends are enabled through specific functions made
 available by the foreach package. The packages define their parallel
 evaluation procedures with reference to the iterator and accumulator
 methods from foreach.
 
-% \item others: doParallel,doRedis,doAzure,doFuture
 Numerous backends exist, most notably:
 \begin{description}
 	\item[doParallel] the primary parallel backend for foreach, using the
