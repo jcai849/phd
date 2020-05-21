@@ -86,9 +86,10 @@ A list of features and their descriptions follows:
       iterative code evaluation in a distributed system, and was
       similarly referenced by the Spark developers as an
       apparent benefit of Spark\cite{zaharia2010spark}.
-\item[Support for HDFS]
-      Capacity to work with data and computation on the Hadoop
-      Distributed File System (HDFS).
+\item[Support for Distributed File Systems]
+      Capacity to work with data and computation on distributed file
+      systems, with a particular target of Hadoop Distributed File System
+      (HDFS).
       As a well-established distributed file system, HDFS is targeted
       by a number of R packages, as well as serving as a file
       system base for other platforms such as spark
@@ -240,11 +241,7 @@ dplyr\cite{revo2014plyrmr}.}
 \tnote[2,2]{Provides \texttt{mutate()} function to enable
 user-defined code, however there are limitations in not being
 capable of parsing global variables}
-\tnote[3,2]{Spark Dataframes can be cached (persisted), with
-each node storing partitions of the Dataframe for future
-iterative usage\cite{spark2020rdd}. sparklyr offers an
-\texttt{sdf\_persist()} function to force computation and
-cache; This could be used in a for-loop for iteration.}
+\tnote[3,2]{See doc/review-sparklyr-iteration.tex}
 \tnote[4,2]{See \textit{2,3}}
 \tnote[5,2]{Allows for Spark over HDFS, but offers no
 HDFS-specific filesystem manipulation functions}
@@ -289,7 +286,7 @@ sparklyr\cite{weston17}\cite{luraschi20}}
 handle references to global variables, however it is still recommended to
 manually define the global references as well as packages used}
 \tnote[3,5]{foreach makes use of iterators, which can be defined to perform
-recurrance relations (see example code in \texttt{R/iterators.R}) but these
+recurrance relations (see doc/review-foreach.tex, section ``Form of Iteration'') but these
 rely on closures and may in fact be slower than serial relations}
 \tnote[5,5]{Through sparklyr as a backend}
 \tnote[10,5]{foreach makes use of iterator objects, which any class can inherit
@@ -302,9 +299,9 @@ from to define \texttt{nextElem()}}
 \cmidrule(l){2-6}
 Distributed Computation           & \yes\tmark[1,1]      & \yes\tmark[1,2]          & \yes\tmark[1,3]        & \no                  & \yes\tmark[0,5] \\
 Evaluation of User-Specified Code & \yes\tmark[2,1]      & \mostly\tmark[2,2]       & \mostly\tmark[2,3]     & \some\tmark[2,4]     & \mostly\tmark[2,5] \\
-Native Support for Iteration      & \no                  & \yes\tmark[3,2]          & \yes                   & \no\tmark[3,4]       & \unclear\tmark[3,5] \\
+Native Support for Iteration      & \no                  & \no\tmark[3,2]          & \yes                   & \no\tmark[3,4]       & \no\tmark[3,5] \\
 Object Persistence at Nodes       & \no                  & \yes\tmark[4,2]          & \yes                   & \NA                  & \no \\
-Support for HDFS                  & \yes\tmark[5,1]      & \yes\tmark[5,2]          & \no                    & \no                  & \yes\tmark[5,5] \\
+Support for Distributed File Systems & \yes\tmark[5,1]   & \yes\tmark[5,2]          & \no                    & \no                  & \yes\tmark[5,5] \\
 Ease of Setup                     & \mediocre\tmark[6,1] & \acceptable\tmark[6,3]   & \acceptable\tmark[6,3] & \simple              & \simple \\
 Inter-Node Communication          & \no                  & \no                      & \yes\tmark[7,3]        & \NA                  & \no \\
 Interactive Usage                 & \yes                 & \yes                     & \no                    & \yes                 & \yes \\
