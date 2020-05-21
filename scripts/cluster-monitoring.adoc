@@ -1,0 +1,20 @@
+Cluster Monitoring
+==================
+
+Starting Cluster
+----------------
+
+The cluster starts particular daemons in a particular order (TODO: I'll fill this in when I get time).
+The standard scripts to perform the startup are given by:
+
+Text Monitoring
+---------------
+
+As it all runs on Java, the simplest sanity check is to run `jps`, to confirm that everything is running
+
+All logs exist in the XXX directory
+
+Web Interface
+-------------
+
+The ports for monitoring are given by the following table:
