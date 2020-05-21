@@ -1,7 +1,9 @@
-
+2020-05-21::
+	14:09:36::: Write on iteration vs traversal in foreach document
+	17:24:14::: Complete link:doc/review-sparklyr-iteration.tex[sparklyr iteration doc]
+	17:32:42::: Generalise features to have "distributed file system" instead of HDFS
 2020-05-20::
 	17:04:38::: Write on functional iterative interface
-
 2020-05-19::
 	12:13:03::: Begin notes on functional iterative interface
 	            (link:doc/consideration-functional-iteration-interace.adoc)

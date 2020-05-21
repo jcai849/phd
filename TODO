@@ -1,13 +1,9 @@
-. Write on iteration vs traversal in foreach document
-. Complete link:doc/review-sparklyr-iteration.tex[sparklyr iteration doc]
-.. referencing
-.. notes on why no GLM
-. Generalise features to have "distributed file system" instead of HDFS
-  specifically
-. Notes on Hadoop Monitoring links (which port for what, etc.)
 . Begin prototyping; see ROctopus as relevant experiment
 .. Read through ROctopus source code
 .. Take notes, gather ideas
+. Notes on Hadoop Monitoring links (which port for what, etc.)
+.. Create startup script that also starts up web browser with relevant
+   monitoring pages
 . Remove table notes from link:doc/survey-large-scale-features.tex[Large Scale
   Features document] and add them to their appropriate sections; consider how to
   do this neatly.
