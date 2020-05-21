@@ -54,27 +54,27 @@ A draft interface sees a function taking the following form:
 
 [source,R]
 ------------------
-iter(x0, P, fn, ...) 
+iter(x0, ..., P, fn) 
 ------------------
 
 Where the formal parameters include,
 x0:: as the initial object to iterate upon; 
-P:: as the predicate to cease iteration upon evaluating false;
-fn:: as the iterated function, and 
-...:: stands for additional arguments to the iterated function
+...:: as additional objects to iterate upon;
+P:: as the predicate to cease iteration upon evaluating false, and;
+fn:: as the iterated function
 
-A means of referring to the returned object of `fn` within P would have to be
-defined.
+A means of referring to prior returned objects of `fn` within `P` and `fn`
+would have to be defined.
 This could take the form of reserved names such as `xn`, `xn_1`, ... `xn_n` to
-refer to the output of `fn`, the prior output of `fn`, and so on, respectively.
-Memory could be spared through parsing `P` and only keeping the value of those
-names which are referenced in `P`.
+refer to the output of `fn`, the prior output of `fn`, and so on, respectively,
+as well as `x1`, `x2`, ... `xn` to refer to the output of the latexmath:[n]th
+iteration.
+Memory could be spared through parsing `P` and `fn` and only keeping the value
+of those names which are referenced in `P` and `fn`.
 
-The additional arguments are necessary, as partial function application or
-currying are not posssible with a fixed function.
 Through this interface, iterated functions are clearly defined without the need
-for explicit syntactical control structures, and through the transparancy of
-the function, may swap in backend-specific mechanisms of action.
+for explicit loop control structures, and through the transparancy of the
+function, may swap in backend-specific mechanisms of action.
 This function may be defined as a generic, with appropriate backend-specific
 methods dispatched based on the class of `x0`.
 
@@ -114,8 +114,7 @@ A basic, non-generic implementation could take the following form:
 [source,R]
 --------------------------------
 iter <- function(x0, P, fn){
-	if (P) xn <- fn(x0)
-	ModifyBaseEnv(P)		<1>
+	ModifyBaseEnv(P, fn)		<1>
 	while (P) {
 		xn <- fn(xn)
 		ModifyLoopEnv(P)	<2>
@@ -124,7 +123,8 @@ iter <- function(x0, P, fn){
 }
 --------------------------------
 
-<1> This is required in the case that `P` references variables such as `xn_1`;
+<1> This is required in the case that `P` or `fn`  references variables such as
+    `xn_1`;
     in this case `P` is replaced with `TRUE` in order to allow the function to
     run until such variables are generated, and the original `P` is stored in a
     temporary variable, to be made use of until the existence of said
@@ -174,8 +174,13 @@ the generic capability of the function to dispatch methods based on the class
 of the initial object `x0`.
 Such a cost is bearable by some applications, but limits the platform
 excessively at this early stage;
-it may be better to pursue this idea at a later stage, pending development of
-the more primitive platform details.
+In addition, the necessity of reference to prior and named output has led to
+the usage of a set of reserved names, beginning to create something of a
+domain-specific language. 
+This can be powerful if executed perfectly, but will be difficult to implement
+and may prove difficult to debug and make use of if not expertly implemented.
+it may be better to pursue this idea at a later point in time, pending
+development of the more primitive platform details.
 
 Bibliography
 ------------
