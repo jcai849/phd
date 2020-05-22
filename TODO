@@ -1,6 +1,7 @@
 . Begin prototyping; see ROctopus as relevant experiment
-.. Read through ROctopus source code
 .. Take notes, gather ideas
+.. Test out example
+.. Hacking with Simon?
 . Notes on Hadoop Monitoring links (which port for what, etc.)
 .. Create startup script that also starts up web browser with relevant
    monitoring pages
