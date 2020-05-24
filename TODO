@@ -1,7 +1,8 @@
 . Begin prototyping; see ROctopus as relevant experiment
-.. Take notes, gather ideas
-.. Test out example
-.. Hacking with Simon?
+.. Draw up diagram
+.. Test out parts
+.. Communicate; learn from S&P
+. Notes on s-u
 . Notes on Hadoop Monitoring links (which port for what, etc.)
 .. Create startup script that also starts up web browser with relevant
    monitoring pages
@@ -32,4 +33,4 @@
 . Research possible graph-based algorithms to require node communication
 . More on RWLS document
 .. Reference the GLM implementations in sparklyr and pbdR
-. Write on comparative benefits and drawbacks in major packages
+. Highlight useful bib entries; take notes
