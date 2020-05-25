@@ -1,7 +1,11 @@
-2020-05-22:::
-	13:28:21:: MPI point-to-point communication tutorial
-	15:49:14:: Notes on point-to-point communication
-	16:50:54:: Notes on s-u distributed computing
+2020-05-25::
+	11:03:48::: Diagram issue
+	15:24:09::: Plan implementation, notes
+	20:01:38::: Simplify asciidoc in makefile
+2020-05-22::
+	13:28:21::: MPI point-to-point communication tutorial
+	15:49:14::: Notes on point-to-point communication
+	16:50:54::: Notes on s-u distributed computing
 2020-05-21::
 	14:09:36::: Write on iteration vs traversal in foreach document
 	17:24:14::: Complete link:doc/review-sparklyr-iteration.tex[sparklyr iteration doc]
