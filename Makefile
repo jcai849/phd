@@ -3,8 +3,8 @@ OUTDIR	:= out
 BIBDIR  := bib
 TEX	:= $(wildcard $(DOCDIR)/*.tex)
 TEXOUT  := $(addprefix $(OUTDIR)/, $(notdir $(TEX:.tex=.pdf)))
-ADOC    := $(wildcard $(DOCDIR)/*.adoc)
-ADOCOUT := $(addprefix $(OUTDIR)/, $(notdir $(ADOC:.adoc=.html)))
+ADOC    := $(wildcard $(DOCDIR)/*.txt)
+ADOCOUT := $(addprefix $(OUTDIR)/, $(notdir $(ADOC:.txt=.pdf)))
 
 .PHONY: all clean
 
@@ -16,12 +16,8 @@ $(OUTDIR)/%.pdf: $(DOCDIR)/%.tex
 	biber --input-directory $(OUTDIR) $(OUTDIR)/$(notdir $(basename $<))
 	pdflatex -output-directory $(OUTDIR) $<
 
-$(OUTDIR)/%.pdf: $(DOCDIR)/%.adoc
-	asciidoctor-pdf -r asciidoctor-bibtex -b pdf -o $@ $<
-	# TODO: make use of mathoid to pre-render any stem blocks
-
-$(OUTDIR)/%.html: $(DOCDIR)/%.adoc
-	asciidoctor -r asciidoctor-bibtex -o $@ $<
+$(OUTDIR)/%.pdf: $(DOCDIR)/%.txt
+	a2x -f pdf -D $(OUTDIR) $<
 
 print-%  : ; @echo $* = $($*)
 
