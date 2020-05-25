@@ -13,39 +13,30 @@ A ``functional'' iterative interface may be a suitable interface to the
 platform.
 An explicit interface has benefits over recursion in that R has little
 optimisation for recursion either through tail call elimination or call stack
-manipulation cite:[rcore2020lang].
+manipulation <<rcore2020lang>>.
 Being ``functional'' entails referential transparency, purity, and operational
-access through functions cite:[cousineau1998functional].
+access through functions <<cousineau1998functional>>.
 The benefits brought by referential transparency include most notably for this
 platform, sufficient encapsulation such that backends can be switched out
-without requiring alteration of the code cite:[strachey2000fundamental].
+without requiring alteration of the code <<strachey2000fundamental>>.
 Additionally, the design and terminology of the function offers a close mapping
 to the mathematical notation of a recurrence relation.
 
 This can be contrasted with a non-functional approach, which in it's most
 efficient form in R would entail defining an iterator object, which pulls the
 act of implementation closer to the details of object definition rather than,
-as on paper, the function definition cite:[analytics19].
+as on paper, the function definition <<analytics19>>.
 
 This particular interface attempts to emulate notation of iterated functions of
 the following form:
 
-[latexmath]
-+++++++++++++
-x_{n+1} = x_n
-+++++++++++++
+latexmath:[$x_{n+1} = x_n$]
 
 With the function body aiming to map as closely as possible a standard
 mathematical notion of iterated functions:
 
-[latexmath]
-++++++++++
-f^0 = id_x
-++++++++++
-[latexmath]
-+++++++++++++++++++++
-f^{n+1} = f \circ f^n
-+++++++++++++++++++++
+latexmath:[$f^0 = id_x$]
+latexmath:[$f^{n+1} = f \circ f^n$]
 
 A Higher-Order Model for Iterative Functions
 --------------------------------------------
@@ -118,7 +109,7 @@ iter <- function(x0, P, fn){
 	ModifyBaseEnv(P, fn)		<1>
 	while (P) {
 		xn <- fn(xn)
-		ModifyLoopEnv(P)		<2>
+		ModifyLoopEnv(P)	<2>
 	}
 	xn
 }
@@ -156,7 +147,8 @@ good performance under parallelisation.
 
 Communicative parallelism is significantly more difficult to capture in the
 design of such an interface, with most parallel R packages ignoring such a
-construct cite:[bengtsson20,core:_packag,matloff16softw_alchemy,vaughan18].
+construct <<bengtsson20>> <<core:_packag>> <<matloff16softw_alchemy>>
+<<vaughan18>>.
 However, it is conceivable that such functions can also be delivered as formal
 parameters to the `iter` function, though it is as yet unclear how to integrate
 this cleanly.
@@ -180,7 +172,16 @@ and may prove difficult to debug and make use of if not expertly implemented.
 it may be better to pursue this idea at a later point in time, pending
 development of the more primitive platform details.
 
+[bibliography]
 Bibliography
 ------------
 
-bibliography::[]
+[bibliography]
+- [[[rcore2020lang]]] R Core
+- [[[cousineau1998functional]]] cousineau1998functional
+- [[[strachey2000fundamental]]] strachey2000fundamental
+- [[[analytics19]]] analytics19
+- [[[bengtsson20]]] bengtsson20
+- [[[core:_packag]]] core:_packag
+- [[[matloff16softw_alchemy]]] matloff16softw_alchemy
+- [[[vaughan18]]] vaughan18

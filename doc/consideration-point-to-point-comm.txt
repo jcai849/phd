@@ -2,7 +2,6 @@ Considerations on the Value of Point-to-Point Communication
 ===========================================================
 2020-05-22
 Jason Cairns
-:bibtex-file: bib/bibliography.bib
 
 Introduction
 ------------
@@ -29,7 +28,7 @@ The capacity for point-to-point communication enables many applications;
 https://mpitutorial.com/tutorials/point-to-point-communication-application-random-walk[Wes
 Kendall] demonstrates random walks and parallel particle tracing as some
 applications that can take advantage of point-to-point communication
-cite:[kendall2014mpi].
+<<kendall2014mpi>>.
 A generalisation of such applications would be any where a large amount of
 static data exists in distributed memory, and nodes perform iterative
 computation on the main data in conjunction with small pieces of data that are
@@ -55,7 +54,9 @@ capability, but there will be at least the following difficulties:
 * Avoiding the reinvention of the wheel
 * Clean implementation avoiding excess communication
 
+[bibliography]
 Bibliography
 ------------
 
-bibliography::[]
+[bibliography]
+- [[[kendall2014mpi]]] kendall2014mpi
