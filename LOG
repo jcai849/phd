@@ -1,3 +1,11 @@
+2020-05-27::
+	14:07:50::: Proposal Workshop
+	16:38:20::: Background reading on terminology
+	18:17:11::: Begin installing Rserve & Rclient on cluster
+2020-05-26::
+	11:22:13::: Type up notes in
+	            link:doc/consideration-distributed-architecture.txt[]
+	19:52:37::: Meeting
 2020-05-25::
 	11:03:48::: Diagram issue
 	15:24:09::: Plan implementation, notes
@@ -8,13 +16,15 @@
 	16:50:54::: Notes on s-u distributed computing
 2020-05-21::
 	14:09:36::: Write on iteration vs traversal in foreach document
-	17:24:14::: Complete link:doc/review-sparklyr-iteration.tex[sparklyr iteration doc]
-	17:32:42::: Generalise features to have "distributed file system" instead of HDFS
+	17:24:14::: Complete link:doc/review-sparklyr-iteration.tex[sparklyr
+	            iteration doc]
+	17:32:42::: Generalise features to have "distributed file system"
+	            instead of HDFS
 2020-05-20::
 	17:04:38::: Write on functional iterative interface
 2020-05-19::
 	12:13:03::: Begin notes on functional iterative interface
-	            (link:doc/consideration-functional-iteration-interace.adoc)
+	            (link:doc/consideration-functional-iteration-interace.txt)
 	15:13:27::: Meeting
 	17:22:00::: More on functional iter interface
 2020-05-18::
