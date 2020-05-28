@@ -1,7 +1,7 @@
-. Begin prototyping; see ROctopus as relevant experiment
-.. begin implementation
-.. Test out parts
-.. Communicate; learn from S&P
+. Prototyping
+.. Compose basic cluster communication methods
+.. Splitting function for object sends
+.. Methods for distributed objects
 . Notes on s-u
 . Notes on Hadoop Monitoring links (which port for what, etc.)
 .. Create startup script that also starts up web browser with relevant
