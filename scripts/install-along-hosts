@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for host in hadoop{1..8}; do
+	ssh $host "Rscript -e \"install.packages(c("$@"))'"
+done
