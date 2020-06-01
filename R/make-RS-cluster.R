@@ -77,7 +77,7 @@ x = send(rsc, 1:100)
 RS.eval(rsc[[2]], quote(ls()))
 RS.eval(rsc[[2]], quote({get(ls()[length(ls())])})) # is this R or APL?
 
-a = send(rsc, 100:0)
+a = send(rsc, 0:100)
 b = send(rsc, 400:300)
 c = a + b
 a.on.2 = eval(bquote(RS.eval(rsc[[2]], quote(get(.(a$name))))))
