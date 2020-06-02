@@ -93,10 +93,11 @@ Frames;
 
 The execution of the function in Spark is the next consideration, and sparklyr
 provides two means for this to occur;
-\texttt{spark\_apply()} launches R to evaluate a user-defined function over a
-specific Spark Data Frame. 
-Such an evaluation strategy is unsuitable in this instance as it is excessive
-overhead to be launched every iteration. 
+\texttt{spark\_apply()} evaluates arbitrary R code over an entire data frame.
+The means of operation vary across Spark versions, ranging from launching and
+running RScripts in Spark 1.5.2, to Apache Arrow conversion in Spark 3.0.0. 
+The evaluation strategy of 1.5.2 is unsuitable in this instance as it is
+excessive overhead to launch RScripts every iteration. 
 The other form of evaluation is through using dplyr generics, which is what
 will be made use of in this example.
 
