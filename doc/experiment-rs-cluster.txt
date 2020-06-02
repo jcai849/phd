@@ -71,8 +71,10 @@ management of reference and location of distributed objects emulates memory
 management at a much lower level, introducing similar issues to those
 encountered in systems-level programming.
 
-The initial distribution of objects raises questions of appropriate algorithms that take load-balancing and other factors into consideration.
-One particular example is the question of what to do with vectors of different length in their distribution across nodes;
+The initial distribution of objects raises questions of appropriate algorithms
+that take load-balancing and other factors into consideration.
+One particular example is the question of what to do with vectors of different
+length in their distribution across nodes;
 if split equally across nodes, it is unlikely that elements at corresponding
 posiions between the vectors, and for operations to take place, a significant
 amount of data movement ("shuffling") will have to take place.
@@ -80,7 +82,9 @@ Consideration should be given to forms of distribution that minimise data
 movement, perhaps through maximisation of correspondence with existing vectors,
 while still avoiding misbalancing node memory.
 
-Memory leaks, fixed at the R level with garbage collection, return to a potential problem with assignment of distributed objects being fixed to their local R processes.
+Memory leaks, not much of a problem at the R level with garbage collection,
+return to a potential problem with assignment of distributed objects being
+fixed to their local R processes.
 For example, with the following code consisting of distributed vectors: `c <- a
 + b`, what occurs is that on every node `a` and `b` exist on, they are summed
 together, with the result saved as a new variable with a UUID name; a reference
@@ -93,6 +97,11 @@ This is a memory leak at a high level, and reassignment is even worse;
 conceivably, there could be some side effect for the cases of non-assignment
 and reassignment, though this would require a level of reflection whose
 existence is currently unclear in R.
+
+Dealing with objects of greater complexity such as matrices are certain to pose
+problems, and it is unlikely that whatever evolution of this implementation
+would perform better than something that has had years and teams worth of
+effort poured into it, such as LAPACK or SCaLAPACK.
 
 Next Steps
 ----------
@@ -109,6 +118,6 @@ processes would likely yield very worthwhile insights to the process of
 creation of a distributed R system.
 Porting to S4 may be worthwhile, but it can be performed later.
 And finally, a closer literature review on the issues raised and other
-solutioins, including a review of the very similar _cnidaria_ by Mike Kane will
+solutions, including a review of the very similar _cnidaria_ by Michael Kane will
 likely prove valuable.
 
