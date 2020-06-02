@@ -1,5 +1,5 @@
-. Prototyping
-.. Notes on implementation so far and unforeseen challenges arisen
+. Determine feasibility of Spark making use of R blobs in a long-running R
+  process: Arrow potentially capable?
 . Notes on s-u
 . Notes on Hadoop Monitoring links (which port for what, etc.)
 .. Create startup script that also starts up web browser with relevant
@@ -20,8 +20,6 @@
 .. 24. Advanced Analytics and Machine Learning Overview
 .. 32.2. R on Spark
 . Discuss why spark no longer has RDDs as main objects
-. Determine feasibility of Spark making use of R blobs in a long-running R
-  process
 . (Look at sparkR)?
 . Record the backends commonly supported by backend-powered packages (include
   these in the survey-large-scale-platforms document, including revis and other
