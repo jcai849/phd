@@ -58,35 +58,96 @@ send.cluster <- function(to, obj){
 
 Ops.distributed.vector <- function(e1, e2) {
 	id <- UUIDgenerate()
-	lapply(e1$host, function(hostname) eval(
-	    bquote(RS.eval(.(hostname),  # is this R or lisp??
-			    quote(assign(.(id), 
-					 do.call(.(.Generic), 
-					  list(get(.(e1$name)),
-					       get(.(e2$name))))))))
-	))
-	e1$name <- id
-	e1
+	e1.classes <- class(e1)
+	e2.classes <- class(e2)
+	if (("distributed.vector" %in% e1.classes) &
+	    ("distributed.vector" %in% e2.classes)){
+		if (all.equal(a$host, b$host) &
+		    all.equal(e1$to, e2$to) &
+		    all.equal(e1$from, e2$from)) {
+			lapply(e1$host, function(hostname) eval(
+			    bquote(RS.eval(.(hostname),
+				    quote(assign(.(id), 
+						 do.call(.(.Generic), 
+						  list(get(.(e1$name)),
+						       get(.(e2$name))))))))))
+			e1$name <- id
+			return(e1)
+		} else {
+			do.call(.Generic, match_host_indices(e1, e2))
+		}
+	} else if (!("distributed.vector" %in% e1.classes)) {
+		e1 <- send(e2$host, e1)
+		do.call(.Generic, list(e1, e2))
+	} else if (!("distributed.vector" %in% e2.classes)) {
+		e2 <- send(e1$host, e2)
+		do.call(.Generic, list(e1, e2))
+	}
 }
+
+# returns a list of the two objects now with matching elements on matching hosts
+match_host_indices <- function(e1, e2){
+	
+}
+
+receive <- function(obj) {
+	UseMethod("receive", obj)
+}
+
+receive.distributed.object <- function(obj) {
+	recv <- lapply(obj$host, function(hostname) eval(bquote(RS.eval(.(hostname),
+							   quote(get(.(obj$name)))))))
+	unsplit(recv, rep(seq(length(recv)), 1 + obj$to - obj$from))
+}
+
+peek <- function(loc) {
+	UseMethod("peek", loc)
+}
+
+peek.cluster <- function(loc) {
+	hosts <- names(loc)
+	sapply(hosts, function(hostname) {
+		       sapply(RS.eval(rsc[[hostname]], quote(ls())),
+						function(uuid) {
+							eval(bquote(RS.eval(.(rsc[[hostname]]), 
+									    quote(get(.(uuid))))))
+						},
+						simplify = FALSE, USE.NAMES = TRUE),
+			 }
+	simplify = FALSE, USE.NAMES = TRUE)
+}
+
+peek.node <- function(loc) {
+	sapply(RS.eval(loc, quote(ls())), 
+	       function(uuid) eval(bquote(RS.eval(.(loc), quote(get(.(uuid)))))),
+	simplify = FALSE, USE.NAMES = TRUE)
+}
+
+length.distributed.vector <- function(x) max(x$to)
 
 ##################################  DEMO  ######################################
 
 hosts <- paste0("hadoop", 1:8)
+
 rsc <- make_cluster(hosts)
 x = send(rsc, 1:100)
-RS.eval(rsc[[2]], quote(ls()))
-RS.eval(rsc[[2]], quote({get(ls()[length(ls())])})) # is this R or APL?
+
+peek(rsc[[hosts[1]]])
+peek(rsc)
 
 a = send(rsc, 0:100)
 b = send(rsc, 400:300)
-c = a + b
-a.on.2 = eval(bquote(RS.eval(rsc[[2]], quote(get(.(a$name))))))
-b.on.2 = eval(bquote(RS.eval(rsc[[2]], quote(get(.(b$name))))))
-c.on.2 = eval(bquote(RS.eval(rsc[[2]], quote(get(.(c$name))))))
+c = a - b
+c.local = receive(a) - receive(b)
+all.equal(receive(c), c.local)
 
-a.on.2 + b.on.2
-c.on.2
+a. = 0:100
+c. = a - b
+all.equal(receive(c.), c.local)
 
-all.equal(a.on.2 + b.on.2, c.on.2)
+b. = 400:300
+c.. = a - b.
+all.equal(receive(c..), c.local)
+
 
 kill_servers(hosts)
