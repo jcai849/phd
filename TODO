@@ -1,6 +1,13 @@
-. Determine feasibility of Spark making use of R blobs in a long-running R
-  process: Arrow potentially capable?
-. Notes on s-u
+. Implement some distributed algorithms
+.. Implement basic statistics with current interface
+... Implement `match_host_indices`
+.... Implement `]`
+.... Implement `send` for objects smaller than cluster
+.... Implement p2p communication (overload `send`)
+.. Implement a more advanced algorithm in the raw
+.. Notes on implementations; add `str(dist.vec)` for demonstration
+. Interface: experiment with lazy distributed objects
+. Implementation: experiment with metadata being encapsulated in slave processes
 . Notes on Hadoop Monitoring links (which port for what, etc.)
 .. Create startup script that also starts up web browser with relevant
    monitoring pages
@@ -20,7 +27,9 @@
 .. 24. Advanced Analytics and Machine Learning Overview
 .. 32.2. R on Spark
 . Discuss why spark no longer has RDDs as main objects
-. (Look at sparkR)?
+. Look at sparkR?
+. Determine feasibility of Spark making use of R blobs in a long-running R
+  process: Arrow potentially capable? See how sparklyr uses it
 . Record the backends commonly supported by backend-powered packages (include
   these in the survey-large-scale-platforms document, including revis and other
   distributed databases)
@@ -29,4 +38,5 @@
 . Research possible graph-based algorithms to require node communication
 . More on RWLS document
 .. Reference the GLM implementations in sparklyr and pbdR
+. Notes on s-u
 . Highlight useful bib entries; take notes

@@ -1,3 +1,6 @@
+2020-06-04
+	16:33:35::: Implementation of interaction between distributed and local
+	            vectors
 2020-06-03::
 	08:01:31::: Amendment to sparklyr in link:doc/review-sparklyr-iteration
 	            re: evaluation of `spark_apply()`
@@ -7,6 +10,7 @@
 	10:06:36::: Watched
 	https://rstudio.com/resources/rstudioconf-2020/future-simple-async-parallel-distributed-processing-in-r-what-s-next/[Bengtsson
 	future presentation]
+	15:03:10::: Meeting
 2020-06-02::
 	11:15:43::: Notes on implementation so far and unforeseen challenges arisen
 	16:54:12::: Watched
