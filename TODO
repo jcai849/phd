@@ -1,11 +1,11 @@
 . Implement some distributed algorithms
-.. Implement basic statistics with current interface
-... Implement `match_host_indices`
-.... Implement `]`
-.... Implement `send` for objects smaller than cluster
-.... Implement p2p communication (overload `send`)
 .. Implement a more advanced algorithm in the raw
+.. Implement basic statistics with current interface
+... Implement p2p communication (overload `send`)
+... Implement `align` for dist obj
+... Implement `]` for dist obj
 .. Notes on implementations; add `str(dist.vec)` for demonstration
+. Give more thought to an app manager for the cluster
 . Interface: experiment with lazy distributed objects
 . Implementation: experiment with metadata being encapsulated in slave processes
 . Notes on Hadoop Monitoring links (which port for what, etc.)
