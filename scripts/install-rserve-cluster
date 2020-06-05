@@ -1,7 +1,7 @@
 #!/bin/bash
 
 for host in hadoop{1..8}; do
-	ssh $host "Rscript -e \"install.packages(c('Rserve', 'RSclient'),,'https://www.rforge.net/')\""
+	ssh $host "Rscript -e \"install.packages(c('Rserve', 'RSclient', 'uuid'),,'https://www.rforge.net/')\""
 	ssh $host $'sudo ln -fs $(Rscript -e "system.file(\'libs\', \'Rserve\', package=\'Rserve\')" | sed -n \'s/.*"\\(.*\\)".*/\\1/p\') /usr/lib/R/bin/Rserve'
 	scp Rserv.conf $host:
 	ssh $host 'sudo mv Rserv.conf /etc/'
