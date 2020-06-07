@@ -111,7 +111,7 @@ To work comparatively, a simple working local-only version of the algorithm is
 produced in listing \ref{src:local-rwls}.
 \lstinputlisting[float, language=R,
 	caption={Local GLM with RWLS},
-	label=src:local-rwls]{../R/local-rwls.R}
+	label=src:local-rwls]{../R/review-rwls.R}
 It outputs a \(\hat{\beta}\) matrix after several seconds of computation.
 
 Were pbdDMAT to function transparently as regular matrices, as the package
@@ -154,11 +154,11 @@ is likely faster over a cluster. %% TEST THIS!!
 
 \lstinputlisting[float, language=R,
 	caption={pbdDMAT GLM with RWLS},
-	label=src:dmat]{../R/naive-pbdr-rwls.R}
+	label=src:dmat]{../R/review-pbdr.R}
 
 \lstinputlisting[float, language=diff,
 	caption={Diff between local and pbdR code},
-	label=src:diff]{../R/local-rwls-to-pbdr.diff}
+	label=src:diff]{../R/review-pbdr.diff}
 
 It is worth noting that options for optimisation and tuning are far more
 extensive than those utilised in this example, including the capacity to set
