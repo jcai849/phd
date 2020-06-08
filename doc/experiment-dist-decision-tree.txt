@@ -1,0 +1,68 @@
+Experiment: Distributed Decision Tree
+=====================================
+v1, 2020-06-08
+
+Introduction
+------------
+
+Decision Trees operate on data partitioning, under some splitting measure.
+This is definitely parallelisable, thereby distributable.
+The intention of this experiment is to train a decision tree on data physically
+distributed across separate nodes, with the result being capable of prediction.
+This is motivated by the need for experience with direct implementation of non-
+trivial distributed statistical algorithms.
+
+Ideally, the decision tree represents the hard part of ensemble methods such as
+random forest or adaboost, and such methods could form the basis of later
+experiments.
+
+Methodology
+-----------
+
+The core component of a decision tree is the partitioning of explanatory data
+according to some particular metric, with respect to the response data.
+For the sake of simplicity, the first iteration of this experiment makes use of
+entirely binary categorical data.
+The CART algorithm for classification trees is used, with the partitioning
+metric then being the Gini impurity, as per <<breiman1993>>.
+The Gini impurity is determined for each feature to split on, serving as the
+probability that a randomly chosen element would be mislabelled; this takes the
+form:
+
+latexmath:[$$G(t) = 1 - \sum_{j=1}^{k} p(j \bar t)$$]
+
+Where each j through k are classes of the response variable, and t represents
+the particular explanatory variable. 
+At each split opportunity, the variable with the lowest Gini impurity is chosen
+to split on, and the subsets produced from each of the split variable classes
+have the same algorithm run on them, and so on recursively until some stopping
+case such as maximum depth or no further information.
+
+The problem then starts with the determination of Gini impurity in a distributed
+manner.
+This isn't be too difficult to enact through a MapReduce-like approach;
+the counts of each class per feature take place on the node where the data
+exists, along with counts of sampled population.
+This information, from all worker nodes, is passed through to the master, where
+it is combined to determine the appropriate probabilities of classification,
+and thereby the Gini impurity for each class.
+The splitting variable is recorded by the master as part of the model object,
+and the data is subset and recursed over.
+
+The subsetting of the data for recursive application is decidedly nontrivial in
+itself.
+However, once some reference to subsetted distributed data is attained, the
+prior function can be run until completion.
+
+Outcome
+-------
+
+TBC
+
+[bibliography]
+Bibliography
+------------
+
+[bibliography]
+- [[[breiman1993trees]]] Breiman, L. (1993). Classification and regression
+  trees. New York: Chapman & Hall.
