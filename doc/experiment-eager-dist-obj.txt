@@ -13,7 +13,7 @@ issues with further work on distributed computations using R.
 Method
 ------
 
-NOTE: R code located in link:../R/make-rs-cluster.R
+NOTE: R code located in link:../R/experiment-eager-dist-obj.R[]
 
 Using the nectar cluster, the `hdp` node was used as a master with which to
 control slave nodes `hadoop1` through to `hadoop8`.
