@@ -1,7 +1,19 @@
+2020-06-09::
+	12:50:41::: Record script for definition of distributed decision tree;
+	            link:R/experiment-dist-decision-tree.R[]
+	15:14:05::: Meeting
+	18:28:24::: addjoin tables
+2020-06-08::
+	11:35:34::: Implementation notes of distributed object pause point (p2p
+	            comms); further in link:doc/experiment-eager-dist-obj.txt[]
+	11:55:44::: Rename and tidy all R files
+	14:23:04::: Notes on distributed objects;
+	            link:doc/consideration-dist-obj.txt[]
+	17:10:17::: Notes and plan for distributed decision trees
 2020-06-05::
 	13:00:57::: Implement `send` for objects smaller than cluster
 	16:25:45::: Framework implemented for remote receives of distributed
-	            objects
+	            objects; pause in link:R/experiment-eager-dist-obj.txt[]
 2020-06-04::
 	16:33:35::: Implementation of interaction between distributed and local
 	            vectors
@@ -16,7 +28,8 @@
 	future presentation]
 	15:03:10::: Meeting
 2020-06-02::
-	11:15:43::: Notes on implementation so far and unforeseen challenges arisen
+	11:15:43::: Notes on implementation so far and unforeseen challenges
+	            arisen; link:doc/experiment-eager-dist-obj.txt[]
 	16:54:12::: Watched
 	https://rstudio.com/resources/rstudioconf-2020/parallel-computing-with-r-using-foreach-future-and-other-packages/[Bryan
 	Lewis foreach presentation]

@@ -1,11 +1,12 @@
-. Implement some distributed algorithms
-.. Implement a more advanced algorithm in the raw
-.. Implement basic statistics with current interface
-... Implement p2p communication (overload `send`)
-... Implement `align` for dist obj
-... Implement `]` for dist obj
-.. Notes on implementations; add `str(dist.vec)` for demonstration
-. Give more thought to an app manager for the cluster
+. Create the counting and combining functions for distributed decision tree
+. Download and distribute _flights_ dataset along the cluster
+. Implement the distributed object approach
+.. Implement p2p communication (overload `receive`)
+.. Implement `align` for dist obj
+.. Implement `]` for dist obj
+.. Implement `%in%` for dist obj
+.. Implement `reader` function for cluster w.r.t. file relative to each node
+.. Implement `summary` and its prerequisites with current interface
 . Interface: experiment with lazy distributed objects
 . Implementation: experiment with metadata being encapsulated in slave processes
 . Notes on Hadoop Monitoring links (which port for what, etc.)
@@ -28,6 +29,7 @@
 .. 32.2. R on Spark
 . Discuss why spark no longer has RDDs as main objects
 . Look at sparkR?
+. A Survey of Distributed Statistical Algorithms
 . Determine feasibility of Spark making use of R blobs in a long-running R
   process: Arrow potentially capable? See how sparklyr uses it
 . Record the backends commonly supported by backend-powered packages (include
@@ -35,7 +37,7 @@
   distributed databases)
 . Write on LASSO with reference to the bigmemory implementation
 . Write on other algorithms: ADMM, Random Forest
-. Research possible graph-based algorithms to require node communication
+. Research possible graph-based algorithms that require node communication
 . More on RWLS document
 .. Reference the GLM implementations in sparklyr and pbdR
 . Notes on s-u
