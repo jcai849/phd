@@ -41,6 +41,7 @@ make_cluster <- function(hosts){
 }
 
 send <- function(obj, to, align_to=NULL){
+		id <- UUIDgenerate()
 		clustsize <- length(to)
 		objsize <- length(obj)
 		objelems <- seq(length(obj))
@@ -75,7 +76,7 @@ Ops.distributed.vector <- function(e1, e2) {
 	e2.classes <- class(e2)
 	if (("distributed.vector" %in% e1.classes) &
 	    ("distributed.vector" %in% e2.classes)){
-		if (all.equal(a$host, b$host) &
+		if (all.equal(e1$host, e2$host) &
 		    all.equal(e1$to, e2$to) &
 		    all.equal(e1$from, e2$from)) {
 			lapply(e1$host, function(hostname) eval(
@@ -93,10 +94,10 @@ Ops.distributed.vector <- function(e1, e2) {
 			do.call(.Generic, list(align(e1, e2), e2))
 		}
 	} else if (!("distributed.vector" %in% e1.classes)) {
-		e1 <- send(e1, align_to=e2)
+		e1 <- send(e1, e2$host, align_to=e2)
 		do.call(.Generic, list(e1, e2))
 	} else if (!("distributed.vector" %in% e2.classes)) {
-		e2 <- send(e2, align_to=e1)
+		e2 <- send(e2, e1$host, align_to=e1)
 		do.call(.Generic, list(e1, e2))
 	}
 }
