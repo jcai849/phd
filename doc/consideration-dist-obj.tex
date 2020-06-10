@@ -1,0 +1,82 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+\usepackage[svgnames]{xcolor}
+\definecolor{diffstart}{named}{Grey}
+\definecolor{diffincl}{named}{Green}
+\definecolor{diffrem}{named}{OrangeRed}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ 
+	backgroundcolor=\color{white},   
+		basicstyle=\ttfamily\small,
+		breaklines=true,                 
+		captionpos=b,                    
+		commentstyle=\color{mygreen},    
+		frame=single,	                   
+		keepspaces=true,                 
+		keywordstyle=\color{blue},       
+		stringstyle=\color{mymauve},     
+		tabsize=2,	                   
+}
+\begin{document}
+\title{Considerations on Distributed Objects}
+\author{Jason Cairns}
+\year=2020 \month=6 \day=8
+\maketitle
+
+\section{Introduction}
+
+Distributed objects are a means of access to objects on a distributed system.
+They typically take the form of a reference (\textit{stub}) that acts as a transparent
+handle to fragmented referents (\textit{skeletons}) over a distributed system.
+Details of their methods of interaction can vary enormously; distributed
+objects can exist anywhere on the spectrum of lazy/eager evaluation, for
+example.
+Greater transparency in distributed objects is exemplified best in R with
+pbdDMAT, which provides distributed matrix objects, implementing nearly all
+standard Matrix methods on them. 
+pbdDMAT is discussed further in \href{review-pbdr.pdf}{Review of pbdR}.
+The foundations of an implementation of distributed objects, focussing on
+vectors, can be found in
+\href{../R/experiment-eager-dist-obj.R}{../R/experiment-eager-dist-obj.R}.
+
+\section{Benefits}
+
+The benefits of distributed objects grow commensurately with their degree of
+transparency.
+At the closest state to ideal, a distributed object would be manipulated
+equivalently to its local equivalent.
+More ...
+
+\section{Contrary Recommendations}
+Experience has found the state of transparency to be impossible to achieve
+completely; ultimately, it is an abstraction, replete with the leaks inherent
+in such a physically-dependent abstraction.
+
+This was noted with respect to pbdR in \href{review-pbdr.pdf}{Review of pbdR}.
+
+Further initial research has revealed strong skepticism from some
+commentators\cite{waldo1996note}\cite{rotem2006fallacies},
+with Martin Fowler declaring his First Law of Distributed Object Design;
+
+\quote{``don't distribute your objects''\cite{fowler2003patterns}}
+
+\section{Next Steps}
+
+Despite the criticism, it is a very strong idea, with plenty of examples of
+effective real world usage.  
+It would be worth going into more detail on distributed objects, their
+implementations in other languages (esp. CORBA), what prompted such skepticism,
+and whether it is justified.
+
+\printbibliography{}
+\end{document}
+

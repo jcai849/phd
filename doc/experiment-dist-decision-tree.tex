@@ -1,9 +1,38 @@
-Experiment: Distributed Decision Tree
-=====================================
-v1, 2020-06-08
+\documentclass[a4paper,10pt]{article}
 
-Introduction
-------------
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+\usepackage[svgnames]{xcolor}
+\definecolor{diffstart}{named}{Grey}
+\definecolor{diffincl}{named}{Green}
+\definecolor{diffrem}{named}{OrangeRed}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ 
+	backgroundcolor=\color{white},   
+		basicstyle=\ttfamily\small,
+		breaklines=true,                 
+		captionpos=b,                    
+		commentstyle=\color{mygreen},    
+		frame=single,	                   
+		keepspaces=true,                 
+		keywordstyle=\color{blue},       
+		stringstyle=\color{mymauve},     
+		tabsize=2,	                   
+}
+\begin{document}
+\title{Experiment: Distributed Decision Tree}
+\author{Jason Cairns}
+\year=2020 \month=6 \day=8
+\maketitle
+
+\section{Introduction}
 
 Decision Trees operate on data partitioning, under some splitting measure.
 This is definitely parallelisable, thereby distributable.
@@ -16,20 +45,19 @@ Ideally, the decision tree represents the hard part of ensemble methods such as
 random forest or adaboost, and such methods could form the basis of later
 experiments.
 
-Methodology
------------
+\section{Methodology}
 
 The core component of a decision tree is the partitioning of explanatory data
 according to some particular metric, with respect to the response data.
 For the sake of simplicity, the first iteration of this experiment makes use of
 entirely binary categorical data.
 The CART algorithm for classification trees is used, with the partitioning
-metric then being the Gini impurity, as per <<breiman1993>>.
+metric then being the Gini impurity, as per \cite{breiman1993}.
 The Gini impurity is determined for each feature to split on, serving as the
 probability that a randomly chosen element would be mislabelled; this takes the
 form:
 
-latexmath:[$$G(t) = 1 - \sum_{j=1}^{k} p(j \bar t)$$]
+\[G(t) = 1 - \sum_{j=1}^{k} p(j \bar t)\]
 
 Where each j through k are classes of the response variable, and t represents
 the particular explanatory variable. 
@@ -54,15 +82,10 @@ itself.
 However, once some reference to subsetted distributed data is attained, the
 prior function can be run until completion.
 
-Outcome
--------
+\section{Outcome}
 
 TBC
 
-[bibliography]
-Bibliography
-------------
+\printbibliography{}
+\end{document}
 
-[bibliography]
-- [[[breiman1993trees]]] Breiman, L. (1993). Classification and regression
-  trees. New York: Chapman & Hall.

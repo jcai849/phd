@@ -1,85 +1,108 @@
-Considerations on a Functional Iterative Interface
-==================================================
-Jason Cairns
-2020-05-19
-:bibtex-file: bib/bibliography.bib
-:stem:
-:source-highlighter: rouge
+\documentclass[a4paper,10pt]{article}
 
-Introduction
-------------
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+\usepackage[svgnames]{xcolor}
+\definecolor{diffstart}{named}{Grey}
+\definecolor{diffincl}{named}{Green}
+\definecolor{diffrem}{named}{OrangeRed}
+\usepackage{listings}
+\usepackage{color}
 
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ 
+	backgroundcolor=\color{white},   
+		basicstyle=\ttfamily\small,
+		breaklines=true,                 
+		captionpos=b,                    
+		commentstyle=\color{mygreen},    
+		frame=single,	                   
+		keepspaces=true,                 
+		keywordstyle=\color{blue},       
+		stringstyle=\color{mymauve},     
+		tabsize=2,	                   
+}
+
+\begin{document}
+\title{Considerations on a Functional Iterative Interface}
+\author{Jason Cairns}
+\year=2020 \month=5 \day=19
+\maketitle
+
+\section{Introduction}
 A ``functional'' iterative interface may be a suitable interface to the
 platform.
 An explicit interface has benefits over recursion in that R has little
 optimisation for recursion either through tail call elimination or call stack
-manipulation <<rcore2020lang>>.
+manipulation \cite{rcore2020lang}.
 Being ``functional'' entails referential transparency, purity, and operational
-access through functions <<cousineau1998functional>>.
+access through functions \cite{cousineau1998functional}.
 The benefits brought by referential transparency include most notably for this
 platform, sufficient encapsulation such that backends can be switched out
-without requiring alteration of the code <<strachey2000fundamental>>.
+without requiring alteration of the code \cite{strachey2000fundamental}.
 Additionally, the design and terminology of the function offers a close mapping
 to the mathematical notation of a recurrence relation.
 
 This can be contrasted with a non-functional approach, which in it's most
 efficient form in R would entail defining an iterator object, which pulls the
 act of implementation closer to the details of object definition rather than,
-as on paper, the function definition <<analytics19>>.
+as on paper, the function definition \cite{analytics19}.
 
 This particular interface attempts to emulate notation of iterated functions of
 the following form:
 
-latexmath:[$x_{n+1} = x_n$]
+\[x_{n+1} = x_n\]
 
 With the function body aiming to map as closely as possible a standard
 mathematical notion of iterated functions:
 
-latexmath:[$f^0 = id_x$]
-latexmath:[$f^{n+1} = f \circ f^n$]
+\[f^0 = id_x\]
+\[f^{n+1} = f \circ f^n\]
 
-A Higher-Order Model for Iterative Functions
---------------------------------------------
+\section{A Higher-Order Model for Iterative Functions}
 
 A draft interface sees a function taking the following form:
 
-[source,R]
-------------------
-iter(x0, ..., P, fn) 
-------------------
+\texttt{iter(x0, ..., P, fn)}
 
 Where the formal parameters include,
 
-x0:: as the initial object to iterate upon; 
-...:: as additional objects to iterate upon;
-P:: as the predicate to cease iteration upon evaluating false, and;
-fn:: as the iterated function
+\begin{description}
+	\item[x0] as the initial object to iterate upon; 
+	\item[...] as additional objects to iterate upon;
+	\item[P] as the predicate to cease iteration upon evaluating false, and;
+	\item[fn] as the iterated function
+\end{description}
 
-A means of referring to prior returned objects of `fn` within `P` and `fn`
-would have to be defined.
-This could take the form of reserved names such as `xn`, `xn_1`, ... `xn_n` to
-refer to the output of `fn`, the prior output of `fn`, and so on, respectively,
-as well as `x1`, `x2`, ... `xn` to refer to the output of the latexmath:[n]th
-iteration.
-Memory could be spared through parsing `P` and `fn` and only keeping the value
-of those names which are referenced in `P` and `fn`.
+A means of referring to prior returned objects of \texttt{fn} within \texttt{P}
+and \texttt{fn} would have to be defined.
+This could take the form of reserved names such as \texttt{xn}, \texttt{xn\_1},
+... \texttt{xn\_n} to refer to the output of \texttt{fn}, the prior output of
+\texttt{fn}, and so on, respectively, as well as \texttt{x1}, \texttt{x2}, ...
+\texttt{xn} to refer to the output of the \(n\)th iteration.
+Memory could be spared through parsing \texttt{P} and \texttt{fn} and only
+keeping the value of those names which are referenced in \texttt{P} and
+\texttt{fn}.
 
 Through this interface, iterated functions are clearly defined without the need
 for explicit loop control structures, and through the transparancy of the
 function, may swap in backend-specific mechanisms of action.
 This function may be defined as a generic, with appropriate backend-specific
-methods dispatched based on the class of `x0`.
+methods dispatched based on the class of \texttt{x0}.
 
 As an example of an iterated function, a GLM can be defined using this
 interface, as outlined in the following listing:
 
-[source,R]
------------------------------------------------
+\begin{lstlisting}[float, language=R]
 # include definitions for X and y
 
 pr <- function(X, B){
-	1 / (1 + exp(-X  %*% B))
-}
+		1 / (1 + exp(-X  %*% B))
+		}
 
 fn <- function(B){
 	W <- diag(as.vector(pr(X, B)))
@@ -94,17 +117,15 @@ x0 <- matrix(x(0,0))
 P <- quote(colSums(xn_1 - xn)^2) > tolerance)
 
 iter(x0, P, fn)
------------------------------------------------
+\end{lstlisting}
 
-Implementation Details
-----------------------
+\section{Implementation Details}
 
-Internally, a while loop with predicate `P` runs function `fn` on it's returned
-output, starting with `x0`.
+Internally, a while loop with predicate \texttt{P} runs function \texttt{fn} on
+it's returned output, starting with \texttt{x0}.
 A basic, non-generic implementation could take the following form:
 
-[source,R]
---------------------------------
+\begin{lstlisting}[float, language=R]
 iter <- function(x0, P, fn){
 	ModifyBaseEnv(P, fn)		<1>
 	while (P) {
@@ -113,29 +134,31 @@ iter <- function(x0, P, fn){
 	}
 	xn
 }
---------------------------------
+\end{lstlisting}
 
-<1> This is required in the case that `P` or `fn`  references variables such as
-    `xn_1`;
-    In this case, the reserved names are linked to the initial input variables
-    up to the n'th input variable.
-<2> This is required in the same case as 1., wherein the environment is
-    modified to hold the additional variable references.
+\begin{description}
+	\item[1] This is required in the case that \texttt{P} or \texttt{fn}
+		references variables such as \texttt{xn\_1}; In this case, the
+		reserved names are linked to the initial input variables up to
+		the n'th input variable.
+	\item[2] This is required in the same case as 1., wherein the
+		environment is modified to hold the additional variable
+		references.
+\end{description}
 
 Optimisations can include inlining the function through substitution in order
 to minimise object movement.
 
 Various backends could be used.
-As an example, sparklyr could be run through being passed an `x0` of class
-`spark_tbl`, wherein the appropriate method would be dispatched.
-This method would enclose the `fn` function calls within `mutate`, and perform
-other enhancements such as caching directives.
+As an example, sparklyr could be run through being passed an \texttt{x0} of
+class \texttt{spark\_tbl}, wherein the appropriate method would be dispatched.
+This method would enclose the \texttt{fn} function calls within
+\texttt{mutate}, and perform other enhancements such as caching directives.
 sparklyr could just as easily be bypassed, with some serialisation of the
-closure `fn` performed and sent directly to Spark, if Spark allows for such an
-operation.
+closure \texttt{fn} performed and sent directly to Spark, if Spark allows for
+such an operation.
 
-Potential Further Developments
-------------------------------
+\section{Potential Further Developments}
 
 Explicit embarrassing parallel sections may be specified as additional
 arguments;
@@ -147,21 +170,20 @@ good performance under parallelisation.
 
 Communicative parallelism is significantly more difficult to capture in the
 design of such an interface, with most parallel R packages ignoring such a
-construct <<bengtsson20>> <<core:_packag>> <<matloff16softw_alchemy>>
-<<vaughan18>>.
+construct \cite{bengtsson20}\cite{core:_packag}\cite{matloff16softw_alchemy}
+\cite{vaughan18}.
 However, it is conceivable that such functions can also be delivered as formal
-parameters to the `iter` function, though it is as yet unclear how to integrate
-this cleanly.
+parameters to the \texttt{iter} function, though it is as yet unclear how to
+integrate this cleanly.
 
-Conclusion
-----------
+\section{Conclusion}
 
 While this functional API does provide a simple abstract interface, it comes at
 the cost of lacking clear communication directives.
 Multivariable iterated functions are also difficult to manage;
 they can be contained in a list as a single formal parameter, but this limits
 the generic capability of the function to dispatch methods based on the class
-of the initial object `x0`.
+of the initial object \texttt{x0}.
 Such a cost is bearable by some applications, but limits the platform
 excessively at this early stage;
 In addition, the necessity of reference to prior and named output has led to
@@ -172,16 +194,5 @@ and may prove difficult to debug and make use of if not expertly implemented.
 it may be better to pursue this idea at a later point in time, pending
 development of the more primitive platform details.
 
-[bibliography]
-Bibliography
-------------
-
-[bibliography]
-- [[[rcore2020lang]]] R Core
-- [[[cousineau1998functional]]] cousineau1998functional
-- [[[strachey2000fundamental]]] strachey2000fundamental
-- [[[analytics19]]] analytics19
-- [[[bengtsson20]]] bengtsson20
-- [[[core:_packag]]] core:_packag
-- [[[matloff16softw_alchemy]]] matloff16softw_alchemy
-- [[[vaughan18]]] vaughan18
+\printbibliography{}
+\end{document}

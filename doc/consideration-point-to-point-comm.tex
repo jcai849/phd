@@ -1,10 +1,38 @@
-Considerations on the Value of Point-to-Point Communication
-===========================================================
-2020-05-22
-Jason Cairns
+\documentclass[a4paper,10pt]{article}
 
-Introduction
-------------
+\usepackage{hyperref}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+\usepackage[svgnames]{xcolor}
+\definecolor{diffstart}{named}{Grey}
+\definecolor{diffincl}{named}{Green}
+\definecolor{diffrem}{named}{OrangeRed}
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ 
+	backgroundcolor=\color{white},   
+		basicstyle=\ttfamily\small,
+		breaklines=true,                 
+		captionpos=b,                    
+		commentstyle=\color{mygreen},    
+		frame=single,	                   
+		keepspaces=true,                 
+		keywordstyle=\color{blue},       
+		stringstyle=\color{mymauve},     
+		tabsize=2,	                   
+}
+\begin{document}
+\title{Considerations on the Value of Point-to-Point Communication}
+\author{Jason Cairns}
+\year=2020 \month=5 \day=22
+\maketitle
+
+\section{Introduction}
 
 Point-to-point communication refers to communication directly from on node to
 another.
@@ -14,21 +42,21 @@ such a form of communication
 In addition, point-to-point communication consumes significantly less bandwidth
 than that required for a complete broadcast among all nodes.
 
-Implementations
----------------
+\section{Implementations}
 
 Point-to-point communication finds its most notable implementation in MPI,
-primarily through the use of `MPI_Send` and `MPI_Recv` functions.
+primarily through the use of \texttt{MPI\_Send} and \texttt{MPI\_Recv}
+functions.
 I'm not sure yet about others - Hadoop, YARN, Spark??
 
 Applications
 ------------
 
 The capacity for point-to-point communication enables many applications;
-https://mpitutorial.com/tutorials/point-to-point-communication-application-random-walk[Wes
-Kendall] demonstrates random walks and parallel particle tracing as some
+\href{https://mpitutorial.com/tutorials/point-to-point-communication-application-random-walk}{Wes
+Kendall} demonstrates random walks and parallel particle tracing as some
 applications that can take advantage of point-to-point communication
-<<kendall2014mpi>>.
+\cite{kendall2014mpi}.
 A generalisation of such applications would be any where a large amount of
 static data exists in distributed memory, and nodes perform iterative
 computation on the main data in conjunction with small pieces of data that are
@@ -40,8 +68,7 @@ Bayesian networks, undirected Markov blankets, Hidden Markov Models,
 potentially even neural networks wherein each node contains several consecutive
 layers that are a part of a larger network spanned by all of the nodes.
 
-Conclusion
-----------
+\section{Conclusion}
 
 Point-to-point communication adds huge performance capabilities to a
 distributed system.
@@ -50,13 +77,12 @@ both the implementation and the user.
 A large-scale platform for statistical modelling in R will benefit from such a
 capability, but there will be at least the following difficulties:
 
-* Determining an appropriate interface
-* Avoiding the reinvention of the wheel
-* Clean implementation avoiding excess communication
+\begin{itemize}
+	\item Determining an appropriate interface
+	\item Avoiding the reinvention of the wheel
+	\item Clean implementation avoiding excess communication
+\end{itemize}
 
-[bibliography]
-Bibliography
-------------
+\printbibliography{}
+\end{document}
 
-[bibliography]
-- [[[kendall2014mpi]]] kendall2014mpi
