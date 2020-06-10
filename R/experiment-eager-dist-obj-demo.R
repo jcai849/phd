@@ -3,7 +3,7 @@ hosts <- paste0("hadoop", 1:8)
 rsc <- make_cluster(hosts)
 x = send(1:100, rsc)
 
-peek(rsc[[1]])
+peek(rsc[1])
 peek(rsc)
 
 a = send(0:100, rsc)
