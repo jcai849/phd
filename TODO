@@ -1,5 +1,9 @@
-. Create the counting and combining functions for distributed decision tree
-. Download and distribute _flights_ dataset along the cluster
+. Distributed Random Forests
+.. subsetting distributed vectors
+.. distributed data frames
+.. subsetting distributed data frames
+.. Download and distribute _flights_ dataset along the cluster
+.. reading breiman1993trees to determine how to subset levels (ESL v. unclear)
 . Implement the distributed object approach
 .. Implement p2p communication (overload `receive`)
 .. Implement `align` for dist obj

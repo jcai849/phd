@@ -1,3 +1,8 @@
+2020-06-10::
+	12:14:05::: implement combining function for dist decision tree
+	15:26:27::: implement main function for dist. decision tree
+	17:07:07::: implement recycling for scalars
+	20:04:44::: Translate asciidoc to latex
 2020-06-09::
 	12:50:41::: Record script for definition of distributed decision tree;
 	            link:R/experiment-dist-decision-tree.R[]
