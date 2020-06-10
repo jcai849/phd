@@ -20,13 +20,14 @@ make_cluster <- function(hosts){
 	try(start_servers(hosts))
 	Sys.sleep(2)
 	servers <- connect_servers(hosts)
-	lapply(servers, function(host) {
-		       lapply(c("RSclient", "uuid"),
-			      function(lib) eval(bquote(RS.eval(host, library(.(lib))))))
-		       lapply(c("receive", "receive.distributed.object", "connect_servers"),
-			      function(fun) eval(bquote(RS.assign(host, fun, .(get(fun))))))
-	       })
-	lapply(servers, function(node) {class(node) <- c("node", class(node))})
+#	lapply(servers, function(host) {
+#	     lapply(c("RSclient", "uuid"),
+#	      function(lib) eval(bquote(RS.eval(host, library(.(lib))))))
+#	     lapply(c("receive", 
+#			"receive.distributed.object", 
+#			"connect_servers"),
+#	      function(fun) eval(bquote(RS.assign(host, fun, .(get(fun))))))
+#	       })
 	class(servers) <- c("cluster", class(servers))
 	servers
 }
@@ -39,22 +40,7 @@ make_cluster <- function(hosts){
 		out
 }
 
-send <- function(obj, to){
-	id <- UUIDgenerate()
-	UseMethod("send", to)
-}
-
-send.node <- function(obj, to){
-		RS.assign(to, id, obj)
-		dist_ref <- list(host = to, name = id, from = 0, to = length(obj))
-		if (is.vector(obj)) {
-			class(dist_ref) <- c("distributed.vector", class(dist_ref))
-		}
-		class(dist_ref) <- c("distributed.object", class(dist_ref))
-		dist_ref
-}
-
-send.cluster <- function(obj, to){
+send <- function(obj, to, align_to=NULL){
 		clustsize <- length(to)
 		objsize <- length(obj)
 		objelems <- seq(length(obj))
@@ -76,7 +62,8 @@ send.cluster <- function(obj, to){
 				 from = which(spliton), 
 				 to = c(which(spliton)[-1] - 1, objsize))
 		if (is.vector(obj)) {
-			class(dist_ref) <- c("distributed.vector", class(dist_ref))
+			class(dist_ref) <- c("distributed.vector", 
+					     class(dist_ref))
 		}
 		class(dist_ref) <- c("distributed.object", class(dist_ref))
 		dist_ref
@@ -106,10 +93,10 @@ Ops.distributed.vector <- function(e1, e2) {
 			do.call(.Generic, list(align(e1, e2), e2))
 		}
 	} else if (!("distributed.vector" %in% e1.classes)) {
-		e1 <- send(e1, e2$host)
+		e1 <- send(e1, align_to=e2)
 		do.call(.Generic, list(e1, e2))
 	} else if (!("distributed.vector" %in% e2.classes)) {
-		e2 <- send(e2, e1$host)
+		e2 <- send(e2, align_to=e1)
 		do.call(.Generic, list(e1, e2))
 	}
 }
@@ -150,12 +137,6 @@ peek.cluster <- function(loc) {
 			},
 			simplify = FALSE, USE.NAMES = TRUE)
 		 },
-	simplify = FALSE, USE.NAMES = TRUE)
-}
-
-peek.node <- function(loc) {
-	sapply(RS.eval(loc, quote(ls())), 
-	       function(uuid) eval(bquote(RS.eval(.(loc), quote(get(.(uuid)))))),
 	simplify = FALSE, USE.NAMES = TRUE)
 }
 
