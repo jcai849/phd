@@ -1,18 +1,14 @@
-count_all_gini <- function(X, y){
-	apply(X, 2, table, y)
-}
-
 gini_imp <- function(count) {
 	colsums.count <- colSums(count)
 	p <- apply(count, 1, function(x) x / colsums.count)
-	pmis <- 1 - rowSums(p^2)
-	pclass <- colsums.count / sum(count)
-	sum(pclass * pmis)
+	1 - rowSums(p^2)
 }
 
-gini_all_imp <- function(counts) {
-	sapply(counts, gini_imp)
+weighted_gini_imp <- function(count){
+	pclass <- colSums(count) / sum(count)
+	sum(pclass * gini_imp(count))
 }
+
 
 `%addjoin%` <- function(x, y){
 	xyr <- rownames(x)[rownames(x) %in% rownames(y)]
@@ -40,22 +36,48 @@ gini_all_imp <- function(counts) {
 }
 
 transpose <- function(l){
+	top <- unique(unlist(lapply(l, names)))
+	sapply(top, 
+	       function(i) lapply(l, 
+				  function(j) j[[i]]),
+		simplify = FALSE, USE.NAMES = TRUE)
 }
 	
-	
-combine_counts <- function(counts){
-	Reduce(%addjoin%, counts)
+decision_tree.distributed.data.frame <- function(X, y, max_depth = 4){
 }
 
-X = split(iris[,!names(iris) %in% "Species"], 1:3)
-y = split(iris$Species, 1:3)
-counts <- lapply(1:3, function(i) count_all_gini(X[[i]], y[[i]]))
 
-
-
-send(rsc, count_gini)
-send(rsc, count_all_gini)
-
-
-# x = matrix(1:6, byrow=T, nrow = 3, dimnames = list(c("a","b","c"), c("x","y")))
-# y = matrix(1:6, byrow=T, nrow = 3, dimnames = list(c("a","d","e"), c("x","z")))
+gini_node <- function(X, y, gini_threshold = 0.4, max_depth = 4){
+	nodecounts <- lapply(X$host,
+	       function(host) eval(bquote(RS.eval(host, 
+						  apply(get(.(X$name)),
+							2,
+							table
+							get(.(y$name)))))))
+	featurecounts <- lapply(transpose(nodecounts), 
+				function(feature) Reduce(`%addjoin%`, feature))
+	featuresplit <- which.min(sapply(featurecounts, weighted_gini_imp))
+	# levelsplit incorrect
+	levelsplit <- which.min(gini_imp(featurecounts[[featuresplit]]))
+	classprobs <- colSums(featurecounts[[featuresplit]]) / 
+			sum(featurecounts[[featuresplit]])
+	treenode <- list(split_feature = names(featuresplit), 
+			 class_probs = classprobs)
+	if (maxdepth == 1 | 
+	    featurecounts[[featuresplit]] < gini_threshold){
+		attr(treenode, "nodetype") <- "leaf"
+		return(treenode)
+	} else return(c(treenode, 
+			list(left = Recall(X[X[[names(featuresplit)]] == 
+					   names(levelsplit),],
+					   y[X[[names(featuresplit)]] == 
+					     names(levelsplit)],
+					      gini_threshold=gini_threshold,
+					      max_depth = max_depth - 1),
+			     right = Recall(X[X[[names(featuresplit)]] != 
+					   names(levelsplit),],
+					   y[X[[names(featuresplit)]] != 
+					     names(levelsplit)],
+					      gini_threshold=gini_threshold,
+					      max_depth = max_depth - 1))))
+}
