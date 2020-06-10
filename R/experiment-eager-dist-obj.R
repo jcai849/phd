@@ -45,23 +45,36 @@ send <- function(obj, to, align_to=NULL){
 		clustsize <- length(to)
 		objsize <- length(obj)
 		objelems <- seq(length(obj))
-		spliton <- if (clustsize < objsize) {
-			bucketsto <- cumsum(rep(objsize / clustsize, clustsize))
-			bucketsfrom <- c(0, bucketsto[-clustsize])
-			facsplit = sapply(objelems,
-			       function(i) which(i > bucketsfrom &
-						 i <= bucketsto))
-			c(TRUE, !{c(NA, facsplit[-objsize]) - facsplit == 0}[-1])
-		} else rep(TRUE, objsize)
-		splits <- split(obj,
-				cumsum(spliton))
-		allsplitrefs <- seq(length(splits))
-		names(splits) <- names(to)[allsplitrefs]
-		lapply(seq(length(splits)),
-		       function(i) RS.assign(to[[i]], id, splits[[i]]))
-		dist_ref <- list(host = to[allsplitrefs], name = id,
-				 from = which(spliton), 
-				 to = c(which(spliton)[-1] - 1, objsize))
+		if (is.null(align_to)) {
+			spliton <- if (clustsize < objsize) {
+				bucketsto <- cumsum(rep(objsize / 
+							clustsize, clustsize))
+				bucketsfrom <- c(0, bucketsto[-clustsize])
+				facsplit = sapply(objelems,
+				       function(i) which(i > bucketsfrom &
+							 i <= bucketsto))
+				c(TRUE, !{c(NA, facsplit[-objsize]) -
+				  facsplit == 0}[-1])
+			} else rep(TRUE, objsize)
+			splits <- split(obj,
+					cumsum(spliton))
+			allsplitrefs <- seq(length(splits))
+			names(splits) <- names(to)[allsplitrefs]
+			lapply(seq(length(splits)),
+			       function(i) RS.assign(to[[i]], id, splits[[i]]))
+			dist_ref <- list(host = to[allsplitrefs], name = id,
+					 from = which(spliton), 
+					 to = c(which(spliton)[-1] - 1, objsize))
+		} else if (length(obj) == 1) {
+			lapply(align_to$host,
+			       function(x) RS.assign(x, id, obj))
+			dist_ref <- list(host = align_to$host,
+					 name = id,
+					 from = seq(length(align_to$host)),
+					 to = seq(length(align_to$host)))
+		} else {
+			stop("Recycling not yet implemented for length(obj) > 1")
+		}
 		if (is.vector(obj)) {
 			class(dist_ref) <- c("distributed.vector", 
 					     class(dist_ref))
@@ -77,16 +90,18 @@ Ops.distributed.vector <- function(e1, e2) {
 	if (("distributed.vector" %in% e1.classes) &
 	    ("distributed.vector" %in% e2.classes)){
 		if (all.equal(e1$host, e2$host) &
-		    all.equal(e1$to, e2$to) &
-		    all.equal(e1$from, e2$from)) {
-			lapply(e1$host, function(hostname) eval(
-			    bquote(RS.eval(hostname,
-			     quote(assign(.(id), 
-				 do.call(.(.Generic), 
-				  list(get(.(e1$name)),
-				       get(.(e2$name))))))))))
-			e1$name <- id
-			return(e1)
+		    ((all(e1$to  == e2$to) &
+		      all(e1$from == e2$from)) |
+		     (length(e1) == length(e1$host) |
+		      length(e2) == length(e2$host)))) {
+				    lapply(e1$host, function(hostname) eval(
+				           bquote(RS.eval(hostname,
+					     quote(assign(.(id), 
+						do.call(.(.Generic), 
+						list(get(.(e1$name)),
+						     get(.(e2$name))))))))))
+				    e1$name <- id
+				    return(e1)
 		} else if (length(e1) == length(e2) |
 			   length(e1) > length(e2)) {
 			do.call(.Generic, list(e1, align(e2, e1)))
@@ -103,7 +118,7 @@ Ops.distributed.vector <- function(e1, e2) {
 }
 
 align <- function(from, to){
-	stop("TODO: Implement align")
+	stop("Distributed objects not aligned; Implement `align`!")
 }
 
 receive <- function(obj, remote=FALSE) {
@@ -125,10 +140,6 @@ receive.distributed.object <- function(obj, remote=FALSE) {
 }
 
 peek <- function(loc) {
-	UseMethod("peek", loc)
-}
-
-peek.cluster <- function(loc) {
 	hosts <- names(loc)
 	sapply(hosts, function(hostname) {
 	       sapply(RS.eval(rsc[[hostname]], quote(ls())),
