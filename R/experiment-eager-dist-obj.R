@@ -206,8 +206,31 @@ Ops.distributed.vector <- function(e1, e2) {
 				   from = cumsum(c(1,locs[-length(locs)])),
 				   to = cumsum(locs)))
 		}
-	} else if (is.numeric(i)) {
-
+	} else if (is.numeric(i)) {#assuming ordered & continuous numeric
+		hostnums <- sapply(i, 
+		   function(y) which.min({y - x$from}[(y - x$from) >= 0]))
+		vals_on_host <- table(hostnums)
+		hostsize <- x$to - x$from + 1
+		hosts <- x$host[as.numeric(names(vals_on_host))]
+		selectionlist <- as.list(vals_on_host)
+		first <- seq(hostsize[as.numeric(names(vals_on_host[1]))] -
+			     vals_on_host[1] + 1,
+			     hostsize[as.numeric(names(vals_on_host[1]))])
+		selectionlist[[1]] <- first
+		if (length(vals_on_host) > 1) {
+			last <- seq(vals_on_host[length(vals_on_host)])
+			selectionlist[[length(selectionlist)]] <- last
+		}
+		if (length(vals_on_host > 2)) {
+		    lapply(2:{length(vals_on_host) - 1},
+		   function(y) selectionlist[[y]] <<- seq(vals_on_host[y]))
+			    }
+		mapply(function(host, selection) {
+			       eval(bquote(
+			       RS.eval(host, assign(.(id), 
+					    get(.(x$name))[.(selection)]))))
+		   }, hosts, selectionlist)
+	stop("TODO")
 	} else stop(paste("Unrecognised class for i. Your class: ", 
 			  paste(class(i), collapse = ", ")))
 }
