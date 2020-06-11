@@ -1,5 +1,5 @@
 . Distributed Random Forests
-.. subsetting distributed vectors
+.. subsetting distributed vectors by numerics -- return reference
 .. distributed data frames
 .. subsetting distributed data frames
 .. Download and distribute _flights_ dataset along the cluster

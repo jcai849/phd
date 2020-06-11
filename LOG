@@ -1,3 +1,7 @@
+2020-06-11
+	12:50:49::: cleaned up scalar distribution
+	15:33:00::: implement subsetting by distributed vector
+	17:13:27::: unreferenced subsetting by numeric
 2020-06-10::
 	12:14:05::: implement combining function for dist decision tree
 	15:26:27::: implement main function for dist. decision tree
