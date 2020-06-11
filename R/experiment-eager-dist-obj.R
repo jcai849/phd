@@ -70,8 +70,8 @@ send <- function(obj, to, align_to=NULL){
 			       function(x) RS.assign(x, id, obj))
 			dist_ref <- list(host = align_to$host,
 					 name = id,
-					 from = seq(length(align_to$host)),
-					 to = seq(length(align_to$host)))
+					 from = rep(1, length(align_to$host)),
+					 to = rep(1, length(align_to$host)))
 		} else {
 			stop("Recycling not yet implemented for length(obj) > 1")
 		}
@@ -92,8 +92,8 @@ Ops.distributed.vector <- function(e1, e2) {
 		if (all.equal(e1$host, e2$host) &
 		    ((all(e1$to  == e2$to) &
 		      all(e1$from == e2$from)) |
-		     (length(e1) == length(e1$host) |
-		      length(e2) == length(e2$host)))) {
+		     (length(e1) == 1 |
+		      length(e2) == 1))) {
 				    lapply(e1$host, function(hostname) eval(
 				           bquote(RS.eval(hostname,
 					     quote(assign(.(id), 

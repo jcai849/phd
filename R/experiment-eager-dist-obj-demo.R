@@ -20,10 +20,16 @@ b. = 400:300
 c.. = a - b.
 all.equal(receive(c..), c.local)
 
-y = send(seq(10), rsc)
-z = send(3, rsc)
+y = x / 2
+receive(y)
 
-id <- getUUID()
-k = eval(bquote(RS.eval(rsc[[1]], receive(.(a), remote = TRUE))))
+z1 = send(1, rsc)
+z1
+
+z2 = send(1, rsc, align_to=x)
+z2
+
+try(receive(x - z1))
+receive(x - z2)
 
 kill_servers(hosts)
