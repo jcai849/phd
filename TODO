@@ -1,7 +1,6 @@
 . Distributed Random Forests
-.. subsetting distributed vectors by numerics -- return reference
-.. distributed data frames
-.. subsetting distributed data frames
+.. List all possible test cases
+.. Write tests for all possible cases
 .. Download and distribute _flights_ dataset along the cluster
 .. reading breiman1993trees to determine how to subset levels (ESL v. unclear)
 . Implement the distributed object approach
