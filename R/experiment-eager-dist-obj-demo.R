@@ -32,4 +32,11 @@ z2
 try(receive(x - z1))
 receive(x - z2)
 
+evens <- x[x %% 2 == 0]
+is.one <- x == 1
+receive(x[is.one])
+receive(evens[1])
+receive(evens[1:5])
+receive(evens[{length(evens)/2}:length(evens)])
+
 kill_servers(hosts)
