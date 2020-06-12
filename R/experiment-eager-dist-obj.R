@@ -201,10 +201,10 @@ Ops.distributed.vector <- function(e1, e2) {
 			   })
 		nonemptylocs <- sapply(all.locs, function(v) v != 0)
 		locs <- all.locs[nonemptylocs]
-		return(distributed.vector(host = x$host[nonemptylocs],
+		dist_ref <- alist(host = x$host[nonemptylocs],
 				   name = id,
 				   from = cumsum(c(1,locs[-length(locs)])),
-				   to = cumsum(locs)))
+				   to = cumsum(locs))
 		}
 	} else if (is.numeric(i)) {#assuming ordered & continuous numeric
 		hostnums <- sapply(i, 
@@ -213,24 +213,37 @@ Ops.distributed.vector <- function(e1, e2) {
 		hostsize <- x$to - x$from + 1
 		hosts <- x$host[as.numeric(names(vals_on_host))]
 		selectionlist <- as.list(vals_on_host)
+		if (length(vals_on_host) == 1) {
+		firstfrom <- 1 + i[1] - x$from[as.numeric(names(vals_on_host))]
+		first <- seq(firstfrom,
+			     firstfrom + length(i) - 1)
+		}
+		if (length(vals_on_host) > 1) {
 		first <- seq(hostsize[as.numeric(names(vals_on_host[1]))] -
 			     vals_on_host[1] + 1,
 			     hostsize[as.numeric(names(vals_on_host[1]))])
 		selectionlist[[1]] <- first
-		if (length(vals_on_host) > 1) {
-			last <- seq(vals_on_host[length(vals_on_host)])
-			selectionlist[[length(selectionlist)]] <- last
+		last <- seq(vals_on_host[length(vals_on_host)])
+		selectionlist[[length(selectionlist)]] <- last
 		}
-		if (length(vals_on_host > 2)) {
+		selectionlist[[1]] <- first
+		if (length(vals_on_host) > 2) {
 		    lapply(2:{length(vals_on_host) - 1},
 		   function(y) selectionlist[[y]] <<- seq(vals_on_host[y]))
-			    }
+		}
 		mapply(function(host, selection) {
 			       eval(bquote(
 			       RS.eval(host, assign(.(id), 
 					    get(.(x$name))[.(selection)]))))
 		   }, hosts, selectionlist)
-	stop("TODO")
+		dist_ref <- alist(host = hosts,
+				  name = id,
+				  from = cumsum(c(1, 
+				          sapply(selectionlist, 
+					   length)[-length(selectionlist)])),
+				  to = cumsum(sapply(selectionlist,
+						     length)))
 	} else stop(paste("Unrecognised class for i. Your class: ", 
 			  paste(class(i), collapse = ", ")))
+	do.call(distributed.vector, dist_ref)
 }
