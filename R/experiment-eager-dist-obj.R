@@ -322,7 +322,7 @@ names.distributed.data.frame <- function(x) {
 	} else stop(paste("Unrecognised class for i. Your class: ", 
 			  paste(class(i), collapse = ", ")))
 
-	if (eval(bquote(RS.eval(host,
+	if (eval(bquote(RS.eval(.(dist_ref$host[[1]]),
 				is.data.frame(get(.(id))))))) {
 		do.call(distributed.data.frame, dist_ref)
 	} else {
