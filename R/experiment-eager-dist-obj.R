@@ -49,6 +49,7 @@ peek <- function(loc) {
 	simplify = FALSE, USE.NAMES = TRUE)
 }
 
+
 # Communication
 
 send <- function(obj, to, align_to=NULL){
@@ -91,6 +92,8 @@ send <- function(obj, to, align_to=NULL){
 	if (is.data.frame(obj)) return(do.call(distributed.data.frame, reflist))
 	do.call(distributed.object, reflist)
 }
+
+as.distributed <- send
 
 receive <- function(obj, remote=FALSE) {
 	UseMethod("receive", obj)
@@ -221,10 +224,6 @@ is.distributed.vector <- is.distributed.class("distributed.vector")
 
 length.distributed.vector <- function(x) max(x$to)
 
-as.distributed.vector <- function(x, to) {
-	send(x, to)
-}
-
 Ops.distributed.vector <- function(e1, e2) {
 	id <- UUIDgenerate()
 	e1.classes <- class(e1)
@@ -275,6 +274,20 @@ Ops.distributed.vector <- function(e1, e2) {
 }
 
 # distributed.data.frame methods
+
+read.distributed.csv <- function(file, to, ...){
+	id <- UUIDgenerate()
+	locs <- lapply(to, function(host) {
+	       eval(bquote(
+		   RS.eval(host, assign(.(id),
+		       do.call(read.csv,
+			       .(c(file, list(...))))))))
+	})
+	distributed.data.frame(host = to
+	      name = id,
+	      from = cumsum(c(1,locs[-length(locs)])),
+	      to = cumsum(locs))
+}
 
 distributed.data.frame <- distributed.class("distributed.data.frame")
 

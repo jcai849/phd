@@ -6,9 +6,9 @@ peek(rsc)
 
 # Distributed Vector Coercion
 
-v1 <- as.distributed.vector(1:150, rsc)
-v2 <- as.distributed.vector(151:300, rsc)
-v3 <- as.distributed.vector(1:150 %% 2 == 0, rsc)
+v1 <- as.distributedr(1:150, rsc)
+v2 <- as.distributed(151:300, rsc)
+v3 <- as.distributed(1:150 %% 2 == 0, rsc)
 v4 <- send(1, rsc, align_to=v1)
 v5 <- send(1, rsc, align_to=v3)
 v1
@@ -40,7 +40,7 @@ peek(i1$host)
 # Distributed Data Frame Coercion
 ## TODO: creation of reader directly from remotes
 
-d1 <- send(iris, rsc)
+d1 <- as.distributed(iris, rsc)
 
 # Distributed Data Frame Indexing
 
