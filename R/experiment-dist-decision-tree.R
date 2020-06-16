@@ -42,42 +42,59 @@ transpose <- function(l){
 				  function(j) j[[i]]),
 		simplify = FALSE, USE.NAMES = TRUE)
 }
-	
-decision_tree.distributed.data.frame <- function(X, y, max_depth = 4){
-}
 
-
-gini_node <- function(X, y, gini_threshold = 0.4, max_depth = 4){
+count <- function(X, y) {
 	nodecounts <- lapply(X$host,
 	       function(host) eval(bquote(RS.eval(host, 
 						  apply(get(.(X$name)),
 							2,
 							table
 							get(.(y$name)))))))
-	featurecounts <- lapply(transpose(nodecounts), 
+	lapply(transpose(nodecounts), 
 				function(feature) Reduce(`%addjoin%`, feature))
-	featuresplit <- which.min(sapply(featurecounts, weighted_gini_imp))
-	# levelsplit incorrect
-	levelsplit <- which.min(gini_imp(featurecounts[[featuresplit]]))
-	classprobs <- colSums(featurecounts[[featuresplit]]) / 
-			sum(featurecounts[[featuresplit]])
-	treenode <- list(split_feature = names(featuresplit), 
-			 class_probs = classprobs)
-	if (maxdepth == 1 | 
-	    featurecounts[[featuresplit]] < gini_threshold){
-		attr(treenode, "nodetype") <- "leaf"
-		return(treenode)
-	} else return(c(treenode, 
-			list(left = Recall(X[X[[names(featuresplit)]] == 
-					   names(levelsplit),],
-					   y[X[[names(featuresplit)]] == 
-					     names(levelsplit)],
-					      gini_threshold=gini_threshold,
-					      max_depth = max_depth - 1),
-			     right = Recall(X[X[[names(featuresplit)]] != 
-					   names(levelsplit),],
-					   y[X[[names(featuresplit)]] != 
-					     names(levelsplit)],
-					      gini_threshold=gini_threshold,
-					      max_depth = max_depth - 1))))
+}
+
+qgen <- function(counts){
+# Generate logical vectors to filter X and y
+}
+
+gensplit <- function(question, X, y){
+# Apply logical vector `question` to filter X and y into L and R (yes and no) binary fashion
+# return list of Left and Right splits, each of which have X and y
+}
+
+GoS <- function(split){
+# take output of gensplit, assess count() and run some impurity measure on the output of count()
+}
+
+splitstop <- function(counts, threshold){
+# asses counts, determining if purity threshold met at counts (node)
+}
+
+assignclass <- function(counts){
+# assess counts, determining the class probabilities
+}
+
+dist_decision_tree <- function(X, y, max_depth = 4, 
+			       impurity_measure = "gini", threshold = 0.8){
+	maketree <- function(X, y, max_depth = max_depth,
+			     impurity_measure = impurity_measure, 
+			     threshold = 0.8){
+		jointcounts <- count(X,y)
+		if (splitstop(jointcounts, threshold) |
+		    max_depth == 1) return(assignclass(jointcounts))
+		questions <- qgen(jointcounts)
+		splits <- lapply(questions, gensplit, X, y)
+		bestsplit <- which.max(sapply(splits, GoS))
+		# delete unnecessary splits - memory leak imminent
+		return(list(questions[[bestsplit]],
+			    Recall(splits[[bestsplit]]$L$X,
+				   splits[[bestsplit]]$L$y,
+				   max_depth - 1),
+			    Recall(splits[[bestsplit]]$R$X,
+				   splits[[bestsplit]]$R$y,
+				   max_depth - 1)))}
+	tree <- maketree()
+	class(tree) <- "decision.tree"
+	tree
 }
