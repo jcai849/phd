@@ -1,13 +1,18 @@
-#Depends 
+# Depends 
 
 library(RSclient)
+library(parallel)
 library(uuid)
+
+# Parallel setup
+
+options(mc.cores=detectCores())
 
 # Cluster
 
 do_servers <- function(command) 
 	function(hosts) 
-		lapply(hosts, function(host)
+		mclapply(hosts, function(host)
 				       system(paste("ssh", host, command),
 					      wait = FALSE))
 
@@ -99,16 +104,11 @@ receive <- function(obj, remote=FALSE) {
 	UseMethod("receive", obj)
 }
 
-receive.distributed.object <- function(obj, remote=FALSE) {
-	if (remote) {
-		conn <- connect_servers(names(obj$host))
-		on.exit(lapply(conn, RS.close))
-	} else {
-		conn <- obj$host
-	}
+receive.distributed.object <- function(obj) {
+	conn <- obj$host
 	recv <- lapply(conn, function(hostname) {
 			       eval(bquote(RS.eval(hostname,
-						   quote(get(.(obj$name))))))
+						   get(.(obj$name)))))
 			   })
 	unsplit(recv, rep(seq(length(recv)), 1 + obj$to - obj$from))
 }
@@ -146,16 +146,17 @@ is.distributed.class <- function(classname) {
 
 dist_subset <- function(subset_type, id, x, i, j=NULL) {
 	subset_type <- substitute(subset_type)
-	all.locs <- sapply(x$host, function(host) {
+	lapply(x$host, function(host) {
 	      tosub <- bquote(RS.eval(host, 
-			   assign(.(id), .(subset_type))))
+				      {assign(.(id), .(subset_type)); NULL}))
 	      eval(eval(substitute(substitute(tosub,
 			    list(xname = x$name,
 				 iname = if (is.vector(i)) NULL else i$name,
 				 jname = if (is.vector(j)) NULL else j$name,
 				 i = i,
 				 j = j)),
-			 list(tosub = tosub))))
+			 list(tosub = tosub))))})
+	all.locs <- sapply(x$host, function(host) {
 	       eval(bquote(RS.eval(host,
 			   do.call(if (is.data.frame(get(.(id))) |
 			       is.matrix(get(.(id)))) "nrow" else "length",
@@ -237,10 +238,10 @@ Ops.distributed.vector <- function(e1, e2) {
 		      length(e2) == 1))) {
 			lapply(e1$host, function(hostname) eval(bquote(
 				RS.eval(hostname,
-				quote(assign(.(id), 
+				quote({assign(.(id), 
 				  do.call(.(.Generic), 
 				list(get(.(e1$name)),
-				     get(.(e2$name))))))))))
+				     get(.(e2$name))))); NULL})))))
 				    e1$name <- id
 				    return(e1)
 		} else if (length(e1) == length(e2) |
@@ -275,15 +276,21 @@ Ops.distributed.vector <- function(e1, e2) {
 
 # distributed.data.frame methods
 
-read.distributed.csv <- function(file, to, ...){
+read.distributed.csv <- function(..., to){
 	id <- UUIDgenerate()
-	locs <- lapply(to, function(host) {
+	lapply(to, function(host) {
 	       eval(bquote(
-		   RS.eval(host, assign(.(id),
+		   RS.eval(host, {assign(.(id),
 		       do.call(read.csv,
-			       .(c(file, list(...))))))))
+			       .(list(...)))); NULL})))
 	})
-	distributed.data.frame(host = to
+	locs <- sapply(to, function(host) {
+	       eval(bquote(RS.eval(host,
+			   do.call(if (is.data.frame(get(.(id))) |
+			       is.matrix(get(.(id)))) "nrow" else "length",
+				   list(get(.(id)))))))
+	})
+	distributed.data.frame(host = to,
 	      name = id,
 	      from = cumsum(c(1,locs[-length(locs)])),
 	      to = cumsum(locs))
