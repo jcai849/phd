@@ -1,14 +1,14 @@
-. Distributed Random Forests
-.. List all possible test cases
-.. Write tests for all possible cases
-.. Download and distribute _flights_ dataset along the cluster
-.. reading breiman1993trees to determine how to subset levels (ESL v. unclear)
+. Finish distributed CART
+. `reg.finaliser`
+. Write on considerations of dist. object structure, such as value of
+  encapsulating row number etc. on the remote side - include examples
+. Write test/demo for the flights dataset; incl. header, colClasses etc.
+. Start on mid-level MapReduce type api for the distributed objects
+. Attempt to apply GLM as per Simon's email to the distributed object
 . Implement the distributed object approach
 .. Implement p2p communication (overload `receive`)
 .. Implement `align` for dist obj
-.. Implement `]` for dist obj
 .. Implement `%in%` for dist obj
-.. Implement `reader` function for cluster w.r.t. file relative to each node
 .. Implement `summary` and its prerequisites with current interface
 . Interface: experiment with lazy distributed objects
 . Implementation: experiment with metadata being encapsulated in slave processes

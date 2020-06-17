@@ -1,8 +1,18 @@
-2020-06-12
+2020-06-17::
+	18:33:01::: Distribute flights along cluster & fix dist.csv. reader
+2020-06-16::
+	12:12:02::: Reading breiman1993trees
+	12:12:58::: Reworking skeleton of decision tree
+	15:18:41::: Meeting
+	18:05:06::: More breiman1993trees
+2020-06-15::
+	18:04:37::: Methodical testing and bug fixes
+	18:51:58::: Basic distributed csv reader function
+2020-06-12::
 	11:29:24::: Referenced subsetting by consecutive numeric
 	13:19:47::: tests and bug fixes for subsetting vectors
 	16:52:52::: first draft at dataframe subsetting
-2020-06-11
+2020-06-11::
 	12:50:49::: cleaned up scalar distribution
 	15:33:00::: implement subsetting by distributed vector
 	17:13:27::: unreferenced subsetting by consecutive numeric
