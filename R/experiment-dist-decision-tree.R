@@ -1,15 +1,3 @@
-gini_imp <- function(count) {
-	colsums.count <- colSums(count)
-	p <- apply(count, 1, function(x) x / colsums.count)
-	1 - rowSums(p^2)
-}
-
-weighted_gini_imp <- function(count){
-	pclass <- colSums(count) / sum(count)
-	sum(pclass * gini_imp(count))
-}
-
-
 `%addjoin%` <- function(x, y){
 	xyr <- rownames(x)[rownames(x) %in% rownames(y)]
 	xyc <- colnames(x)[colnames(x) %in% colnames(y)]
@@ -43,58 +31,85 @@ transpose <- function(l){
 		simplify = FALSE, USE.NAMES = TRUE)
 }
 
-count <- function(X, y) {
-	nodecounts <- lapply(X$host,
-	       function(host) eval(bquote(RS.eval(host, 
-						  apply(get(.(X$name)),
-							2,
-							table
-							get(.(y$name)))))))
+gtable <- function(...) UseMethod("gtable", list(...)[[1]])
+
+gtable.default <- function(...) do.call(table, list(...))
+
+# assumes no other arguments
+gtable.distributed.vector <- function(...){
+	names <- sapply(list(...) function(x) x$name)
+	nodecounts <- lapply(y$host,
+	       function(host) eval(bquote(RS.eval(host,
+		  do.call(table, 
+			  c(lapply(.(names),
+				  function(name) do.call(get, name))))))))
 	lapply(transpose(nodecounts), 
 				function(feature) Reduce(`%addjoin%`, feature))
 }
 
-qgen <- function(counts){
-# Generate logical vectors to filter X and y
+qgen <- function(X){
+	uniques <- apply(X, 2, unique)
+	unlist(lapply(names(uniques), function(uniquecol) {
+		       lapply(uniques[[uniquecol]], function(element) {
+			      substitute(X[,colname] %in% element,
+					 list(colname = uniquecol,
+					      element = element))})}))
 }
 
-gensplit <- function(question, X, y){
-# Apply logical vector `question` to filter X and y into L and R (yes and no) binary fashion
-# return list of Left and Right splits, each of which have X and y
+gensubset <- function(question, x, side = "L"){
+	if (is.distributed.data.frame(x) | 
+	    is.data.frame(x) | is.matrix(x)) {
+	switch(side,
+	       L = eval(substitute(x[question,],
+				  list(question = question))),
+               R = eval(substitute(x[!question,],
+				  list(question = question))))
+	       # include dataframe options!!
+	} else switch(side,
+	       L = eval(substitute(x[question],
+				  list(question = question))),
+               R = eval(substitute(x[!question],
+				  list(question = question))))
 }
 
-GoS <- function(split){
-# take output of gensplit, assess count() and run some impurity measure on the output of count()
+impurity <- function(counts, measure="gini") {
+	switch(measure,
+	       gini = 1 - sum((counts / sum(counts))^2))
 }
 
-splitstop <- function(counts, threshold){
-# asses counts, determining if purity threshold met at counts (node)
+GoQ <- function(y, question, impurity_measure="gini"){
+	L = gensubset(question, y, side = "L")
+	R = gensubset(question, y, side = "R")
+	impurity(gtable(y), impurity_measure) - 
+		((length(L) / length(y)) * impurity(gtable(L),
+						    impurity_measure)) - 
+		((length(R) / length(y)) * impurity(gtable(R),
+						    impurity_measure))
 }
 
-assignclass <- function(counts){
-# assess counts, determining the class probabilities
-}
-
-dist_decision_tree <- function(X, y, max_depth = 4, 
-			       impurity_measure = "gini", threshold = 0.8){
-	maketree <- function(X, y, max_depth = max_depth,
-			     impurity_measure = impurity_measure, 
-			     threshold = 0.8){
-		jointcounts <- count(X,y)
-		if (splitstop(jointcounts, threshold) |
-		    max_depth == 1) return(assignclass(jointcounts))
-		questions <- qgen(jointcounts)
-		splits <- lapply(questions, gensplit, X, y)
-		bestsplit <- which.max(sapply(splits, GoS))
-		# delete unnecessary splits - memory leak imminent
-		return(list(questions[[bestsplit]],
-			    Recall(splits[[bestsplit]]$L$X,
-				   splits[[bestsplit]]$L$y,
-				   max_depth - 1),
-			    Recall(splits[[bestsplit]]$R$X,
-				   splits[[bestsplit]]$R$y,
-				   max_depth - 1)))}
-	tree <- maketree()
+dist_decision_tree <- function(X, y, max_depth = 2, 
+			       impurity_measure = "gini", threshold = 0.1){
+	maketree <- function(...){
+		counts <- gtable(y)
+		if (impurity(counts, 
+			     measure = impurity_measure) < threshold |
+		    max_depth <= 1 | length(y) < 2) return(counts / sum(counts))
+		questions <- qgen(X)
+		qgoodness <- sapply(questions, function(question)
+				    GoQ(y, question, impurity_measure))
+		bestq <- questions[[which.min(qgoodness)]]
+		return(list(bestq,
+			    Recall(gensubset(bestq, X, "L"),
+				   gensubset(bestq, y, "L"),
+				   max_depth = max_depth - 1,
+				   impurity_measure = impurity_measure,
+				   threshold = threshold),
+			    Recall(gensubset(bestq, X, "R"),
+				   gensubset(bestq, y, "R"),
+				   max_depth = max_depth - 1,
+				   impurity_measure = impurity_measure,
+				   threshold = threshold)))}
+	tree <- maketree(X, y, max_depth, impurity_measure, threshold)
 	class(tree) <- "decision.tree"
 	tree
 }
