@@ -1,14 +1,20 @@
-. Finish distributed CART
+. Get decision tree working with distributed data frames (use dist.mtcars)
+.. unique
+.. %in%
+.. gtable
+.. nrow
 . `reg.finaliser`
+. Redo flights distribution 
+.. send to nodes
+.. csv reader (semi-parallelise)
+.. save colClasses etc.
 . Write on considerations of dist. object structure, such as value of
   encapsulating row number etc. on the remote side - include examples
-. Write test/demo for the flights dataset; incl. header, colClasses etc.
-. Start on mid-level MapReduce type api for the distributed objects
+. Start on mid-level MapReduce-style api for the distributed objects
 . Attempt to apply GLM as per Simon's email to the distributed object
 . Implement the distributed object approach
 .. Implement p2p communication (overload `receive`)
 .. Implement `align` for dist obj
-.. Implement `%in%` for dist obj
 .. Implement `summary` and its prerequisites with current interface
 . Interface: experiment with lazy distributed objects
 . Implementation: experiment with metadata being encapsulated in slave processes
