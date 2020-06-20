@@ -1,3 +1,7 @@
+2020-06-20::
+	16:11:48::: Draft implementation of all dist.object methods necessary
+		    in dist. decision tree, including `unique`, `%gin%`, `dim`,
+		    etc.; `reg.finalizer` for distributed objects.
 2020-06-19::
 	17:28:46::: Decision Tree working locally + predict method
 2020-06-19::

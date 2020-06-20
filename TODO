@@ -1,9 +1,6 @@
 . Get decision tree working with distributed data frames (use dist.mtcars)
-.. unique
-.. %in%
-.. gtable
-.. nrow
-. `reg.finaliser`
+.. Write and run tests on all new methods
+.. Make decision tree work
 . Redo flights distribution 
 .. send to nodes
 .. csv reader (semi-parallelise)
