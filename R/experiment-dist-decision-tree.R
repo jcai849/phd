@@ -1,52 +1,3 @@
-`%addjoin%` <- function(x, y){
-	xyr <- rownames(x)[rownames(x) %in% rownames(y)]
-	xyc <- colnames(x)[colnames(x) %in% colnames(y)]
-	xruniq <- rownames(x)[!rownames(x) %in% rownames(y)]
-	xcuniq <- colnames(x)[!colnames(x) %in% colnames(y)]
-	yruniq <- rownames(y)[!rownames(y) %in% rownames(x)]
-	ycuniq <- colnames(y)[!colnames(y) %in% colnames(x)]
-	allr <- c(xyr, xruniq, yruniq)
-	allc <- c(xyc, xcuniq, ycuniq)
-
-	out <- matrix(nrow = length(allr),
-		      ncol = length(allc),
-		      dimnames = list(allr, allc))
-	out[xruniq, ycuniq] <- 0
-	out[yruniq, xcuniq] <- 0
-	out[xyr, xyc] <- x[xyr, xyc] + y[xyr, xyc]
-	out[xyr, xcuniq] <- x[xyr, xcuniq]
-	out[xruniq, xyc] <- x[xruniq, xyc]
-	out[xruniq, xcuniq] <- x[xruniq, xcuniq]
-	out[xyr, ycuniq] <- y[xyr, ycuniq]
-	out[yruniq, xyc] <- y[yruniq, xyc]
-	out[yruniq, ycuniq] <- y[yruniq, ycuniq]
-	out
-}
-
-transpose <- function(l){
-	top <- unique(unlist(lapply(l, names)))
-	sapply(top, 
-	       function(i) lapply(l, 
-				  function(j) j[[i]]),
-		simplify = FALSE, USE.NAMES = TRUE)
-}
-
-gtable <- function(...) UseMethod("gtable", list(...)[[1]])
-
-gtable.default <- function(...) do.call(table, list(...))
-
-# assumes no other arguments
-gtable.distributed.vector <- function(...){
-	names <- sapply(list(...) function(x) x$name)
-	nodecounts <- lapply(y$host,
-	       function(host) eval(bquote(RS.eval(host,
-		  do.call(table, 
-			  c(lapply(.(names),
-				  function(name) do.call(get, name))))))))
-	lapply(transpose(nodecounts), 
-				function(feature) Reduce(`%addjoin%`, feature))
-}
-
 allcombn <- function(x) {
 	unlist(lapply(seq(x),
 		      function(y) unlist(apply(combn(x, y), 2, list),
@@ -56,7 +7,7 @@ allcombn <- function(x) {
 
 
 qgen <- function(X, acc = 5){
-	uniques <- apply(X, 2, unique)
+	uniques <- lapply(X, unique)
 	subsets <- lapply(uniques, function(unq) {
 		       if (length(unq) < acc) {
 			       allcombn(unq)

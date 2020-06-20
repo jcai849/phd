@@ -43,11 +43,11 @@ make_cluster <- function(hosts){
 
 peek <- function(loc) {
 	hosts <- names(loc)
-	sapply(hosts, function(hostname) {
-	       sapply(RS.eval(rsc[[hostname]], quote(ls())),
+	sapply(hosts, function(host) {
+	       sapply(RS.eval(rsc[[host]], quote(ls())),
 			function(uuid) {
-				eval(bquote(RS.eval(.(rsc[[hostname]]), 
-						    quote(get(.(uuid))))))
+				eval(bquote(RS.eval(.(rsc[[host]]), 
+						    head(get(.(uuid))))))
 			},
 			simplify = FALSE, USE.NAMES = TRUE)
 		 },
@@ -80,16 +80,16 @@ send <- function(obj, to, align_to=NULL){
 		names(splits) <- names(to)[allsplitrefs]
 		lapply(seq(length(splits)),
 		       function(i) RS.assign(to[[i]], id, splits[[i]]))
-		reflist <- alist(host = to[allsplitrefs], name = id,
+		reflist <- list(host = to[allsplitrefs], name = id,
 				 from = which(spliton), 
 				 to = c(which(spliton)[-1] - 1, objsize))
 	} else if (objsize == 1) {
-		lapply(align_to$host,
+		lapply(get_hosts(align_to),
 		       function(x) RS.assign(x, id, obj))
-		reflist <- alist(host = align_to$host,
+		reflist <- list(host = get_hosts(align_to),
 				 name = id,
-				 from = rep(1, length(align_to$host)),
-				 to = rep(1, length(align_to$host)))
+				 from = rep(1, length(get_hosts(align_to))),
+				 to = rep(1, length(get_hosts(align_to))))
 	} else {
 		stop("Recycling not yet implemented for length(obj) > 1")
 	}
@@ -105,12 +105,12 @@ receive <- function(obj, remote=FALSE) {
 }
 
 receive.distributed.object <- function(obj) {
-	conn <- obj$host
+	conn <- get_hosts(obj)
 	recv <- lapply(conn, function(hostname) {
 			       eval(bquote(RS.eval(hostname,
-						   get(.(obj$name)))))
+						   get(.(get_name(obj))))))
 			   })
-	unsplit(recv, rep(seq(length(recv)), 1 + obj$to - obj$from))
+	unsplit(recv, rep(seq(length(recv)), 1 + get_to(obj) - get_from(obj)))
 }
 
 align <- function(from, to){
@@ -119,24 +119,37 @@ align <- function(from, to){
 
 all.aligned <- function(x, y) {
 	length(x) == length(y) &
-		all.equal(x$host, y$host) &
-		all(x$from == y$from) &
-		all(x$to == y$to)
+		all.equal(get_hosts(x), get_hosts(y)) &
+		all(get_from(x) == get_from(y)) &
+		all(get_to(x) == get_to(y))
 }
 
 # Distributed classes
 
 distributed.class <- function(classname){
-	function(host, name, from, to) {
-	dist_ref <- list(host = host,
+	function(hosts, name, from, to) {
+	contents <- list(hosts = hosts,
 			 name = name,
 			 from = from,
 			 to = to)
-	class(dist_ref) <- c(classname, "distributed.object",
-			     class(dist_ref))
+	dist_ref <- new.env()
+	lapply(names(contents),
+	       function(name) assign(name,
+				     contents[[name]], 
+				     envir = dist_ref))
+	cleanup <- function(e) lapply(get_hosts(e), function(host) {
+			      eval(bquote(RS.eval(host, rm(.(get_name(e))))))})
+	reg.finalizer(dist_ref, cleanup, onexit = TRUE)
+	class(dist_ref) <- c(classname, "distributed.object", class(dist_ref))
 	dist_ref
 	}
 }
+
+get_ref_content <- function(content) function(ref) get(content, envir = ref)
+get_hosts <- get_ref_content("hosts")
+get_name <- get_ref_content("name")
+get_to <- get_ref_content("to")
+get_from <- get_ref_content("from")
 
 distributed.object <- distributed.class(NULL)
 
@@ -146,17 +159,19 @@ is.distributed.class <- function(classname) {
 
 dist_subset <- function(subset_type, id, x, i, j=NULL) {
 	subset_type <- substitute(subset_type)
-	lapply(x$host, function(host) {
+	lapply(get_hosts(x), function(host) {
 	      tosub <- bquote(RS.eval(host, 
 				      {assign(.(id), .(subset_type)); NULL}))
 	      eval(eval(substitute(substitute(tosub,
-			    list(xname = x$name,
-				 iname = if (is.vector(i)) NULL else i$name,
-				 jname = if (is.vector(j)) NULL else j$name,
+			    list(xname = get_name(x),
+				 iname = if (is.vector(i) |
+					     is.null(i)) NULL else get_name(i),
+				 jname = if (is.vector(j) |
+					     is.null(j)) NULL else get_name(j),
 				 i = i,
 				 j = j)),
 			 list(tosub = tosub))))})
-	all.locs <- sapply(x$host, function(host) {
+	all.locs <- sapply(get_hosts(x), function(host) {
 	       eval(bquote(RS.eval(host,
 			   do.call(if (is.data.frame(get(.(id))) |
 			       is.matrix(get(.(id)))) "nrow" else "length",
@@ -164,7 +179,7 @@ dist_subset <- function(subset_type, id, x, i, j=NULL) {
 	   })
 	nonemptylocs <- sapply(all.locs, function(v) v != 0)
 	locs <- all.locs[nonemptylocs]
-	list(host = x$host[nonemptylocs],
+	list(hosts = get_hosts(x)[nonemptylocs],
 	      name = id,
 	      from = cumsum(c(1,locs[-length(locs)])),
 	      to = cumsum(locs))
@@ -173,13 +188,13 @@ dist_subset <- function(subset_type, id, x, i, j=NULL) {
 num_subset <- function(subset_type, id, x, i, j=NULL){
 	subset_type <- substitute(subset_type)
 	hostnums <- sapply(i, 
-	   function(y) which.min({y - x$from}[(y - x$from) >= 0]))
+	   function(y) which.min({y - get_from(x)}[(y - get_from(x)) >= 0]))
 	vals_on_host <- table(hostnums)
-	hostsize <- x$to - x$from + 1
-	hosts <- x$host[as.numeric(names(vals_on_host))]
+	hostsize <- get_to(x) - get_from(x) + 1
+	hosts <- get_hosts(x)[as.numeric(names(vals_on_host))]
 	selectionlist <- as.list(vals_on_host)
 	if (length(vals_on_host) == 1) {
-	firstfrom <- 1 + i[1] - x$from[as.numeric(names(vals_on_host))]
+	firstfrom <- 1 + i[1] - get_from(x)[as.numeric(names(vals_on_host))]
 	first <- seq(firstfrom,
 		     firstfrom + length(i) - 1)
 	}
@@ -200,15 +215,17 @@ num_subset <- function(subset_type, id, x, i, j=NULL){
 	      tosub <- bquote(RS.eval(host, 
 			   assign(.(id), .(subset_type))))
 	      eval(eval(substitute(substitute(tosub,
-			    list(xname = x$name,
-				 iname = if (is.vector(i)) NULL else i$name,
-				 jname = if (is.vector(j)) NULL else j$name,
+			    list(xname = get_name(x),
+				 iname = if (is.vector(i) |
+					     is.null(j)) NULL else get_name(i),
+				 jname = if (is.vector(j) |
+					     is.null(j)) NULL else get_name(j),
 				 i = i,
 				 j = j,
 				 selection = selection)),
 			 list(tosub = tosub))))
 	   }, hosts, selectionlist)
-	list(host = hosts,
+	list(hosts = hosts,
 	     name = id,
 	     from = cumsum(c(1, 
 			     sapply(selectionlist, 
@@ -223,7 +240,7 @@ distributed.vector <- distributed.class("distributed.vector")
 
 is.distributed.vector <- is.distributed.class("distributed.vector")
 
-length.distributed.vector <- function(x) max(x$to)
+length.distributed.vector <- function(x) max(get_to(x))
 
 Ops.distributed.vector <- function(e1, e2) {
 	id <- UUIDgenerate()
@@ -231,19 +248,21 @@ Ops.distributed.vector <- function(e1, e2) {
 	e2.classes <- class(e2)
 	if (("distributed.vector" %in% e1.classes) &
 	    ("distributed.vector" %in% e2.classes)){
-		if (all.equal(e1$host, e2$host) &
-		    ((all(e1$to  == e2$to) &
-		      all(e1$from == e2$from)) |
+		if (all.equal(get_hosts(e1), get_hosts(e2)) &
+		    ((all(get_to(e1) == get_to(e2)) &
+		      all(get_from(e1) == get_from(e2))) |
 		     (length(e1) == 1 |
 		      length(e2) == 1))) {
-			lapply(e1$host, function(hostname) eval(bquote(
-				RS.eval(hostname,
+			lapply(get_hosts(e1), function(host) eval(bquote(
+				RS.eval(host,
 				quote({assign(.(id), 
 				  do.call(.(.Generic), 
-				list(get(.(e1$name)),
-				     get(.(e2$name))))); NULL})))))
-				    e1$name <- id
-				    return(e1)
+				list(get(.(get_name(e1))),
+				     get(.(get_name(e2)))))); NULL})))))
+			return(distributed.vector(hosts = get_hosts(e1),
+					   name = id,
+					   from = get_from(e1),
+					   to = get_to(e1)))
 		} else if (length(e1) == length(e2) |
 			   length(e1) > length(e2)) {
 			do.call(.Generic, list(e1, align(e2, e1)))
@@ -251,10 +270,10 @@ Ops.distributed.vector <- function(e1, e2) {
 			do.call(.Generic, list(align(e1, e2), e2))
 		}
 	} else if (!("distributed.vector" %in% e1.classes)) {
-		e1 <- send(e1, e2$host, align_to=e2)
+		e1 <- send(e1, get_hosts(e2), align_to=e2)
 		do.call(.Generic, list(e1, e2))
 	} else if (!("distributed.vector" %in% e2.classes)) {
-		e2 <- send(e2, e1$host, align_to=e1)
+		e2 <- send(e2, get_hosts(e1), align_to=e1)
 		do.call(.Generic, list(e1, e2))
 	}
 }
@@ -274,6 +293,78 @@ Ops.distributed.vector <- function(e1, e2) {
 	do.call(distributed.vector, dist_ref)
 }
 
+`%gin%` <- function(x, table) UseMethod("%gin%", x)
+
+`%gin%.default` <- function(x, table) x %in% table
+
+`%gin%.distributed.vector` <- function(x, table) {
+	id <- UUIDgenerate()
+	lapply(get_hosts(x),
+	       function(host) eval(bquote(RS.eval(host, 
+			  {assign(.(id), 
+				  get(.(get_name(x))) %in% .(table)); NULL}))))
+	dist_ref <- list(host = get_hosts(x),
+			 name = id, 
+			 from = get_from(x),
+			 to = get_to(x))
+	do.call(distributed.vector, dist_ref)
+}
+
+gtable <- function(...) UseMethod("gtable", list(...)[[1]])
+
+gtable.default <- function(...) do.call(table, list(...))
+
+# assumes no other arguments
+gtable.distributed.vector <- function(...){
+	`%addjoin%` <- function(x, y){
+		xyr <- rownames(x)[rownames(x) %in% rownames(y)]
+		xyc <- colnames(x)[colnames(x) %in% colnames(y)]
+		xruniq <- rownames(x)[!rownames(x) %in% rownames(y)]
+		xcuniq <- colnames(x)[!colnames(x) %in% colnames(y)]
+		yruniq <- rownames(y)[!rownames(y) %in% rownames(x)]
+		ycuniq <- colnames(y)[!colnames(y) %in% colnames(x)]
+		allr <- c(xyr, xruniq, yruniq)
+		allc <- c(xyc, xcuniq, ycuniq)
+
+		out <- matrix(nrow = length(allr),
+			      ncol = length(allc),
+			      dimnames = list(allr, allc))
+		out[xruniq, ycuniq] <- 0
+		out[yruniq, xcuniq] <- 0
+		out[xyr, xyc] <- x[xyr, xyc] + y[xyr, xyc]
+		out[xyr, xcuniq] <- x[xyr, xcuniq]
+		out[xruniq, xyc] <- x[xruniq, xyc]
+		out[xruniq, xcuniq] <- x[xruniq, xcuniq]
+		out[xyr, ycuniq] <- y[xyr, ycuniq]
+		out[yruniq, xyc] <- y[yruniq, xyc]
+		out[yruniq, ycuniq] <- y[yruniq, ycuniq]
+		out
+	}
+
+	transpose <- function(l){
+		top <- unique(unlist(lapply(l, names)))
+		sapply(top, 
+		       function(i) lapply(l, 
+					  function(j) j[[i]]),
+		       simplify = FALSE, USE.NAMES = TRUE)
+	}
+
+	names <- sapply(list(...) function(x) x$name)
+	nodecounts <- lapply(y$host,
+	     function(host) eval(bquote(RS.eval(host,
+		do.call(table, 
+			c(lapply(.(names),
+				 function(name) do.call(get, name))))))))
+	lapply(transpose(nodecounts), 
+			       function(feature) Reduce(`%addjoin%`, feature))
+}
+
+#returns non-distributed
+unique.distributed.vector <- function(x) {
+	unique(unlist(lapply(get_hosts(x),
+			     function(host) eval(bquote(RS.eval(host,
+				  unique(get(.(get_name(x))))))))))
+}
 # distributed.data.frame methods
 
 read.distributed.csv <- function(..., to){
@@ -290,7 +381,7 @@ read.distributed.csv <- function(..., to){
 			       is.matrix(get(.(id)))) "nrow" else "length",
 				   list(get(.(id)))))))
 	})
-	distributed.data.frame(host = to,
+	distributed.data.frame(hosts = to,
 	      name = id,
 	      from = cumsum(c(1,locs[-length(locs)])),
 	      to = cumsum(locs))
@@ -301,7 +392,7 @@ distributed.data.frame <- distributed.class("distributed.data.frame")
 is.distributed.data.frame <- is.distributed.class("distributed.data.frame")
 
 names.distributed.data.frame <- function(x) {
-	eval(bquote(RS.eval(x$host[[1]], names(get(.(x$name))))))
+	eval(bquote(RS.eval(get_hosts(x)[[1]], names(get(.(get_name(x)))))))
 }
 
 `[.distributed.data.frame` <- function(x, i=NULL, j=NULL){
@@ -342,10 +433,33 @@ names.distributed.data.frame <- function(x) {
 	} else stop(paste("Unrecognised class for i. Your class: ", 
 			  paste(class(i), collapse = ", ")))
 
-	if (eval(bquote(RS.eval(.(dist_ref$host[[1]]),
+	if (eval(bquote(RS.eval(.(dist_ref[["hosts"]][[1]]),
 				is.data.frame(get(.(id))))))) {
 		do.call(distributed.data.frame, dist_ref)
 	} else {
 		do.call(distributed.vector, dist_ref)
 	}
 }
+
+`[[.distributed.data.frame` <- function(x, i){
+	id <- UUIDgenerate()
+	lapply(get_hosts(x),
+	       function(host) eval(bquote(RS.eval(host, 
+			  {assign(.(id), get(.(get_name(x)))[[.(i)]]); NULL}))))
+	dist_ref <- list(hosts = get_hosts(x), 
+			 name = id, 
+			 from = get_from(x), 
+			 to = get_to(x))
+	do.call(distributed.vector, dist_ref)
+}
+
+dim.distributed.data.frame <- function(x) c(max(get_to(x)),
+				    eval(bquote(RS.eval(get_hosts(x)[[1]], 
+						ncol(get(.(get_name(x))))))))
+
+as.list.distributed.data.frame <- function(x, ...) sapply(names(x),
+					  function(colname) x[[colname]],
+					  simplify = FALSE, USE.NAMES = TRUE)
+
+`$.distributed.data.frame` <- function(x, name) x[[name]]
+
