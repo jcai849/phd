@@ -1,25 +1,27 @@
 allcombn <- function(x) {
-	unlist(lapply(seq(x),
+	combos <- unlist(lapply(seq(x),
 		      function(y) unlist(apply(combn(x, y), 2, list),
 					 recursive = FALSE)),
 	       recursive = FALSE)
+	combos[-length(combos)]
 }
 
 
 qgen <- function(X, acc = 5){
 	uniques <- lapply(X, unique)
-	subsets <- lapply(uniques, function(unq) {
-		       if (length(unq) < acc) {
+	subsets <- lapply(uniques[sapply(uniques, length) > 2],
+		  function(unq) {
+	       if (length(unq) < acc) {
 			       allcombn(unq)
 		       } else unq })
 	unlist(lapply(names(subsets), function(subsetcol) {
 		       lapply(subsets[[subsetcol]], function(element) {
-			      substitute(X[,colname] %in% element,
+			      substitute(X[,colname] %gin% element,
 					 list(colname = subsetcol,
 					      element = element))})}))
 }
 
-gensubset <- function(question, x, side = "L"){
+gensubset <- function(question, x, X, side = "L"){
 	if (is.distributed.data.frame(x) | 
 	    is.data.frame(x) | is.matrix(x)) {
 	switch(side,
@@ -37,12 +39,13 @@ gensubset <- function(question, x, side = "L"){
 
 impurity <- function(counts, measure="gini") {
 	switch(measure,
-	       gini = 1 - sum((counts / sum(counts))^2))
+	       gini = 1 - sum((counts / sum(counts))^2),
+	       stop("only gini implemented"))
 }
 
-GoQ <- function(y, question, impurity_measure="gini"){
-	L = gensubset(question, y, side = "L")
-	R = gensubset(question, y, side = "R")
+GoQ <- function(y, X, question, impurity_measure="gini"){
+	L = gensubset(question, y, X, side = "L")
+	R = gensubset(question, y, X, side = "R")
 	impurity(gtable(y), impurity_measure) - 
 		((length(L) / length(y)) * impurity(gtable(L),
 						    impurity_measure)) - 
@@ -58,16 +61,17 @@ dist_decision_tree <- function(X, y, max_depth = 4,
 		    max_depth <= 1 | length(y) < 2) return(counts / sum(counts))
 		questions <- qgen(X)
 		qgoodness <- sapply(questions, function(question)
-				    GoQ(y, question, impurity_measure))
+				    GoQ(y, X, question, impurity_measure))
 		bestq <- questions[[which.max(qgoodness)]]
+		if (is.null(bestq)) return(counts / sum(counts))
 		return(structure(list(bestq,
-			    Recall(gensubset(bestq, X, "L"),
-				   gensubset(bestq, y, "L"),
+			    Recall(gensubset(bestq, X, X, "L"),
+				   gensubset(bestq, y, X, "L"),
 				   max_depth = max_depth - 1,
 				   impurity_measure = impurity_measure,
 				   threshold = threshold),
-			    Recall(gensubset(bestq, X, "R"),
-				   gensubset(bestq, y, "R"),
+			    Recall(gensubset(bestq, X, X, "R"),
+				   gensubset(bestq, y, X, "R"),
 				   max_depth = max_depth - 1,
 				   impurity_measure = impurity_measure,
 				   threshold = threshold)),
