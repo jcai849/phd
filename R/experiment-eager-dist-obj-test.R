@@ -6,7 +6,7 @@ peek(rsc)
 
 # Distributed Vector Coercion
 
-v1 <- as.distributedr(1:150, rsc)
+v1 <- as.distributed(1:150, rsc)
 v2 <- as.distributed(151:300, rsc)
 v3 <- as.distributed(1:150 %% 2 == 0, rsc)
 v4 <- send(1, rsc, align_to=v1)
@@ -35,33 +35,30 @@ i3
 receive(i3)
 receive(i2)
 
-peek(i1$host)
-
 # Distributed Data Frame Coercion
-## TODO: creation of reader directly from remotes
 
 d1 <- as.distributed(iris, rsc)
 
 # Distributed Data Frame Indexing
 
-d1[,]
-d1[,3]
-d1[,3:5]
-d1[,"Sepal.Length"]
+receive(d1[,])
+receive(d1[,3])
+receive(d1[,3:5])
+receive(d1[,"Sepal.Length"])
 #d1[,as.distributed.vector("Sepal.Length", rsc)]
 #d1[,as.distributed.vector(c(T,F,T,F,F), rsc)]
 
-d1[3, ]
-d1[3, 3]
-d1[3, 3:5]
-d1[3, "Sepal.Length"]
+receive(d1[3, ])
+receive(d1[3, 3])
+receive(d1[3, 3:5])
+receive(d1[3, "Sepal.Length"])
 #d1[3, as.distributed.vector("Sepal.Length", rsc)]
 #d1[3, as.distributed.vector(c(T,F,T,F,F), rsc)]
 
-d1[3:80, ]
-d1[3:80, 3]
-d1[3:80, 3:5]
-d1[3:80, "Sepal.Length"]
+receive(d1[3:80, ])
+receive(d1[3:80, 3])
+receive(d1[3:80, 3:5])
+receive(d1[3:80, "Sepal.Length"])
 #d1[3:80, as.distributed.vector("Sepal.Length", rsc)]
 #d1[3:80, as.distributed.vector(c(T,F,T,F,F), rsc)]
 
@@ -72,10 +69,10 @@ d1[3:80, "Sepal.Length"]
 #d1[v1, as.distributed.vector("Sepal.Length", rsc)]
 #d1[v1, as.distributed.vector(c(T,F,T,F,F), rsc)]
 
-d1[v3, ]
-d1[v3, 3]
-d1[v3, 3:5]
-d1[v3, "Sepal.Length"]
+receive(d1[v3, ])
+receive(d1[v3, 3])
+receive(d1[v3, 3:5])
+receive(d1[v3, "Sepal.Length"])
 #d1[v3, as.distributed.vector("Sepal.Length", rsc)]
 #d1[v3, as.distributed.vector(c(T,F,T,F,F), rsc)]
 
@@ -85,6 +82,27 @@ d1[v3, "Sepal.Length"]
 ## d1[1:150 %% 2 == 0, "Sepal.Length"]
 ## d1[1:150 %% 2 == 0, as.distributed.vector("Sepal.Length", rsc)]
 ## d1[1:150 %% 2 == 0, as.distributed.vector(c(T,F,T,F,F), rsc)]
+
+receive(d1$Sepal.Length)
+receive(d1[["Sepal.Length"]])
+receive(d1[[1]])
+
+# dataframe utilities
+
+dim(d1)
+nrow(d1)
+ncol(d1)
+
+# list functions with dataframes
+
+as.list(d1)
+lapply(d1, receive)
+
+# vector utilities
+
+unique(d1$Species)
+gtable(d1$Species)
+receive(d1$Species %gin% c("virginica", "setosa"))
 
 # Close
 
