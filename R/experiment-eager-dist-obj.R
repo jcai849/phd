@@ -119,7 +119,7 @@ align <- function(from, to){
 
 all.aligned <- function(x, y) {
 	length(x) == length(y) &
-		all.equal(get_hosts(x), get_hosts(y)) &
+		identical(get_hosts(x), get_hosts(y)) &
 		all(get_from(x) == get_from(y)) &
 		all(get_to(x) == get_to(y))
 }
@@ -139,7 +139,7 @@ distributed.class <- function(classname){
 				     envir = dist_ref))
 	cleanup <- function(e) lapply(get_hosts(e), function(host) {
 			      eval(bquote(RS.eval(host, rm(.(get_name(e))))))})
-	reg.finalizer(dist_ref, cleanup, onexit = TRUE)
+	reg.finalizer(dist_ref, cleanup)
 	class(dist_ref) <- c(classname, "distributed.object", class(dist_ref))
 	dist_ref
 	}
@@ -242,13 +242,24 @@ is.distributed.vector <- is.distributed.class("distributed.vector")
 
 length.distributed.vector <- function(x) max(get_to(x))
 
-Ops.distributed.vector <- function(e1, e2) {
+Ops.distributed.vector <- function(e1, e2=NULL) {
 	id <- UUIDgenerate()
 	e1.classes <- class(e1)
+	if (is.null(e2)) {
+			lapply(get_hosts(e1), function(host) eval(bquote(
+				RS.eval(host,
+				quote({assign(.(id), 
+				  do.call(.(.Generic), 
+				list(get(.(get_name(e1)))))); NULL})))))
+			return(distributed.vector(hosts = get_hosts(e1),
+					   name = id,
+					   from = get_from(e1),
+					   to = get_to(e1)))
+	}
 	e2.classes <- class(e2)
 	if (("distributed.vector" %in% e1.classes) &
 	    ("distributed.vector" %in% e2.classes)){
-		if (all.equal(get_hosts(e1), get_hosts(e2)) &
+		if (identical(get_hosts(e1), get_hosts(e2)) &
 		    ((all(get_to(e1) == get_to(e2)) &
 		      all(get_from(e1) == get_from(e2))) |
 		     (length(e1) == 1 |
@@ -310,53 +321,62 @@ Ops.distributed.vector <- function(e1, e2) {
 	do.call(distributed.vector, dist_ref)
 }
 
+`%addjoin%` <- function(x, y){
+	switch(length(dim(x)), 
+	       "1" = {
+	if (identical(rownames(x), rownames(y))) return(x + y)
+	xyr <- rownames(x)[rownames(x) %in% rownames(y)]
+	xruniq <- rownames(x)[!rownames(x) %in% rownames(y)]
+	yruniq <- rownames(y)[!rownames(y) %in% rownames(x)]
+	allr <- c(xyr, xruniq, yruniq)
+	out <- structure(integer(length(allr)), names = allr)
+	out[xyr] <- x[xyr] + y[xyr]
+	out[xruniq] <- x[xruniq]
+	out[yruniq] <- y[yruniq]
+	as.table(out)
+	       }, 
+	       "2" = {
+	if (identical(rownames(x), rownames(y)) &
+	    identical(colnames(x), colnames(y))) return(x + y)
+	xyr <- rownames(x)[rownames(x) %in% rownames(y)]
+	xyc <- colnames(x)[colnames(x) %in% colnames(y)]
+	xruniq <- rownames(x)[!rownames(x) %in% rownames(y)]
+	xcuniq <- colnames(x)[!colnames(x) %in% colnames(y)]
+	yruniq <- rownames(y)[!rownames(y) %in% rownames(x)]
+	ycuniq <- colnames(y)[!colnames(y) %in% colnames(x)]
+	allr <- c(xyr, xruniq, yruniq)
+	allc <- c(xyc, xcuniq, ycuniq)
+
+	out <- matrix(nrow = length(allr),
+		      ncol = length(allc),
+		      dimnames = list(allr, allc))
+	out[xruniq, ycuniq] <- 0
+	out[yruniq, xcuniq] <- 0
+	out[xyr, xyc] <- x[xyr, xyc] + y[xyr, xyc]
+	out[xyr, xcuniq] <- x[xyr, xcuniq]
+	out[xruniq, xyc] <- x[xruniq, xyc]
+	out[xruniq, xcuniq] <- x[xruniq, xcuniq]
+	out[xyr, ycuniq] <- y[xyr, ycuniq]
+	out[yruniq, xyc] <- y[yruniq, xyc]
+	out[yruniq, ycuniq] <- y[yruniq, ycuniq]
+	as.table(out)
+	       },
+	       stop("too many dimensions"))
+}
+
 gtable <- function(...) UseMethod("gtable", list(...)[[1]])
 
 gtable.default <- function(...) do.call(table, list(...))
 
 # assumes no other arguments
 gtable.distributed.vector <- function(...){
-	`%addjoin%` <- function(x, y){
-		xyr <- rownames(x)[rownames(x) %in% rownames(y)]
-		xyc <- colnames(x)[colnames(x) %in% colnames(y)]
-		xruniq <- rownames(x)[!rownames(x) %in% rownames(y)]
-		xcuniq <- colnames(x)[!colnames(x) %in% colnames(y)]
-		yruniq <- rownames(y)[!rownames(y) %in% rownames(x)]
-		ycuniq <- colnames(y)[!colnames(y) %in% colnames(x)]
-		allr <- c(xyr, xruniq, yruniq)
-		allc <- c(xyc, xcuniq, ycuniq)
-
-		out <- matrix(nrow = length(allr),
-			      ncol = length(allc),
-			      dimnames = list(allr, allc))
-		out[xruniq, ycuniq] <- 0
-		out[yruniq, xcuniq] <- 0
-		out[xyr, xyc] <- x[xyr, xyc] + y[xyr, xyc]
-		out[xyr, xcuniq] <- x[xyr, xcuniq]
-		out[xruniq, xyc] <- x[xruniq, xyc]
-		out[xruniq, xcuniq] <- x[xruniq, xcuniq]
-		out[xyr, ycuniq] <- y[xyr, ycuniq]
-		out[yruniq, xyc] <- y[yruniq, xyc]
-		out[yruniq, ycuniq] <- y[yruniq, ycuniq]
-		out
-	}
-
-	transpose <- function(l){
-		top <- unique(unlist(lapply(l, names)))
-		sapply(top, 
-		       function(i) lapply(l, 
-					  function(j) j[[i]]),
-		       simplify = FALSE, USE.NAMES = TRUE)
-	}
-
-	names <- sapply(list(...) function(x) x$name)
-	nodecounts <- lapply(y$host,
+	refids <- sapply(list(...), function(x) get_name(x))
+	nodecounts <- lapply(get_hosts(list(...)[[1]]),
 	     function(host) eval(bquote(RS.eval(host,
 		do.call(table, 
-			c(lapply(.(names),
-				 function(name) do.call(get, name))))))))
-	lapply(transpose(nodecounts), 
-			       function(feature) Reduce(`%addjoin%`, feature))
+			lapply(.(refids),
+				 function(refid) get(refid)))))))
+	Reduce(`%addjoin%`, nodecounts)
 }
 
 #returns non-distributed
@@ -411,13 +431,13 @@ names.distributed.data.frame <- function(x) {
 	} else if (is.numeric(i)) {
 		if (is.distributed.vector(j)) {
 	        dist_ref <- num_subset(get(xname)[selection,get(jname)],
-				       id = id, x = x, i = i)
+				       id = id, x = x, i = i, j = j)
 		} else if (is.null(j)) {
 	        dist_ref <- num_subset(get(xname)[selection,],
-				       id = id, x = x, i = i)
+				       id = id, x = x, i = i, j = j)
 		} else {
 		dist_ref <- num_subset(get(xname)[selection,j],
-				       id = id, x = x, i = i)
+				       id = id, x = x, i = i, j = j)
 		}
 	} else if (is.null(i)) {
 		if (is.distributed.vector(j)) {
