@@ -250,7 +250,9 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 				RS.eval(host,
 				quote({assign(.(id), 
 				  do.call(.(.Generic), 
-				list(get(.(get_name(e1)))))); NULL})))))
+				list(get(.(get_name(e1)))))); NULL})),
+				wait = FALSE)))
+			lapply(get_hosts(e1), RS.collect)
 			return(distributed.vector(hosts = get_hosts(e1),
 					   name = id,
 					   from = get_from(e1),
@@ -269,7 +271,9 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 				quote({assign(.(id), 
 				  do.call(.(.Generic), 
 				list(get(.(get_name(e1))),
-				     get(.(get_name(e2)))))); NULL})))))
+				     get(.(get_name(e2)))))); NULL}),
+					wait = FALSE))))
+			lapply(get_hosts(e1), RS.collect)
 			return(distributed.vector(hosts = get_hosts(e1),
 					   name = id,
 					   from = get_from(e1),
@@ -313,7 +317,9 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	lapply(get_hosts(x),
 	       function(host) eval(bquote(RS.eval(host, 
 			  {assign(.(id), 
-				  get(.(get_name(x))) %in% .(table)); NULL}))))
+				  get(.(get_name(x))) %in% .(table)); NULL},
+						  wait = FALSE))))
+	lapply(get_hosts(x), RS.collect)
 	dist_ref <- list(host = get_hosts(x),
 			 name = id, 
 			 from = get_from(x),
@@ -393,13 +399,13 @@ read.distributed.csv <- function(..., to){
 	       eval(bquote(
 		   RS.eval(host, {assign(.(id),
 		       do.call(read.csv,
-			       .(list(...)))); NULL})))
+			       .(list(...)))); NULL},
+			   wait = FALSE)))
 	})
+	lapply(to, RS.collect)
 	locs <- sapply(to, function(host) {
 	       eval(bquote(RS.eval(host,
-			   do.call(if (is.data.frame(get(.(id))) |
-			       is.matrix(get(.(id)))) "nrow" else "length",
-				   list(get(.(id)))))))
+				   nrow(get(.(id))))))
 	})
 	distributed.data.frame(hosts = to,
 	      name = id,
@@ -412,7 +418,8 @@ distributed.data.frame <- distributed.class("distributed.data.frame")
 is.distributed.data.frame <- is.distributed.class("distributed.data.frame")
 
 names.distributed.data.frame <- function(x) {
-	eval(bquote(RS.eval(get_hosts(x)[[1]], names(get(.(get_name(x)))))))
+	eval(bquote(RS.eval(get_hosts(x)[[1]], 
+			    names(get(.(get_name(x)))))))
 }
 
 `[.distributed.data.frame` <- function(x, i=NULL, j=NULL){
@@ -465,7 +472,9 @@ names.distributed.data.frame <- function(x) {
 	id <- UUIDgenerate()
 	lapply(get_hosts(x),
 	       function(host) eval(bquote(RS.eval(host, 
-			  {assign(.(id), get(.(get_name(x)))[[.(i)]]); NULL}))))
+			  {assign(.(id), get(.(get_name(x)))[[.(i)]]); NULL}),
+					  wait = FALSE)))
+	lapply(get_hosts(x), RS.collect)
 	dist_ref <- list(hosts = get_hosts(x), 
 			 name = id, 
 			 from = get_from(x), 
