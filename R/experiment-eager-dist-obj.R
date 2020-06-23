@@ -472,8 +472,8 @@ names.distributed.data.frame <- function(x) {
 	id <- UUIDgenerate()
 	lapply(get_hosts(x),
 	       function(host) eval(bquote(RS.eval(host, 
-			  {assign(.(id), get(.(get_name(x)))[[.(i)]]); NULL}),
-					  wait = FALSE)))
+			  {assign(.(id), get(.(get_name(x)))[[.(i)]]); NULL},
+					  wait = FALSE))))
 	lapply(get_hosts(x), RS.collect)
 	dist_ref <- list(hosts = get_hosts(x), 
 			 name = id, 
