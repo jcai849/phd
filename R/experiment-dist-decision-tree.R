@@ -16,7 +16,7 @@ qgen <- function(X, acc = 5){
 		       } else unq })
 	unlist(lapply(names(subsets), function(subsetcol) {
 		       lapply(subsets[[subsetcol]], function(element) {
-			      substitute(X[,colname] %gin% element,
+			      substitute(X[,colname] %in% element,
 					 list(colname = subsetcol,
 					      element = element))})}))
 }
@@ -46,16 +46,16 @@ impurity <- function(counts, measure="gini") {
 GoQ <- function(y, X, question, impurity_measure="gini"){
 	L = gensubset(question, y, X, side = "L")
 	R = gensubset(question, y, X, side = "R")
-	impurity(gtable(y), impurity_measure) - 
-		((length(L) / length(y)) * impurity(gtable(L),
+	impurity(table(y), impurity_measure) - 
+		((length(L) / length(y)) * impurity(table(L),
 						    impurity_measure)) - 
-		((length(R) / length(y)) * impurity(gtable(R),
+		((length(R) / length(y)) * impurity(table(R),
 						    impurity_measure))
 }
 
 dist_decision_tree <- function(X, y, max_depth = 4, 
 			       impurity_measure = "gini", threshold = 0.1){
-		counts <- gtable(y)
+		counts <- table(y)
 		if (impurity(counts, 
 			     measure = impurity_measure) < threshold |
 		    max_depth <= 1 | length(y) < 2) return(counts / sum(counts))
