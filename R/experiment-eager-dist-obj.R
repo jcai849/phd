@@ -325,7 +325,7 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	}
 }
 
-`[.distributed.vector` <- function(x, i){
+`[.distributed.vector` <- function(x, i=NULL){
 	id <- UUIDgenerate()
 	if (is.distributed.vector(i)){
 		if (!all.aligned(x, i)) {
@@ -335,16 +335,21 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	} else if (is.numeric(i)) {#assuming ordered & continuous numeric
 	    dist_ref <- num_subset(get(xname)[selection],
 				    id = id, x = x, i = i)
+	} else if (is.null(i)) { 
+		cat("receiving distributed vector...\n")
+		return(receive(x))
 	} else stop(paste("Unrecognised class for i. Your class: ", 
 			  paste(class(i), collapse = ", ")))
 	do.call(distributed.vector, dist_ref)
 }
 
-`%gin%` <- function(x, table) UseMethod("%gin%", x)
+`%gin%` <- %in%
 
-`%gin%.default` <- function(x, table) x %in% table
+`%in%` <- function(x, table) UseMethod("%in%", x)
 
-`%gin%.distributed.vector` <- function(x, table) {
+`%in%.default` <- function(x, table) x %gin% table
+
+`%in%.distributed.vector` <- function(x, table) {
 	id <- UUIDgenerate()
 	lapply(get_hosts(x),
 	       function(host) eval(bquote(RS.eval(host, 
@@ -402,12 +407,14 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	       stop("too many dimensions"))
 }
 
-gtable <- function(...) UseMethod("gtable", list(...)[[1]])
+gtable <- table
 
-gtable.default <- function(...) do.call(table, list(...))
+table <- function(...) UseMethod("table", list(...)[[1]])
+
+table.default <- function(...) do.call(gtable, list(...))
 
 # assumes no other arguments
-gtable.distributed.vector <- function(...){
+table.distributed.vector <- function(...){
 	refids <- sapply(list(...), function(x) get_name(x))
 	nodecounts <- lapply(get_hosts(list(...)[[1]]),
 	     function(host) eval(bquote(RS.eval(host,
@@ -493,8 +500,8 @@ tail.distributed.data.frame <- function(x, n = 6L, ...)
 		dist_ref <- dist_subset(get(xname)[, get(jname)],
 					id = id, x = x, i = i, j = j)
 		} else if (is.null(j)) {
-		dist_ref <- dist_subset(get(xname)[,],
-					id = id, x = x, i = i, j = j)
+			cat("receiving distributed data frame...\n")
+			return(receive(x))
 		} else {
 		dist_ref <- dist_subset(get(xname)[,j],
 					id = id, x = x, i = i, j = j)
