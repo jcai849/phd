@@ -1,3 +1,18 @@
+2020-06-24::
+	10:42:25:::  put git on cluster
+	13:23:10:::  `print` methods
+	14:30:31:::  && in Ops, as well as `else`
+	14:59:31:::  fix receive removing attributes
+	15:10:18:::  `[]` as `receive`
+	15:10:41:::  fake generics for %in% and table
+	16:32:49:::  Alignment and simplification in `send` and subsetting by
+	             logicals
+	16:49:14:::  Logical indexing tests
+2020-06-23::
+	11:16:19::: semi-parallelisation of read.dist.csv, Ops, etc.
+	12:24:59::: get flights data working
+2020-06-21::
+	17:57:36::: Rough dist. decision tree now working
 2020-06-20::
 	16:11:48::: Draft implementation of all dist.object methods necessary
 		    in dist. decision tree, including `unique`, `%gin%`, `dim`,

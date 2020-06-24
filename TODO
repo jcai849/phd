@@ -1,18 +1,8 @@
-. Get decision tree working with distributed data frames (use dist.mtcars)
-.. Write and run tests on all new methods
-.. Make decision tree work
-. Redo flights distribution 
-.. send to nodes
-.. csv reader (semi-parallelise)
-.. save colClasses etc.
 . Write on considerations of dist. object structure, such as value of
   encapsulating row number etc. on the remote side - include examples
 . Start on mid-level MapReduce-style api for the distributed objects
+. Regression in CART
 . Attempt to apply GLM as per Simon's email to the distributed object
-. Implement the distributed object approach
-.. Implement p2p communication (overload `receive`)
-.. Implement `align` for dist obj
-.. Implement `summary` and its prerequisites with current interface
 . Interface: experiment with lazy distributed objects
 . Implementation: experiment with metadata being encapsulated in slave processes
 . Notes on Hadoop Monitoring links (which port for what, etc.)
