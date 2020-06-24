@@ -234,6 +234,28 @@ num_subset <- function(subset_type, id, x, i, j=NULL){
 				length)))
 }
 
+dist_print <- function(type, components, measurename, measure) {
+	function(x, elements = 6L, ...) {
+	cat(sprintf(paste0("A ", type, " of ", measurename, " %s\n"),
+		    paste(measure(x), collapse = " x ")))
+	cat(sprintf(paste0("First %d ", components, ":\n\n"), 
+		    min(elements, measure(x)[1])))
+	print(receive(head(x, elements)))
+	cat("\n")
+	hostnames <- as.list(names(get_hosts(x)))
+	fmt <- paste0("Distributed over ",
+		      switch(as.character(length(hostnames)),
+			     "1" = "node %s",
+			     "2" = "nodes %s and %s",
+			     "3" = "nodes %s, %s, and %s",
+			     "node %s and %d others"),
+		      "\n")
+	addl <- if (length(hostnames) > 3) 
+		c(hostnames[1], length(hostnames) - 1) else hostnames
+	cat(do.call(sprintf, c(list(fmt = fmt), as.list(addl))))
+	}
+}
+
 # Distributed vector methods
 
 distributed.vector <- distributed.class("distributed.vector")
@@ -241,6 +263,14 @@ distributed.vector <- distributed.class("distributed.vector")
 is.distributed.vector <- is.distributed.class("distributed.vector")
 
 length.distributed.vector <- function(x) max(get_to(x))
+
+head.distributed.vector <- function(x, n = 6L, ...) x[seq(min(n, length(x)))]
+
+tail.distributed.vector <- function(x, n = 6L, ...) 
+	x[{length(x)-min(n, length(x) - 1)}:length(x)]
+
+print.distributed.vector <- dist_print("Distributed Vector", 
+				       "elements", "Length", length)
 
 Ops.distributed.vector <- function(e1, e2=NULL) {
 	id <- UUIDgenerate()
@@ -422,6 +452,14 @@ names.distributed.data.frame <- function(x) {
 			    names(get(.(get_name(x)))))))
 }
 
+print.distributed.data.frame <- dist_print("Distributed Data Frame",
+					   "rows", "Dimension", dim)
+
+head.distributed.data.frame <- function(x, n = 6L, ...) x[seq(min(n, nrow(x))),]
+
+tail.distributed.data.frame <- function(x, n = 6L, ...) 
+	x[{nrow(x)-min(n, nrow(x) - 1)}:nrow(x),]
+
 `[.distributed.data.frame` <- function(x, i=NULL, j=NULL){
 	id <- UUIDgenerate()
 	if (is.distributed.vector(i)) {
@@ -492,3 +530,10 @@ as.list.distributed.data.frame <- function(x, ...) sapply(names(x),
 
 `$.distributed.data.frame` <- function(x, name) x[[name]]
 
+
+# something to use
+
+hosts <- paste0("hadoop", 1:8)
+rsc <- make_cluster(hosts)
+x = as.distributed(1:150 %% 2 == 0, rsc)
+y = as.distributed(iris, rsc)
