@@ -104,13 +104,13 @@ receive <- function(obj, remote=FALSE) {
 	UseMethod("receive", obj)
 }
 
-receive.distributed.object <- function(obj) {
-	conn <- get_hosts(obj)
+dist_receive <- function(joinf)
+	function(obj) {
+	conn <- structure(get_hosts(obj), names = NULL)
 	recv <- lapply(conn, function(hostname) {
 			       eval(bquote(RS.eval(hostname,
-						   get(.(get_name(obj))))))
-			   })
-	unsplit(recv, rep(seq(length(recv)), 1 + get_to(obj) - get_from(obj)))
+						   get(.(get_name(obj))))))})
+	do.call(joinf, recv)
 }
 
 align <- function(from, to){
@@ -271,6 +271,7 @@ tail.distributed.vector <- function(x, n = 6L, ...)
 
 print.distributed.vector <- dist_print("Distributed Vector", 
 				       "elements", "Length", length)
+receive.distributed.vector <- dist_receive(c)
 
 Ops.distributed.vector <- function(e1, e2=NULL) {
 	id <- UUIDgenerate()
@@ -455,6 +456,8 @@ names.distributed.data.frame <- function(x) {
 
 print.distributed.data.frame <- dist_print("Distributed Data Frame",
 					   "rows", "Dimension", dim)
+
+receive.distributed.data.frame <- dist_receive(rbind)
 
 head.distributed.data.frame <- function(x, n = 6L, ...) x[seq(min(n, nrow(x))),]
 
