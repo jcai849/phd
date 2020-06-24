@@ -57,42 +57,52 @@ peek <- function(loc) {
 
 # Communication
 
-send <- function(obj, to, align_to=NULL){
+send <- function(obj, to=NULL, align_to=NULL){
+	if (is.null(to) && is.null(align_to)) 
+		stop("one of `to` or `align_to` required")
 	id <- UUIDgenerate()
 	clustsize <- length(to)
-	objsize <- if (is.data.frame(obj) ||
-		       is.matrix(obj)) nrow(obj) else length(obj)
-	objelems <- seq(objsize)
+	objtype <- if (is.data.frame(obj) ||
+		       is.matrix(obj)) "non-atomic" else "atomic"
+	objsize <- switch(objtype,
+			  "atomic" = length,
+			  "non-atomic" = nrow)(obj)
 	if (is.null(align_to)) {
 		spliton <- if (clustsize < objsize) {
 			bucketsto <- cumsum(rep(objsize / 
 						clustsize, clustsize))
 			bucketsfrom <- c(0, bucketsto[-clustsize])
-			facsplit = sapply(objelems,
+			facsplit = sapply(seq(objsize),
 					  function(i) which(i > bucketsfrom &
 							    i <= bucketsto))
 			c(TRUE, !{c(NA, facsplit[-objsize]) -
 			  facsplit == 0}[-1])
-		} else rep(TRUE, objsize)
-		splits <- split(obj,
-				cumsum(spliton))
-		allsplitrefs <- seq(length(splits))
-		names(splits) <- names(to)[allsplitrefs]
-		lapply(seq(length(splits)),
-		       function(i) RS.assign(to[[i]], id, splits[[i]]))
-		reflist <- list(host = to[allsplitrefs], name = id,
+			} else rep(TRUE, objsize)
+		reflist <- list(hosts = to[seq(sum(spliton))], name = id,
 				 from = which(spliton), 
 				 to = c(which(spliton)[-1] - 1, objsize))
+	} else if (objsize == max(get_to(align_to))) {
+		reflist <- list(hosts = get_hosts(align_to),
+				name = id,
+				from = get_from(align_to),
+				to = get_to(align_to))
 	} else if (objsize == 1) {
-		lapply(get_hosts(align_to),
-		       function(x) RS.assign(x, id, obj))
-		reflist <- list(host = get_hosts(align_to),
+		reflist <- list(hosts = get_hosts(align_to),
 				 name = id,
 				 from = rep(1, length(get_hosts(align_to))),
 				 to = rep(1, length(get_hosts(align_to))))
 	} else {
 		stop("Recycling not yet implemented for length(obj) > 1")
 	}
+	lapply(seq(length(reflist$hosts)),
+	       function(i) {
+		       tosend <- switch(objtype,
+					"atomic" = obj[seq(reflist$from[i],
+							   reflist$to[i])],
+					"non-atomic" = obj[seq(reflist$from[i], 
+							       reflist$to[i]),])
+		       RS.assign(reflist$hosts[[i]], reflist$name, tosend)
+	       })
 	if (is.vector(obj)) return(do.call(distributed.vector, reflist))
 	if (is.data.frame(obj)) return(do.call(distributed.data.frame, reflist))
 	do.call(distributed.object, reflist)
@@ -238,8 +248,7 @@ dist_print <- function(type, components, measurename, measure) {
 	function(x, elements = 6L, ...) {
 	cat(sprintf(paste0("A ", type, " of ", measurename, " %s\n"),
 		    paste(measure(x), collapse = " x ")))
-	cat(sprintf(paste0("First %d ", components, ":\n\n"), 
-		    min(elements, measure(x)[1])))
+	cat(paste0("Header ", components, ":\n\n"))
 	print(receive(head(x, elements)))
 	cat("\n")
 	hostnames <- as.list(names(get_hosts(x)))
@@ -335,6 +344,8 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	} else if (is.numeric(i)) {#assuming ordered & continuous numeric
 	    dist_ref <- num_subset(get(xname)[selection],
 				    id = id, x = x, i = i)
+	} else if (is.logical(i)) {
+		return(x[as.distributed(i, align_to=x)])
 	} else if (is.null(i)) { 
 		cat("receiving distributed vector...\n")
 		return(receive(x))
@@ -343,7 +354,7 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	do.call(distributed.vector, dist_ref)
 }
 
-`%gin%` <- %in%
+`%gin%` <- `%in%`
 
 `%in%` <- function(x, table) UseMethod("%in%", x)
 
@@ -473,6 +484,7 @@ tail.distributed.data.frame <- function(x, n = 6L, ...)
 
 `[.distributed.data.frame` <- function(x, i=NULL, j=NULL){
 	id <- UUIDgenerate()
+	if (is.logical(i)) return(x[as.distributed(i, align_to = x), j])
 	if (is.distributed.vector(i)) {
 		if (is.distributed.vector(j)) {
 		dist_ref <- dist_subset(get(xname)[get(iname), get(jname)],
