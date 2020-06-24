@@ -60,7 +60,7 @@ peek <- function(loc) {
 send <- function(obj, to, align_to=NULL){
 	id <- UUIDgenerate()
 	clustsize <- length(to)
-	objsize <- if (is.data.frame(obj) |
+	objsize <- if (is.data.frame(obj) ||
 		       is.matrix(obj)) nrow(obj) else length(obj)
 	objelems <- seq(objsize)
 	if (is.null(align_to)) {
@@ -118,9 +118,9 @@ align <- function(from, to){
 }
 
 all.aligned <- function(x, y) {
-	length(x) == length(y) &
-		identical(get_hosts(x), get_hosts(y)) &
-		all(get_from(x) == get_from(y)) &
+	length(x) == length(y) &&
+		identical(get_hosts(x), get_hosts(y)) &&
+		all(get_from(x) == get_from(y)) &&
 		all(get_to(x) == get_to(y))
 }
 
@@ -164,16 +164,16 @@ dist_subset <- function(subset_type, id, x, i, j=NULL) {
 				      {assign(.(id), .(subset_type)); NULL}))
 	      eval(eval(substitute(substitute(tosub,
 			    list(xname = get_name(x),
-				 iname = if (is.vector(i) |
+				 iname = if (is.vector(i) ||
 					     is.null(i)) NULL else get_name(i),
-				 jname = if (is.vector(j) |
+				 jname = if (is.vector(j) ||
 					     is.null(j)) NULL else get_name(j),
 				 i = i,
 				 j = j)),
 			 list(tosub = tosub))))})
 	all.locs <- sapply(get_hosts(x), function(host) {
 	       eval(bquote(RS.eval(host,
-			   do.call(if (is.data.frame(get(.(id))) |
+			   do.call(if (is.data.frame(get(.(id))) ||
 			       is.matrix(get(.(id)))) "nrow" else "length",
 				   list(get(.(id)))))))
 	   })
@@ -216,9 +216,9 @@ num_subset <- function(subset_type, id, x, i, j=NULL){
 			   assign(.(id), .(subset_type))))
 	      eval(eval(substitute(substitute(tosub,
 			    list(xname = get_name(x),
-				 iname = if (is.vector(i) |
+				 iname = if (is.vector(i) ||
 					     is.null(j)) NULL else get_name(i),
-				 jname = if (is.vector(j) |
+				 jname = if (is.vector(j) ||
 					     is.null(j)) NULL else get_name(j),
 				 i = i,
 				 j = j,
@@ -274,7 +274,6 @@ print.distributed.vector <- dist_print("Distributed Vector",
 
 Ops.distributed.vector <- function(e1, e2=NULL) {
 	id <- UUIDgenerate()
-	e1.classes <- class(e1)
 	if (is.null(e2)) {
 			lapply(get_hosts(e1), function(host) eval(bquote(
 				RS.eval(host,
@@ -288,13 +287,12 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 					   from = get_from(e1),
 					   to = get_to(e1)))
 	}
-	e2.classes <- class(e2)
-	if (("distributed.vector" %in% e1.classes) &
-	    ("distributed.vector" %in% e2.classes)){
-		if (identical(get_hosts(e1), get_hosts(e2)) &
-		    ((all(get_to(e1) == get_to(e2)) &
-		      all(get_from(e1) == get_from(e2))) |
-		     (length(e1) == 1 |
+	if (is.distributed.vector(e1) && 
+	    is.distributed.vector(e2)){
+		if (identical(get_hosts(e1), get_hosts(e2)) &&
+		    ((all(get_to(e1) == get_to(e2)) &&
+		      all(get_from(e1) == get_from(e2))) ||
+		     (length(e1) == 1 ||
 		      length(e2) == 1))) {
 			lapply(get_hosts(e1), function(host) eval(bquote(
 				RS.eval(host,
@@ -306,18 +304,21 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 			lapply(get_hosts(e1), RS.collect)
 			return(distributed.vector(hosts = get_hosts(e1),
 					   name = id,
-					   from = get_from(e1),
-					   to = get_to(e1)))
-		} else if (length(e1) == length(e2) |
+					   from = if (length(e2) == 1)
+						   get_from(e1) else
+							   get_from(e2),
+					   to = if (length(e2) == 1) 
+						   get_to(e1) else
+							   get_to(e2)))
+		} else if (length(e1) == length(e2) ||
 			   length(e1) > length(e2)) {
 			do.call(.Generic, list(e1, align(e2, e1)))
-		} else if (length(e1) < length(e2)) {
+		} else # (length(e1) < length(e2)) 
 			do.call(.Generic, list(align(e1, e2), e2))
-		}
-	} else if (!("distributed.vector" %in% e1.classes)) {
+	} else if (!is.distributed.vector(e1)) {
 		e1 <- send(e1, get_hosts(e2), align_to=e2)
 		do.call(.Generic, list(e1, e2))
-	} else if (!("distributed.vector" %in% e2.classes)) {
+	} else { # (!("distributed.vector" %in% e2.classes)) {
 		e2 <- send(e2, get_hosts(e1), align_to=e1)
 		do.call(.Generic, list(e1, e2))
 	}
@@ -372,7 +373,7 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	as.table(out)
 	       }, 
 	       "2" = {
-	if (identical(rownames(x), rownames(y)) &
+	if (identical(rownames(x), rownames(y)) &&
 	    identical(colnames(x), colnames(y))) return(x + y)
 	xyr <- rownames(x)[rownames(x) %in% rownames(y)]
 	xyc <- colnames(x)[colnames(x) %in% colnames(y)]
