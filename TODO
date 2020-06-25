@@ -1,5 +1,5 @@
-. Write on considerations of dist. object structure, such as value of
-  encapsulating row number etc. on the remote side - include examples
+. Writing on doc/experiment-eager-distributed-object-supp.tex
+. Writing on doc/experiment-distributed-decision-tree.tex
 . Start on mid-level MapReduce-style api for the distributed objects
 . Regression in CART
 . Attempt to apply GLM as per Simon's email to the distributed object
