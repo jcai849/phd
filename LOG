@@ -1,323 +1,271 @@
-2020-06-24::
-	10:42:25:::  put git on cluster
-	13:23:10:::  `print` methods
-	14:30:31:::  && in Ops, as well as `else`
-	14:59:31:::  fix receive removing attributes
-	15:10:18:::  `[]` as `receive`
-	15:10:41:::  fake generics for %in% and table
-	16:32:49:::  Alignment and simplification in `send` and subsetting by
-	             logicals
-	16:49:14:::  Logical indexing tests
-2020-06-23::
-	11:16:19::: semi-parallelisation of read.dist.csv, Ops, etc.
-	12:24:59::: get flights data working
-2020-06-21::
-	17:57:36::: Rough dist. decision tree now working
-2020-06-20::
-	16:11:48::: Draft implementation of all dist.object methods necessary
-		    in dist. decision tree, including `unique`, `%gin%`, `dim`,
-		    etc.; `reg.finalizer` for distributed objects.
-2020-06-19::
-	17:28:46::: Decision Tree working locally + predict method
-2020-06-19::
-	13:14:25::: Lunch
-	17:25:07::: Decision tree main function
-2020-06-17::
-	18:33:01::: Distribute flights along cluster & fix dist.csv. reader
-2020-06-16::
-	12:12:02::: Reading breiman1993trees
-	12:12:58::: Reworking skeleton of decision tree
-	15:18:41::: Meeting
-	18:05:06::: More breiman1993trees
-2020-06-15::
-	18:04:37::: Methodical testing and bug fixes
-	18:51:58::: Basic distributed csv reader function
-2020-06-12::
-	11:29:24::: Referenced subsetting by consecutive numeric
-	13:19:47::: tests and bug fixes for subsetting vectors
-	16:52:52::: first draft at dataframe subsetting
-2020-06-11::
-	12:50:49::: cleaned up scalar distribution
-	15:33:00::: implement subsetting by distributed vector
-	17:13:27::: unreferenced subsetting by consecutive numeric
-2020-06-10::
-	12:14:05::: implement combining function for dist decision tree
-	15:26:27::: implement main function for dist. decision tree
-	17:07:07::: implement recycling for scalars
-	20:04:44::: Translate asciidoc to latex
-2020-06-09::
-	12:50:41::: Record script for definition of distributed decision tree;
-	            link:R/experiment-dist-decision-tree.R[]
-	15:14:05::: Meeting
-	18:28:24::: addjoin tables
-2020-06-08::
-	11:35:34::: Implementation notes of distributed object pause point (p2p
-	            comms); further in link:doc/experiment-eager-dist-obj.txt[]
-	11:55:44::: Rename and tidy all R files
-	14:23:04::: Notes on distributed objects;
-	            link:doc/consideration-dist-obj.txt[]
-	17:10:17::: Notes and plan for distributed decision trees
-2020-06-05::
-	13:00:57::: Implement `send` for objects smaller than cluster
-	16:25:45::: Framework implemented for remote receives of distributed
-	            objects; pause in link:R/experiment-eager-dist-obj.txt[]
-2020-06-04::
-	16:33:35::: Implementation of interaction between distributed and local
-	            vectors
-2020-06-03::
-	08:01:31::: Amendment to sparklyr in link:doc/review-sparklyr-iteration
-	            re: evaluation of `spark_apply()`
-	09:30:36::: Watched
-	https://rstudio.com/resources/rstudioconf-2020/accelerating-analytics-with-apache-arrow/[Apache
-	Arrow presentation]
-	10:06:36::: Watched
-	https://rstudio.com/resources/rstudioconf-2020/future-simple-async-parallel-distributed-processing-in-r-what-s-next/[Bengtsson
-	future presentation]
-	15:03:10::: Meeting
-2020-06-02::
-	11:15:43::: Notes on implementation so far and unforeseen challenges
-	            arisen; link:doc/experiment-eager-dist-obj.txt[]
-	16:54:12::: Watched
-	https://rstudio.com/resources/rstudioconf-2020/parallel-computing-with-r-using-foreach-future-and-other-packages/[Bryan
-	Lewis foreach presentation]
-2020-06-01::
-	13:49:08::: Ops defined for distributed vectors under *very* strict
-	            conditions
-2020-05-29::
-	17:46:01::: Distribute objects to cluster
-2020-05-28::
-	16:03:42::: Make and test cluster
-	18:20:52::: Reading chambers2008software
-2020-05-27::
-	14:07:50::: Proposal Workshop
-	16:38:20::: Background reading on terminology
-	18:17:11::: Begin installing Rserve & Rclient on cluster
-2020-05-26::
-	11:22:13::: Type up notes in
-	            link:doc/consideration-distributed-architecture.txt[]
-	19:52:37::: Meeting
-2020-05-25::
-	11:03:48::: Diagram issue
-	15:24:09::: Plan implementation, notes
-	20:01:38::: Simplify asciidoc in makefile
-2020-05-22::
-	13:28:21::: MPI point-to-point communication tutorial
-	15:49:14::: Notes on point-to-point communication
-	16:50:54::: Notes on s-u distributed computing
-2020-05-21::
-	14:09:36::: Write on iteration vs traversal in foreach document
-	17:24:14::: Complete link:doc/review-sparklyr-iteration.tex[sparklyr
-	            iteration doc]
-	17:32:42::: Generalise features to have "distributed file system"
-	            instead of HDFS
-2020-05-20::
-	17:04:38::: Write on functional iterative interface
-2020-05-19::
-	12:13:03::: Begin notes on functional iterative interface
-	            (link:doc/consideration-functional-iteration-interace.txt)
-	15:13:27::: Meeting
-	17:22:00::: More on functional iter interface
-2020-05-18::
-	21:35:02::: Complete Babylonian method in sparklyr
-2020-05-17:: 
-	18:09:14::: Complete script for Spark on Pseudo Distributed Hadoop
-		    Cluster setup on YARN; tested and working
-2020-05-16:: Spend all day fighting computer; lose
-2020-05-14::
-	17:00:43::: Begin Spark Review:
-		    * Make and skeleton link:doc/review-sparklyr-iteration.tex
-		    * Writing, referencing, and practice code
-		    * Research on different forms of iteration and iterators
-2020-05-13::
-	14:09:35::: Recategorise tables and add colour to the table in
-	            link:doc/survey-large-scale-features.tex
-2020-05-12::
-	12:38:09::: Deploy Spark on the cluster
-	16:46:06::: Meeting
-2020-05-11::
-	20:15:45::: Fill in matrix in link:doc/survey-large-scale-features.tex
-020-05-08::
-	11:03:55::: Doctoral Induction morning tea
-	11:55:07::: Write up notes on chapters 3, 4, 5, 7
-	16:45:29::: Read and write up notes on 10, 11, 17, 19
-2020-05-07::
-	13:49:24::: - Read A. Installing Apache Hadoop
-	            - Install and run Hadoop locally
-		    - Rename docs to follow a more standard convention
-	18:12:34::: Read Hadoop: The Definitive Guide
-		    3. The Hadoop Distributed Filesystem
-		    4. YARN 
-		    5. Hadoop I/O 
-		    7. How MapReduce Works
-	21:04:49::: Trial HDFS setup with pseudodistributed Hadoop
-	21:52:56::: Write up notes on setup
-2020-05-06::
-	11:20:46::: Send PReSS information to S&P
-	13:25:33::: Fix
-	link:doc/survey-large-scale-features.tex[platform features] as
-	per S&P's recommendations
-	14:29:54::: Determine appropriate reading on Hadoop/Spark/Yarn
-	18:15:51::: Read Hadoop: The Definitive Guide:
-	            1. Meet Hadoop
-		    2. MapReduce
-2020-05-05::
-	- Spark install
-	- Meeting
-2020-05-04::
-	- Cleanup after backup failure
-	- Last polish of platform features:
-	  link:doc/survey-large-scale-features.tex[platform features]
-2020-05-01::
-	- Reading and writing on platform features
-	- Technically first day of registration
-2020-04-30::
-	- Get VPN working
-	- Finalise install of Spark (include details in script)
-	- Setup directory profile
-	- Download more papers on platform features
-2020-04-24::
-	- University enrolment
-	- Install spark
-	- Needing su access to install the myriad dependencies for sparklyr
-2020-04-23::
-	- Finish bibliography fixes
-	- Paperwork for and acceptance
-	- Write on issues with pbdR RWLS
-2020-04-22::
-	- Continue RWLS with pbdR; created test programs in learn-pbdr
-	  directory
-	- Fix up bibliography, add sources in preparation for more scholaraly
-	  justification
-2020-04-21::
-	- implement reweighted least squares using pbdDMAT
-	  link:R/pbdr-rwls.R[pbdDMAT]
-2020-04-20::
-	- implement reweighted least squares locally
-	  link:R/local-rwls.R[local RWLS]
-2020-04-17::
-	- Learned Docker
-	- Read _Programming with BIG data in R: Scaling analytics from one to
-	  thousands of nodes_ ; very worthwhile read
-	- Followed the https://pbdr.org/tutorials/jsm2017/[pbdR Essentials
-	  course]
-	- link:doc/detail-pbdr.tex[Wrote on pbdR in more detail]
-2020-04-16::
-	- More detail on
-	  link:doc/survey-r-packages-for-distributed-large-scale-computing.tex[sparklyr]
-	  arbitrary code execution
-	- More detail on link:doc/detail-foreach.tex[foreach]
-	  means of global variable detection
-	- Writing on attributes important to large-scale R platforms
-	  link:doc/survey-large-scale-features.tex[Feature Survey]
-2020-04-15::
-	- Crawling through source code of future
-	- Writing more detail on link:doc/detail-future.tex[future]
-	persistence
-2020-04-14::
-	- Meeting postponed for more work to be completed
-	- Reading on sparklyr, future, foreach 
-2020-04-09::
-	- learned vimscript, started work on
-	  https://github.com/jcai849/send-to-pane[plugin] to send text from vim
-	  to R 
-2020-04-08::
-	- Finished reading 4.2 ESL
-	- Completed log fixing
-2020-04-07::
-	- Learned vim
-	- Learned asciidoc
-	- Learned tmux
-	- Fixed makefile
-2020-04-06::
-	- Reading ESL, wikipedia on reweighted least squares
-	- Math revision
-	- created template for notes on reweighted least squares
-2020-04-03::
-	- Laid out thoughts on organisation of research
-	- link:doc/detail-foreach.tex[detail of foreach]
-	- Renamed files to reflect organisation, fixed links
-2020-04-02::
-	- Finished writing on link:doc/case-study-disk.frame.tex[disk.frame]
-	- Fixed names of packages in documents (accepting their lower-case
-	naming)
-	- Began reading on foreach internals
-2020-04-01::
-	- Wrote on link:doc/case-study-disk.frame.tex[how disk.frame works]
-	as a case study
-	- Re-remade makefile to accomodate directory movement
-2020-03-31::
-	- Created link:log/[logs]
-	- Rearranged repositories; moved the contents of
-	https://github.com/jcai849/phd-src[phd-src] to just be a subdirectory of
-	https://github.com/jcai849/phd[phd] named "link:R/[R]", with no git
-	weirdness like submodules, etc. keeping it simple. moved all documents
-	to "link:doc/[doc]"
-	- Remade makefile to accomodate movement
-	- Began reading disk.frame vignettes and source in detail
-2020-03-30::
-	- More research on other packages, especially partools, pbdR, and
-	disk.frame
-2020-03-27::
-	- Further consideration of yesterday's issues: some progress in
-	understanding `substitute()`, environments (just mutable hash tables),
-	and nested substitution for quotation. Staying away from `rlang`.
-	- Continuation of distributed statistics simulation without cluster
-	simulation in
-	link:R/basic-statistics-on-distributed-data.R[basic-stats-on-dist-data.R]
-2020-03-26::
-	Began creating link:R/local-cluster-simulation.R[cluster class for
-	local simulation] to facilitate simulation of statistics on distributed
-	data, locally. 
-2020-03-25::
-	- link:doc/survey-r-packages-for-local-large-scale-computing.tex[Filled
-	in information on local systems]
-	- link:bib/cites.R[Attained] R references & relevant papers -
-	references in link:bib/bibliography.bib[bibliography.bib]
-	- Fixed link:doc/distributed-systems-overview.tex[distributed
-	systems] papers & link:bib/bibliography.bib[references]
-2020-03-24::
-	- Writing on bigmemory & associates in
-	link:doc/survey-r-packages-for-local-large-scale-computing.tex[local
-	systems]. Meeting cancelled due to Corona Virus lockdown initiation
-2020-03-23::
-	- Began work on
-	link:doc/survey-r-packages-for-local-large-scale-computing.tex[local
-	systems] (seeing what has been created for stats in the abscence of
-	scale)
-2020-03-20::
-	- Finished writing on future, link:R/detail-future.R[began testing a
-	multicore R console using future]
-2020-03-19::
-	- Began writing on future at
-	link:doc/detail-future.tex[detail-future.tex]
-2020-03-18::
-	- No research done; tying up professional obligations today
-2020-03-17::
-	- Read on parallel iterative algorithms
-	- Meeting
-	- Consideration of next steps (big)
-2020-03-16::
-	- Miscellaneous; read on parallel algorithms
-	- Little research done; finalising a survey for a friend
-2020-03-13::
-	- Unlucky day, not going outside
-	- link:doc/survey-distributed-computing-systems.tex[Finished writing
-	on R packages]
-	- Added a link:bib/bibliography.bib[bibliography]
-2020-03-12::
-	- link:doc/survey-distributed-computing-systems.tex[More writing on R
-	packages]
-2020-03-11::
-	- Go-ahead on course; emailed Dr. Nicolescu re: sitting in
-	- Added S&P to repos
-	- Browsed long list of relevant R packages, added to the
-	link:doc/urls.org[urls] file
-	- link:doc/survey-distributed-computing-systems.tex[Some notes on
-	H2O]
-2020-03-10::
-	- Emailed S&P re: course details, awaiting go-ahead to contact course
-	coordinator
-	- Created git and github repo's, awaiting S&P username information.
-	Github URL's:
-	-- https://github.com/jcai849/phd[phd]
-	-- https://github.com/jcai849/phd-src[phd-src]
+2020-06-25	15:44:06	Writing on Eager Distributed Object 
+				Supplementary Report
+		16:53:02	Mockup for Distributed Decision Tree rewrite
+2020-06-24	10:42:25	put git on cluster
+		13:23:10	`print` methods
+		14:30:31	&& in Ops, as well as `else`
+		14:59:31	fix receive removing attributes
+		15:10:18	`[]` as `receive`
+		15:10:41	fake generics for %in% and table
+		16:32:49	Alignment and simplification in `send` and 
+				subsetting by logicals
+		16:49:14	Logical indexing tests
+2020-06-23	11:16:19	semi-parallelisation of read.dist.csv, Ops, etc.
+		12:24:59	get flights data working
+2020-06-21	17:57:36	Rough dist. decision tree now working
+2020-06-20	16:11:48	Draft implementation of all dist.object methods
+				necessary in dist. decision tree, including
+				`unique`, `%gin%`, `dim`, etc.; `reg.finalizer`
+				for distributed objects.
+2020-06-19	17:28:46	Decision Tree working locally + predict method
+2020-06-19	13:14:25	Lunch
+		17:25:07	Decision tree main function
+2020-06-17	18:33:01	Distribute flights along cluster & fix
+				dist.csv. reader
+2020-06-16	12:12:02	Reading breiman1993trees
+		12:12:58	Reworking skeleton of decision tree
+		15:18:41	Meeting
+		18:05:06	More breiman1993trees
+2020-06-15	18:04:37	Methodical testing and bug fixes
+		18:51:58	Basic distributed csv reader function
+2020-06-12	11:29:24	Referenced subsetting by consecutive numeric
+		13:19:47	tests and bug fixes for subsetting vectors
+		16:52:52	first draft at dataframe subsetting
+2020-06-11	12:50:49	cleaned up scalar distribution
+		15:33:00	implement subsetting by distributed vector
+		17:13:27	unreferenced subsetting by consecutive numeric
+2020-06-10	12:14:05	implement combining function for dist decision
+				tree
+		15:26:27	implement main function for dist. decision tree
+		17:07:07	implement recycling for scalars
+		20:04:44	Translate asciidoc to latex
+2020-06-09	12:50:41	Record script for definition of distributed
+				decision tree; R/experiment-dist-decision-tree.R
+		15:14:05	Meeting
+		18:28:24	addjoin tables
+2020-06-08	11:35:34	Implementation notes of distributed object
+				pause point (p2p comms); further in
+				doc/experiment-eager-dist-obj.txt
+		11:55:44	Rename and tidy all R files
+		14:23:04	Notes on distributed objects;
+				doc/consideration-dist-obj.txt
+		17:10:17	Notes and plan for distributed decision trees
+2020-06-05	13:00:57	Implement `send` for objects smaller than cluster
+		16:25:45	Framework implemented for remote receives of
+				distributed objects; pause in
+				R/experiment-eager-dist-obj.txt
+2020-06-04	16:33:35	Implementation of interaction between
+				distributed and local vectors
+2020-06-03	08:01:31	Amendment to sparklyr in
+				doc/review-sparklyr-iteration re: evaluation of
+				`spark_apply()`
+		09:30:36	Watched
+				https://rstudio.com/resources/rstudioconf-2020/accelerating-analytics-with-apache-arrow/
+		10:06:36	Watched
+				https://rstudio.com/resources/rstudioconf-2020/future-simple-async-parallel-distributed-processing-in-r-what-s-next/
+		15:03:10	Meeting
+2020-06-02	11:15:43	Notes on implementation so far and unforeseen
+				challenges arisen;
+				doc/experiment-eager-dist-obj.txt
+		16:54:12	Watched
+				https://rstudio.com/resources/rstudioconf-2020/parallel-computing-with-r-using-foreach-future-and-other-packages/
+2020-06-01	13:49:08	Ops defined for distributed vectors under
+				*very* strict conditions
+2020-05-29	17:46:01	Distribute objects to cluster
+2020-05-28	16:03:42	Make and test cluster
+		18:20:52	Reading chambers2008software
+2020-05-27	14:07:50	Proposal Workshop
+		16:38:20	Background reading on terminology
+		18:17:11	Begin installing Rserve & Rclient on cluster
+2020-05-26	11:22:13	Type up notes in
+				doc/consideration-distributed-architecture.txt
+		19:52:37	Meeting
+2020-05-25	11:03:48	Diagram issue
+		15:24:09	Plan implementation, notes
+		20:01:38	Simplify asciidoc in makefile
+2020-05-22	13:28:21	MPI point-to-point communication tutorial
+		15:49:14	Notes on point-to-point communication
+		16:50:54	Notes on s-u distributed computing
+2020-05-21	14:09:36	Write on iteration vs traversal in foreach document
+		17:24:14	Complete doc/review-sparklyr-iteration.tex
+		17:32:42	Generalise features to have "distributed file
+				system" instead of HDFS
+2020-05-20	17:04:38	Write on functional iterative interface
+2020-05-19	12:13:03	Begin notes on functional iterative interface
+				doc/consideration-functional-iteration-interace.txt
+		15:13:27	Meeting
+		17:22:00	More on functional iter interface
+2020-05-18	21:35:02	Complete Babylonian method in sparklyr
+2020-05-17 	18:09:14	Complete script for Spark on Pseudo Distributed
+				Hadoop Cluster setup on YARN; tested and
+				working
+2020-05-16			Spend all day fighting computer; lose
+2020-05-14	17:00:43	Begin Spark Review:
+				* Make and skeleton
+				  link:doc/review-sparklyr-iteration.tex
+				* Writing, referencing, and practice code
+				* Research on different forms of iteration and
+				  iterators
+2020-05-13	14:09:35	Recategorise tables and add colour to the table
+				in doc/survey-large-scale-features.tex
+2020-05-12	12:38:09	Deploy Spark on the cluster
+		16:46:06	Meeting
+2020-05-11	20:15:45	Fill in matrix in
+				link:doc/survey-large-scale-features.tex
+020-05-08	11:03:55	Doctoral Induction morning tea
+		11:55:07	Write up notes on chapters 3, 4, 5, 7
+		16:45:29	Read and write up notes on 10, 11, 17, 19
+2020-05-07	13:49:24	- Read A. Installing Apache Hadoop
+				- Install and run Hadoop locally
+				- Rename docs to follow a more standard convention
+		18:12:34	Read Hadoop: The Definitive Guide
+				3. The Hadoop Distributed Filesystem
+				4. YARN 
+				5. Hadoop I/O 
+				7. How MapReduce Works
+		21:04:49	Trial HDFS setup with pseudodistributed Hadoop
+		21:52:56	Write up notes on setup
+2020-05-06	11:20:46	Send PReSS information to S&P
+		13:25:33	Fix doc/survey-large-scale-features.tex as per
+				S&P's recommendations
+		14:29:54	Determine appropriate reading on Hadoop/Spark/Yarn
+		18:15:51	Read Hadoop: The Definitive Guide:
+				1. Meet Hadoop
+				2. MapReduce
+2020-05-05			- Spark install
+				- Meeting
+2020-05-04			- Cleanup after backup failure
+				- Last polish of platform features:
+				  doc/survey-large-scale-features.tex
+2020-05-01			- Reading and writing on platform features
+				- Technically first day of registration
+2020-04-30			- Get VPN working
+				- Finalise install of Spark (include details in
+				  script)
+				- Setup directory profile
+				- Download more papers on platform features
+2020-04-24			- University enrolment
+				- Install spark
+				- Needing su access to install the myriad
+				  dependencies for sparklyr
+2020-04-23			- Finish bibliography fixes
+				- Paperwork for and acceptance
+				- Write on issues with pbdR RWLS
+2020-04-22			- Continue RWLS with pbdR; created test
+				  programs in learn-pbdr directory
+				- Fix up bibliography, add sources in
+				  preparation for more scholaraly justification
+2020-04-21			- implement reweighted least squares using
+				  pbdDMAT R/pbdr-rwls.R
+2020-04-20			- implement reweighted least squares locally
+				  R/local-rwls.R
+2020-04-17			- Learned Docker
+				- Read Programming with BIG data in R: Scaling
+				  analytics from one to thousands of nodes ;
+				  very worthwhile read
+				- Followed the
+				  https://pbdr.org/tutorials/jsm2017/
+				- doc/detail-pbdr.tex
+2020-04-16			- More detail on
+				  doc/survey-r-packages-for-distributed-large-scale-computing.tex
+				  arbitrary code execution
+				- More detail on doc/detail-foreach.tex means
+				  of global variable detection
+				- Writing on attributes important to
+				  large-scale R platforms
+				  doc/survey-large-scale-features.tex
+2020-04-15			- Crawling through source code of future
+				- Writing more detail on
+				  doc/detail-future.tex persistence
+2020-04-14			- Meeting postponed for more work to be completed
+				- Reading on sparklyr, future, foreach 
+2020-04-09			- learned vimscript, started work on
+				  https://github.com/jcai849/send-to-pane to
+				  send text from vim to R 
+2020-04-08			- Finished reading 4.2 ESL
+				- Completed log fixing
+2020-04-07			- Learned vim
+				- Learned asciidoc
+				- Learned tmux
+				- Fixed makefile
+2020-04-06			- Reading ESL, wikipedia on reweighted least
+				  squares
+				- Math revision
+				- created template for notes on reweighted
+				  least squares
+2020-04-03			- Laid out thoughts on organisation of research
+				- doc/detail-foreach.tex
+				- Renamed files to reflect organisation, fixed
+				  links
+2020-04-02			- Finished writing on
+				  doc/case-study-disk.frame.tex
+				- Fixed names of packages in documents
+				  (accepting their lower-case naming)
+				- Began reading on foreach internals
+2020-04-01			- Wrote on doc/case-study-disk.frame.tex as a
+				  case study
+				- Re-remade makefile to accomodate directory
+				  movement
+2020-03-31			- Created log
+				- Rearranged repositories; moved the contents
+				  of https://github.com/jcai849/phd-src to just
+				  be a subdirectory of
+				  https://github.com/jcai849/phd named "R/",
+				  with no git weirdness like submodules, etc.
+				  keeping it simple. moved all documents to
+				  "doc/"
+				- Remade makefile to accomodate movement
+				- Began reading disk.frame vignettes and source
+				  in detail
+2020-03-30			- More research on other packages, especially
+				  partools, pbdR, and disk.frame
+2020-03-27			- Further consideration of yesterday's issues:
+				  some progress in understanding
+				  `substitute()`, environments (just mutable
+				  hash tables), and nested substitution for
+				  quotation. Staying away from `rlang`.
+				- Continuation of distributed statistics
+				  simulation without cluster simulation in
+				  R/basic-statistics-on-distributed-data.R
+2020-03-26			Began creating R/local-cluster-simulation.R to
+				facilitate simulation of statistics on
+				distributed data, locally. 
+2020-03-25			- doc/survey-r-packages-for-local-large-scale-computing.tex
+				- bib/cites.R R references & relevant papers -
+				  references in bib/bibliography.bib
+				- Fixed doc/distributed-systems-overview.tex
+				  papers & bib/bibliography.bib
+2020-03-24			- Writing on bigmemory & associates in
+				  doc/survey-r-packages-for-local-large-scale-computing.tex.
+				  Meeting cancelled due to Corona Virus
+				  lockdown initiation
+2020-03-23			- Began work on
+				  doc/survey-r-packages-for-local-large-scale-computing.tex
+				  (seeing what has been created for stats in
+				  the abscence of scale)
+2020-03-20			- Finished writing on future, R/detail-future.R
+2020-03-19			- Began writing on future at
+				  doc/detail-future.tex
+2020-03-18			- No research done; tying up professional
+				  obligations today
+2020-03-17			- Read on parallel iterative algorithms
+				- Meeting
+				- Consideration of next steps (big)
+2020-03-16			- Miscellaneous; read on parallel algorithms
+				- Little research done; finalising a survey for
+				  a client
+2020-03-13			- doc/survey-distributed-computing-systems.tex
+				- Added a bib/bibliography.bib
+2020-03-12			- doc/survey-distributed-computing-systems.tex
+2020-03-11			- Go-ahead on course; emailed Dr. Nicolescu re:
+				  sitting in
+				- Added S&P to repos
+				- Browsed long list of relevant R packages,
+				  added to the doc/urls.org file
+				- doc/survey-distributed-computing-systems.tex
+2020-03-10			- Emailed S&P re: course details, awaiting
+				  go-ahead to contact course coordinator
+				- Created git and github repo's, awaiting S&P
+				  username information. Github URL's:
+				-- https://github.com/jcai849/phd
+				-- https://github.com/jcai849/phd-src
