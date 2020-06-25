@@ -41,20 +41,6 @@ make_cluster <- function(hosts){
 		out
 }
 
-peek <- function(loc) {
-	hosts <- names(loc)
-	sapply(hosts, function(host) {
-	       sapply(RS.eval(rsc[[host]], quote(ls())),
-			function(uuid) {
-				eval(bquote(RS.eval(.(rsc[[host]]), 
-						    head(get(.(uuid))))))
-			},
-			simplify = FALSE, USE.NAMES = TRUE)
-		 },
-	simplify = FALSE, USE.NAMES = TRUE)
-}
-
-
 # Communication
 
 send <- function(obj, to=NULL, align_to=NULL){
