@@ -27,7 +27,7 @@
 		tabsize=2,	                   
 }
 \begin{document}
-\title{Experiment: Eager Distributed Object}
+\title{Experiment: Eager Distributed Object Precursory Report}
 \author{Jason Cairns}
 \year=2020 \month=6 \day=8
 \maketitle
@@ -75,9 +75,9 @@ It contains a list of hostnames, the indices of the vector residing on each
 node, and the name of the vector on the nodes, typically being a UUID generated
 with the \texttt{distributed.vector} creation.
 
-\texttt{receive} is the complement to \texttt{send}, giving a \texttt{distributed.object} as an
-argument, and receiving the unsplit referent of the \texttt{distributed.object} as the
-value.
+\texttt{receive} is the complement to \texttt{send}, giving a
+\texttt{distributed.object} as an argument, and receiving the unsplit referent
+of the \texttt{distributed.object} as the value.
 The method will have additional usage as a remote version, which would enable
 point-to-point communication through a node calling \texttt{receive} on some distributed
 object, thereby requesting the referent from its location on all other nodes.
@@ -86,9 +86,10 @@ point-to-point communication using RServe.
 However, such functionality is essential, and is discussed further in the
 successive sections.
 
-As a means of testing operations between \texttt{distributed.vector} objects, S3 \texttt{Ops}
-methods were defined, using a complex quoting function in order to call the
-correct \texttt{.Generic} and reference the name of the vectors on the worker nodes.
+As a means of testing operations between \texttt{distributed.vector} objects,
+S3 \texttt{Ops} methods were defined, using a complex quoting function in order
+to call the correct \texttt{.Generic} and reference the name of the vectors on
+the worker nodes.
 They can interact with non-distributed objects, with the non-distributed
 objects being coerced to distribted.
 To enable interaction between vectors of different lengths, some means of
@@ -103,8 +104,8 @@ exploratory nature of the implementation.
 
 \section{Relevant Points of Interest}
 
-The experiment raised several very important considerations that had not been
-noted prior.
+Already, the experiment has raised several very important considerations that
+had not been noted prior.
 
 Memory management was a particular concern; 
 management of reference and location of distributed objects emulates memory
@@ -125,11 +126,13 @@ while still avoiding misbalancing node memory.
 Memory leaks, not much of a problem at the R level with garbage collection,
 return to a potential problem with assignment of distributed objects being
 fixed to their local R processes.
-For example, with the following code consisting of distributed vectors: \texttt{c <- a
-+ b}, what occurs is that on every node \texttt{a} and \texttt{b} exist on, they are summed
-together, with the result saved as a new variable with a UUID name; a reference
-to the name and locations is then stored locally in the variable \texttt{c}.
-Were \texttt{a} and \texttt{b} not to be assigned, however, the result would still be saved
+For example, with the following code consisting of distributed vectors:
+\texttt{c <- a + b}, what occurs is that on every node \texttt{a} and
+\texttt{b} exist on, they are summed together, with the result saved as a new
+variable with a UUID name; a reference to the name and locations is then stored
+locally in the variable \texttt{c}.
+Were \texttt{a} and \texttt{b} not to be assigned, however, the result would
+still be saved
 on all of the worker nodes, taking up memory, but without any local handle for
 it.
 
@@ -180,4 +183,3 @@ And finally, a closer literature review on the issues raised and other
 solutions will prove very valuable.
 
 \end{document}
-
