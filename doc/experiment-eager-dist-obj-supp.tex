@@ -34,7 +34,108 @@
 
 \section{Introduction}
 
+This report serves to document the development status and associated evaluation
+of the eager distributed object architecture successive to the previous report,
+ \href{experiment-eager-dist-obj-pre.pdf}{The Precursory Report}.
+The prior report was necessarily largely speculative, considerate of a number
+of potential architectural choices, with relatively equal weighting; now that
+non-trivial further development has taken place, more concrete evaluation can
+be produced, and alternatives can be compared against what has been explicitly
+observed to work and not work.
+In order to maintain direction in this subsequent development, a distributed
+statistical model was developed concurrently, making use of the distributed
+object as described in this report. 
+This is documented in detail in the report,
+\href{experiment-dist-decision-tree.pdf}{Experiment: Distributed Decision
+Tree}.
+
+In addition, several new and prior unconsidered aspects have arisen; following
+a full description of the current system as well as elaboration on changes since
+the previous report, an evaluation of the architecture is given, with suggestions
+for future research given as part of the conclusion.
+
 \section{Current System Overview}
+
+% cluster: Rserve
+The distributed object system starts with communication channels to RServe
+instances on other nodes.
+Functions are provided to start the instances through hostnames, to connect to
+the servers, and to kill the instances.
+A ``cluster'' object, akin to the \textit{SNOW} cluster object, serves as a
+reference with which to declare distributed objects upon.
+
+% distributed objects: Names, hosts, indices, reg.finalize
+Distributed objects exist conceptually as the actual data split across RServe
+instances, and a reference containing the minimum of necessary information
+existing on the users R session.
+At it's core, the reference is actually an S3 class consisting of an
+environment which encapsulates a list of the hosts of each of it's referent
+chunks, the name of the chunk on the hosts (a single UUID given at object
+formation), as well as what indices exist on each node.
+The users R session thus serves as the master node in this distributed system.
+Importantly, the object references are registered with \texttt{reg.finalize} to
+run a cleanup on the hosts of the data when being garbage collected themselves.
+
+% Communication: splitting, reading, receiving
+Distributed objects are formed from two possible sources; master side, or slave
+side.
+Formation on the master side involves taking an existing R object, splitting it
+up according to some function (currently splitting according to most even
+element distribution), and sending the splits to their associated RServe
+instances, described in a supplied cluster object formal parameter to the
+creation function.
+All of the splits are assigned a name on the server side, stored in the
+distributed object reference.
+It is an unlikely user-end scenario that the big data is small enough to fit on
+the host in order to send it, so reading in data on the worker end, then
+feeding information back to produce a reference, is the other means of
+producing a distributed object.
+At present, this takes the form of a \texttt{read.distributed.csv} call that
+forwards on most of the arguments to server-side \texttt{read.csv} functions. 
+The nodes then measure the number of rows on their chunk, sending back the
+information to inform the creation of a reference.
+
+% Vectors: Ops
+Beyond the storage of data larger than the user-end memory, distributed objects
+can mimic standard R objects, with an example being distributed vectors having
+\textt{Ops} defined.
+Operations between vectors are forwarded on to the hosts, along with the names
+of their associated chunks, for the hosts to perform at the distributed end.
+The results are assigned to a provided UUID, and a distributed vector reference
+is returned on the master session, pointing to the new chunks that have been
+created under the ID.
+Operations between distributed vectors and non-distributed vectors take place
+through distributing the non-distributed vectors, and recursing on the
+operation call, along with the original distributed vector and the newly
+created distributed vector.
+
+% Recycling and data location (align_to in send)
+An important aspect to operations between vectors is that the actual processing
+of operations at corresponding locations between vectors necessarily requires
+the relevant elements to exist on the same RServe instance.
+This creates a complication in operations between vectors of different lengths,
+or distributed vectors with corresponding elements on different nodes.
+This is managed in a pragmatic manner at present through leaving room for a
+future means of alignment, but not catering for such cases except for the more
+common case of operations involving a scalar. 
+In this case the scalar is distributed to all of the hosts of the distributed
+vector, with the distributed end running the operation on the chunk and scalar,
+providing recycling equivalent to a non-distributed object due to scalar length
+being a multiplicative identity over the length of a vector.
+
+% Vectors: functions returning distributed
+Beyond operations between vectors, some common functions of vector formal
+parameters have been implemented for distributed vectors.
+The nature of the returned object is of great importance in providing
+consistency and transparency, along with reasonable performance; often
+competing goals.
+
+Functions returning distributed vectors
+
+
+% Vectors: functions returning locally
+% Data Frames
+% Subsetting: Distributed Logical, local Numeric, local logical, columns
 
 \section{Description of System Changes}
 
