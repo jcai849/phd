@@ -34,9 +34,10 @@ big <- read.distributed.csv(file = "~/flights-chunk.csv",
 			   colClasses = as.vector(cols),
 			    to = rsc)
 nrow(big)
+big[100000000,][]
 bigX <- big[,c("Month", "DayOfWeek")]
-bigy <- big[,"Diverted"]
+bigy <- big$Diverted
 bigtree <- dist_decision_tree(bigX, bigy)
-biggertree <- dist_decision_tree(bigX, bigy, threshold = 0.0001)
+biggertree <- dist_decision_tree(bigX, bigy, max_depth=2, threshold = 0.0001)
 
 kill_servers(hosts)
