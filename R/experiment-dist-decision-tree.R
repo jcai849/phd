@@ -60,8 +60,10 @@ dist_decision_tree <- function(X, y, max_depth = 4,
 			     measure = impurity_measure) < threshold |
 		    max_depth <= 1 | length(y) < 2) return(counts / sum(counts))
 		questions <- qgen(X)
-		qgoodness <- sapply(questions, function(question)
-				    GoQ(y, X, question, impurity_measure))
+		qgoodness <- sapply(questions, function(question) {
+					    gc()
+					    GoQ(y, X, 
+						question, impurity_measure)})
 		bestq <- questions[[which.max(qgoodness)]]
 		if (is.null(bestq)) return(counts / sum(counts))
 		return(structure(list(bestq,

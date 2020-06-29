@@ -37,5 +37,6 @@ nrow(big)
 bigX <- big[,c("Month", "DayOfWeek")]
 bigy <- big[,"Diverted"]
 bigtree <- dist_decision_tree(bigX, bigy)
+biggertree <- dist_decision_tree(bigX, bigy, threshold = 0.0001)
 
 kill_servers(hosts)
