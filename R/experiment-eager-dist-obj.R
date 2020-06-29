@@ -275,8 +275,8 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 				RS.eval(host,
 				quote({assign(.(id), 
 				  do.call(.(.Generic), 
-				list(get(.(get_name(e1)))))); NULL})),
-				wait = FALSE)))
+				list(get(.(get_name(e1)))))); NULL}),
+				wait = FALSE))))
 			lapply(get_hosts(e1), RS.collect)
 			return(distributed.vector(hosts = get_hosts(e1),
 					   name = id,
