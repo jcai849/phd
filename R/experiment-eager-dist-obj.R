@@ -538,11 +538,3 @@ as.list.distributed.data.frame <- function(x, ...) sapply(names(x),
 					  simplify = FALSE, USE.NAMES = TRUE)
 
 `$.distributed.data.frame` <- function(x, name) x[[name]]
-
-
-# something to use
-
-hosts <- paste0("hadoop", 1:8)
-rsc <- make_cluster(hosts)
-x = as.distributed(1:150 %% 2 == 0, rsc)
-y = as.distributed(iris, rsc)
