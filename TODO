@@ -1,4 +1,3 @@
-. Writing on doc/experiment-eager-distributed-object-supp.tex
 . Writing on doc/experiment-distributed-decision-tree.tex
 . Start on mid-level MapReduce-style api for the distributed objects
 . Regression in CART

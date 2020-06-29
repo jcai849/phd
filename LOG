@@ -1,3 +1,5 @@
+2020-06-29	21:02:14	Finished writing 
+				doc/experiment-eager-dist-obj-supp.tex
 2020-06-26	14:51:01	Sorting out uni computer etc.
 		16:57:42	Notes on system overview in
 				doc/experiment-eager-dist-obj-supp.tex
@@ -15,6 +17,7 @@
 		16:49:14	Logical indexing tests
 2020-06-23	11:16:19	semi-parallelisation of read.dist.csv, Ops, etc.
 		12:24:59	get flights data working
+		15:03:28	meeting
 2020-06-21	17:57:36	Rough dist. decision tree now working
 2020-06-20	16:11:48	Draft implementation of all dist.object methods
 				necessary in dist. decision tree, including
