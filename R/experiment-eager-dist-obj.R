@@ -164,7 +164,7 @@ dist_subset <- function(subset_type, x, i, j=NULL) {
 		    list(x = substitute(get(x), list(x = get_name(x))),
 			 i = if (is.distributed(i)) 
 				 substitute(get(i), 
-					    list(i = get_name(i))) else i
+					    list(i = get_name(i))) else i,
 			 j = if (is.distributed(j))
 				 substitute(get(j),
 					    list(j = get_name(j))) else j)),
