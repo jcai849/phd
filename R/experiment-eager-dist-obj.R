@@ -153,42 +153,47 @@ is.distributed.class <- function(classname) {
 	function(x) classname %in% class(x)
 }
 
-dist_subset <- function(subset_type, id, x, i, j=NULL) {
-	subset_type <- substitute(subset_type)
-	lapply(get_hosts(x), function(host) {
-	      tosub <- bquote(RS.eval(host, 
-				      {assign(.(id), .(subset_type)); NULL}))
-	      eval(eval(substitute(substitute(tosub,
-			    list(xname = get_name(x),
-				 iname = if (is.vector(i) ||
-					     is.null(i)) NULL else get_name(i),
-				 jname = if (is.vector(j) ||
-					     is.null(j)) NULL else get_name(j),
-				 i = i,
-				 j = j)),
-			 list(tosub = tosub))))})
-	all.locs <- sapply(get_hosts(x), function(host) {
-	       eval(bquote(RS.eval(host,
-			   do.call(if (is.data.frame(get(.(id))) ||
-			       is.matrix(get(.(id)))) "nrow" else "length",
-				   list(get(.(id)))))))
-	   })
-	nonemptylocs <- sapply(all.locs, function(v) v != 0)
-	locs <- all.locs[nonemptylocs]
-	list(hosts = get_hosts(x)[nonemptylocs],
-	      name = id,
-	      from = cumsum(c(1,locs[-length(locs)])),
-	      to = cumsum(locs))
+dist_subset <- function(subset_type, x, i, j=NULL) {
+	id <- UUIDgenerate()
+	hosts <- get_hosts(x)
+
+	lapply(hosts, function(host) 
+	       substitute(substitute(
+		      RS.eval(host,
+			      {assign(id, subset_type); NULL}),
+		    list(x = substitute(get(x), list(x = get_name(x))),
+			 i = if (is.distributed(i)) 
+				 substitute(get(i), 
+					    list(i = get_name(i))) else i
+			 j = if (is.distributed(j))
+				 substitute(get(j),
+					    list(j = get_name(j))) else j)),
+			 list(id = id, subset_type = substitute(subset_type))))
+#
+#	all.locs <- sapply(hosts, function(host) {
+#	       eval(bquote(RS.eval(host,
+#			   do.call(if (is.data.frame(get(.(id))) ||
+#			       is.matrix(get(.(id)))) "nrow" else "length",
+#				   list(get(.(id)))))))
+#	   })
+#	nonemptylocs <- sapply(all.locs, function(v) v != 0)
+#	locs <- all.locs[nonemptylocs]
+#
+#	list(hosts = get_hosts(x)[nonemptylocs],
+#	      name = id,
+#	      from = cumsum(c(1,locs[-length(locs)])),
+#	      to = cumsum(locs))
 }
 
-num_subset <- function(subset_type, id, x, i, j=NULL){
-	subset_type <- substitute(subset_type)
+generate_num_selection <- function(x, i){
 	hostnums <- sapply(i, 
 	   function(y) which.min({y - get_from(x)}[(y - get_from(x)) >= 0]))
 	vals_on_host <- table(hostnums)
 	hostsize <- get_to(x) - get_from(x) + 1
 	hosts <- get_hosts(x)[as.numeric(names(vals_on_host))]
-	selectionlist <- as.list(vals_on_host)
+
+	selections <- as.list(vals_on_host)
+
 	if (length(vals_on_host) == 1) {
 	firstfrom <- 1 + i[1] - get_from(x)[as.numeric(names(vals_on_host))]
 	first <- seq(firstfrom,
@@ -198,36 +203,44 @@ num_subset <- function(subset_type, id, x, i, j=NULL){
 	first <- seq(hostsize[as.numeric(names(vals_on_host[1]))] -
 		     vals_on_host[1] + 1,
 		     hostsize[as.numeric(names(vals_on_host[1]))])
-	selectionlist[[1]] <- first
+	selections[[1]] <- first
 	last <- seq(vals_on_host[length(vals_on_host)])
-	selectionlist[[length(selectionlist)]] <- last
+	selections[[length(selections)]] <- last
 	}
-	selectionlist[[1]] <- first
+	selections[[1]] <- first
 	if (length(vals_on_host) > 2) {
 	    lapply(2:{length(vals_on_host) - 1},
-	   function(y) selectionlist[[y]] <<- seq(vals_on_host[y]))
+	   function(y) selections[[y]] <<- seq(vals_on_host[y]))
 	}
-	mapply(function(host, selection) {
-	      tosub <- bquote(RS.eval(host, 
-			   assign(.(id), .(subset_type))))
-	      eval(eval(substitute(substitute(tosub,
-			    list(xname = get_name(x),
-				 iname = if (is.vector(i) ||
-					     is.null(j)) NULL else get_name(i),
-				 jname = if (is.vector(j) ||
-					     is.null(j)) NULL else get_name(j),
-				 i = i,
-				 j = j,
-				 selection = selection)),
-			 list(tosub = tosub))))
-	   }, hosts, selectionlist)
-	list(hosts = hosts,
-	     name = id,
-	     from = cumsum(c(1, 
-			     sapply(selectionlist, 
-				    length)[-length(selectionlist)])),
-	     to = cumsum(sapply(selectionlist,
-				length)))
+	
+	list(selections = selections, hosts = hosts)
+}
+
+num_subset <- function(subset_type, x, i, j=NULL){
+	id <- UUIDgenerate()
+	selectionlist <- generate_num_selection(x, i)
+	hosts <- selectionlist$hosts
+	selections <- selectionlist$selections
+
+	mapply(function(host, selection) 
+	       substitute(substitute(
+		      RS.eval(host, {assign(id, subset_type); NULL}),
+		      list(x = substitute(get(x), list(x = get_name(x))),
+			   i = selection,
+			   j = if (is.distributed(j))
+				   substitute(get(j),
+					      list(j = get_name(j))) else j),
+			      list(id = id, 
+				   subset_type = substitute(subset_type)))),
+	       hosts, selections)
+
+#	list(hosts = hosts,
+#	     name = id,
+#	     from = cumsum(c(1, 
+#			     sapply(selections, 
+#				    length)[-length(selections)])),
+#	     to = cumsum(sapply(selections,
+#				length)))
 }
 
 dist_print <- function(type, components, measurename, measure) {
@@ -321,23 +334,21 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 }
 
 `[.distributed.vector` <- function(x, i=NULL){
-	id <- UUIDgenerate()
+	if (is.null(i)) 
+		cat("receiving distributed vector...\n"); return(receive(x))
+	if (is.logical(i)) 
+		return(x[as.distributed(i, align_to=x)])
+
+	dist_ref <- 
 	if (is.distributed.vector(i)){
 		if (!all.aligned(x, i)) {
 	stop("Subsetting by non-logical distributed vector not yet implemented")
-		} else dist_ref <- dist_subset(get(xname)[get(iname)],
-					       id = id, x = x, i = i)
-	} else if (is.numeric(i)) {#assuming ordered & continuous numeric
-	    dist_ref <- num_subset(get(xname)[selection],
-				    id = id, x = x, i = i)
-	} else if (is.logical(i)) {
-		return(x[as.distributed(i, align_to=x)])
-	} else if (is.null(i)) { 
-		cat("receiving distributed vector...\n")
-		return(receive(x))
+		} else dist_subset(x[i], x = x, i = i)
+	} else if (is.numeric(i)) { num_subset(x[i], x = x, i = i)
 	} else stop(paste("Unrecognised class for i. Your class: ", 
 			  paste(class(i), collapse = ", ")))
-	do.call(distributed.vector, dist_ref)
+
+	#do.call(distributed.vector, dist_ref)
 }
 
 `%gin%` <- `%in%`
@@ -469,50 +480,28 @@ tail.distributed.data.frame <- function(x, n = 6L, ...)
 	x[{nrow(x)-min(n, nrow(x) - 1)}:nrow(x),]
 
 `[.distributed.data.frame` <- function(x, i=NULL, j=NULL){
-	id <- UUIDgenerate()
+	if (is.null(i) && is.null(j))
+		cat("receiving distributed data frame...\n"); return(receive(x))
 	if (is.logical(i)) return(x[as.distributed(i, align_to = x), j])
+
+	dist_ref <-
 	if (is.distributed.vector(i)) {
-		if (is.distributed.vector(j)) {
-		dist_ref <- dist_subset(get(xname)[get(iname), get(jname)],
-					id = id, x = x, i = i, j = j)
-		} else if (is.null(j)) {
-		dist_ref <- dist_subset(get(xname)[get(iname),],
-					id = id, x = x, i = i, j = j)
-		} else {
-		dist_ref <- dist_subset(get(xname)[get(iname),j],
-					id = id, x = x, i = i, j = j)
-		}
-	} else if (is.numeric(i)) {
-		if (is.distributed.vector(j)) {
-	        dist_ref <- num_subset(get(xname)[selection,get(jname)],
-				       id = id, x = x, i = i, j = j)
-		} else if (is.null(j)) {
-	        dist_ref <- num_subset(get(xname)[selection,],
-				       id = id, x = x, i = i, j = j)
-		} else {
-		dist_ref <- num_subset(get(xname)[selection,j],
-				       id = id, x = x, i = i, j = j)
-		}
+		if (is.null(j)) { dist_subset(x[i, ], x = x, i = i, j = j)
+		} else dist_subset(x[i, j], x = x, i = i, j = j)
 	} else if (is.null(i)) {
-		if (is.distributed.vector(j)) {
-		dist_ref <- dist_subset(get(xname)[, get(jname)],
-					id = id, x = x, i = i, j = j)
-		} else if (is.null(j)) {
-			cat("receiving distributed data frame...\n")
-			return(receive(x))
-		} else {
-		dist_ref <- dist_subset(get(xname)[,j],
-					id = id, x = x, i = i, j = j)
-		}
+		dist_subset(x[,j], x = x, i = i, j = j)
+	} else if (is.numeric(i)) {
+		if (is.null(j)) { num_subset(x[i,], x = x, i = i, j = j)
+		} else  num_subset(x[i,j], x = x, i = i, j = j) 
 	} else stop(paste("Unrecognised class for i. Your class: ", 
 			  paste(class(i), collapse = ", ")))
 
-	if (eval(bquote(RS.eval(.(dist_ref[["hosts"]][[1]]),
-				is.data.frame(get(.(id))))))) {
-		do.call(distributed.data.frame, dist_ref)
-	} else {
-		do.call(distributed.vector, dist_ref)
-	}
+#	if (eval(bquote(RS.eval(.(dist_ref[["hosts"]][[1]]),
+#				is.data.frame(get(.(id))))))) {
+#		do.call(distributed.data.frame, dist_ref)
+#	} else {
+#		do.call(distributed.vector, dist_ref)
+#	}
 }
 
 `[[.distributed.data.frame` <- function(x, i){
