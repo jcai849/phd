@@ -155,7 +155,10 @@ is.distributed.class <- function(classname) {
 
 is.distributed <- is.distributed.class("distributed.object")
 
+# Distributed Subsetting
+
 eval_subset_template <- function(host, subset_template, id, x, i, j) {
+	# template given as language variations on x[i,j]
 	eval(eval(substitute(substitute(
 		      RS.eval(host,
 			      {assign(id, subset_template); NULL}),
@@ -388,14 +391,21 @@ combine.table <- function(...) {
 		       function(names) sort(unique(do.call(c, names)))),
 			  names = names(chunknames[[1]]))
 	
-	wholearray <- array(0, dim = sapply(wholenames, length),
+	wholearray <- array(0L, dim = lengths(wholenames, use.names = FALSE),
 			    dimnames = wholenames)
 
-	as.table(Reduce(`+`, lapply(seq(length(tabs)), function(i)
-	       do.call(`[<-`, c(x = list(wholearray), 
-			lapply(seq(length(wholenames)), function(j)
-			  wholenames[[j]] %in% chunknames[[i]][[j]]),
-			    value = list(tabs[[i]]))))))
+	# the metalinguistics are for the sake of producing subsets of varying
+	# number of arguments, according to the array dimension - can't be done
+	# otherwise
+
+	lapply(seq(length(tabs)), function(i)
+	       {eval(substitute(wholearray_sub <<- wholearray_sub + tab_chunk, 
+		   list(wholearray_sub =  do.call(call, c(list("["),
+			x = quote(quote(wholearray)),
+			unname(chunknames[[i]]))),
+			tab_chunk = substitute(tabs[[i]], list(i = i)))))
+	NULL})
+	as.table(wholearray)
 }
 
 gtable <- table
@@ -412,7 +422,7 @@ table.distributed.object <- function(...){
 		do.call(table, 
 			lapply(.(refids),
 				 function(refid) get(refid)))))))
-	do.call(combine, nodecounts)
+	do.call(combine.table, nodecounts)
 }
 
 #returns non-distributed
