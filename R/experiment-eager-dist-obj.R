@@ -155,13 +155,8 @@ is.distributed.class <- function(classname) {
 
 is.distributed <- is.distributed.class("distributed.object")
 
-dist_subset <- function(subset_template, x, i, j=NULL) {
-	id <- UUIDgenerate()
-	subset_template <- substitute(subset_template)
-	hosts <- get_hosts(x)
-
-	lapply(hosts, function(host) 
-	       eval(eval(substitute(substitute(
+eval_subset_template <- function(host, subset_template, id, x, i, j) {
+	eval(eval(substitute(substitute(
 		      RS.eval(host,
 			      {assign(id, subset_template); NULL}),
 		    list(x = substitute(get(x), list(x = get_name(x))),
@@ -172,14 +167,24 @@ dist_subset <- function(subset_template, x, i, j=NULL) {
 				 substitute(get(j),
 					    list(j = get_name(j))) else j)),
 			 list(id = id,
-			      subset_template = subset_template)))))
+			      subset_template = subset_template))))
+	NULL
+}
+
+dist_subset <- function(subset_template, x, i, j=NULL) {
+	id <- UUIDgenerate()
+	subset_template <- substitute(subset_template)
+	hosts <- get_hosts(x)
+
+	lapply(hosts, eval_subset_template, 
+	       subset_template, id, x, i, j)
 
 	all.locs <- sapply(hosts, function(host) {
 	       eval(bquote(RS.eval(host,
 			   do.call(if (is.data.frame(get(.(id))) ||
-			       is.matrix(get(.(id)))) "nrow" else "length",
-				   list(get(.(id)))))))
-	   })
+				       is.matrix(get(.(id))))
+					   "nrow" else "length",
+				   list(get(.(id)))))))})
 	nonemptylocs <- all.locs != 0
 	locs <- all.locs[nonemptylocs]
 
@@ -228,15 +233,8 @@ num_subset <- function(subset_template, x, i, j=NULL){
 	selections <- selectionlist$selections
 
 	mapply(function(host, selection) 
-	       eval(eval(substitute(substitute(
-		      RS.eval(host, {assign(id, subset_template); NULL}),
-		      list(x = substitute(get(x), list(x = get_name(x))),
-			   i = selection,
-			   j = if (is.distributed(j))
-				   substitute(get(j),
-					      list(j = get_name(j))) else j)),
-		      list(id = id, 
-			   subset_template = subset_template)))),
+	       eval_subset_template(host, subset_template, 
+				    id, x, selection, j),
 	       hosts, selections)
 
 	list(hosts = hosts,
@@ -485,8 +483,8 @@ tail.distributed.data.frame <- function(x, n = 6L, ...)
 	x[{nrow(x)-min(n, nrow(x) - 1)}:nrow(x),]
 
 `[.distributed.data.frame` <- function(x, i=NULL, j=NULL){
-	if (is.null(i) && is.null(j))
-		cat("receiving distributed data frame...\n"); return(receive(x))
+	if (is.null(i) && is.null(j)){
+		cat("receiving distributed data frame...\n"); return(receive(x))}
 	if (is.logical(i)) return(x[as.distributed(i, align_to = x), j])
 
 	dist_ref <-
