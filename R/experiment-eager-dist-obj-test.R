@@ -60,7 +60,7 @@ d1[3:80, "Sepal.Length"]
 #d1[3:80, as.distributed("Sepal.Length", rsc)]
 #d1[3:80, as.distributed(c(T,F,T,F,F), rsc)]
 
-#d1[v1, ] # it works but it shouldn't!!
+#d1[v1, ] 
 #d1[v1, 3]
 #d1[v1, 3:5]
 #d1[v1, "Sepal.Length"]
