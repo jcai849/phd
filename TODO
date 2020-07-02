@@ -1,7 +1,12 @@
+. Redo tree to be more sensible and working with flights
+.. Remove unnecessary data subsetting
+. Get multiple sessions on each host
 . Writing on doc/experiment-distributed-decision-tree.tex
+. Pruning for tree
 . Start on mid-level MapReduce-style api for the distributed objects
 . Regression in CART
 . Attempt to apply GLM as per Simon's email to the distributed object
+. implement some sort in eager dist obj
 . Interface: experiment with lazy distributed objects
 . Implementation: experiment with metadata being encapsulated in slave processes
 . Notes on Hadoop Monitoring links (which port for what, etc.)

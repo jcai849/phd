@@ -1,3 +1,13 @@
+2020-07-02	13:22:14	Complete factor of evaluation of subset 
+				template
+		16:00:02	Table combine created in 
+				R/experiment-eager-dist-obj.R
+		16:16:46	Tests and corrections
+2020-07-01	17:17:33	Test refactoring of subsetting
+		18:17:19	Fixes on subset refactor
+2020-06-30	12:54:34	Notes on theory of decision trees in
+				doc/experiment-dist-decision-tree.tex
+		17:31:30	meeting
 2020-06-29	21:02:14	Finished writing 
 				doc/experiment-eager-dist-obj-supp.tex
 2020-06-26	14:51:01	Sorting out uni computer etc.
