@@ -375,47 +375,27 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	do.call(distributed.vector, dist_ref)
 }
 
-`%addjoin%` <- function(x, y){
-	switch(length(dim(x)), 
-	       "1" = {
-	if (identical(rownames(x), rownames(y))) return(x + y)
-	xyr <- rownames(x)[rownames(x) %in% rownames(y)]
-	xruniq <- rownames(x)[!rownames(x) %in% rownames(y)]
-	yruniq <- rownames(y)[!rownames(y) %in% rownames(x)]
-	allr <- c(xyr, xruniq, yruniq)
-	out <- structure(integer(length(allr)), names = allr)
-	out[xyr] <- x[xyr] + y[xyr]
-	out[xruniq] <- x[xruniq]
-	out[yruniq] <- y[yruniq]
-	as.table(out)
-	       }, 
-	       "2" = {
-	if (identical(rownames(x), rownames(y)) &&
-	    identical(colnames(x), colnames(y))) return(x + y)
-	xyr <- rownames(x)[rownames(x) %in% rownames(y)]
-	xyc <- colnames(x)[colnames(x) %in% colnames(y)]
-	xruniq <- rownames(x)[!rownames(x) %in% rownames(y)]
-	xcuniq <- colnames(x)[!colnames(x) %in% colnames(y)]
-	yruniq <- rownames(y)[!rownames(y) %in% rownames(x)]
-	ycuniq <- colnames(y)[!colnames(y) %in% colnames(x)]
-	allr <- c(xyr, xruniq, yruniq)
-	allc <- c(xyc, xcuniq, ycuniq)
+combine <- function(...) UseMethod("combine", list(...)[[1L]])
 
-	out <- matrix(nrow = length(allr),
-		      ncol = length(allc),
-		      dimnames = list(allr, allc))
-	out[xruniq, ycuniq] <- 0
-	out[yruniq, xcuniq] <- 0
-	out[xyr, xyc] <- x[xyr, xyc] + y[xyr, xyc]
-	out[xyr, xcuniq] <- x[xyr, xcuniq]
-	out[xruniq, xyc] <- x[xruniq, xyc]
-	out[xruniq, xcuniq] <- x[xruniq, xcuniq]
-	out[xyr, ycuniq] <- y[xyr, ycuniq]
-	out[yruniq, xyc] <- y[yruniq, xyc]
-	out[yruniq, ycuniq] <- y[yruniq, ycuniq]
-	as.table(out)
-	       },
-	       stop("too many dimensions"))
+combine.table <- function(...) {
+	tabs <- list(...)
+	chunknames <- lapply(tabs, dimnames)
+	stopifnot(all(lengths(chunknames) == length(chunknames[[1]])))
+	groupedvarnames <- lapply(seq(length(chunknames[[1]])),
+			      function(i) lapply(chunknames,
+						 function(chunk) chunk[[i]]))
+	wholenames <- structure(lapply(groupedvarnames,
+		       function(names) sort(unique(do.call(c, names)))),
+			  names = names(chunknames[[1]]))
+	
+	wholearray <- array(0, dim = sapply(wholenames, length),
+			    dimnames = wholenames)
+
+	as.table(Reduce(`+`, lapply(seq(length(tabs)), function(i)
+	       do.call(`[<-`, c(x = list(wholearray), 
+			lapply(seq(length(wholenames)), function(j)
+			  wholenames[[j]] %in% chunknames[[i]][[j]]),
+			    value = list(tabs[[i]]))))))
 }
 
 gtable <- table
@@ -425,14 +405,14 @@ table <- function(...) UseMethod("table", list(...)[[1]])
 table.default <- function(...) do.call(gtable, list(...))
 
 # assumes no other arguments
-table.distributed.vector <- function(...){
+table.distributed.object <- function(...){
 	refids <- sapply(list(...), function(x) get_name(x))
 	nodecounts <- lapply(get_hosts(list(...)[[1]]),
 	     function(host) eval(bquote(RS.eval(host,
 		do.call(table, 
 			lapply(.(refids),
 				 function(refid) get(refid)))))))
-	Reduce(`%addjoin%`, nodecounts)
+	do.call(combine, nodecounts)
 }
 
 #returns non-distributed
