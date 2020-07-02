@@ -1,6 +1,7 @@
 # Cluster creation
 
 hosts <- paste0("hadoop", 1:8)
+kill_servers(hosts)
 rsc <- make_cluster(hosts)
 RS.eval(rsc[[1]], ls())
 
