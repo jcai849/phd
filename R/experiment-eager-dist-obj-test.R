@@ -100,6 +100,8 @@ lapply(d1, receive)
 
 unique(d1$Species)
 table(d1$Species)
+table(d1$Species, d1$Sepal.Length)
+system.time(table(d1))
 d1$Species %in% c("virginica", "setosa")
 head(d1[d1$Species %in% c("virginica", "setosa"),][])
 
