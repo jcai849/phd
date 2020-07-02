@@ -153,14 +153,17 @@ is.distributed.class <- function(classname) {
 	function(x) classname %in% class(x)
 }
 
-dist_subset <- function(subset_type, x, i, j=NULL) {
+is.distributed <- is.distributed.class("distributed.object")
+
+dist_subset <- function(subset_template, x, i, j=NULL) {
 	id <- UUIDgenerate()
+	subset_template <- substitute(subset_template)
 	hosts <- get_hosts(x)
 
 	lapply(hosts, function(host) 
-	       substitute(substitute(
+	       eval(eval(substitute(substitute(
 		      RS.eval(host,
-			      {assign(id, subset_type); NULL}),
+			      {assign(id, subset_template); NULL}),
 		    list(x = substitute(get(x), list(x = get_name(x))),
 			 i = if (is.distributed(i)) 
 				 substitute(get(i), 
@@ -168,21 +171,22 @@ dist_subset <- function(subset_type, x, i, j=NULL) {
 			 j = if (is.distributed(j))
 				 substitute(get(j),
 					    list(j = get_name(j))) else j)),
-			 list(id = id, subset_type = substitute(subset_type))))
-#
-#	all.locs <- sapply(hosts, function(host) {
-#	       eval(bquote(RS.eval(host,
-#			   do.call(if (is.data.frame(get(.(id))) ||
-#			       is.matrix(get(.(id)))) "nrow" else "length",
-#				   list(get(.(id)))))))
-#	   })
-#	nonemptylocs <- sapply(all.locs, function(v) v != 0)
-#	locs <- all.locs[nonemptylocs]
-#
-#	list(hosts = get_hosts(x)[nonemptylocs],
-#	      name = id,
-#	      from = cumsum(c(1,locs[-length(locs)])),
-#	      to = cumsum(locs))
+			 list(id = id,
+			      subset_template = subset_template)))))
+
+	all.locs <- sapply(hosts, function(host) {
+	       eval(bquote(RS.eval(host,
+			   do.call(if (is.data.frame(get(.(id))) ||
+			       is.matrix(get(.(id)))) "nrow" else "length",
+				   list(get(.(id)))))))
+	   })
+	nonemptylocs <- all.locs != 0
+	locs <- all.locs[nonemptylocs]
+
+	list(hosts = get_hosts(x)[nonemptylocs],
+	      name = id,
+	      from = cumsum(c(1,locs[-length(locs)])),
+	      to = cumsum(locs))
 }
 
 generate_num_selection <- function(x, i){
@@ -216,31 +220,32 @@ generate_num_selection <- function(x, i){
 	list(selections = selections, hosts = hosts)
 }
 
-num_subset <- function(subset_type, x, i, j=NULL){
+num_subset <- function(subset_template, x, i, j=NULL){
 	id <- UUIDgenerate()
+	subset_template <- substitute(subset_template)
 	selectionlist <- generate_num_selection(x, i)
 	hosts <- selectionlist$hosts
 	selections <- selectionlist$selections
 
 	mapply(function(host, selection) 
-	       substitute(substitute(
-		      RS.eval(host, {assign(id, subset_type); NULL}),
+	       eval(eval(substitute(substitute(
+		      RS.eval(host, {assign(id, subset_template); NULL}),
 		      list(x = substitute(get(x), list(x = get_name(x))),
 			   i = selection,
 			   j = if (is.distributed(j))
 				   substitute(get(j),
-					      list(j = get_name(j))) else j),
-			      list(id = id, 
-				   subset_type = substitute(subset_type)))),
+					      list(j = get_name(j))) else j)),
+		      list(id = id, 
+			   subset_template = subset_template)))),
 	       hosts, selections)
 
-#	list(hosts = hosts,
-#	     name = id,
-#	     from = cumsum(c(1, 
-#			     sapply(selections, 
-#				    length)[-length(selections)])),
-#	     to = cumsum(sapply(selections,
-#				length)))
+	list(hosts = hosts,
+	     name = id,
+	     from = cumsum(c(1, 
+			     sapply(selections, 
+				    length)[-length(selections)])),
+	     to = cumsum(sapply(selections,
+				length)))
 }
 
 dist_print <- function(type, components, measurename, measure) {
@@ -334,8 +339,8 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 }
 
 `[.distributed.vector` <- function(x, i=NULL){
-	if (is.null(i)) 
-		cat("receiving distributed vector...\n"); return(receive(x))
+	if (is.null(i)) {
+		cat("receiving distributed vector...\n"); return(receive(x))}
 	if (is.logical(i)) 
 		return(x[as.distributed(i, align_to=x)])
 
@@ -348,7 +353,7 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	} else stop(paste("Unrecognised class for i. Your class: ", 
 			  paste(class(i), collapse = ", ")))
 
-	#do.call(distributed.vector, dist_ref)
+	do.call(distributed.vector, dist_ref)
 }
 
 `%gin%` <- `%in%`
@@ -496,12 +501,12 @@ tail.distributed.data.frame <- function(x, n = 6L, ...)
 	} else stop(paste("Unrecognised class for i. Your class: ", 
 			  paste(class(i), collapse = ", ")))
 
-#	if (eval(bquote(RS.eval(.(dist_ref[["hosts"]][[1]]),
-#				is.data.frame(get(.(id))))))) {
-#		do.call(distributed.data.frame, dist_ref)
-#	} else {
-#		do.call(distributed.vector, dist_ref)
-#	}
+	if (eval(bquote(RS.eval(.(dist_ref[["hosts"]][[1]]),
+				is.data.frame(get(.(dist_ref$name))))))) {
+		do.call(distributed.data.frame, dist_ref)
+	} else {
+		do.call(distributed.vector, dist_ref)
+	}
 }
 
 `[[.distributed.data.frame` <- function(x, i){
