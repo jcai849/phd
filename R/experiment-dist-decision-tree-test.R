@@ -2,17 +2,18 @@
 
 X <- mtcars[,c("vs", "am", "gear", "carb")]
 y <- mtcars$cyl
-tree <- dist_decision_tree(X, y)
+tree <- decision_tree(X, y)
 predict(tree, X)
 
 # Distributed Decision Tree
 
 hosts <- paste0("hadoop", 1:8)
+kill_servers(hosts)
 rsc <- make_cluster(hosts)
 
 dX <- as.distributed(mtcars[,c("vs", "am", "gear", "carb")], rsc)
 dy <- as.distributed(mtcars$cyl, rsc)
-dtree <- dist_decision_tree(dX, dy)
+dtree <- decision_tree(dX, dy)
 predict(dtree, X)
 
 # Big Distributed Decision Tree
@@ -37,7 +38,7 @@ nrow(big)
 big[100000000,][]
 bigX <- big[,c("Month", "DayOfWeek")]
 bigy <- big$Diverted
-bigtree <- dist_decision_tree(bigX, bigy)
-biggertree <- dist_decision_tree(bigX, bigy, max_depth=2, threshold = 0.0001)
+bigtree <- decision_tree(bigX, bigy)
+biggertree <- decision_tree(bigX, bigy, max_depth=2, threshold = 0)
 
 kill_servers(hosts)
