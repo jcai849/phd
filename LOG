@@ -1,4 +1,6 @@
 2020-07-03	11:19:20	10x faster table combine
+		16:16:47	infinitely faster decision tree (now only 4
+				mins instead of guaranteed crash)
 2020-07-02	13:22:14	Complete factor of evaluation of subset 
 				template
 		16:00:02	Table combine created in 
