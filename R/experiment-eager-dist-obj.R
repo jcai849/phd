@@ -3,10 +3,6 @@
 library(RSclient)
 library(uuid)
 
-# Parallel setup
-
-options(mc.cores=detectCores())
-
 # Cluster
 
 make_cluster <- function(hosts = "localhost", conns = 1, ...) {
