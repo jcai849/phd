@@ -158,10 +158,11 @@ is.distributed <- is.distributed.class("distributed.object")
 # Distributed Subsetting
 
 eval_subset_template <- function(host, subset_template, id, x, i, j) {
-	# template given as language variations on x[i,j]
+	# template given as language variations of x[i,j]
 	eval(eval(substitute(substitute(
 		      RS.eval(host,
-			      {assign(id, subset_template); NULL}),
+			      {assign(id, subset_template); NULL},
+			      wait = FALSE),
 		    list(x = substitute(get(x), list(x = get_name(x))),
 			 i = if (is.distributed(i)) 
 				 substitute(get(i), 
@@ -171,6 +172,7 @@ eval_subset_template <- function(host, subset_template, id, x, i, j) {
 					    list(j = get_name(j))) else j)),
 			 list(id = id,
 			      subset_template = subset_template))))
+	RS.collect(host)
 	NULL
 }
 
@@ -182,12 +184,14 @@ dist_subset <- function(subset_template, x, i, j=NULL) {
 	lapply(hosts, eval_subset_template, 
 	       subset_template, id, x, i, j)
 
-	all.locs <- sapply(hosts, function(host) {
+	lapply(hosts, function(host) {
 	       eval(bquote(RS.eval(host,
 			   do.call(if (is.data.frame(get(.(id))) ||
 				       is.matrix(get(.(id))))
 					   "nrow" else "length",
-				   list(get(.(id)))))))})
+				   list(get(.(id)))),
+				   wait = FALSE)))})
+	all.locs <- sapply(hosts, RS.collect)
 	nonemptylocs <- all.locs != 0
 	locs <- all.locs[nonemptylocs]
 
@@ -417,19 +421,23 @@ table.default <- function(...) do.call(gtable, list(...))
 # assumes no other arguments
 table.distributed.object <- function(...){
 	refids <- sapply(list(...), function(x) get_name(x))
-	nodecounts <- lapply(get_hosts(list(...)[[1]]),
+	lapply(get_hosts(list(...)[[1]]),
 	     function(host) eval(bquote(RS.eval(host,
 		do.call(table, 
 			lapply(.(refids),
-				 function(refid) get(refid)))))))
+				 function(refid) get(refid))),
+						wait = FALSE))))
+	nodecounts <- lapply(get_hosts(list(...)[[1]]), RS.collect)
 	do.call(combine.table, nodecounts)
 }
 
 #returns non-distributed
 unique.distributed.vector <- function(x) {
-	unique(unlist(lapply(get_hosts(x),
-			     function(host) eval(bquote(RS.eval(host,
-				  unique(get(.(get_name(x))))))))))
+	lapply(get_hosts(x),
+	       function(host) eval(bquote(RS.eval(host,
+						  unique(get(.(get_name(x)))), 
+						  wait = FALSE))))
+	unique(unlist(lapply(get_hosts(x), RS.collect)))
 }
 # distributed.data.frame methods
 
