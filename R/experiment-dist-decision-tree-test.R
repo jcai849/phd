@@ -40,5 +40,6 @@ bigX <- big[,c("Month", "DayOfWeek")]
 bigy <- big$Diverted
 bigtree <- decision_tree(bigX, bigy)
 biggertree <- decision_tree(bigX, bigy, max_depth=2, threshold = 0)
+evenbiggertree <- decision_tree(bigX, bigy, max_depth=3, threshold = 0)
 
 kill_servers(hosts)
