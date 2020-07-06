@@ -2,7 +2,8 @@
 
 hosts <- paste0("hadoop", 1:8)
 kill_servers(hosts)
-rsc <- make_cluster(hosts)
+rsc <- make_cluster(hosts, 4)
+str(rsc)
 RS.eval(rsc[[1]], ls())
 
 # Distributed Vector Coercion
