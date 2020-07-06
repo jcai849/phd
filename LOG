@@ -1,3 +1,5 @@
+2020-07-06	14:54:25	Parallelisation of unique, table, and 
+				subsetting
 2020-07-03	11:19:20	10x faster table combine
 		16:16:47	infinitely faster decision tree (now only 4
 				mins instead of guaranteed crash)

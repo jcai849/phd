@@ -1,5 +1,4 @@
 . Get multiple sessions on each host
-. profile and speed up table/decision tree
 . Writing on doc/experiment-distributed-decision-tree.tex
 . Pruning for tree
 . Start on mid-level MapReduce-style api for the distributed objects
