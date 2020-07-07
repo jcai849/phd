@@ -9,7 +9,7 @@ predict(tree, X)
 
 hosts <- paste0("hadoop", 1:8)
 kill_servers(hosts)
-rsc <- make_cluster(hosts)
+rsc <- make_cluster(hosts, 4)
 
 dX <- as.distributed(mtcars[,c("vs", "am", "gear", "carb")], rsc)
 dy <- as.distributed(mtcars$cyl, rsc)
@@ -34,8 +34,15 @@ big <- read.distributed.csv(file = "~/flights-chunk.csv",
 			   col.names = names(cols),
 			   colClasses = as.vector(cols),
 			    to = rsc)
+big <- read.distributed.csv2(cluster = rsc,
+			     path = "~",
+			     pattern = "flights-chunk-.*",
+			     header = FALSE,
+			     col.names = names(cols),
+			     colClasses = as.vector(cols))
 nrow(big)
 big[100000000,][]
+system.time(table(big$Dest, big$Origin))
 bigX <- big[,c("Month", "DayOfWeek")]
 bigy <- big$Diverted
 bigtree <- decision_tree(bigX, bigy)
