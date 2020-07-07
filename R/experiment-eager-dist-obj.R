@@ -15,8 +15,9 @@ make_cluster <- function(hosts = "localhost", conns = 1, ...) {
 }
 
 connect_servers <- function(hosts, conns) {
-	connections <- unlist(mapply(function(host, conns) replicate(conns, RS.connect(host)),
-	       host = hosts, conns, SIMPLIFY = FALSE))
+	connections <- unlist(mapply(function(host, conns)
+				     replicate(conns, RS.connect(host)),
+				     host = hosts, conns, SIMPLIFY = FALSE))
 	names(connections) <- unlist(mapply(rep, hosts, conns))
 	connections
 }
@@ -33,6 +34,16 @@ do_servers <- function(command, ...) {
 start_servers <- do_servers("R CMD Rserve --vanilla", wait = FALSE)
 
 kill_servers <- do_servers("killall Rserve", wait = FALSE)
+
+get_host_conns <- function(cluster) { # one connection per host
+	cluster[match(unique(names(cluster)), names(cluster))]
+}
+
+hostlist <- function(cluster) {
+	sapply(unique(names(cluster)), 
+	       function(host) cluster[names(cluster) %in% host],
+	simplify = FALSE)
+}
 
 # Communication
 
@@ -136,10 +147,6 @@ distributed.class <- function(classname){
 
 get_ref_content <- function(content) function(ref) get(content, envir = ref)
 get_conns <- get_ref_content("hosts")
-get_host_conns <- function(ref) { # one connection per host
-	cluster <- get_ref_content("hosts")
-	cluster[match(unique(names(cluster)), names(cluster))]
-}
 get_name <- get_ref_content("name")
 get_to <- get_ref_content("to")
 get_from <- get_ref_content("from")
@@ -349,7 +356,9 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	dist_ref <- 
 	if (is.distributed.vector(i)){
 		if (!all.aligned(x, i)) {
-	stop("Subsetting by non-logical distributed vector not yet implemented")
+	stop(paste0("Subsetting by non-logical distributed vector not yet implemented",
+		    "x-from: ", paste0(get_from(x)),
+		    "i-from: ", paste0(get_from(i)),))
 		} else dist_subset(x[i], x = x, i = i)
 	} else if (is.numeric(i)) { num_subset(x[i], x = x, i = i)
 	} else stop(paste("Unrecognised class for i. Your class: ", 
@@ -436,7 +445,66 @@ unique.distributed.vector <- function(x) {
 						  wait = FALSE))))
 	unique(unlist(lapply(get_conns(x), RS.collect)))
 }
+
 # distributed.data.frame methods
+
+even_split <- function(obj, dest) {
+	destsize <- length(dest)
+	objsize <- length(obj)
+	spliton <- if (destsize < objsize) {
+		bucketsto <- cumsum(rep(objsize / 
+					destsize, destsize))
+		bucketsfrom <- c(0, bucketsto[-destsize])
+		facsplit = sapply(seq(objsize),
+				  function(i) which(i > bucketsfrom &
+						    i <= bucketsto))
+		c(TRUE, !{c(NA, facsplit[-objsize]) -
+		  facsplit == 0}[-1])
+	} else rep(TRUE, objsize)
+	list(dest = dest[seq(sum(spliton))],
+	     from = which(spliton), 
+	     to = c(which(spliton)[-1] - 1, objsize))
+}
+
+read.distributed.csv2 <- function(cluster, path = ".", pattern = NULL, ...) {
+	id <- UUIDgenerate()
+	lapply(get_host_conns(cluster), function(conn)
+	       eval(bquote(RS.eval(conn, list.files(.(path), .(pattern)),
+				   wait = FALSE))))
+	hostfiles <- lapply(get_host_conns(cluster), RS.collect)
+	hostlist <- hostlist(cluster)
+	mapply(function(h, l, n) {
+	       if (l < 1) warning(paste0("No files detected at host: ", h))
+	       if (n > l) stop(paste0(
+			 "More files than connections at host: ", h))},
+	       names(hostlist), lengths(hostlist), lengths(hostfiles))
+
+	destinations <- list()
+	lapply(names(hostfiles), function(hostname) {
+	       tosend <- even_split(hostfiles[[hostname]], 
+				    hostlist[[hostname]])
+	       destinations <<- c(destinations, tosend$dest)
+	       lapply(seq(length(tosend$dest)), function(i)
+		      eval(bquote(RS.eval(tosend$dest[[i]],{
+		     assign(.(id), 
+			    do.call(read.csv,
+			   .(c(file = paste0(path, "/", 
+					     hostfiles[[hostname]][i]),
+			       list(...)))));
+		     NULL},
+				     wait = FALSE))))})
+
+	locs <- sapply(destinations, function(conn) {
+			       RS.collect(conn)
+			       eval(bquote(RS.eval(conn,
+						   nrow(get(.(id))))))})
+
+	distributed.data.frame(hosts = structure(destinations,
+						 class = "cluster"),
+	      name = id,
+	      from = cumsum(c(1,locs[-length(locs)])),
+	      to = cumsum(locs))
+}
 
 read.distributed.csv <- function(..., to){
 	id <- UUIDgenerate()
