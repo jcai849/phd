@@ -9,9 +9,7 @@ make_cluster <- function(hosts = "localhost", conns = 1, ...) {
 	uninitd <- unlist(do_servers("pgrep Rserve")(hosts)) != 0 
 	if (sum(uninitd) > 0) start_servers(hosts[uninitd])
 	Sys.sleep(2)
-	cluster <- connect_servers(hosts, conns)
-	class(cluster) <- "cluster"
-	cluster
+	as.cluster(connect_servers(hosts, conns))
 }
 
 connect_servers <- function(hosts, conns) {
@@ -28,7 +26,7 @@ do_servers <- function(command, ...) {
 		lapply(hosts, function(host) 
 		       do.call(system, 
 			       c(list(command = paste("ssh", host, command)),
-				      addl_args)))
+				 addl_args)))
 }
 
 start_servers <- do_servers("R CMD Rserve --vanilla", wait = FALSE)
@@ -37,6 +35,13 @@ kill_servers <- do_servers("killall Rserve", wait = FALSE)
 
 get_host_conns <- function(cluster) { # one connection per host
 	cluster[match(unique(names(cluster)), names(cluster))]
+}
+
+as.cluster <- function(x) UseMethod("as.cluster", x)
+
+as.cluster.list <- function(x) {
+	class(x) <- "cluster"
+	x
 }
 
 hostlist <- function(cluster) {
@@ -154,7 +159,7 @@ get_from <- get_ref_content("from")
 distributed.object <- distributed.class(NULL)
 
 is.distributed.class <- function(classname) {
-	function(x) classname %in% class(x)
+	function(x) inherits(x, classname)
 }
 
 is.distributed <- is.distributed.class("distributed.object")
@@ -162,7 +167,7 @@ is.distributed <- is.distributed.class("distributed.object")
 # Distributed Subsetting
 
 eval_subset_template <- function(host, subset_template, id, x, i, j) {
-	# template given as language variations of x[i,j]
+	# subset_template to be given as quoted language variations of x[i,j]
 	eval(eval(substitute(substitute(
 		      RS.eval(host,
 			      {assign(id, subset_template); NULL},
@@ -264,17 +269,22 @@ dist_print <- function(type, components, measurename, measure) {
 	cat(paste0("Header ", components, ":\n\n"))
 	print(receive(head(x, elements)))
 	cat("\n")
-	hostnames <- as.list(names(get_conns(x)))
-	fmt <- paste0("Distributed over ",
+	nconns <- length(get_conns(x))
+	connfmt <- paste0("Distributed over %d connection", 
+			  if (nconns == 1) "s " else " ")
+	hostnames <- as.list(names(hostlist(x)))
+	hostfmt <- paste0("on ",
 		      switch(as.character(length(hostnames)),
-			     "1" = "node %s",
-			     "2" = "nodes %s and %s",
-			     "3" = "nodes %s, %s, and %s",
-			     "node %s and %d others"),
+			     "1" = "host %s",
+			     "2" = "hosts %s and %s",
+			     "3" = "hosts %s, %s, and %s",
+			     "host %s and %d others"),
 		      "\n")
 	addl <- if (length(hostnames) > 3) 
 		c(hostnames[1], length(hostnames) - 1) else hostnames
-	cat(do.call(sprintf, c(list(fmt = fmt), as.list(addl))))
+	cat(paste0(sprintf(connfmt, nconns),
+		   do.call(sprintf,
+			   c(list(fmt = hostfmt), as.list(addl)))))
 	}
 }
 
@@ -293,6 +303,7 @@ tail.distributed.vector <- function(x, n = 6L, ...)
 
 print.distributed.vector <- dist_print("Distributed Vector", 
 				       "elements", "Length", length)
+
 receive.distributed.vector <- dist_receive(c)
 
 Ops.distributed.vector <- function(e1, e2=NULL) {
@@ -474,7 +485,7 @@ read.distributed.csv2 <- function(cluster, path = ".", pattern = NULL, ...) {
 	hostfiles <- lapply(get_host_conns(cluster), RS.collect)
 	hostlist <- hostlist(cluster)
 	mapply(function(h, l, n) {
-	       if (l < 1) warning(paste0("No files detected at host: ", h))
+	       if (l < 1) stop(paste0("No files detected at host: ", h))
 	       if (n > l) stop(paste0(
 			 "More files than connections at host: ", h))},
 	       names(hostlist), lengths(hostlist), lengths(hostfiles))
