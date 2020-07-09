@@ -1,6 +1,6 @@
 . Create test suite
-.. Learn best practices for testing
 .. create
+. Refactor subsetting - generalise to arbitrary dimension
 . Abstract out the connection interface
 . multiple choices for categories in tree
 . dendrogram for tree (unclass to explore)
