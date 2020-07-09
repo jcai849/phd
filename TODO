@@ -1,8 +1,14 @@
-. Get multiple sessions on each host
-. Writing on doc/experiment-distributed-decision-tree.tex
+. Create test suite
+.. Learn best practices for testing
+.. create
+. Abstract out the connection interface
+. multiple choices for categories in tree
+. dendrogram for tree (unclass to explore)
+. Predict method for tree
 . Pruning for tree
-. Start on mid-level MapReduce-style api for the distributed objects
+. Writing on doc/experiment-distributed-decision-tree.tex
 . Regression in CART
+. Write on constraints of distributed objects
 . Attempt to apply GLM as per Simon's email to the distributed object
 . implement some sort in eager dist obj
 . Interface: experiment with lazy distributed objects

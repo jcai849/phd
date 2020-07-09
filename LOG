@@ -1,4 +1,8 @@
+2020-07-09	18:03:03	fix numeric subsetting surprises
+2020-07-08	09:56:44	update print method to reflect new cluster
+		11:17:00	renames of cluster methods etc
 2020-07-07	13:21:30	initial read.csv implemented
+		15:40:57	meeting
 2020-07-06	14:54:25	Parallelisation of unique, table, and 
 				subsetting (1 min decision tree)
 		19:59:21	Cluster decoupling
