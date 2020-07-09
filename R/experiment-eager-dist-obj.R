@@ -177,10 +177,10 @@ is.distributed <- is.distributed.class("distributed.object")
 
 # Distributed Subsetting
 
-eval_subset_template <- function(host, subset_template, id, x, i, j) {
+eval_subset_template <- function(loc, subset_template, id, x, i, j) {
 	# subset_template to be given as quoted language variations of x[i,j]
 	eval(eval(substitute(substitute(
-		      RS.eval(host,
+		      RS.eval(loc,
 			      {assign(id, subset_template); NULL},
 			      wait = FALSE),
 		    list(x = substitute(get(x), list(x = get_name(x))),
@@ -222,55 +222,31 @@ dist_subset <- function(subset_template, x, i, j=NULL) {
 }
 
 generate_num_selection <- function(x, i){
-	hostnums <- sapply(i, 
-	   function(y) which.min({y - get_from(x)}[(y - get_from(x)) >= 0]))
-	vals_on_host <- table(hostnums)
-	locsize <- get_to(x) - get_from(x) + 1
-	locs <- get_locs(x)[as.numeric(names(vals_on_host))]
+	which.loc <- rowSums(outer(i, f, "-") >= 0)
+	allselections <- i - f[which.loc] + 1
+	locs <- unique(which.loc)
+	list(locs = locs, 
+	     selections = lapply(locs, function(loc)
+				 allselections[which.loc == loc]))
 
-	selections <- as.list(vals_on_host)
-
-	if (length(vals_on_host) == 1) {
-	firstfrom <- 1 + i[1] - get_from(x)[as.numeric(names(vals_on_host))]
-	first <- seq(firstfrom,
-		     firstfrom + length(i) - 1)
-	}
-	if (length(vals_on_host) > 1) {
-	first <- seq(locsize[as.numeric(names(vals_on_host[1]))] -
-		     vals_on_host[1] + 1,
-		     locsize[as.numeric(names(vals_on_host[1]))])
-	selections[[1]] <- first
-	last <- seq(vals_on_host[length(vals_on_host)])
-	selections[[length(selections)]] <- last
-	}
-	selections[[1]] <- first
-	if (length(vals_on_host) > 2) {
-	    lapply(2:{length(vals_on_host) - 1},
-	   function(y) selections[[y]] <<- seq(vals_on_host[y]))
-	}
-	
-	list(selections = selections, locs = locs)
 }
 
 num_subset <- function(subset_template, x, i, j=NULL){
 	id <- UUIDgenerate()
 	subset_template <- substitute(subset_template)
 	selectionlist <- generate_num_selection(x, i)
-	locs <- selectionlist$locs
+	locs <- get_locs(x)[selectionlist$locs]
 	selections <- selectionlist$selections
 
-	mapply(function(host, selection) 
-	       eval_subset_template(host, subset_template, 
+	mapply(function(loc, selection) 
+	       eval_subset_template(loc, subset_template, 
 				    id, x, selection, j),
 	       locs, selections)
 
 	list(locs = locs,
 	     name = id,
-	     from = cumsum(c(1, 
-			     sapply(selections, 
-				    length)[-length(selections)])),
-	     to = cumsum(sapply(selections,
-				length)))
+	     from = cumsum(c(1, lengths(selections)[-length(selections)])),
+	     to = cumsum(lengths(selections)))
 }
 
 dist_print <- function(type, components, measurename, measure) {
@@ -322,9 +298,10 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	if (is.null(e2)) {
 			lapply(get_locs(e1), function(host) eval(bquote(
 				RS.eval(host,
-				quote({assign(.(id), 
-				  do.call(.(.Generic), 
-				list(get(.(get_name(e1)))))); NULL}),
+				{assign(.(id), 
+					do.call(.(.Generic), 
+						list(get(.(get_name(e1))))));
+				NULL},
 				wait = FALSE))))
 			lapply(get_locs(e1), RS.collect)
 			return(distributed.vector(locs = get_locs(e1),
@@ -338,10 +315,11 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 		    (length(e1) == 1 || length(e2) == 1)) {
 			lapply(get_locs(e1), function(host) eval(bquote(
 				RS.eval(host,
-				quote({assign(.(id), 
-				  do.call(.(.Generic), 
-				list(get(.(get_name(e1))),
-				     get(.(get_name(e2)))))); NULL}),
+				{assign(.(id), 
+					do.call(.(.Generic), 
+						list(get(.(get_name(e1))),
+						     get(.(get_name(e2)))))); 
+				NULL},
 					wait = FALSE))))
 			lapply(get_locs(e1), RS.collect)
 			return(distributed.vector(locs = get_locs(e1),
@@ -397,14 +375,14 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	lapply(get_locs(x),
 	       function(host) eval(bquote(RS.eval(host, 
 			  {assign(.(id), 
-				  get(.(get_name(x))) %in% .(table)); NULL},
-						  wait = FALSE))))
+				  get(.(get_name(x))) %in% .(table));
+			  NULL},
+			  wait = FALSE))))
 	lapply(get_locs(x), RS.collect)
-	dist_ref <- list(host = get_locs(x),
-			 name = id, 
-			 from = get_from(x),
-			 to = get_to(x))
-	do.call(distributed.vector, dist_ref)
+	distributed.vector(host = get_locs(x),
+			   name = id, 
+			   from = get_from(x),
+			   to = get_to(x))
 }
 
 combine <- function(...) UseMethod("combine", list(...)[[1L]])
@@ -467,10 +445,10 @@ unique.distributed.vector <- function(x) {
 
 # distributed.data.frame methods
 
-read.distributed.csv2 <- function(cluster, path = ".", pattern = NULL, ...) {
+read.distributed.csv <- function(cluster, paths,  ...) {
 	id <- UUIDgenerate()
 	lapply(get_hosts(cluster), function(conn)
-	       eval(bquote(RS.eval(conn, list.files(.(path), .(pattern)),
+	       eval(bquote(RS.eval(conn, Sys.glob(.(paths)),
 				   wait = FALSE))))
 	hostfiles <- lapply(get_hosts(cluster), RS.collect)
 	hostlist <- hostlist(cluster)
@@ -489,42 +467,20 @@ read.distributed.csv2 <- function(cluster, path = ".", pattern = NULL, ...) {
 		      eval(bquote(RS.eval(tosend$dest[[i]],{
 		     assign(.(id), 
 			    do.call(read.csv,
-			   .(c(file = paste0(path, "/", 
-					     hostfiles[[hostname]][i]),
+			   .(c(file = hostfiles[[hostname]][i],
 			       list(...)))));
 		     NULL},
 				     wait = FALSE))))})
 
-	locs <- sapply(destinations, function(conn) {
+	loc.rows <- sapply(destinations, function(conn) {
 			       RS.collect(conn)
 			       eval(bquote(RS.eval(conn,
 						   nrow(get(.(id))))))})
 
-	distributed.data.frame(locs = structure(destinations,
-						 class = "cluster"),
+	distributed.data.frame(locs = as.cluster(destinations),
 	      name = id,
-	      from = cumsum(c(1,locs[-length(locs)])),
-	      to = cumsum(locs))
-}
-
-read.distributed.csv <- function(..., to){
-	id <- UUIDgenerate()
-	lapply(to, function(host) {
-	       eval(bquote(
-		   RS.eval(host, {assign(.(id),
-		       do.call(read.csv,
-			       .(list(...)))); NULL},
-			   wait = FALSE)))
-	})
-	lapply(to, RS.collect)
-	locs <- sapply(to, function(host) {
-	       eval(bquote(RS.eval(host,
-				   nrow(get(.(id))))))
-	})
-	distributed.data.frame(locs = to,
-	      name = id,
-	      from = cumsum(c(1,locs[-length(locs)])),
-	      to = cumsum(locs))
+	      from = cumsum(c(1,loc.rows[-length(loc.rows)])),
+	      to = cumsum(loc.rows))
 }
 
 distributed.data.frame <- distributed.class("distributed.data.frame")
@@ -578,11 +534,10 @@ tail.distributed.data.frame <- function(x, n = 6L, ...)
 			  {assign(.(id), get(.(get_name(x)))[[.(i)]]); NULL},
 					  wait = FALSE))))
 	lapply(get_locs(x), RS.collect)
-	dist_ref <- list(locs = get_locs(x), 
+	distributed.vector(locs = get_locs(x), 
 			 name = id, 
 			 from = get_from(x), 
 			 to = get_to(x))
-	do.call(distributed.vector, dist_ref)
 }
 
 dim.distributed.data.frame <- function(x) c(max(get_to(x)),
