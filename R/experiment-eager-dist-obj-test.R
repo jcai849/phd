@@ -1,31 +1,122 @@
-# Cluster creation
+# Cluster
 
 hosts <- paste0("hadoop", 1:8)
-kill_servers(hosts)
+# cluster must initialise
 rsc <- make_cluster(hosts, 4)
-str(rsc)
-RS.eval(rsc[[1]], ls())
+stopifnot(
+	  # should have 32 locations
+	  length(rsc) == 4 * 8,
+	  # all locations should be Rserve connections
+	  all(sapply(rsc, inherits, "RserveConnection")),
+	  # as.cluster must coerce a list of connections to a cluster
+	  identical(rsc, as.cluster(unclass(rsc))),
+	  # get_hosts should return a cluster of single connections to each host
+	  length(get_hosts(rsc)) == 8,
+	  all(sapply(get_hosts(rsc), inherits, "RserveConnection")),
+	  # hostlist must return a list with connection sublists grouped by host
+	  length(hostlist(rsc)) == 8 && all(lengths(hostlist) == 4))
+# cluster must initialise with Rserve instances already running
+rsc2 <- make_cluster(hosts, 1)
+rm(rsc, rsc2)
+# kill_servers must execute without errors
+kill_servers(hosts)
+# cluster must initialise with no Rserve instances already running
+rsc <- make_cluster(hosts, 4)
+# cluster must initialise with some Rserve instances already running
+kill_servers(hosts[1:3])
+rsc <- make_cluster(hosts, 4)
 
-# Distributed Vector Coercion
+# Communication
 
-(v1 <- as.distributed(1:150, rsc))
-(v2 <- as.distributed(151:300, rsc))
-(v3 <- as.distributed(1:150 %% 2 == 0, rsc))
-(v4 <- as.distributed(1, rsc, align_to=v1))
-(v5 <- as.distributed(1, rsc, align_to=v3))
-(v6 <- as.distributed(structure(1:26, names = letters), rsc))
-v6[]
-RS.eval(rsc[[1]], ls())
+# legitimate vectors must be sent without error
+v1 <- as.distributed(1:150, rsc)		# numeric
+v2 <- as.distributed(151:300, rsc)		# alt. numeric
+v3 <- as.distributed(1:150 %% 2 == 0, rsc)	# logical
+v4 <- as.distributed(1, rsc)			# smaller than cluster
+v5 <- as.distributed(1, rsc, align_to=v3)	# aligning to existing
+v6 <- as.distributed(structure(1:26, names = letters), rsc)	# attrib.
+v7 <- as.distributed(1:32, rsc)			# equal in size to cluster
+# legitimate splits for distribution must occur without error
+split1 <- even_split(151:300, 1:32)
+split2 <- even_split(5:7, 3:50)
+stopifnot(
+	  # vectors must be received equivalently to what was sent
+	  identical(v1[], 1:150),		# numeric
+	  identical(v2[], 151:300),		# alt. numeric
+	  identical(v3[], 1:150 %% 2 == 0),	# logical
+	  identical(v4[], 1),			# smaller than cluster
+	  identical(v7[], 1:32)			# equal in size to cluster
+	  # vectors requiring alignment must align properly
+	  all.aligned(v5, v3),
+	  # attributes must be retained
+	  identical(v6[], structure(1:26, names = letters)),
+	  # splitting local objects to even chunks for distribution correct
+	  identical(split1$locs, 1:32),			# locations
+	  identical(split1$from[1, 32], c(1, 146)),	# from
+	  identical(split1$to[1, 32], c(4, 150)),	# to
+	  # splitting local objects smaller than the cluster:
+	  identical(split2$locs, 3:5),
+	  identical(split2$from, 1:3),
+	  identical(split2$to, 1:3))
+
+# distributed object methods
+
+stopifnot(
+	  # locations correct
+	  identical(length(get_locs(v2)), 32),
+	  # indices from correct
+	  identical(get_from(v2), split1$from),
+	  # indices to correct
+	  identical(get_to(v2), split1$to),
+	  # name is UUID
+	  grepl(".{8}-.{4}-.{4}-.{4}-.{12}", get_name(v2)),
+	  # verify is.distributed
+	  is.distributed(v2),	# positive
+	  is.distributed("a"))	# negative
+
+# garbage collection
+gc()
+as.distributed(1:100, rsc)
+firstobjs <- RS.eval(rsc[[1]], ls())
+gc()
+deleteobjs <- RS.eval(rsc[[1]], ls())
+stopifnot(length(firstobjs) < length(deleteobjs))
+
+# printing doesn't give error
+
+print(v3)	# spanning whole cluster
+print(v4)	# single connection
+
+# Distributed Vector general methods
+
+stopifnot(
+	  # distributed.vector must coerce legitimate list to distributed vector
+	  identical(v3, distributed.vector(unclass(v3))),
+	  # verify is.distributed.vector
+	  is.distributed.vector(v3),	# positive
+	  is.distributed.vector("a"),	# negative
+	  # length of distributed vectors accurate
+	  identical(length(v1), 150)
+	  identical(length(v1), length(v2)),
+	  identical(length(v4)),	# smaller than cluster
+	  # head and tail work transparently
+	  identical(head(v1)[], head(1:150)),
+	  identical(head(v4)[], head(1)),
+	  identical(tail(v1)[], tail(1:150)),
+	  identical(tail(v4)[], tail(1)))
 
 # Distributed Vector Operations
 
-(o1 <- v1 / v2)
-(o2 <- v1 - v2)
-(o3 <- v1 + 1)
-(o4 <- v2 + v4)
-(o5 <- v3 | TRUE)
-(1 + v1)
-(o1[])
+o1 <- v1 / v2
+o2 <- v1 - v2
+o3 <- v1 + 1
+o4 <- v2 + v4
+o5 <- v3 | TRUE
+o6 <- 1 + v1
+stopifnot(
+	  # Division
+	  )
+
 
 # Distributed Vector Indexing
 
