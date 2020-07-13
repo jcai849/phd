@@ -111,7 +111,7 @@ even_split <- function(objsize, dest) {
 	} else rep(TRUE, objsize)
 	list(locs = dest[seq(sum(spliton))],
 	     from = which(spliton), 
-	     to = c(which(spliton)[-1] - 1, objsize))
+	     to = as.integer(c(which(spliton)[-1] - 1, objsize)))
 }
 
 as.distributed <- send
@@ -134,11 +134,13 @@ align <- function(from, to){
 }
 
 all.aligned <- function(x, y) {
-	length(x) == length(y) &&
-		identical(get_locs(x), get_locs(y)) &&
-		all(get_from(x) == get_from(y)) &&
-		all(get_to(x) == get_to(y))
-}
+	identical(get_locs(x), get_locs(y)) &&
+		((identical(length(x), length(y)) &&
+		  identical(get_from(x), get_from(y)) &&
+		  identical(get_to(x), get_to(y))) ||
+		 (length(x) == 1 || length(y) == 1))
+} 
+
 
 # Distributed classes
 
@@ -222,13 +224,12 @@ dist_subset <- function(subset_template, x, i, j=NULL) {
 }
 
 generate_num_selection <- function(x, i){
-	which.loc <- rowSums(outer(i, f, "-") >= 0)
-	allselections <- i - f[which.loc] + 1
+	which.loc <- rowSums(outer(i, get_from(x), "-") >= 0)
+	allselections <- i - get_from(x)[which.loc] + 1
 	locs <- unique(which.loc)
 	list(locs = locs, 
 	     selections = lapply(locs, function(loc)
 				 allselections[which.loc == loc]))
-
 }
 
 num_subset <- function(subset_template, x, i, j=NULL){
@@ -258,8 +259,8 @@ dist_print <- function(type, components, measurename, measure) {
 	cat("\n")
 	nlocs <- length(get_locs(x))
 	connfmt <- paste0("Distributed over %d connection", 
-			  if (nlocs == 1) "s " else " ")
-	hostnames <- as.list(names(hostlist(x)))
+			  if (nlocs > 1) "s " else " ")
+	hostnames <- as.list(names(get_hosts(get_locs(x))))
 	hostfmt <- paste0("on ",
 		      switch(as.character(length(hostnames)),
 			     "1" = "host %s",
@@ -286,7 +287,7 @@ length.distributed.vector <- function(x) max(get_to(x))
 head.distributed.vector <- function(x, n = 6L, ...) x[seq(min(n, length(x)))]
 
 tail.distributed.vector <- function(x, n = 6L, ...) 
-	x[{length(x)-min(n, length(x) - 1)}:length(x)]
+	x[seq(length(x) - min(n, length(x)) + 1, length(x))]
 
 print.distributed.vector <- dist_print("Distributed Vector", 
 				       "elements", "Length", length)
@@ -500,7 +501,7 @@ receive.distributed.data.frame <- dist_receive(rbind)
 head.distributed.data.frame <- function(x, n = 6L, ...) x[seq(min(n, nrow(x))),]
 
 tail.distributed.data.frame <- function(x, n = 6L, ...) 
-	x[{nrow(x)-min(n, nrow(x) - 1)}:nrow(x),]
+	x[seq(nrow(x) - min(n, nrow(x)) + 1, nrow(x)),]
 
 `[.distributed.data.frame` <- function(x, i=NULL, j=NULL){
 	if (is.null(i) && is.null(j)){
