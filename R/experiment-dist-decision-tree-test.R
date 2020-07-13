@@ -29,17 +29,11 @@ cols = c("Year"="integer","Month"="integer","DayofMonth"="integer",
 	 "CancellationCode"="character","Diverted"="integer",
 	 "CarrierDelay"="integer","WeatherDelay"="integer","NASDelay"="integer",
 	 "SecurityDelay"="integer","LateAircraftDelay"="integer")
-big <- read.distributed.csv(file = "~/flights-chunk.csv",
+big <- read.distributed.csv(cluster = rsc,
+			    path = "flights-chunk-*",
 			    header = FALSE,
-			   col.names = names(cols),
-			   colClasses = as.vector(cols),
-			    to = rsc)
-big <- read.distributed.csv2(cluster = rsc,
-			     path = "~",
-			     pattern = "flights-chunk-.*",
-			     header = FALSE,
-			     col.names = names(cols),
-			     colClasses = as.vector(cols))
+			    col.names = names(cols),
+			    colClasses = as.vector(cols))
 nrow(big)
 big[100000000,][]
 system.time(table(big$Dest, big$Origin))
