@@ -1,7 +1,8 @@
-. Create test suite
-.. create
+. working tree (%in% may help)
+. Abstract out the connection interface with a distributed.do.call
+. simplify Ops to aligned and non-aligned, starting work on alignment
 . Refactor subsetting - generalise to arbitrary dimension
-. Abstract out the connection interface
+. abstract out distributed classes?
 . multiple choices for categories in tree
 . dendrogram for tree (unclass to explore)
 . Predict method for tree
@@ -9,6 +10,7 @@
 . Writing on doc/experiment-distributed-decision-tree.tex
 . Regression in CART
 . Write on constraints of distributed objects
+. negative tests
 . Attempt to apply GLM as per Simon's email to the distributed object
 . implement some sort in eager dist obj
 . Interface: experiment with lazy distributed objects
