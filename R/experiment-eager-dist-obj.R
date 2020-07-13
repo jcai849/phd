@@ -48,6 +48,8 @@ as.cluster.list <- function(x) {
 	x
 }
 
+as.cluster.cluster <- identity
+
 hostlist <- function(cluster) {
 	sapply(unique(names(cluster)), 
 	       function(host) cluster[names(cluster) %in% host],
@@ -146,7 +148,7 @@ all.aligned <- function(x, y) {
 
 distributed.class <- function(classname){
 	function(locs, name, from, to) {
-	contents <- list(locs = locs,
+	contents <- list(locs = as.cluster(locs),
 			 name = name,
 			 from = from,
 			 to = to)
@@ -194,7 +196,7 @@ eval_subset_template <- function(loc, subset_template, id, x, i, j) {
 					    list(j = get_name(j))) else j)),
 			 list(id = id,
 			      subset_template = subset_template))))
-	RS.collect(host)
+	RS.collect(loc)
 	NULL
 }
 
@@ -448,24 +450,25 @@ unique.distributed.vector <- function(x) {
 
 read.distributed.csv <- function(cluster, paths,  ...) {
 	id <- UUIDgenerate()
-	lapply(get_hosts(cluster), function(conn)
+	hosts <- get_hosts(cluster)
+	lapply(hosts, function(conn)
 	       eval(bquote(RS.eval(conn, Sys.glob(.(paths)),
 				   wait = FALSE))))
-	hostfiles <- lapply(get_hosts(cluster), RS.collect)
-	hostlist <- hostlist(cluster)
+	hostfiles <- lapply(hosts, RS.collect)
+	hostconns <- hostlist(cluster)
 	mapply(function(h, l, n) {
-	       if (l < 1) stop(paste0("No files detected at host: ", h))
+	       if (n < 1) stop(paste0("No files detected at host: ", h))
 	       if (n > l) stop(paste0(
 			 "More files than connections at host: ", h))},
-	       names(hostlist), lengths(hostlist), lengths(hostfiles))
+	       names(hostconns), lengths(hostconns), lengths(hostfiles))
 
 	destinations <- list()
 	lapply(names(hostfiles), function(hostname) {
 	       tosend <- even_split(length(hostfiles[[hostname]]), 
-				    hostlist[[hostname]])
-	       destinations <<- c(destinations, tosend$dest)
-	       lapply(seq(length(tosend$dest)), function(i)
-		      eval(bquote(RS.eval(tosend$dest[[i]],{
+				    hostconns[[hostname]])
+	       destinations <<- c(destinations, tosend$locs)
+	       lapply(seq(length(tosend$locs)), function(i)
+		      eval(bquote(RS.eval(tosend$locs[[i]],{
 		     assign(.(id), 
 			    do.call(read.csv,
 			   .(c(file = hostfiles[[hostname]][i],
@@ -480,8 +483,8 @@ read.distributed.csv <- function(cluster, paths,  ...) {
 
 	distributed.data.frame(locs = as.cluster(destinations),
 	      name = id,
-	      from = cumsum(c(1,loc.rows[-length(loc.rows)])),
-	      to = cumsum(loc.rows))
+	      from = as.integer(cumsum(c(1,loc.rows[-length(loc.rows)]))),
+	      to = as.integer(cumsum(loc.rows)))
 }
 
 distributed.data.frame <- distributed.class("distributed.data.frame")
