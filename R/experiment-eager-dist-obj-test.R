@@ -1,86 +1,99 @@
+source("R/experiment-eager-dist-obj.R")
+
 # Cluster
 
 hosts <- paste0("hadoop", 1:8)
 # cluster must initialise
-rsc <- make_cluster(hosts, 4)
+cluster <- make_cluster(hosts, 4)
 stopifnot(
 	  # should have 32 locations
-	  length(rsc) == 4 * 8,
+	  length(cluster) == 4 * 8,
 	  # all locations should be Rserve connections
-	  all(sapply(rsc, inherits, "RserveConnection")),
+	  all(sapply(cluster, inherits, "RserveConnection")),
 	  # as.cluster must coerce a list of connections to a cluster
-	  identical(rsc, as.cluster(unclass(rsc))),
+	  identical(cluster, as.cluster(unclass(cluster))),
 	  # get_hosts should return a cluster of single connections to each host
-	  length(get_hosts(rsc)) == 8,
-	  all(sapply(get_hosts(rsc), inherits, "RserveConnection")),
+	  length(get_hosts(cluster)) == 8,
+	  all(sapply(get_hosts(cluster), inherits, "RserveConnection")),
 	  # hostlist must return a list with connection sublists grouped by host
-	  length(hostlist(rsc)) == 8 && all(lengths(hostlist) == 4))
+	  length(hostlist(cluster)) == 8 && 
+		  all(lengths(hostlist(cluster)) == 4))
 # cluster must initialise with Rserve instances already running
-rsc2 <- make_cluster(hosts, 1)
-rm(rsc, rsc2)
+cluster2 <- make_cluster(hosts, 1)
+rm(cluster, cluster2)
 # kill_servers must execute without errors
 kill_servers(hosts)
 # cluster must initialise with no Rserve instances already running
-rsc <- make_cluster(hosts, 4)
+cluster <- make_cluster(hosts, 4)
 # cluster must initialise with some Rserve instances already running
 kill_servers(hosts[1:3])
-rsc <- make_cluster(hosts, 4)
+cluster <- make_cluster(hosts, 4)
 
-# Communication
+# Vector Communication
 
 # legitimate vectors must be sent without error
-v1 <- as.distributed(1:150, rsc)		# numeric
-v2 <- as.distributed(151:300, rsc)		# alt. numeric
-v3 <- as.distributed(1:150 %% 2 == 0, rsc)	# logical
-v4 <- as.distributed(1, rsc)			# smaller than cluster
-v5 <- as.distributed(1, rsc, align_to=v3)	# aligning to existing
-v6 <- as.distributed(structure(1:26, names = letters), rsc)	# attrib.
-v7 <- as.distributed(1:32, rsc)			# equal in size to cluster
+a1 <- 1:150
+a2 <- 151:300
+a3 <- 1:150 %% 2 == 0
+v1 <- as.distributed(1:150, cluster)				# numeric
+v2 <- as.distributed(151:300, cluster)				# alt. numeric
+v3 <- as.distributed(1:150 %% 2 == 0, cluster)			# logical
+v4 <- as.distributed(1, cluster)				# obj < cluster
+v5 <- as.distributed(1:32, cluster)				# obj == cluster
+v6 <- as.distributed(1, align_to=v3)				# align
+v7 <- as.distributed(structure(1:26, names = letters), cluster)	# attributes
+v8 <- as.distributed(a1, cluster)				# symbol
+v9 <- as.distributed(a2, align_to=v8)				# align symbol
+
 # legitimate splits for distribution must occur without error
-split1 <- even_split(151:300, 1:32)
-split2 <- even_split(5:7, 3:50)
+split1 <- even_split(length(a2), 1:32)
+split2 <- even_split(length(5:7), 3:50)
+
+# vectors must be received equivalently to what was sent
 stopifnot(
-	  # vectors must be received equivalently to what was sent
-	  identical(v1[], 1:150),		# numeric
-	  identical(v2[], 151:300),		# alt. numeric
-	  identical(v3[], 1:150 %% 2 == 0),	# logical
-	  identical(v4[], 1),			# smaller than cluster
-	  identical(v7[], 1:32)			# equal in size to cluster
-	  # vectors requiring alignment must align properly
-	  all.aligned(v5, v3),
-	  # attributes must be retained
-	  identical(v6[], structure(1:26, names = letters)),
+	  identical(v1[], a1),					# numeric
+	  identical(v2[], a2),			                # alt. numeric
+	  identical(v3[], a3),			                # logical
+	  identical(v4[], 1),			                # obj < cluster
+	  identical(v5[], 1:32),		                # obj == cluster
+	  all.aligned(v6, v3),                                  # align +ve
+	  !all.aligned(v6, v4),					# align -ve
+	  identical(v6[], rep(1, 32)),                          # align
+	  identical(v7[], structure(1:26, names = letters)),    # attributes
+	  identical(v8[], a1),                                  # symbol
+	  identical(v9[], a2),                                  # align symbol
 	  # splitting local objects to even chunks for distribution correct
-	  identical(split1$locs, 1:32),			# locations
-	  identical(split1$from[1, 32], c(1, 146)),	# from
-	  identical(split1$to[1, 32], c(4, 150)),	# to
+	  identical(split1$locs, 1:32),				# locations
+	  identical(split1$from[c(1, 32)], c(1L, 146L)),	# from
+	  identical(split1$to[c(1, 32)], c(4L, 150L)),		# to
 	  # splitting local objects smaller than the cluster:
-	  identical(split2$locs, 3:5),
-	  identical(split2$from, 1:3),
-	  identical(split2$to, 1:3))
+	  identical(split2$locs, 3:5),				# locations
+	  identical(split2$from, 1:3),				# from
+	  identical(split2$to, 1:3))				# to
 
 # distributed object methods
 
 stopifnot(
 	  # locations correct
-	  identical(length(get_locs(v2)), 32),
+	  identical(length(get_locs(v2)), 32L),
 	  # indices from correct
 	  identical(get_from(v2), split1$from),
 	  # indices to correct
 	  identical(get_to(v2), split1$to),
 	  # name is UUID
 	  grepl(".{8}-.{4}-.{4}-.{4}-.{12}", get_name(v2)),
-	  # verify is.distributed
+	  # test for distributed is accurate
 	  is.distributed(v2),	# positive
-	  is.distributed("a"))	# negative
+	  !is.distributed("a"))	# negative
 
-# garbage collection
+# garbage collection occurs on the remote end upon object removal
+
 gc()
-as.distributed(1:100, rsc)
-firstobjs <- RS.eval(rsc[[1]], ls())
+as.distributed(1:100, cluster)
+firstobjs <- RS.eval(cluster[[1]], ls())
 gc()
-deleteobjs <- RS.eval(rsc[[1]], ls())
-stopifnot(length(firstobjs) < length(deleteobjs))
+deleteobjs <- RS.eval(cluster[[1]], ls())
+stopifnot(length(firstobjs) > length(deleteobjs))
 
 # printing doesn't give error
 
@@ -90,120 +103,279 @@ print(v4)	# single connection
 # Distributed Vector general methods
 
 stopifnot(
-	  # distributed.vector must coerce legitimate list to distributed vector
-	  identical(v3, distributed.vector(unclass(v3))),
 	  # verify is.distributed.vector
 	  is.distributed.vector(v3),	# positive
-	  is.distributed.vector("a"),	# negative
+	  !is.distributed.vector("a"),	# negative
 	  # length of distributed vectors accurate
-	  identical(length(v1), 150)
+	  identical(length(v1), 150L),
 	  identical(length(v1), length(v2)),
-	  identical(length(v4)),	# smaller than cluster
+	  identical(length(v4), 1L),	# smaller than cluster
 	  # head and tail work transparently
-	  identical(head(v1)[], head(1:150)),
-	  identical(head(v4)[], head(1)),
-	  identical(tail(v1)[], tail(1:150)),
-	  identical(tail(v4)[], tail(1)))
+	  identical(head(v1)[], head(1:150)),	# head < vector length
+	  identical(head(v4)[], head(1)),	# head > vector length
+	  identical(tail(v1)[], tail(1:150)),	# tail < vector length
+	  identical(tail(v4)[], tail(1)))	# tail > vector length
 
 # Distributed Vector Operations
 
-o1 <- v1 / v2
-o2 <- v1 - v2
-o3 <- v1 + 1
-o4 <- v2 + v4
-o5 <- v3 | TRUE
-o6 <- 1 + v1
-stopifnot(
-	  # Division
-	  )
+# legitimate operations must take place without error
+o1 <- v1 + v2	# addition between two vectors
+o2 <- v2 + v1	# alternate argument positioning
+o3 <- v1 / v2	# division between two vectors
+o4 <- v2 / v1	# alternate argument positioning
+o5 <- -v2	# negation
+o6 <- v1 + 1	# addition with a scalar
+o7 <- 1 + v1	# alternate argument positioning
 
+# the value of the operations must be accurate
+stopifnot(
+	  identical(o1[], a1 + a2),	# addition between two vectors
+	  identical(o2[], a2 + a1),     # alternate argument positioning
+	  identical(o3[], a1 / a2),     # division between two vectors
+	  identical(o4[], a2 / a1),     # alternate argument positioning
+	  identical(o5[], -a2),         # negation
+	  identical(o6[], a1 + 1),      # addition with a scalar
+	  identical(o7[], 1 + a1))      # alternate argument positioning
 
 # Distributed Vector Indexing
 
-(i1 <- v1[1])
-(i2 <- v1[30:50])
-(i3 <- v1[v3])
-(i4 <- v1[1:150 %% 2 == 0])
+# legitimate subsetting operations must take place without error
+i1 <- v1[1]			# singular numeric value
+i2 <- v1[30:50]			# consecutive range of num vals
+i3 <- v1[c(1, 50, 100)]		# ordered non-consec. num vals
+i4 <- v1[v3]			# aligned distributed vector 
+i5 <- v1[1:150 %% 2 == 0]	# local logical vector
 
-# Distributed Data Frame Coercion
+# the value of the subsets must be correct
+stopifnot(
+	  identical(i1[], a1[1]),		# singular numeric value
+	  identical(i2[], a1[30:50]),           # consecutive range of num vals
+	  identical(i3[], a1[c(1, 50, 100)]),	# ordered non-consec. num vals
+	  identical(i4[], a1[a3]),              # aligned distributed vector 
+	  identical(i5[], a1[a3]))              # local logical vector
 
-(d1 <- as.distributed(iris, rsc))
+# Distributed Data Frames
 
-# Distributed Data Frame Indexing
+# legitimate data frames must be sent without error
+ad1 <- data.frame(a = letters, 	b = 1:26, 
+		  row.names = LETTERS, stringsAsFactors = TRUE)
+ad2 <- data.frame(a = 1)
+d1 <- as.distributed(iris, cluster)	# no rownames, > cluster
+d2 <- as.distributed(mtcars, cluster)	# rownames, == cluster
+d3 <- as.distributed(ad1, cluster)	# < cluster
 
-d1[,]
-d1[,3]
-d1[,3:5]
-d1[,"Sepal.Length"]
-#d1[,as.distributed("Sepal.Length", rsc)]
-#d1[,as.distributed(c(T,F,T,F,F), rsc)]
+# legitimate splits for distribution must occur without error
+dfsplit1 <- even_split(nrow(iris), 1:32)	# larger than cluster
+dfsplit2 <- even_split(nrow(mtcars), 1:32)	# equal to cluster
+dfsplit3 <- even_split(nrow(d3), 1:32)		# smaller than cluster
 
-d1[3, ]
-d1[3, 3]
-d1[3, 3:5]
-d1[3, "Sepal.Length"]
-#d1[3, as.distributed("Sepal.Length", rsc)]
-#d1[3, as.distributed(c(T,F,T,F,F), rsc)]
+# data frames must be received equivalently to what was sent
+stopifnot(
+	  identical(d1[], iris),	# no rownames, > cluster
+	  identical(d2[], mtcars),      # rownames, == cluster
+	  identical(d3[], ad1),         # < cluster
+	  # splitting local objects to even chunks for distribution correct
+	  # larger than cluster
+	  identical(dfsplit1$locs, 1:32),			# locations
+	  identical(dfsplit1$from[c(1, 32)], c(1L, 146L)),	# from
+	  identical(dfsplit1$to[c(1, 32)], c(4L, 150L)),	# to
+	  # equal to cluster
+	  identical(dfsplit2$locs, 1:32),			# locations
+	  identical(dfsplit2$from[c(1, 32)], c(1L, 32L)),	# from
+	  identical(dfsplit2$to[c(1, 32)], c(1L, 32L)),		# to
+	  # smaller than cluster
+	  identical(dfsplit3$locs, 1:26),			# locations
+	  identical(dfsplit3$from[c(1, 26)], c(1L, 26L)),	# from
+	  identical(dfsplit3$to[c(1, 26)], c(1L, 26L)))		# to
 
-d1[3:80, ]
-d1[3:80, 3]
-d1[3:80, 3:5]
-d1[3:80, "Sepal.Length"]
-#d1[3:80, as.distributed("Sepal.Length", rsc)]
-#d1[3:80, as.distributed(c(T,F,T,F,F), rsc)]
+# TODO: single row data frame
+# d4 <- as.distributed(ad2, cluster)	# single row
+# identical(d4[], ad2),
+# print(d4)	# single connection
+# identical(dim(d4), dim(ad2)),		# dim << cluster
+# identical(head(d4)[], head(ad2)),	# head > df rows
+# identical(tail(d4)[], tail(ad2)),	# tail > df rows
 
+# distributed object methods
+
+stopifnot(
+	  # locations correct
+	  identical(length(get_locs(d1)), 32L),
+	  # indices from correct
+	  identical(get_from(d1), dfsplit1$from),
+	  # indices to correct
+	  identical(get_to(d1), dfsplit1$to),
+	  # name is UUID
+	  grepl(".{8}-.{4}-.{4}-.{4}-.{12}", get_name(d1)),
+	  # test for distributed is accurate
+	  is.distributed(d1),	# positive
+	  !is.distributed("a"))	# negative
+
+# distributed Data Frame printing doesn't give error
+
+print(d1)	# spanning whole cluster
+
+# Distributed Data Frame general methods
+
+stopifnot(
+	  # verify is.distributed.data.frame
+	  is.distributed.data.frame(d1),	# positive
+	  !is.distributed.data.frame("a"),	# negative
+	  # dimensions of distributed data frames accurate
+	  identical(nrow(d1), nrow(iris)),	# nrow
+	  identical(ncol(d1), ncol(iris)),	# ncol
+	  identical(dim(d1), dim(iris)),	# dim
+	  # head and tail work transparently
+	  identical(head(d1)[], head(iris)),	# head < df rows
+	  identical(tail(d1)[], tail(iris)),	# tail < df rows
+	  identical(names(d1), names(iris)))	# names	
+
+# legitimate subset operations must take place without error, with correct vals
+stopifnot(
+	  identical(d1[,3][], iris[,3]),	# row missing, col num
+	  identical(d1[,3:5][], iris[,3:5]),	# row missing, col vec
+	  identical(d1[,"Sepal.Length"][],	# row missing, col char.
+		    iris[,"Sepal.Length"]),
+	  identical(d1[3, ][], iris[3,]),	# row num, col missing
+	  identical(d1[3, 3][], iris[3, 3]),	# row num, col num
+	  identical(d1[3, 3:5][], iris[3, 3:5]),# row num, col vec
+	  identical(d1[3, "Sepal.Length"][],	# row num, col char
+		    iris[3, "Sepal.Length"]),
+	  identical(d1[3:80, ][], iris[3:80,]),	# row vec, col missing
+	  identical(d1[3:80, 3][], 		# row vec, col num
+		    iris[3:80, 3]),
+	  identical(d1[3:80, 3:5][],		# row vec, col vec
+		    iris[3:80, 3:5]),
+	  identical(d1[3:80, "Sepal.Length"][],	# row vec, col char
+		    iris[3:80, "Sepal.Length"]),
+	  identical(d1[v3, ][], iris[a3,]),	# row dist logical, col missing
+	  identical(d1[v3, 3][], iris[a3, 3]),	# row dist logical, col num
+	  identical(d1[v3, 3:5][],		# row dist logical, col vec
+		    iris[a3, 3:5]),
+	  identical(d1[v3, "Sepal.Length"][],	# row dist logical, col char
+		    iris[a3, "Sepal.Length"]),
+	  identical(d1[1:150 %% 2 == 0, ][], 	# row logical, col missing
+		    iris[a3,]),	
+	  identical(d1[1:150 %% 2 == 0, 3][],	# row logical, col num
+		    iris[a3, 3]),	
+	  identical(d1[1:150 %% 2 == 0, 3:5][],	# row logical, col vec
+		    iris[a3, 3:5]),
+	  identical(d1[1:150 %% 2 == 0, "Sepal.Length"][],# row logical col char
+		    iris[a3, "Sepal.Length"]))
+
+# other subset combinations
+#d1[,as.distributed("Sepal.Length", cluster)]
+#d1[,as.distributed(c(T,F,T,F,F), cluster)]
+#d1[3, as.distributed("Sepal.Length", cluster)]
+#d1[3, as.distributed(c(T,F,T,F,F), cluster)]
+#d1[3:80, as.distributed("Sepal.Length", cluster)]
+#d1[3:80, as.distributed(c(T,F,T,F,F), cluster)]
 #d1[v1, ] 
 #d1[v1, 3]
 #d1[v1, 3:5]
 #d1[v1, "Sepal.Length"]
-#d1[v1, as.distributed.vector("Sepal.Length", rsc)]
-#d1[v1, as.distributed.vector(c(T,F,T,F,F), rsc)]
+#d1[v1, as.distributed.vector("Sepal.Length", cluster)]
+#d1[v1, as.distributed.vector(c(T,F,T,F,F), cluster)]
+#d1[v3, as.distributed.vector("Sepal.Length", cluster)]
+#d1[v3, as.distributed.vector(c(T,F,T,F,F), cluster)]
+#d1[1:150 %% 2 == 0, as.distributed.vector("Sepal.Length", cluster)]
+#d1[1:150 %% 2 == 0, as.distributed.vector(c(T,F,T,F,F), cluster)]
 
-d1[v3, ]
-d1[v3, 3]
-d1[v3, 3:5]
-d1[v3, "Sepal.Length"]
-#d1[v3, as.distributed.vector("Sepal.Length", rsc)]
-#d1[v3, as.distributed.vector(c(T,F,T,F,F), rsc)]
+# Alternate means of subsetting must return equivalent values to a non-dist. df
+stopifnot(
+	  identical(d1$Sepal.Length[], 		# `$` subsetting
+		    iris$Sepal.Length),
+	  identical(d1[["Sepal.Length"]][],	# `[[` subsetting by character
+		    iris[["Sepal.Length"]]),
+	  identical(d1[[1]][], iris[[1]]))	# `[[` subsetting by numeric
 
-d1[1:150 %% 2 == 0, ]
-d1[1:150 %% 2 == 0, 3]
-d1[1:150 %% 2 == 0, 3:5]
-d1[1:150 %% 2 == 0, "Sepal.Length"]
-## d1[1:150 %% 2 == 0, as.distributed.vector("Sepal.Length", rsc)]
-## d1[1:150 %% 2 == 0, as.distributed.vector(c(T,F,T,F,F), rsc)]
+# list functions with dataframes must function equivalently to non-dist. df
+stopifnot(
+	  is.list(as.list(d1)),		 	# coercion to list produces list
+	  identical(lapply(d1[,1:4], receive),	# lapply functions correctly
+		    lapply(iris[,1:4], identity)))
 
-d1$Sepal.Length
-d1[["Sepal.Length"]]
-d1[[1]]
+# TODO: factor
+# identical(lapply(d1, receive),	# lapply functions correctly
+# 	  lapply(iris, identity)))
 
-# dataframe utilities
-
-dim(d1)
-nrow(d1)
-ncol(d1)
-
-# list functions with dataframes
-
-as.list(d1)
-lapply(d1, receive)
-
-# vector utilities
-
-unique(d1$Species)
-table(d1$Species)
-table(d1$Species, d1$Sepal.Length)
-system.time(table(d1))
-d1$Species %in% c("virginica", "setosa")
-head(d1[d1$Species %in% c("virginica", "setosa"),][])
-
-# gc
-
-RS.eval(rsc[[1]], ls())
-rm(list = c(paste0("v", 1:6), paste0("o", 1:5), paste0("i", 1:4), "d1"))
-gc()
-RS.eval(rsc[[1]], ls())
+# further distributed data frame methods
+# should be entirely equivalent to their non-distributed complements
+stopifnot(
+	  identical(unique(d1$Sepal.Width),		# unique
+		    unique(iris$Sepal.Width)),
+	  identical(table(d1$Sepal.Width),		# table
+		    table(iris$Sepal.Width)),
+	  identical(table(d1$Sepal.Width, 		# 2D table
+			  d1$Sepal.Length),
+		    table(iris$Sepal.Width,
+			  iris$Sepal.Length)),
+	  identical(receive(d1$Sepal.Width %in%		# %in%
+			    c(3.0, 3.2)),
+		    iris$Sepal.Width %in%
+			    c(3.0, 3.2)))
 
 # Close
+
+kill_servers(hosts)
+
+# distributed data frame resulting from read.distributed.csv
+# create split csv file
+cluster <- make_cluster("localhost", 4)
+reflist <- even_split(nrow(iris), 1:4)
+tmpdir <- tempdir()
+lapply(1:4, function(i)
+       write.table(iris[seq(reflist$from[i], reflist$to[i]), 1:4],
+		 paste0(tmpdir, "/iris", i, ".csv"),
+		 sep = ",", dec = ".", qmethod = "double",
+		 row.names = FALSE, col.names = FALSE))
+
+cols <- sapply(iris[,1:4], class)
+
+# reading in a legitimate distributed csv must not raise any errors
+rdf1 <- read.distributed.csv(cluster, paste0(tmpdir, "/*"),
+			    header = FALSE, 
+			    col.names = names(cols),
+			    colClasses = as.vector(cols))
+
+# distributed.data.frame resulting from reading in csv must be equivalent to one
+# produced through sending a local data frame
+df1 <- as.distributed(iris[,1:4], cluster)
+stopifnot(all.aligned(rdf1, df1))
+
+# the value received must be identical to the original local data
+stopifnot(identical(rdf1[], iris[,1:4]))
+
+# close
+kill_servers("localhost")
+
+# Distributed data frames at scale
+
+hosts <- paste0("hadoop", 1:8)
+cluster <- make_cluster(hosts, 4)
+
+# reading in a legitimate distributed csv must not raise any errors
+cols = c("Year"="integer","Month"="integer","DayofMonth"="integer",
+	 "DayOfWeek"="integer","DepTime"="integer","CRSDepTime"="integer",
+	 "ArrTime"="integer","CRSArrTime"="integer",
+	 "UniqueCarrier"="character","FlightNum"="integer","TailNum"="character",
+	 "ActualElapsedTime"="integer","CRSElapsedTime"="integer",
+	 "AirTime"="integer","ArrDelay"="integer", "DepDelay"="integer",
+	 "Origin"="character","Dest"="character","Distance"="integer",
+	 "TaxiIn"="integer","TaxiOut"="integer", "Cancelled"="integer",
+	 "CancellationCode"="character","Diverted"="integer",
+	 "CarrierDelay"="integer","WeatherDelay"="integer","NASDelay"="integer",
+	 "SecurityDelay"="integer","LateAircraftDelay"="integer")
+rdf2 <- read.distributed.csv(cluster,
+			     paths = "~/flights-chunk-*",
+			     header = FALSE,
+			     col.names = names(cols),
+			     colClasses = as.vector(cols))
+
+stopifnot(
+	  identical(dim(rdf2), c(118914458L, 29L)),
+	  identical(rdf2[c(1, nrow(rdf2)),"Year"][], c(1987L, 2008L)),
+	  identical(nrow(rdf2[rdf2$Year == 1987L,]), 1311826L),
+	  identical(as.vector(table(rdf2$Year)[1]), 1311826L))
 
 kill_servers(hosts)
