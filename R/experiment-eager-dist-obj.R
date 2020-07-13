@@ -22,6 +22,7 @@ connect_servers <- function(hosts, conns) {
 
 do_servers <- function(command, ...) {
 	addl_args <- list(...)
+	gc()
 	function(hosts) 
 		lapply(hosts, function(host) 
 		       do.call(system, 
@@ -67,7 +68,7 @@ send <- function(obj, to=NULL, align_to=NULL){
 			  "non-atomic" = nrow)(obj)
 
 	reflist <- if (is.null(align_to)) {
-		c(even_split(obj, to), name = id)
+		c(even_split(objsize, to), name = id)
 	} else if (objsize == max(get_to(align_to))) {
 		list(locs = get_locs(align_to),
 		     name = id,
@@ -96,9 +97,8 @@ send <- function(obj, to=NULL, align_to=NULL){
 	do.call(distributed.object, reflist)
 }
 
-even_split <- function(obj, dest) {
+even_split <- function(objsize, dest) {
 	destsize <- length(dest)
-	objsize <- length(obj)
 	spliton <- if (destsize < objsize) {
 		bucketsto <- cumsum(rep(objsize / 
 					destsize, destsize))
@@ -460,7 +460,7 @@ read.distributed.csv <- function(cluster, paths,  ...) {
 
 	destinations <- list()
 	lapply(names(hostfiles), function(hostname) {
-	       tosend <- even_split(hostfiles[[hostname]], 
+	       tosend <- even_split(length(hostfiles[[hostname]]), 
 				    hostlist[[hostname]])
 	       destinations <<- c(destinations, tosend$dest)
 	       lapply(seq(length(tosend$dest)), function(i)
