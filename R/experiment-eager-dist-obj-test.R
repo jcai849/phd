@@ -373,9 +373,13 @@ rdf2 <- read.distributed.csv(cluster,
 			     colClasses = as.vector(cols))
 
 stopifnot(
-	  identical(dim(rdf2), c(118914458L, 29L)),
-	  identical(rdf2[c(1, nrow(rdf2)),"Year"][], c(1987L, 2008L)),
-	  identical(nrow(rdf2[rdf2$Year == 1987L,]), 1311826L),
-	  identical(as.vector(table(rdf2$Year)[1]), 1311826L))
+	  identical(dim(rdf2),				# dimensions
+		    c(118914458L, 29L)),
+	  identical(rdf2[c(1, nrow(rdf2)),"Year"][], 	# indexing
+		    c(1987L, 2008L)),
+	  identical(nrow(rdf2[rdf2$Year == 1987L,]), 	# indexing logical
+		    1311826L),
+	  identical(as.vector(table(rdf2$Year)[1]),	# table
+		    1311826L))
 
 kill_servers(hosts)
