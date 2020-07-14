@@ -58,6 +58,73 @@ hostlist <- function(cluster) {
 
 # Communication
 
+distributed.do.call <- function(what, args, cluster = NULL,
+				assign = FALSE, collect = FALSE) {
+	stopifnot(is.list(args))
+	dist_args <- lapply(args, function(arg) 
+			    if (is.distributed(arg)) {
+				    bquote(get(.(get_name(arg))))
+			    } else arg)
+
+	locs <- NULL
+	if (!is.null(cluster)) {
+		locs <- cluster 
+	} else for (arg in args) if (is.distributed(arg)) {
+			locs <- get_locs(arg)
+			break}  
+	if (is.null(locs)) stop("need a location")
+
+	if (collect && assign) {
+		id <- UUIDgenerate()
+		lapply(locs, function(loc)
+		       eval(bquote(RS.eval(loc, 
+				      assign(.(id),
+					     do.call(.(what), .(dist_args))),
+				      wait = FALSE))))
+		return(list(id = id, vals = lapply(locs, RS.collect)))
+	}
+	if (assign) {
+		id <- UUIDgenerate()
+		lapply(locs, function(loc)
+		       eval(bquote(RS.eval(loc, 
+				      {assign(.(id),
+					      do.call(.(what), .(dist_args)))
+				      NULL},
+				      wait = FALSE))))
+		lapply(locs, RS.collect)
+		return(id)
+	}
+	if (collect) {
+		lapply(locs, function(loc)
+		       eval(bquote(RS.eval(loc, do.call(.(what), .(dist_args)),
+				      wait = FALSE))))
+		return(lapply(locs, RS.collect))
+	}
+	lapply(locs, function(loc)
+	       eval(bquote(RS.eval(loc,
+			      {do.call(.(what), .(dist_args))
+			      NULL}, 
+			      wait = FALSE))))
+	lapply(locs, RS.collect)
+	return()
+}
+
+Summary.distributed.vector <- function(..., na.rm = FALSE) 
+	do.call(.Generic,
+		distributed.do.call(.Generic, 
+				    c(list(...), list(na.rm = na.rm)),
+				    collect = TRUE))
+
+# NB. incorrect for cumsum and other 4th group math
+Math.distributed.vector <- function(x, ...)
+	distributed.vector(locs = get_locs(x),
+			   name = distributed.do.call(.Generic,
+						      c(x, list(...)),
+						      assign = TRUE),
+			   from = get_from(x),
+			   to = get_to(x))
+
+
 send <- function(obj, to=NULL, align_to=NULL){
 	if (is.null(to) && is.null(align_to)) 
 		stop("one of `to` or `align_to` required")
