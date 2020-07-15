@@ -225,9 +225,8 @@ all.aligned <- function(...) {
 		identical(get_to(x), get_to(y))
 	}
 	if (length(objs) == 2) return(bi.aligned(objs[1], objs[2]))
-	return(
-	all(mapply(function, 
-		   x = objs[-1], y = objs[-length(objs)])))
+	return(all(mapply(bi.aligned,
+			  x = objs[-1], y = objs[-length(objs)])))
 } 
 
 
