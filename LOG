@@ -1,3 +1,10 @@
+2020-07-15	14:27:21	allowance for `align` function in dist.do.call
+		16:36:22	tested and working; factorisation of alignment
+				from as.distributed as well
+		16:49:05	beginning refactoring: Ops
+2020-07-14	12:12:09	working distributed.do.call
+		15:44:39	meeting
+		17:17:41	distributed.do.call cleanup
 2020-07-13	12:20:03	distributed.vector tests
 		23:09:02	distributed.data.frame tests and fixes
 2020-07-10	15:42:23	automated tests

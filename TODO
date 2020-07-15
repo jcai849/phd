@@ -1,8 +1,10 @@
+. reg.finalize makes use of list of objects to clear
+. write tests for distributed.do.call (try covr)
+. refactor functions in light of distributed.do.call
+. align function
+. make things less verbose (starting rserve etc.)
 . working tree (%in% may help)
-. Abstract out the connection interface with a distributed.do.call
-. simplify Ops to aligned and non-aligned, starting work on alignment
-. Refactor subsetting - generalise to arbitrary dimension
-. abstract out distributed classes?
+. see why failed tests failing
 . multiple choices for categories in tree
 . dendrogram for tree (unclass to explore)
 . Predict method for tree
