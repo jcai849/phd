@@ -378,54 +378,23 @@ Math.distributed.vector <- function(x, ...)
 
 receive.distributed.vector <- dist_receive(c)
 
-Ops.distributed.vector <- function(e1, e2=NULL) {
-	id <- UUIDgenerate()
-	if (is.null(e2)) {
-			lapply(get_locs(e1), function(host) eval(bquote(
-				RS.eval(host,
-				{assign(.(id), 
-					do.call(.(.Generic), 
-						list(get(.(get_name(e1))))));
-				NULL},
-				wait = FALSE))))
-			lapply(get_locs(e1), RS.collect)
-			return(distributed.vector(locs = get_locs(e1),
-						  name = id,
-						  from = get_from(e1),
-						  to = get_to(e1)))
-	}
-	if (is.distributed.vector(e1) && 
-	    is.distributed.vector(e2)){
-		if (all.aligned(e1, e2) ||
-		    (length(e1) == 1 || length(e2) == 1)) {
-			lapply(get_locs(e1), function(host) eval(bquote(
-				RS.eval(host,
-				{assign(.(id), 
-					do.call(.(.Generic), 
-						list(get(.(get_name(e1))),
-						     get(.(get_name(e2)))))); 
-				NULL},
-					wait = FALSE))))
-			lapply(get_locs(e1), RS.collect)
-			return(distributed.vector(locs = get_locs(e1),
-					   name = id,
-					   from = if (length(e2) == 1)
-						   get_from(e1) else
-							   get_from(e2),
-					   to = if (length(e2) == 1) 
-						   get_to(e1) else
-							   get_to(e2)))
-		} else if (length(e1) == length(e2) ||
-			   length(e1) > length(e2)) {
-			do.call(.Generic, list(e1, align(e2, e1)))
-		} else # (length(e1) < length(e2)) 
-			do.call(.Generic, list(align(e1, e2), e2))
-	} else if (!is.distributed.vector(e1)) {
-		e1 <- as.distributed(e1, get_locs(e2), align_with=e2)
-		do.call(.Generic, list(e1, e2))
-	} else { # (!("distributed.vector" %in% e2.classes)) {
-		e2 <- as.distributed(e2, get_locs(e1), align_with=e1)
-		do.call(.Generic, list(e1, e2))
+Ops.distributed.vector <- function(e1, e2) {
+	if (missing(e2)) {
+		distributed.vector(locs = get_locs(e1),
+				   name = distributed.do.call(.Generic, 
+							      list(e1 = e1),
+							      assign = TRUE),
+				   from = get_from(e1),
+				   to = get_to(e1))
+	} else {
+		aligned.to <- if (length(e1) > length(e2)) e1 else e2
+		distributed.vector(locs = get_locs(aligned.to),
+				   name = distributed.do.call(.Generic, 
+							      list(e1 = e1,
+								   e2 = e2),
+							      assign = TRUE),
+				   from = get_from(aligned.to),
+				   to = get_to(aligned.to))
 	}
 }
 
