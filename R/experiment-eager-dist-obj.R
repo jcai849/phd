@@ -50,6 +50,8 @@ as.cluster.list <- function(x) {
 
 as.cluster.cluster <- identity
 
+is.cluster <- is.distributed.class("cluster")
+
 hostlist <- function(cluster) {
 	sapply(unique(names(cluster)), 
 	       function(host) cluster[names(cluster) %in% host],
@@ -59,27 +61,22 @@ hostlist <- function(cluster) {
 # Communication
 
 distributed.do.call <- function(what, args, cluster = NULL,
-				assign = FALSE, collect = FALSE) {
-	stopifnot(is.list(args))
-	dist_args <- lapply(args, function(arg) 
-			    if (is.distributed(arg)) {
-				    bquote(get(.(get_name(arg))))
-			    } else arg)
+				assign = FALSE, collect = FALSE,
+				recycle = TRUE) {
+	stopifnot(is.list(args),
+		  is.function(what),
+		  if (!is.null(cluster)) is.cluster(cluster))
 
-	locs <- NULL
-	if (!is.null(cluster)) {
-		locs <- cluster 
-	} else for (arg in args) if (is.distributed(arg)) {
-			locs <- get_locs(arg)
-			break}  
-	if (is.null(locs)) stop("need a location")
+	args.locs <- prep.args.locs(args, cluster, recycle = recycle)
+	args <- args.locs$args
+	locs <- args.locs$locs
 
 	if (collect && assign) {
 		id <- UUIDgenerate()
 		lapply(locs, function(loc)
 		       eval(bquote(RS.eval(loc, 
 				      assign(.(id),
-					     do.call(.(what), .(dist_args))),
+					     do.call(.(what), .(args))),
 				      wait = FALSE))))
 		return(list(id = id, vals = lapply(locs, RS.collect)))
 	}
@@ -88,7 +85,7 @@ distributed.do.call <- function(what, args, cluster = NULL,
 		lapply(locs, function(loc)
 		       eval(bquote(RS.eval(loc, 
 				      {assign(.(id),
-					      do.call(.(what), .(dist_args)))
+					      do.call(.(what), .(args)))
 				      NULL},
 				      wait = FALSE))))
 		lapply(locs, RS.collect)
@@ -96,13 +93,13 @@ distributed.do.call <- function(what, args, cluster = NULL,
 	}
 	if (collect) {
 		lapply(locs, function(loc)
-		       eval(bquote(RS.eval(loc, do.call(.(what), .(dist_args)),
+		       eval(bquote(RS.eval(loc, do.call(.(what), .(args)),
 				      wait = FALSE))))
 		return(lapply(locs, RS.collect))
 	}
 	lapply(locs, function(loc)
 	       eval(bquote(RS.eval(loc,
-			      {do.call(.(what), .(dist_args))
+			      {do.call(.(what), .(args))
 			      NULL}, 
 			      wait = FALSE))))
 	lapply(locs, RS.collect)
@@ -115,7 +112,7 @@ Summary.distributed.vector <- function(..., na.rm = FALSE)
 				    c(list(...), list(na.rm = na.rm)),
 				    collect = TRUE))
 
-# NB. incorrect for cumsum and other 4th group math
+# NB. incorrect for cumsum and other 4th group Math
 Math.distributed.vector <- function(x, ...)
 	distributed.vector(locs = get_locs(x),
 			   name = distributed.do.call(.Generic,
@@ -124,33 +121,43 @@ Math.distributed.vector <- function(x, ...)
 			   from = get_from(x),
 			   to = get_to(x))
 
+prep.args.locs <- function(args, cluster, recycle) {
+	are.dist <- sapply(args, is.distributed)
+	if (is.null(cluster) && !any(are.dist)) stop("no distributed info")
+	if (!is.null(cluster) && any(are.dist)) 
+		args[are.dist] <- do.call(align,
+					  c(args[are.dist], 
+					    list(recycle = recycle,
+						 cluster = cluster)))
+	if (any(are.dist)) {
+		aligned <- do.call(all.aligned, args[are.dist])
+		if (!aligned) 
+			args[are.dist] <- do.call(align,
+						  c(args[are.dist],
+						    list(recycle = recycle)))
+		args[are.dist] <- lapply(args[are.dist],
+				    bquote(get(.(get_name(arg)))))
+		locs <- get_locs(args[are.dist][[1]])
+	}
+	if (!is.null(cluster))
+		locs <- cluster 
+	list(args, locs)
+}
 
-send <- function(obj, to=NULL, align_to=NULL){
-	if (is.null(to) && is.null(align_to)) 
-		stop("one of `to` or `align_to` required")
+send <- function(obj, cluster=NULL, align_with=NULL){
+	if (is.null(cluster) && is.null(align_with)) 
+		stop("one of 'cluster' or 'align_with' required")
 	id <- UUIDgenerate()
-	clustsize <- length(to)
+	clustsize <- length(cluster)
 	objtype <- if (is.data.frame(obj) ||
 		       is.matrix(obj)) "non-atomic" else "atomic"
 	objsize <- switch(objtype,
 			  "atomic" = length,
 			  "non-atomic" = nrow)(obj)
 
-	reflist <- if (is.null(align_to)) {
-		c(even_split(objsize, to), name = id)
-	} else if (objsize == max(get_to(align_to))) {
-		list(locs = get_locs(align_to),
-		     name = id,
-		     from = get_from(align_to),
-		     to = get_to(align_to))
-	} else if (objsize == 1) {
-		list(locs = get_locs(align_to),
-		     name = id,
-		     from = rep(1, length(get_locs(align_to))),
-		     to = rep(1, length(get_locs(align_to))))
-	} else {
-		stop("Recycling not yet implemented for length(obj) > 1")
-	}
+	reflist <- if (is.null(align_with)) {
+		c(even_split(objsize, cluster), name = id)
+	} else align(obj, align_with = align_with)	
 
 	lapply(seq(length(reflist$locs)),
 	       function(i) {
@@ -159,8 +166,7 @@ send <- function(obj, to=NULL, align_to=NULL){
 							   reflist$to[i])],
 					"non-atomic" = obj[seq(reflist$from[i], 
 							       reflist$to[i]),])
-		       RS.assign(reflist$locs[[i]], reflist$name, tosend)
-	       })
+		       RS.assign(reflist$locs[[i]], reflist$name, tosend)})
 	if (is.vector(obj)) return(do.call(distributed.vector, reflist))
 	if (is.data.frame(obj)) return(do.call(distributed.data.frame, reflist))
 	do.call(distributed.object, reflist)
@@ -198,32 +204,48 @@ dist_receive <- function(joinf)
 	do.call(joinf, recv)
 }
 
-align <- function(from, to){
+# returns aligned dist obj if given dist objs
+# returns locs, to, from if given local to align with dist.
+align <- function(..., recycle = FALSE, align_with = NULL, cluster = NULL){
 	stop("Distributed objects not aligned; Implement `align`!")
+	if (objsize == max(get_to(align_with))) 
+		list(locs = get_locs(align_with),
+		     name = id,
+		     from = get_from(align_with),
+		     to = get_to(align_with))
 }
 
-all.aligned <- function(x, y) {
+all.aligned <- function(...) {
+	objs <- list(...)
+	if (length(objs) < 2) return(TRUE)
+	bi.aligned <- function(x, y) {
 	identical(get_locs(x), get_locs(y)) &&
-		((identical(length(x), length(y)) &&
-		  identical(get_from(x), get_from(y)) &&
-		  identical(get_to(x), get_to(y))) ||
-		 (length(x) == 1 || length(y) == 1))
+		identical(length(x), length(y)) &&
+		identical(get_from(x), get_from(y)) &&
+		identical(get_to(x), get_to(y))
+	}
+	if (length(objs) == 2) return(bi.aligned(objs[1], objs[2]))
+	return(
+	all(mapply(function, 
+		   x = objs[-1], y = objs[-length(objs)])))
 } 
+
+
 
 
 # Distributed classes
 
 distributed.class <- function(classname){
 	function(locs, name, from, to) {
-	contents <- list(locs = as.cluster(locs),
-			 name = name,
-			 from = from,
-			 to = to)
+		stopifnot(is.cluster(locs), is.character(name),
+			  is.integer(from), is.integer(to))
+		slots <- list(locs = locs, name = name,
+			      from = from, to = to)
 	dist_ref <- new.env()
-	lapply(names(contents),
-	       function(name) assign(name,
-				     contents[[name]], 
-				     envir = dist_ref))
+	lapply(names(slots),
+	       function(name) assign(name, slots[[name]], envir = dist_ref))
+	# set as global function within a function
+	# tryCatch removal, failure results in adding to a list of later removals
 	cleanup <- function(e) lapply(get_locs(e), function(host) {
 			      eval(bquote(RS.eval(host, rm(.(get_name(e))))))})
 	reg.finalizer(dist_ref, cleanup)
@@ -232,11 +254,11 @@ distributed.class <- function(classname){
 	}
 }
 
-get_ref_content <- function(content) function(ref) get(content, envir = ref)
-get_locs <- get_ref_content("locs")
-get_name <- get_ref_content("name")
-get_to <- get_ref_content("to")
-get_from <- get_ref_content("from")
+get_ref_slot <- function(slot) function(ref) get(slot, envir = ref)
+get_locs <- get_ref_slot("locs")
+get_name <- get_ref_slot("name")
+get_to <- get_ref_slot("to")
+get_from <- get_ref_slot("from")
 
 distributed.object <- distributed.class(NULL)
 
