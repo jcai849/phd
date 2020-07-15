@@ -50,6 +50,10 @@ as.cluster.list <- function(x) {
 
 as.cluster.cluster <- identity
 
+is.distributed.class <- function(classname) {
+	function(x) inherits(x, classname)
+}
+
 is.cluster <- is.distributed.class("cluster")
 
 hostlist <- function(cluster) {
@@ -258,10 +262,6 @@ get_to <- get_ref_slot("to")
 get_from <- get_ref_slot("from")
 
 distributed.object <- distributed.class(NULL)
-
-is.distributed.class <- function(classname) {
-	function(x) inherits(x, classname)
-}
 
 is.distributed <- is.distributed.class("distributed.object")
 
