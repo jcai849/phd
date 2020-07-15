@@ -144,7 +144,7 @@ prep.args.locs <- function(args, cluster, recycle) {
 	list(args, locs)
 }
 
-send <- function(obj, cluster=NULL, align_with=NULL){
+as.distributed <- function(obj, cluster=NULL, align_with=NULL){
 	if (is.null(cluster) && is.null(align_with)) 
 		stop("one of 'cluster' or 'align_with' required")
 	id <- UUIDgenerate()
@@ -188,8 +188,6 @@ even_split <- function(objsize, dest) {
 	     from = which(spliton), 
 	     to = as.integer(c(which(spliton)[-1] - 1, objsize)))
 }
-
-as.distributed <- send
 
 receive <- function(obj, remote=FALSE) {
 	UseMethod("receive", obj)
@@ -427,10 +425,10 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 		} else # (length(e1) < length(e2)) 
 			do.call(.Generic, list(align(e1, e2), e2))
 	} else if (!is.distributed.vector(e1)) {
-		e1 <- send(e1, get_locs(e2), align_to=e2)
+		e1 <- as.distributed(e1, get_locs(e2), align_with=e2)
 		do.call(.Generic, list(e1, e2))
 	} else { # (!("distributed.vector" %in% e2.classes)) {
-		e2 <- send(e2, get_locs(e1), align_to=e1)
+		e2 <- as.distributed(e2, get_locs(e1), align_with=e1)
 		do.call(.Generic, list(e1, e2))
 	}
 }
@@ -439,7 +437,7 @@ Ops.distributed.vector <- function(e1, e2=NULL) {
 	if (is.null(i)) {
 		cat("receiving distributed vector...\n"); return(receive(x))}
 	if (is.logical(i)) 
-		return(x[as.distributed(i, align_to=x)])
+		return(x[as.distributed(i, align_with=x)])
 
 	dist_ref <- 
 	if (is.distributed.vector(i)){
@@ -597,7 +595,7 @@ tail.distributed.data.frame <- function(x, n = 6L, ...)
 `[.distributed.data.frame` <- function(x, i=NULL, j=NULL){
 	if (is.null(i) && is.null(j)){
 		cat("receiving distributed data frame...\n"); return(receive(x))}
-	if (is.logical(i)) return(x[as.distributed(i, align_to = x), j])
+	if (is.logical(i)) return(x[as.distributed(i, align_with = x), j])
 
 	dist_ref <-
 	if (is.distributed.vector(i)) {
