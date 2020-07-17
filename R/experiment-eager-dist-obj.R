@@ -71,8 +71,9 @@ hostlist <- function(cluster) {
 # dist:	local or distributed objects to be aligned to the same location, 
 # 	including recycling
 # static: local objects to be sent to every location exactly as is
-# map: 	local list of the same length as the number of locations,
-#	containing lists to be iterated upon with each location, as in an mapply
+# map: 	local list containing lists of the same length as the number of
+#	locations, each sublist to be iterated upon with each location, 
+#	as in an mapply
 # assign can be character name to assign to, or logical
 
 distributed.do.call <- function(what, args.dist = list(),
@@ -86,18 +87,18 @@ distributed.do.call <- function(what, args.dist = list(),
 	args.dist.locs <- prep.args.locs(args.dist, cluster, recycle = recycle)
 	args.dist <- args.dist.locs$args
 	locs <- args.dist.locs$locs
-	stopifnot(identical(length(locs), length(args.map)) || 
+	stopifnot(identical(length(locs), lengths(args.map)) || 
 		  identical(args.map, list()))
 	if (collect && (is.character(assign) || assign)) {
 	id <- if (is.character(assign)) assign else UUIDgenerate()
 	do.call(mapply,
-		c(list(function(loc, arg.map)
+		c(list(function(loc, ...)
 		     eval(bquote(RS.eval(loc, assign(.(id),
 				  do.call(.(what), 
 					  .(c(args.dist, args.static,
-					      arg.map)))),
+					      list(...))))),
 					   wait = FALSE)))),
-		  locs = locs, arg.map = args.map,
+		  locs = locs, args.map,
 		  list(SIMPLIFY = FALSE)))
 		vals <- lapply(locs, RS.collect)
 		obj <- distributed.from.ext(id, locs)
@@ -106,25 +107,25 @@ distributed.do.call <- function(what, args.dist = list(),
 	if (is.character(assign) || assign) {
 	id <- if (is.character(assign)) assign else UUIDgenerate()
 		do.call(mapply,
-		       c(list(function(loc, arg.map)
+		       c(list(function(loc, ...)
 			      eval(bquote(RS.eval(loc, {assign(.(id),
 				      do.call(.(what),
 					      .(c(args.dist, args.static,
-						  arg.map))))
+						  list(...)))))
 				      NULL},
 				      wait = FALSE)))), 
-		       locs, args.map, list(SIMPLIFY = FALSE)))
+		       loc = locs, args.map, list(SIMPLIFY = FALSE)))
 		lapply(locs, RS.collect)
 		return(distributed.from.ext(id, locs))
 	}
 	if (collect) {
 		do.call(mapply,
-			c(list(function(loc, arg.map)
+			c(list(function(loc, ...)
 		       eval(bquote(RS.eval(loc, do.call(.(what),
 						.(c(args.dist, args.static,
-						    arg.map))),
+						    list(...)))),
 				      wait = FALSE)))),
-		       locs, args.map, list(SIMPLIFY = FALSE)))
+		       loc = locs, args.map, list(SIMPLIFY = FALSE)))
 		return(lapply(locs, RS.collect))
 	}
 	do.call(mapply,
