@@ -88,7 +88,7 @@ distributed.do.call <- function(what, args.dist = list(),
 	args.dist.locs <- prep.args.locs(args.dist, cluster, recycle = recycle)
 	args.dist <- args.dist.locs$args
 	locs <- args.dist.locs$locs
-	stopifnot(identical(length(locs), lengths(args.map)) || 
+	stopifnot(identical(length(locs), as.vector(lengths(args.map))) || 
 		  identical(args.map, list()))
 	if (collect && (is.character(assign) || assign)) {
 	id <- if (is.character(assign)) assign else UUIDgenerate()
@@ -295,7 +295,7 @@ distributed.from.ext <- function(id, locs) {
 			   RS.eval(loc, do.call(
 				   .(measure), list(get(.(id)))),
 				   wait = FALSE))))
-	obj_lengths <- sapply(locs, RS.collect)
+	obj_lengths <- sapply(locs, RS.collect, USE.NAMES = FALSE)
 	return(create_obj(name = id,
 			  locs = locs,
 			  from = cumsum(c(1L,
@@ -463,11 +463,9 @@ Ops.distributed.vector <- function(e1, e2) {
 	do.call(distributed.vector, dist_ref)
 }
 
-`%gin%` <- `%in%`
-
 `%in%` <- function(x, table) UseMethod("%in%", x)
 
-`%in%.default` <- function(x, table) x %gin% table
+`%in%.default` <- function(x, table) match(x, table, nomatch = 0) > 0
 
 `%in%.distributed.vector` <- function(x, table) 
 	distributed.do.call("%in%", args.dist = list(x),
@@ -521,50 +519,20 @@ unique.distributed.object <- function(x)
 read.distributed.csv <- function(cluster, paths,  ...) {
 	id <- UUIDgenerate()
 	hosts <- get_hosts(cluster)
-	lapply(hosts, function(conn)
-	       eval(bquote(RS.eval(conn, Sys.glob(.(paths)),
-				   wait = FALSE))))
-	hostfiles <- lapply(hosts, RS.collect)
-	hostconns <- hostlist(cluster)
-	mapply(function(h, l, n) {
-	       if (n < 1) stop(paste0("No files detected at host: ", h))
-	       if (n > l) stop(paste0(
-			 "More files than connections at host: ", h))},
-	       names(hostconns), lengths(hostconns), lengths(hostfiles))
-
-	destinations <- list()
-	lapply(names(hostfiles), function(hostname) {
-	       tosend <- even_split(length(hostfiles[[hostname]]), 
-				    hostconns[[hostname]])
-	       destinations <<- c(destinations, tosend$locs)
-	       lapply(seq(length(tosend$locs)), function(i)
-		      eval(bquote(RS.eval(tosend$locs[[i]],{
-		     assign(.(id), 
-			    do.call(read.csv,
-			   .(c(file = hostfiles[[hostname]][i],
-			       list(...)))));
-		     NULL},
-				     wait = FALSE))))})
-
-	loc.rows <- sapply(destinations, function(conn) {
-			       RS.collect(conn)
-			       eval(bquote(RS.eval(conn,
-						   nrow(get(.(id))))))})
-
-	distributed.data.frame(locs = as.cluster(destinations),
-	      name = id,
-	      from = as.integer(cumsum(c(1,loc.rows[-length(loc.rows)]))),
-	      to = as.integer(cumsum(loc.rows)))
+	hostfiles <- distributed.do.call("Sys.glob", args.static = list(paths),
+					 cluster = cluster, collect = TRUE)
+	connfile = unlist(lapply(unique(names(hostfiles)), function(name)
+		      lapply(seq(length(hostfiles[names(hostfiles) %in% name])),
+			     function(i) 
+				     hostfiles[[name]][i])), recursive = FALSE)
+	distributed.do.call("read.csv", args.static = list(...),
+			    args.map = list(file = connfile), cluster = cluster,
+			    assign = TRUE)
 }
 
 distributed.data.frame <- distributed.class("distributed.data.frame")
 
 is.distributed.data.frame <- is.distributed.class("distributed.data.frame")
-
-names.distributed.data.frame <- function(x) {
-	eval(bquote(RS.eval(get_locs(x)[[1]], 
-			    names(get(.(get_name(x)))))))
-}
 
 names.distributed.data.frame <- function(x)
 	unlist(distributed.do.call("names", args.dist = list(x[1,]), 
@@ -614,8 +582,8 @@ dim.distributed.data.frame <- function(x)
 	  unlist(distributed.do.call("ncol", args.dist = list(x[1,]),
 				     collect = TRUE), use.names = FALSE))
 
-as.list.distributed.data.frame <- function(x, ...) sapply(names(x),
-					  function(colname) x[[colname]],
-					  simplify = FALSE, USE.NAMES = TRUE)
+as.list.distributed.data.frame <- function(x, ...) 
+	sapply(names(x), function(colname) x[[colname]],
+	       simplify = FALSE, USE.NAMES = TRUE)
 
 `$.distributed.data.frame` <- function(x, name) x[[name]]
