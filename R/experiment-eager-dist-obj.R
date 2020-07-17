@@ -469,20 +469,9 @@ Ops.distributed.vector <- function(e1, e2) {
 
 `%in%.default` <- function(x, table) x %gin% table
 
-`%in%.distributed.vector` <- function(x, table) {
-	id <- UUIDgenerate()
-	lapply(get_locs(x),
-	       function(host) eval(bquote(RS.eval(host, 
-			  {assign(.(id), 
-				  get(.(get_name(x))) %in% .(table));
-			  NULL},
-			  wait = FALSE))))
-	lapply(get_locs(x), RS.collect)
-	distributed.vector(host = get_locs(x),
-			   name = id, 
-			   from = get_from(x),
-			   to = get_to(x))
-}
+`%in%.distributed.vector` <- function(x, table) 
+	distributed.do.call("%in%", args.dist = list(x),
+			    args.static = list(table), assign = TRUE)
 
 combine <- function(...) UseMethod("combine", list(...)[[1L]])
 
@@ -494,12 +483,11 @@ combine.table <- function(...) {
 			      function(i) lapply(chunknames,
 						 function(chunk) chunk[[i]]))
 	wholenames <- structure(lapply(groupedvarnames,
-		       function(names) sort(unique(do.call(c, names)))),
+		       function(names) sort(as.integer(
+					       unique(do.call(c, names))))),
 			  names = names(chunknames[[1]]))
-	
 	wholearray <- array(0L, dim = lengths(wholenames, use.names = FALSE),
 			    dimnames = wholenames)
-
 	lapply(seq(length(tabs)), function(i)
 	       {eval(substitute(wholearray_sub <<- wholearray_sub + tab_chunk, 
 		   list(wholearray_sub =  do.call(call, c(list("["),
@@ -517,26 +505,16 @@ table <- function(...) UseMethod("table", list(...)[[1]])
 table.default <- function(...) do.call(gtable, list(...))
 
 # assumes no other arguments
-table.distributed.object <- function(...){
-	refids <- sapply(list(...), function(x) get_name(x))
-	lapply(get_locs(list(...)[[1]]),
-	     function(host) eval(bquote(RS.eval(host,
-		do.call(table, 
-			lapply(.(refids),
-				 function(refid) get(refid))),
-						wait = FALSE))))
-	nodecounts <- lapply(get_locs(list(...)[[1]]), RS.collect)
-	do.call(combine.table, nodecounts)
-}
+
+table.distributed.object <- function(...)
+	do.call(combine.table,
+		distributed.do.call("table", args.dist = list(...),
+				    collect = T))
 
 #returns non-distributed
-unique.distributed.vector <- function(x) {
-	lapply(get_locs(x),
-	       function(host) eval(bquote(RS.eval(host,
-						  unique(get(.(get_name(x)))), 
-						  wait = FALSE))))
-	unique(unlist(lapply(get_locs(x), RS.collect)))
-}
+unique.distributed.object <- function(x) 
+	unique(distributed.do.call("unique", args.dist = list(x),
+				   assign = TRUE)[])
 
 # distributed.data.frame methods
 
