@@ -157,9 +157,9 @@ prep.args.locs <- function(args, cluster, recycle) {
 			       function(x) {if (is.distributed.vector(x))
 				       length else nrow}(x))),
 			      cumsum(are.dist))
-			} else  which.max(sapply(args,
-						 function(x) {if (is.vector(x))
-							 length else nrow}(x)))
+			} else  which.max(sapply(args, function(x) {
+							 if (is.data.frame(x))
+							 nrow else length}(x)))
 			if (!is.distributed(args[[align_with]]))
 			args[[align_with]] <- as.distributed(args[[align_with]],
 							     cluster)
@@ -200,7 +200,7 @@ align.distributed.object <- function(x, align_with = NULL,
 align.default <- function(x, align_with = NULL,
 			  recycle = TRUE, cluster = NULL) {
 	if (identical(x, align_with)) return(x)
-	measure <- if (is.vector(x)) length else nrow
+	measure <- if (is.data.frame(x)) nrow else length
 	chunks <- if (measure(x) == max(get_to(align_with))){
 		split(x, rep(seq(length(get_locs(align_with))), 
 			     times = c(min(get_to(align_with)),
@@ -229,7 +229,7 @@ all.aligned <- function(...) {
 } 
 
 even_split <- function(obj, dest) {
-	objsize <- {if (is.vector(obj)) length else nrow}(obj)
+	objsize <- {if (is.data.frame(obj)) nrow else length}(obj)
 	destsize <- length(dest)
 	spliton <- if (destsize < objsize) {
 		bucketsto <- cumsum(rep(objsize / 
@@ -287,13 +287,13 @@ is.distributed <- is.distributed.class("distributed.object")
 
 distributed.from.ext <- function(id, locs) {
 	obj_class <- eval(bquote(RS.eval(locs[[1]],
-					 is.vector(get(.(id))))))
-	measure <- if (obj_class) length else nrow
+					 is.data.frame(get(.(id))))))
+	measure <- if (obj_class) "nrow" else "length"
 	create_obj <- if (obj_class)
-		distributed.vector else distributed.data.frame
+		distributed.data.frame else distributed.vector
 	eval(bquote(lapply(locs, function(loc)
-			   RS.eval(loc,
-				   .(measure)(get(.(id))),
+			   RS.eval(loc, do.call(
+				   .(measure), list(get(.(id)))),
 				   wait = FALSE))))
 	obj_lengths <- sapply(locs, RS.collect)
 	return(create_obj(name = id,
@@ -566,6 +566,10 @@ names.distributed.data.frame <- function(x) {
 			    names(get(.(get_name(x)))))))
 }
 
+names.distributed.data.frame <- function(x)
+	unlist(distributed.do.call("names", args.dist = list(x[1,]), 
+				   collect = TRUE), use.names = FALSE)
+
 print.distributed.data.frame <- dist_print("Distributed Data Frame",
 					   "rows", "Dimension", dim)
 
@@ -601,22 +605,14 @@ tail.distributed.data.frame <- function(x, n = 6L, ...)
 	}
 }
 
-`[[.distributed.data.frame` <- function(x, i){
-	id <- UUIDgenerate()
-	lapply(get_locs(x),
-	       function(host) eval(bquote(RS.eval(host, 
-			  {assign(.(id), get(.(get_name(x)))[[.(i)]]); NULL},
-					  wait = FALSE))))
-	lapply(get_locs(x), RS.collect)
-	distributed.vector(locs = get_locs(x), 
-			 name = id, 
-			 from = get_from(x), 
-			 to = get_to(x))
-}
+`[[.distributed.data.frame` <- function(x, i)
+	distributed.do.call("[[", args.dist = list(x),
+			    args.static = list(i), assign = TRUE)
 
-dim.distributed.data.frame <- function(x) c(max(get_to(x)),
-				    eval(bquote(RS.eval(get_locs(x)[[1]], 
-						ncol(get(.(get_name(x))))))))
+dim.distributed.data.frame <- function(x) 
+	c(max(get_to(x)), 
+	  unlist(distributed.do.call("ncol", args.dist = list(x[1,]),
+				     collect = TRUE), use.names = FALSE))
 
 as.list.distributed.data.frame <- function(x, ...) sapply(names(x),
 					  function(colname) x[[colname]],
