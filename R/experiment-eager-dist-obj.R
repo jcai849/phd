@@ -84,6 +84,7 @@ distributed.do.call <- function(what, args.dist = list(),
 		  is.list(args.map), all(sapply(args.map, is.list)),
 		  is.function(what) || is.character(what),
 		  is.null(cluster)  || is.cluster(cluster))
+	what <- substitute(what)
 	args.dist.locs <- prep.args.locs(args.dist, cluster, recycle = recycle)
 	args.dist <- args.dist.locs$args
 	locs <- args.dist.locs$locs
@@ -94,7 +95,7 @@ distributed.do.call <- function(what, args.dist = list(),
 	do.call(mapply,
 		c(list(function(loc, ...)
 		     eval(bquote(RS.eval(loc, assign(.(id),
-				  do.call(.(what), 
+				  do.call(.(quote(what)), 
 					  .(c(args.dist, args.static,
 					      list(...))))),
 					   wait = FALSE)))),
@@ -121,19 +122,22 @@ distributed.do.call <- function(what, args.dist = list(),
 		return(distributed.from.ext(id, locs))
 	}
 	if (collect) {
-		do.call(mapply,
+		x=do.call(mapply,
 			c(list(function(loc, ...)
-		       eval(bquote(RS.eval(loc, do.call(.(what),
+		       eval(
+			    bquote(RS.eval(loc, do.call(.(what),
 						.(c(args.dist, args.static,
 						    list(...)))),
-				      wait = FALSE)))),
+				      wait = FALSE)))
+			    ),
 		       loc = list(locs), args.map, list(SIMPLIFY = FALSE)))
 		return(lapply(locs, RS.collect))
 	}
 	do.call(mapply,
 		c(list(function(loc, ...)
 	       eval(bquote(RS.eval(loc,
-			      {do.call(.(what), .(c(args.dist, args.static,
+			      {do.call(.(what),
+				       .(c(args.dist, args.static,
 						    list(...))))
 			      NULL}, 
 			      wait = FALSE)))),
@@ -245,14 +249,10 @@ receive <- function(obj, remote=FALSE) {
 	UseMethod("receive", obj)
 }
 
-dist_receive <- function(joinf)
-	function(obj) {
-	conn <- structure(get_locs(obj), names = NULL)
-	recv <- lapply(conn, function(hostname) {
-			       eval(bquote(RS.eval(hostname,
-						   get(.(get_name(obj))))))})
-	do.call(joinf, recv)
-}
+dist_receive <- function(joinf) function(obj) 
+	do.call(joinf, structure(distributed.do.call("identity",
+				args.dist = list(obj), collect = TRUE),
+		      names = NULL))
 
 # Distributed classes
 
@@ -265,7 +265,7 @@ distributed.class <- function(classname){
 	dist_ref <- new.env()
 	lapply(names(slots),
 	       function(name) assign(name, slots[[name]], envir = dist_ref))
-	# set as global function within a function
+	# set as global nested function
 	# tryCatch removal, failure results in adding to a list of later removals
 	cleanup <- function(e) lapply(get_locs(e), function(host) {
 			      eval(bquote(RS.eval(host, rm(.(get_name(e))))))})
@@ -432,7 +432,7 @@ Math.distributed.vector <- function(x, ...)
 			    args.static = list(...), 
 			    assign = TRUE)
 
-receive.distributed.vector <- dist_receive(c)
+receive.distributed.vector <- dist_receive(joinf = c)
 
 Ops.distributed.vector <- function(e1, e2) {
 	if (missing(e2)) {
@@ -591,7 +591,7 @@ names.distributed.data.frame <- function(x) {
 print.distributed.data.frame <- dist_print("Distributed Data Frame",
 					   "rows", "Dimension", dim)
 
-receive.distributed.data.frame <- dist_receive(rbind)
+receive.distributed.data.frame <- dist_receive(joinf = rbind)
 
 head.distributed.data.frame <- function(x, n = 6L, ...) x[seq(min(n, nrow(x))),]
 
