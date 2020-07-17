@@ -1,4 +1,9 @@
 2020-07-17	12:38:25	more fixes to distributed.do.call
+		14:35:17	distribution now working again
+		15:24:39	receive and quoting of function in dist.do.call
+		15:49:31	%in%, table, unique
+		16:24:57	dim, names, [[, fixes in prep.args
+		17:30:29	dist.read.csv
 2020-07-16	11:19:27	beginning more formal differentiation between
 				aligned and non-aligned args
 		15:59:58	align co-recursive with distributed.do.call
