@@ -72,8 +72,8 @@ hostlist <- function(cluster) {
 # 	including recycling
 # static: local objects to be sent to every location exactly as is
 # map: 	local list containing lists of the same length as the number of
-#	locations, each sublist to be iterated upon with each location, 
-#	as in an mapply
+#	locations, each sublist containing lists to be iterated upon with
+#	each location, as in a slightly stricter mapply
 # assign can be character name to assign to, or logical
 
 distributed.do.call <- function(what, args.dist = list(),
@@ -81,7 +81,7 @@ distributed.do.call <- function(what, args.dist = list(),
 				cluster = NULL, assign = FALSE,
 				collect = FALSE, recycle = TRUE) {
 	stopifnot(is.list(args.dist), is.list(args.static), 
-		  is.list(args.map), lapply(args.map, is.list),
+		  is.list(args.map), all(sapply(args.map, is.list)),
 		  is.function(what) || is.character(what),
 		  is.null(cluster)  || is.cluster(cluster))
 	args.dist.locs <- prep.args.locs(args.dist, cluster, recycle = recycle)
@@ -98,7 +98,7 @@ distributed.do.call <- function(what, args.dist = list(),
 					  .(c(args.dist, args.static,
 					      list(...))))),
 					   wait = FALSE)))),
-		  locs = locs, args.map,
+		  locs = list(locs), args.map,
 		  list(SIMPLIFY = FALSE)))
 		vals <- lapply(locs, RS.collect)
 		obj <- distributed.from.ext(id, locs)
@@ -106,15 +106,17 @@ distributed.do.call <- function(what, args.dist = list(),
 	}
 	if (is.character(assign) || assign) {
 	id <- if (is.character(assign)) assign else UUIDgenerate()
-		do.call(mapply,
+	do.call(mapply,
 		       c(list(function(loc, ...)
-			      eval(bquote(RS.eval(loc, {assign(.(id),
+			      eval(
+				   bquote(RS.eval(loc, {assign(.(id),
 				      do.call(.(what),
 					      .(c(args.dist, args.static,
 						  list(...)))))
 				      NULL},
-				      wait = FALSE)))), 
-		       loc = locs, args.map, list(SIMPLIFY = FALSE)))
+				      wait = FALSE)))
+				   ), 
+		       loc = list(locs), args.map, list(SIMPLIFY = FALSE)))
 		lapply(locs, RS.collect)
 		return(distributed.from.ext(id, locs))
 	}
@@ -125,17 +127,17 @@ distributed.do.call <- function(what, args.dist = list(),
 						.(c(args.dist, args.static,
 						    list(...)))),
 				      wait = FALSE)))),
-		       loc = locs, args.map, list(SIMPLIFY = FALSE)))
+		       loc = list(locs), args.map, list(SIMPLIFY = FALSE)))
 		return(lapply(locs, RS.collect))
 	}
 	do.call(mapply,
-		c(list(function(loc, arg.map)
+		c(list(function(loc, ...)
 	       eval(bquote(RS.eval(loc,
 			      {do.call(.(what), .(c(args.dist, args.static,
-						    arg.map)))
+						    list(...))))
 			      NULL}, 
 			      wait = FALSE)))),
-	       locs, args.map, list(SIMPLIFY = FALSE)))
+	       list(locs), args.map, list(SIMPLIFY = FALSE)))
 	lapply(locs, RS.collect)
 	return()
 }
@@ -145,18 +147,21 @@ prep.args.locs <- function(args, cluster, recycle) {
 	stopifnot(xor(is.cluster(cluster), any(are.dist)))
 	if (is.cluster(cluster) && identical(args, list()))
 		return(list(args = args, locs = cluster))
-	if (! (all(are.dist) && all.aligned(args))) {
-		align_with <- which.max(sapply(if (any(are.dist))
-					       args[are.dist] else args,
-					       function(x){
-						       if (is.vector(x))
-						       length else nrow}(x)))
-		if (!is.distributed(args[[align_with]]))
+	if (! (all(are.dist) && do.call(all.aligned, args))) {
+		align_with <- if (any(are.dist)) {
+			match(which.max(sapply(args[are.dist],
+			       function(x) {if (is.distributed.vector(x))
+				       length else nrow}(x))),
+			      cumsum(are.dist))
+			} else  which.max(sapply(args,
+						 function(x) {if (is.vector(x))
+							 length else nrow}(x)))
+			if (!is.distributed(args[[align_with]]))
 			args[[align_with]] <- as.distributed(args[[align_with]],
 							     cluster)
-		args <- lapply(args, align,
-			       align_with = args[[align_with]], 
-			       cluster = cluster)
+			args <- lapply(args, align,
+				       align_with = args[[align_with]], 
+				       cluster = cluster)
 	}
 	locs <- get_locs(args[[1]])
 	args <- lapply(args, function(arg)
@@ -172,31 +177,34 @@ as.distributed <- function(obj, align_with, recycle = FALSE) {
 		locs <- as.cluster(send.def$locs)
 		chunks <- send.def$chunks
 	} else stop("no information to align with")
-	distributed.do.call("identity", args.map = chunks, 
+	distributed.do.call("identity", args.map = list(chunks), 
 			    cluster = locs, assign = UUIDgenerate(), 
 			    recycle = recycle)
 }
 
 # returns aligned dist obj 
 # x: dist/local, align_with: dist
-align <- function(x, align_with = NULL, recycle = TRUE, cluster = NULL) UseMethod("align", x)
+align <- function(x, align_with = NULL, 
+		  recycle = TRUE, cluster = NULL) UseMethod("align", x)
 
-align.distributed.object <- function(x, align_with = NULL, recycle = TRUE, cluster = NULL) {
+align.distributed.object <- function(x, align_with = NULL, 
+				     recycle = TRUE, cluster = NULL) {
 	if (identical(x, align_with)) return(x)
 	stop("implement alignment for distributed objects!")
 }
 
-align.default <- function(x, align_with = NULL, recycle = TRUE, cluster = NULL) {
+align.default <- function(x, align_with = NULL,
+			  recycle = TRUE, cluster = NULL) {
 	if (identical(x, align_with)) return(x)
 	measure <- if (is.vector(x)) length else nrow
-	 chunks <- if (measure(x) == max(get_to(align_with))){
-		 split(x, rep(seq(length(get_locs(align_with))), 
-			      times = c(min(get_to(align_with)),
-					diff(get_to(align_with)))))
+	chunks <- if (measure(x) == max(get_to(align_with))){
+		split(x, rep(seq(length(get_locs(align_with))), 
+			     times = c(min(get_to(align_with)),
+				       diff(get_to(align_with)))))
 	 } else stop(paste0("length of x (", measure(x), 
 			    ") is not the same as the length to be aligned with (", 
 			    max(get_to(align_with)), ")"))
-	distributed.do.call("identity", args.map = chunks, 
+	distributed.do.call("identity", args.map = list(chunks), 
 			    cluster = locs, assign = UUIDgenerate(), 
 			    recycle = recycle)
 }
@@ -290,7 +298,7 @@ distributed.from.ext <- function(id, locs) {
 	obj_lengths <- sapply(locs, RS.collect)
 	return(create_obj(name = id,
 			  locs = locs,
-			  from = cumsum(c(1,
+			  from = cumsum(c(1L,
 					  obj_lengths[-length(obj_lengths)])),
 			  to = cumsum(obj_lengths)))
 }
