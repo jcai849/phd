@@ -43,14 +43,8 @@ v2 <- as.distributed(151:300, cluster)				# alt. numeric
 v3 <- as.distributed(1:150 %% 2 == 0, cluster)			# logical
 v4 <- as.distributed(1, cluster)				# obj < cluster
 v5 <- as.distributed(1:32, cluster)				# obj == cluster
-v6 <- as.distributed(1, align_to=v3)				# align
-v7 <- as.distributed(structure(1:26, names = letters), cluster)	# attributes
-v8 <- as.distributed(a1, cluster)				# symbol
-v9 <- as.distributed(a2, align_to=v8)				# align symbol
-
-# legitimate splits for distribution must occur without error
-split1 <- even_split(length(a2), 1:32)
-split2 <- even_split(length(5:7), 3:50)
+v6 <- as.distributed(structure(1:26, names = letters), cluster)	# attributes
+v7 <- as.distributed(a1, cluster)				# symbol
 
 # vectors must be received equivalently to what was sent
 stopifnot(
@@ -59,20 +53,8 @@ stopifnot(
 	  identical(v3[], a3),			                # logical
 	  identical(v4[], 1),			                # obj < cluster
 	  identical(v5[], 1:32),		                # obj == cluster
-	  all.aligned(v6, v3),                                  # align +ve
-	  !all.aligned(v6, v4),					# align -ve
-	  identical(v6[], rep(1, 32)),                          # align
-	  identical(v7[], structure(1:26, names = letters)),    # attributes
-	  identical(v8[], a1),                                  # symbol
-	  identical(v9[], a2),                                  # align symbol
-	  # splitting local objects to even chunks for distribution correct
-	  identical(split1$locs, 1:32),				# locations
-	  identical(split1$from[c(1, 32)], c(1L, 146L)),	# from
-	  identical(split1$to[c(1, 32)], c(4L, 150L)),		# to
-	  # splitting local objects smaller than the cluster:
-	  identical(split2$locs, 3:5),				# locations
-	  identical(split2$from, 1:3),				# from
-	  identical(split2$to, 1:3))				# to
+	  identical(v6[], structure(1:26, names = letters)),    # attributes
+	  identical(v7[], a1))                                  # symbol
 
 # distributed object methods
 
@@ -80,9 +62,9 @@ stopifnot(
 	  # locations correct
 	  identical(length(get_locs(v2)), 32L),
 	  # indices from correct
-	  identical(get_from(v2), split1$from),
+	  identical(class(get_from(v2)), "integer"),
 	  # indices to correct
-	  identical(get_to(v2), split1$to),
+	  identical(class(get_to(v2)), "integer"),
 	  # name is UUID
 	  grepl(".{8}-.{4}-.{4}-.{4}-.{12}", get_name(v2)),
 	  # test for distributed is accurate
