@@ -1,3 +1,9 @@
+2020-07-17	12:38:25	more fixes to distributed.do.call
+2020-07-16	11:19:27	beginning more formal differentiation between
+				aligned and non-aligned args
+		15:59:58	align co-recursive with distributed.do.call
+				determination of 3 forms of dist args
+		16:51:13	bug fixes
 2020-07-15	14:27:21	allowance for `align` function in dist.do.call
 		16:36:22	tested and working; factorisation of alignment
 				from as.distributed as well

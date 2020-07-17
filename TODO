@@ -1,7 +1,8 @@
+. align function: debugging
+. refactor functions in light of distributed.do.call
+. run tests
 . reg.finalize makes use of list of objects to clear
 . write tests for distributed.do.call (try covr)
-. refactor functions in light of distributed.do.call
-. align function
 . make things less verbose (starting rserve etc.)
 . working tree (%in% may help)
 . see why failed tests failing
