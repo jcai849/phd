@@ -17,7 +17,10 @@ stopifnot(
 	  all(sapply(get_hosts(cluster), inherits, "RserveConnection")),
 	  # hostlist must return a list with connection sublists grouped by host
 	  length(hostlist(cluster)) == 8 && 
-		  all(lengths(hostlist(cluster)) == 4))
+		  all(lengths(hostlist(cluster)) == 4),
+	  # is.cluster detects cluster class
+	  is.cluster(cluster), 	# +ve
+	  !is.cluster("a"))	# -ve
 # cluster must initialise with Rserve instances already running
 cluster2 <- make_cluster(hosts, 1)
 rm(cluster, cluster2)
