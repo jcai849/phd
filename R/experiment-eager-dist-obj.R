@@ -74,7 +74,6 @@ hostlist <- function(cluster) {
 # map: 	local list containing lists of the same length as the number of
 #	locations, each sublist containing lists to be iterated upon with
 #	each location, as in a slightly stricter mapply
-# assign can be character name to assign to, or logical
 
 distributed.do.call <- function(what, args.dist = list(),
 				args.static = list(), args.map = list(),
@@ -93,7 +92,6 @@ distributed.do.call <- function(what, args.dist = list(),
 	} else locs <- cluster
 	stopifnot(identical(length(locs), as.vector(lengths(args.map))) || 
 		  identical(args.map, list()))
-
 	dist.eval <- function(expr) {
 		expr <- substitute(expr)
 		eval(substitute(do.call(mapply,
@@ -104,9 +102,8 @@ distributed.do.call <- function(what, args.dist = list(),
 					  list(SIMPLIFY = FALSE))),
 				list(expr = expr)))
 	}
-
-	if (is.character(assign) || assign) {
-	id <- if (is.character(assign)) assign else UUIDgenerate()
+	if (assign) {
+	id <- UUIDgenerate()
 	dist.eval({assign(.(id),
 	                   do.call(.(what),
 				   .(c(args.dist, args.static, list(...)))));
@@ -119,8 +116,7 @@ distributed.do.call <- function(what, args.dist = list(),
 	return(create.dist(name = id,
 			   locs = locs[size > 0],
 			   size = size[size > 0]))
-	}
-	if (collect) {
+	} else if (collect) {
 		dist.eval(do.call(.(what), 
 				  .(c(args.dist, args.static, list(...)))))
 		return(lapply(locs, RS.collect))
@@ -240,6 +236,7 @@ dist_receive <- function(joinf) function(obj)
 
 # Distributed classes
 
+
 distributed.class <- function(classname){
 	function(locs, name, size) {
 		stopifnot(is.cluster(locs), is.character(name),
@@ -249,15 +246,27 @@ distributed.class <- function(classname){
 	dist_ref <- new.env()
 	lapply(names(slots),
 	       function(name) assign(name, slots[[name]], envir = dist_ref))
-	# set as global nested function
-	# tryCatch removal, failure results in adding to a list of later removals
-	cleanup <- function(e) lapply(get_locs(e), function(host) {
-			      eval(bquote(RS.eval(host, rm(.(get_name(e))))))})
 	reg.finalizer(dist_ref, cleanup)
 	class(dist_ref) <- c(classname, "distributed.object", class(dist_ref))
 	dist_ref
 	}
 }
+
+cleanupcore <- function() {
+	cleanlist <- list()
+	function(obj){
+		cleanlist <<- c(cleanlist, 
+				list(list(locs = get_locs(obj), 
+					  name = get_name(obj))))
+		tryCatch({lapply(cleanlist, function(item) 
+			  distributed.do.call("rm", 
+					      args.static = list(item$name),
+					      cluster = item$locs))
+			  cleanlist <<- list()},
+			 error = function(e) NULL) }
+}
+
+cleanup <- cleanupcore()
 
 get_ref_slot <- function(slot) function(ref) get(slot, envir = ref)
 get_locs <- get_ref_slot("locs")
