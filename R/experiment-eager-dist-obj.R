@@ -85,7 +85,6 @@ distributed.do.call <- function(what, args.dist = list(),
 		  is.function(what) || is.character(what),
 		  is.null(cluster)  || is.cluster(cluster),
 		  if (is.logical(assign)) !(assign && collect))
-	what <- substitute(what)
 	if (! identical(args.dist, list())) {
 		args.dist.locs <- prep.args.locs(args.dist, cluster,
 						 recycle = recycle)
@@ -99,8 +98,8 @@ distributed.do.call <- function(what, args.dist = list(),
 		expr <- substitute(expr)
 		eval(substitute(do.call(mapply,
 					c(list(function(loc, ...)
-					       eval(bquote(RS.eval(loc, expr,
-							   wait = FALSE)))), 
+					      eval(bquote(RS.eval(loc, expr,
+							   wait = FALSE)))),
 					  loc = list(locs), args.map,
 					  list(SIMPLIFY = FALSE))),
 				list(expr = expr)))
@@ -188,7 +187,8 @@ align.default <- function(x, align_with = NULL,
 	if (identical(x, align_with)) return(x)
 	measure <- if (is.data.frame(x)) nrow else length
 	chunks <- if (measure(x) == max(cumsum(get_size(align_with)))){
-		split(x, rep(seq(length(get_locs(align_with))), 
+		locs <- get_locs(align_with)
+		split(x, rep(seq(length(locs)), 
 			     times = get_size(align_with)))
 	 } else stop(paste0("length of x (", measure(x), 
 			    ") is not the same as the length to be aligned with (", 
