@@ -1,13 +1,11 @@
-. reg.finalize makes use of list of objects to clear
-. run tests
 . align function:
 .. local != dist
-. run tests
 . subset refactoring in light of new alignment capability
+. write tests (try covr)
+. improve error handling in RServe connection
 . align function:
 .. dist == dist
 .. dist != dist
-. write tests (try covr)
 . make things less verbose (starting rserve etc.)
 . working tree (%in% may help)
 . see why failed tests failing

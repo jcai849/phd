@@ -1,3 +1,6 @@
+2020-07-20	13:00:54	factorisation of dist.eval from dist.do.call
+		16:46:47	functionality of dist.do.call in all tests
+		17:33:44	gc list
 2020-07-17	12:38:25	more fixes to distributed.do.call
 		14:35:17	distribution now working again
 		15:24:39	receive and quoting of function in dist.do.call
