@@ -111,9 +111,15 @@ distributed.do.call <- function(what, args.dist = list(),
 	dist.eval({assign(.(id),
 	                   do.call(.(what),
 				   .(c(args.dist, args.static, list(...)))));
-		    NULL})
-	lapply(locs, RS.collect)
-	return(distributed.from.ext(id, locs))
+		   df <- is.data.frame(get(.(id)));
+		   list(df, if (df) nrow(get(.(id))) else length(get(.(id))))})
+	size.type <- lapply(locs, RS.collect)
+	size <- sapply(size.type, function(x) x[[2]])
+	create.dist <- if (any(sapply(size.type, function(x) x[[1]])))
+		distributed.data.frame else distributed.vector
+	return(create.dist(name = id,
+			   locs = locs[size > 0],
+			   size = size[size > 0]))
 	}
 	if (collect) {
 		dist.eval(do.call(.(what), 
@@ -257,27 +263,10 @@ get_ref_slot <- function(slot) function(ref) get(slot, envir = ref)
 get_locs <- get_ref_slot("locs")
 get_name <- get_ref_slot("name")
 get_size <- get_ref_slot("size")
-get_from <- get_ref_slot("from")
 
 distributed.object <- distributed.class(NULL)
 
 is.distributed <- is.distributed.class("distributed.object")
-
-distributed.from.ext <- function(id, locs) {
-	obj_class <- eval(bquote(RS.eval(locs[[1]],
-					 is.data.frame(get(.(id))))))
-	measure <- if (obj_class) "nrow" else "length"
-	create_obj <- if (obj_class)
-		distributed.data.frame else distributed.vector
-	eval(bquote(lapply(locs, function(loc)
-			   RS.eval(loc, do.call(
-				   .(measure), list(get(.(id)))),
-				   wait = FALSE))))
-	obj_lengths <- sapply(locs, RS.collect, USE.NAMES = FALSE)
-	return(create_obj(name = id,
-			  locs = locs,
-			  size = obj_lengths))
-}
 
 # Distributed Subsetting
 
