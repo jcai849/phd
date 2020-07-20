@@ -83,65 +83,45 @@ distributed.do.call <- function(what, args.dist = list(),
 	stopifnot(is.list(args.dist), is.list(args.static), 
 		  is.list(args.map), all(sapply(args.map, is.list)),
 		  is.function(what) || is.character(what),
-		  is.null(cluster)  || is.cluster(cluster))
+		  is.null(cluster)  || is.cluster(cluster),
+		  if (is.logical(assign)) !(assign && collect))
 	what <- substitute(what)
-	args.dist.locs <- prep.args.locs(args.dist, cluster, recycle = recycle)
-	args.dist <- args.dist.locs$args
-	locs <- args.dist.locs$locs
+	if (! identical(args.dist, list())) {
+		args.dist.locs <- prep.args.locs(args.dist, cluster,
+						 recycle = recycle)
+		args.dist <- args.dist.locs$args
+		locs <- args.dist.locs$locs
+	} else locs <- cluster
 	stopifnot(identical(length(locs), as.vector(lengths(args.map))) || 
 		  identical(args.map, list()))
-	if (collect && (is.character(assign) || assign)) {
-	id <- if (is.character(assign)) assign else UUIDgenerate()
-	do.call(mapply,
-		c(list(function(loc, ...)
-		     eval(bquote(RS.eval(loc, assign(.(id),
-				  do.call(.(quote(what)), 
-					  .(c(args.dist, args.static,
-					      list(...))))),
-					   wait = FALSE)))),
-		  locs = list(locs), args.map,
-		  list(SIMPLIFY = FALSE)))
-		vals <- lapply(locs, RS.collect)
-		obj <- distributed.from.ext(id, locs)
-		return(list(obj = obj, vals = vals))
+
+	dist.eval <- function(expr) {
+		expr <- substitute(expr)
+		eval(substitute(do.call(mapply,
+					c(list(function(loc, ...)
+					       eval(bquote(RS.eval(loc, expr,
+							   wait = FALSE)))), 
+					  loc = list(locs), args.map,
+					  list(SIMPLIFY = FALSE))),
+				list(expr = expr)))
 	}
+
 	if (is.character(assign) || assign) {
 	id <- if (is.character(assign)) assign else UUIDgenerate()
-	do.call(mapply,
-		       c(list(function(loc, ...)
-			      eval(
-				   bquote(RS.eval(loc, {assign(.(id),
-				      do.call(.(what),
-					      .(c(args.dist, args.static,
-						  list(...)))))
-				      NULL},
-				      wait = FALSE)))
-				   ), 
-		       loc = list(locs), args.map, list(SIMPLIFY = FALSE)))
-		lapply(locs, RS.collect)
-		return(distributed.from.ext(id, locs))
+	dist.eval({assign(.(id),
+	                   do.call(.(what),
+				   .(c(args.dist, args.static, list(...)))));
+		    NULL})
+	lapply(locs, RS.collect)
+	return(distributed.from.ext(id, locs))
 	}
 	if (collect) {
-		x=do.call(mapply,
-			c(list(function(loc, ...)
-		       eval(
-			    bquote(RS.eval(loc, do.call(.(what),
-						.(c(args.dist, args.static,
-						    list(...)))),
-				      wait = FALSE)))
-			    ),
-		       loc = list(locs), args.map, list(SIMPLIFY = FALSE)))
+		dist.eval(do.call(.(what), 
+				  .(c(args.dist, args.static, list(...)))))
 		return(lapply(locs, RS.collect))
 	}
-	do.call(mapply,
-		c(list(function(loc, ...)
-	       eval(bquote(RS.eval(loc,
-			      {do.call(.(what),
-				       .(c(args.dist, args.static,
-						    list(...))))
-			      NULL}, 
-			      wait = FALSE)))),
-	       list(locs), args.map, list(SIMPLIFY = FALSE)))
+	dist.eval({do.call(.(what), .(c(args.dist, args.static, list(...))));
+	           NULL})
 	lapply(locs, RS.collect)
 	return()
 }
@@ -157,15 +137,15 @@ prep.args.locs <- function(args, cluster, recycle) {
 			       function(x) {if (is.distributed.vector(x))
 				       length else nrow}(x))),
 			      cumsum(are.dist))
-			} else  which.max(sapply(args, function(x) {
-							 if (is.data.frame(x))
+		} else  which.max(sapply(args, function(x) {
+						 if (is.data.frame(x))
 							 nrow else length}(x)))
-			if (!is.distributed(args[[align_with]]))
+		if (!is.distributed(args[[align_with]]))
 			args[[align_with]] <- as.distributed(args[[align_with]],
 							     cluster)
-			args <- lapply(args, align,
-				       align_with = args[[align_with]], 
-				       cluster = cluster)
+		args <- lapply(args, align,
+			       align_with = args[[align_with]], 
+			       cluster = cluster)
 	}
 	locs <- get_locs(args[[1]])
 	args <- lapply(args, function(arg)
@@ -182,7 +162,7 @@ as.distributed <- function(obj, align_with, recycle = FALSE) {
 		chunks <- send.def$chunks
 	} else stop("no information to align with")
 	distributed.do.call("identity", args.map = list(chunks), 
-			    cluster = locs, assign = UUIDgenerate(), 
+			    cluster = locs, assign = TRUE, 
 			    recycle = recycle)
 }
 
@@ -209,7 +189,7 @@ align.default <- function(x, align_with = NULL,
 			    ") is not the same as the length to be aligned with (", 
 			    max(get_to(align_with)), ")"))
 	distributed.do.call("identity", args.map = list(chunks), 
-			    cluster = locs, assign = UUIDgenerate(), 
+			    cluster = locs, assign = TRUE, 
 			    recycle = recycle)
 }
 
@@ -481,8 +461,7 @@ combine.table <- function(...) {
 			      function(i) lapply(chunknames,
 						 function(chunk) chunk[[i]]))
 	wholenames <- structure(lapply(groupedvarnames,
-		       function(names) sort(as.integer(
-					       unique(do.call(c, names))))),
+		       function(names) sort(unique(do.call(c, names)))),
 			  names = names(chunknames[[1]]))
 	wholearray <- array(0L, dim = lengths(wholenames, use.names = FALSE),
 			    dimnames = wholenames)
