@@ -181,13 +181,12 @@ align.default <- function(x, align_with = NULL,
 			  recycle = TRUE, cluster = NULL) {
 	if (identical(x, align_with)) return(x)
 	measure <- if (is.data.frame(x)) nrow else length
-	chunks <- if (measure(x) == max(get_to(align_with))){
+	chunks <- if (measure(x) == max(cumsum(get_size(align_with)))){
 		split(x, rep(seq(length(get_locs(align_with))), 
-			     times = c(min(get_to(align_with)),
-				       diff(get_to(align_with)))))
+			     times = get_size(align_with)))
 	 } else stop(paste0("length of x (", measure(x), 
 			    ") is not the same as the length to be aligned with (", 
-			    max(get_to(align_with)), ")"))
+			    max(cumsum(get_size(align_with))), ")"))
 	distributed.do.call("identity", args.map = list(chunks), 
 			    cluster = locs, assign = TRUE, 
 			    recycle = recycle)
@@ -200,8 +199,7 @@ all.aligned <- function(...) {
 	bi.aligned <- function(x, y) {
 	identical(get_locs(x), get_locs(y)) &&
 		identical(length(x), length(y)) &&
-		identical(get_from(x), get_from(y)) &&
-		identical(get_to(x), get_to(y))
+		identical(get_size(x), get_size(y))
 	}
 	if (length(objs) == 2) return(bi.aligned(objs[[1]], objs[[2]]))
 	return(all(mapply(bi.aligned,
@@ -237,11 +235,11 @@ dist_receive <- function(joinf) function(obj)
 # Distributed classes
 
 distributed.class <- function(classname){
-	function(locs, name, from, to) {
+	function(locs, name, size) {
 		stopifnot(is.cluster(locs), is.character(name),
-			  is.integer(from), is.integer(to))
+			  is.integer(size))
 		slots <- list(locs = locs, name = name,
-			      from = from, to = to)
+			      size = size)
 	dist_ref <- new.env()
 	lapply(names(slots),
 	       function(name) assign(name, slots[[name]], envir = dist_ref))
@@ -258,7 +256,7 @@ distributed.class <- function(classname){
 get_ref_slot <- function(slot) function(ref) get(slot, envir = ref)
 get_locs <- get_ref_slot("locs")
 get_name <- get_ref_slot("name")
-get_to <- get_ref_slot("to")
+get_size <- get_ref_slot("size")
 get_from <- get_ref_slot("from")
 
 distributed.object <- distributed.class(NULL)
@@ -278,9 +276,7 @@ distributed.from.ext <- function(id, locs) {
 	obj_lengths <- sapply(locs, RS.collect, USE.NAMES = FALSE)
 	return(create_obj(name = id,
 			  locs = locs,
-			  from = cumsum(c(1L,
-					  obj_lengths[-length(obj_lengths)])),
-			  to = cumsum(obj_lengths)))
+			  size = obj_lengths))
 }
 
 # Distributed Subsetting
@@ -325,13 +321,12 @@ dist_subset <- function(subset_template, x, i, j=NULL) {
 
 	list(locs = get_locs(x)[nonemptylocs],
 	      name = id,
-	      from = cumsum(c(1L,locs[-length(locs)])),
-	      to = cumsum(locs))
+	      size = locs)
 }
 
 generate_num_selection <- function(x, i){
-	which.loc <- rowSums(outer(i, get_from(x), "-") >= 0)
-	allselections <- i - get_from(x)[which.loc] + 1
+	which.loc <- rowSums(outer(cumsum(get_size(x)), i, "-") < 0) + 1
+	allselections <- cumsum(get_size(x)[which.loc]) - i + 1
 	locs <- unique(which.loc)
 	list(locs = locs, 
 	     selections = lapply(locs, function(loc)
@@ -352,8 +347,7 @@ num_subset <- function(subset_template, x, i, j=NULL){
 
 	list(locs = locs,
 	     name = id,
-	     from = cumsum(c(1L, lengths(selections)[-length(selections)])),
-	     to = cumsum(lengths(selections)))
+	     size = lengths(selections))
 }
 
 dist_print <- function(type, components, measurename, measure) {
@@ -388,7 +382,7 @@ distributed.vector <- distributed.class("distributed.vector")
 
 is.distributed.vector <- is.distributed.class("distributed.vector")
 
-length.distributed.vector <- function(x) max(get_to(x))
+length.distributed.vector <- function(x) max(cumsum(get_size(x)))
 
 head.distributed.vector <- function(x, n = 6L, ...) x[seq(min(n, length(x)))]
 
@@ -432,9 +426,7 @@ Ops.distributed.vector <- function(e1, e2) {
 	dist_ref <- 
 	if (is.distributed.vector(i)){
 		if (!all.aligned(x, i)) {
-	stop(paste0("Subsetting by non-logical distributed vector not yet implemented",
-		    "x-from: ", paste0(get_from(x)),
-		    "i-from: ", paste0(get_from(i)),))
+	stop("Subsetting by non-logical distributed vector not yet implemented")
 		} else dist_subset(x[i], x = x, i = i)
 	} else if (is.numeric(i)) { num_subset(x[i], x = x, i = i)
 	} else stop(paste("Unrecognised class for i. Your class: ", 
@@ -557,7 +549,7 @@ tail.distributed.data.frame <- function(x, n = 6L, ...)
 			    args.static = list(i), assign = TRUE)
 
 dim.distributed.data.frame <- function(x) 
-	c(max(get_to(x)), 
+	c(max(cumsum(get_size(x))), 
 	  unlist(distributed.do.call("ncol", args.dist = list(x[1,]),
 				     collect = TRUE), use.names = FALSE))
 
