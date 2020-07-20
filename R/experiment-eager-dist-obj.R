@@ -325,8 +325,8 @@ dist_subset <- function(subset_template, x, i, j=NULL) {
 }
 
 generate_num_selection <- function(x, i){
-	which.loc <- rowSums(outer(cumsum(get_size(x)), i, "-") < 0) + 1
-	allselections <- cumsum(get_size(x)[which.loc]) - i + 1
+	which.loc <- colSums(outer(cumsum(get_size(x)), i, "-") < 0) + 1
+	allselections <- i - cumsum(c(1L, get_size(x)))[which.loc] + 1L
 	locs <- unique(which.loc)
 	list(locs = locs, 
 	     selections = lapply(locs, function(loc)
