@@ -61,10 +61,8 @@ stopifnot(
 stopifnot(
 	  # locations correct
 	  identical(length(get_locs(v2)), 32L),
-	  # indices from correct
-	  identical(class(get_from(v2)), "integer"),
-	  # indices to correct
-	  identical(class(get_to(v2)), "integer"),
+	  # size correct
+	  identical(class(get_size(v2)), "integer"),
 	  # name is UUID
 	  grepl(".{8}-.{4}-.{4}-.{4}-.{12}", get_name(v2)),
 	  # test for distributed is accurate
@@ -186,10 +184,8 @@ stopifnot(
 stopifnot(
 	  # locations correct
 	  identical(length(get_locs(d1)), 32L),
-	  # indices from correct
-	  identical(get_from(d1), dfsplit1$from),
-	  # indices to correct
-	  identical(get_to(d1), dfsplit1$to),
+	  # size correct
+	  identical(get_size(d1), dfsplit1$from),
 	  # name is UUID
 	  grepl(".{8}-.{4}-.{4}-.{4}-.{12}", get_name(d1)),
 	  # test for distributed is accurate
@@ -307,11 +303,11 @@ kill_servers(hosts)
 # distributed data frame resulting from read.distributed.csv
 # create split csv file
 cluster <- make_cluster("localhost", 4)
-reflist <- even_split(nrow(iris), 1:4)
-tmpdir <- tempdir()
+reflist <- even_split(iris, 1:4)
+tmpdirectory <- tempdir()
 lapply(1:4, function(i)
        write.table(iris[seq(reflist$from[i], reflist$to[i]), 1:4],
-		 paste0(tmpdir, "/iris", i, ".csv"),
+		 paste0(tmpdirectory, "/iris", i, ".csv"),
 		 sep = ",", dec = ".", qmethod = "double",
 		 row.names = FALSE, col.names = FALSE))
 
