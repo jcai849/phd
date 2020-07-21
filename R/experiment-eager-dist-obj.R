@@ -83,7 +83,7 @@ distributed.do.call <- function(what, args.dist = list(),
 		  is.list(args.map), all(sapply(args.map, is.list)),
 		  is.function(what) || is.character(what),
 		  is.null(cluster)  || is.cluster(cluster),
-		  if (is.logical(assign)) !(assign && collect))
+		  !(assign && collect))
 	if (! identical(args.dist, list())) {
 		args.dist.locs <- prep.args.locs(args.dist, cluster,
 						 recycle = recycle)
@@ -145,8 +145,7 @@ prep.args.locs <- function(args, cluster, recycle) {
 			args[[align_with]] <- as.distributed(args[[align_with]],
 							     cluster)
 		args <- lapply(args, align,
-			       align_with = args[[align_with]], 
-			       cluster = cluster)
+			       align_with = args[[align_with]])
 	}
 	locs <- get_locs(args[[1]])
 	args <- lapply(args, function(arg)
@@ -169,29 +168,50 @@ as.distributed <- function(obj, align_with, recycle = FALSE) {
 
 # returns aligned dist obj 
 # x: dist/local, align_with: dist
-align <- function(x, align_with = NULL, 
-		  recycle = TRUE, cluster = NULL) UseMethod("align", x)
+align <- function(x, align_with = NULL, recycle = TRUE) UseMethod("align", x)
 
-align.distributed.object <- function(x, align_with = NULL, 
-				     recycle = TRUE, cluster = NULL) {
+align.distributed.object <- function(x, align_with = NULL, recycle = TRUE) {
 	if (identical(x, align_with)) return(x)
 	stop("implement alignment for distributed objects!")
 }
 
-align.default <- function(x, align_with = NULL,
-			  recycle = TRUE, cluster = NULL) {
+align.default <- function(x, align_with = NULL, recycle = TRUE) {
 	if (identical(x, align_with)) return(x)
-	measure <- if (is.data.frame(x)) nrow else length
-	chunks <- if (measure(x) == max(cumsum(get_size(align_with)))){
-		locs <- get_locs(align_with)
-		split(x, rep(seq(length(locs)), 
-			     times = get_size(align_with)))
-	 } else stop(paste0("length of x (", measure(x), 
-			    ") is not the same as the length to be aligned with (", 
-			    max(cumsum(get_size(align_with))), ")"))
+	locs <- get_locs(align_with)
+	indices <- gen.indices(x, align_with)
+	chunks <- if (is.data.frame(x)) {
+		apply(indices, 1, function(index) 
+		      rbind(x[seq(index["from1"], index["to1"]),],
+			    if (!is.na(index["from2"]))
+			    x[seq(index["from2"], index["to2"]),] else NULL))
+	} else apply(indices, 1, function(index) 
+			   c(x[seq(index["from1"], index["to1"])],
+			     if (!is.na(index["from2"]))
+			     x[seq(index["from2"], index["to2"])] else NULL))
+
 	distributed.do.call("identity", args.map = list(chunks), 
 			    cluster = locs, assign = TRUE, 
 			    recycle = recycle)
+}
+
+# return indices
+gen.indices <- function(x, align_with) {
+	measure <- if (is.data.frame(x)) nrow else length
+	indices <- matrix(nrow = length(cap), ncol = 4,
+			  dimnames = list(NULL, 
+					  c("from1", "to1", "from2", "to2")))
+	cap <- get_size(align_with)
+	prior <- cumsum(c(1, cap[-length(cap)]))
+	indices[,"from1"] <- prior %% measure(x)
+	indices[,"to1"] <- pmin(indices[,"from1"] + cap - 1, measure(x))
+	complete <- indices[,"to1"] - indices[,"from1"] + 1 == cap |
+		indices[,"to1"] - indices[,"from1"] + 1 == measure(x)
+	indices[!complete,"from2"] <- 1
+	indices[!complete,"to2"] <- pmin(indices[!complete,"from1"] - 1,
+					 cap[!complete] - 
+					 (indices[!complete,"to1"] -
+					  indices[!complete,"from1"] + 1))
+	indices
 }
 
 all.aligned <- function(...) {
@@ -258,12 +278,13 @@ cleanupcore <- function() {
 		cleanlist <<- c(cleanlist, 
 				list(list(locs = get_locs(obj), 
 					  name = get_name(obj))))
-		tryCatch({lapply(cleanlist, function(item) 
-			  distributed.do.call("rm", 
-					      args.static = list(item$name),
-					      cluster = item$locs))
-			  cleanlist <<- list()},
-			 error = function(e) NULL) }
+		for (i in seq(length(cleanlist)))
+		     tryCatch({distributed.do.call("rm",
+			     args.static = list(cleanlist[[i]]$name),
+			     cluster = list(cleanlist[[i]]$locs));
+			     cleanlist <<- cleanlist[-i]},
+			     error = function(e) NULL)
+	}
 }
 
 cleanup <- cleanupcore()
