@@ -1,12 +1,16 @@
 . align function:
+.. get rid of dependence on as.distributed: use 'send' instead
 .. local != dist
-. subset refactoring in light of new alignment capability
-. write tests (try covr)
+. replace get(.(...)) with as.symbol(...)
+. remove args.map
+. write index (generalise with as.list(quote(T[])[[3]]))
+. write tests (try covr) incl. new functions dist.do.call, Summary etc.
 . improve error handling in RServe connection
 . align function:
 .. dist == dist
 .. dist != dist
 . make things less verbose (starting rserve etc.)
+. Write 3rd report
 . working tree (%in% may help)
 . see why failed tests failing
 . multiple choices for categories in tree
@@ -52,5 +56,3 @@
 . Research possible graph-based algorithms that require node communication
 . More on RWLS document
 .. Reference the GLM implementations in sparklyr and pbdR
-. Notes on s-u
-. Highlight useful bib entries; take notes

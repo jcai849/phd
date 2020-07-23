@@ -1,3 +1,5 @@
+2020-07-23	16:38:09	writing and reconceptualisation
+2020-07-21	14:08:15	initial alignment function for local to dist
 2020-07-20	13:00:54	factorisation of dist.eval from dist.do.call
 		16:46:47	functionality of dist.do.call in all tests
 		17:33:44	gc list
