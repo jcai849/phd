@@ -179,6 +179,7 @@ align.default <- function(x, align_with = NULL, recycle = TRUE) {
 	if (identical(x, align_with)) return(x)
 	locs <- get_locs(align_with)
 	indices <- gen.indices(x, align_with)
+	browser()
 	chunks <- if (is.data.frame(x)) {
 		apply(indices, 1, function(index) 
 		      rbind(x[seq(index["from1"], index["to1"]),],
@@ -197,12 +198,12 @@ align.default <- function(x, align_with = NULL, recycle = TRUE) {
 # return indices
 gen.indices <- function(x, align_with) {
 	measure <- if (is.data.frame(x)) nrow else length
+	cap <- get_size(align_with)
 	indices <- matrix(nrow = length(cap), ncol = 4,
 			  dimnames = list(NULL, 
 					  c("from1", "to1", "from2", "to2")))
-	cap <- get_size(align_with)
 	prior <- cumsum(c(1, cap[-length(cap)]))
-	indices[,"from1"] <- prior %% measure(x)
+	indices[,"from1"] <- pmax(1, prior %% measure(x))
 	indices[,"to1"] <- pmin(indices[,"from1"] + cap - 1, measure(x))
 	complete <- indices[,"to1"] - indices[,"from1"] + 1 == cap |
 		indices[,"to1"] - indices[,"from1"] + 1 == measure(x)
@@ -211,6 +212,7 @@ gen.indices <- function(x, align_with) {
 					 cap[!complete] - 
 					 (indices[!complete,"to1"] -
 					  indices[!complete,"from1"] + 1))
+	browser()
 	indices
 }
 
