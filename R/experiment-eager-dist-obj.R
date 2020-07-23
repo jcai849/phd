@@ -175,24 +175,44 @@ align.distributed.object <- function(x, align_with = NULL, recycle = TRUE) {
 	stop("implement alignment for distributed objects!")
 }
 
+align.data.frame <- function(x, align_with = NULL, recycle = TRUE) {
+	if (identical(x, align_with)) return(x)
+	locs <- get_locs(align_with)
+	indices <- gen.indices(x, align_with)
+	chunks <- lapply(seq(nrow(indices)), function(index) 
+		      rbind(x[seq(indices[index,"from1"], 
+				  indices[index, "to1"]),],
+			    if (!is.na(indices[index, "from2"]))
+			    x[seq(indices[index,"from2"], 
+				  indices[index,"to2"]),] else NULL))
+	id <- UUIDgenerate()
+	mapply(function(loc, val)
+	       RS.assign(loc, id, val, wait = FALSE),
+	       locs, chunks)
+	distributed.data.frame(name = id,
+			       locs = locs,
+			       size = sapply(chunks, nrow))
+
+}
+
 align.default <- function(x, align_with = NULL, recycle = TRUE) {
 	if (identical(x, align_with)) return(x)
 	locs <- get_locs(align_with)
 	indices <- gen.indices(x, align_with)
-	browser()
-	chunks <- if (is.data.frame(x)) {
-		apply(indices, 1, function(index) 
-		      rbind(x[seq(index["from1"], index["to1"]),],
-			    if (!is.na(index["from2"]))
-			    x[seq(index["from2"], index["to2"]),] else NULL))
-	} else apply(indices, 1, function(index) 
-			   c(x[seq(index["from1"], index["to1"])],
-			     if (!is.na(index["from2"]))
-			     x[seq(index["from2"], index["to2"])] else NULL))
-
-	distributed.do.call("identity", args.map = list(chunks), 
-			    cluster = locs, assign = TRUE, 
-			    recycle = recycle)
+	chunks <- lapply(seq(nrow(indices)), function(index) 
+			   c(x[seq(indices[index,"from1"], 
+					indices[index,"to1"])],
+			     if (!is.na(indices[index,"from2"]))
+			     x[seq(indices[index,"from2"],
+				   indices[index,"to2"])] else NULL))
+	id <- UUIDgenerate()
+	mapply(function(loc, val)
+	       RS.assign(loc, id, val, wait = FALSE),
+	       locs, chunks)
+	lapply(locs, RS.collect)
+	distributed.vector(name = id,
+			   locs = locs,
+			   size = sapply(chunks, length))
 }
 
 # return indices
@@ -203,7 +223,8 @@ gen.indices <- function(x, align_with) {
 			  dimnames = list(NULL, 
 					  c("from1", "to1", "from2", "to2")))
 	prior <- cumsum(c(1, cap[-length(cap)]))
-	indices[,"from1"] <- pmax(1, prior %% measure(x))
+	firsts <- prior %% measure(x)
+	indices[,"from1"] <- ifelse(firsts == 0, measure(x), firsts)
 	indices[,"to1"] <- pmin(indices[,"from1"] + cap - 1, measure(x))
 	complete <- indices[,"to1"] - indices[,"from1"] + 1 == cap |
 		indices[,"to1"] - indices[,"from1"] + 1 == measure(x)
@@ -212,7 +233,6 @@ gen.indices <- function(x, align_with) {
 					 cap[!complete] - 
 					 (indices[!complete,"to1"] -
 					  indices[!complete,"from1"] + 1))
-	browser()
 	indices
 }
 
