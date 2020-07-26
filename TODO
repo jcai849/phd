@@ -1,9 +1,17 @@
-. align function:
-.. get rid of dependence on as.distributed: use 'send' instead
+. align:
 .. local != dist
-. replace get(.(...)) with as.symbol(...)
-. remove args.map
-. write index (generalise with as.list(quote(T[])[[3]]))
+.. get rid of dependence on as.distributed: use 'send' instead
+. Get writings on computer from paper
+. Record seminar attended on Wednesday
+. prep.args.locs:
+.. create which.align function
+.. replace get(.(...)) with as.symbol(...)
+. distributed.do.call:
+.. remove args.map
+. index
+.. write (generalise with as.list(quote(T[])[[3]]))
+. dist.read.csv, dist.scan
+.. write
 . write tests (try covr) incl. new functions dist.do.call, Summary etc.
 . improve error handling in RServe connection
 . align function:
