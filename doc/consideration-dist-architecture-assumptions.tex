@@ -1,0 +1,125 @@
+\documentclass[10pt, a4paper]{article}
+
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+
+\newcounter{assumption}[section]
+
+\newcommand{\assume}[1]{\begin{quote}
+\centering
+\stepcounter{assumption}
+\arabic{assumption}. {#1}
+\end{quote}}
+
+\begin{document}
+\title{Distributed Architecture Informal Assumptions and Considerations}
+\author{Jason Cairns}
+\year=2020 \month=7 \day=26
+\maketitle
+
+\section{Introduction}
+Following several weeks of development on a prototype distributed platform, a
+large number of architectural choices have had to be made, covered in the
+series of reports, \href{experiment-eager-dist-obj-supp.pdf}{Experiment: Eager
+Distributed Object}
+An attempt to outline some of the assumptions leading to these decisions is
+made in section \ref{sec:assumptions}, as a means of making explicit what is
+otherwise left implicit and potentially unquestioned.
+Potential future assumptions with interesting consequences are considered in
+section \ref{sec:potential}.
+
+At the current iteration of this text, only a few assumptions are laid out,
+however more will be progressively added following further development and
+consideration.
+
+\section{Assumptions}\label{sec:assumptions}
+
+\assume{The large data made use of in the platform originates externally and
+comes pre-distributed.}
+If the data were instead being originated entirely locally, as in a simulation,
+the memory required would soon be excessive for a single computer.
+Data appropriate for this platform is too large for a single machine, so it
+can't have been originated all at once from a single machine.
+There may be room in the future ofor consideration of streaming data recording
+and generation that distributes local \textit{ex nihilo} data, but that is a
+separate concern to that of the platform for modelling on that data.
+Beyond the slightly tautological argument, experience shows that most
+large-scale data dealt with by a standard statistician is sourced externally.
+Consequences of this assumption include the complete removal of
+\texttt{as.distributed} from user-space, as it is at odds with such an
+assumption.
+Combined with a means of deriving locations of data chunks for import, such as
+through user-provided file URI's, or hadoop locations, this enables the removal
+of the concept of cluster objects from user-space.
+A removal of cluster objects may lead to potential difficulties upon attempting
+operations involving multiple independently-read objects, as they may be
+unaligned, existing in different locations.
+This leads to the consideration that alignment of distributed objects should be
+an operation with side-effects, thereby ideally letting the expensive operation
+of data movement occur only once between a pair of unaligned objects.
+A corollary of removing cluster objects is a change in semantics; if, for
+example, a library is to be loaded across all nodes on a cluster, the
+declaration is no longer, ``load the library at these specific locations.''
+rather it becomes, ``load the library everywhere relevent to this distributed
+object.''
+
+\assume{The platform makes use of parallelism as a means for handling large
+data, in order to cope with memory constraints, and any potential speed-ups are
+a secondary side-effect.}
+Consider the counterfactual, that the principal concern was not large data, but
+parallelism for speed: CPU-bound, not memory-bound operations.
+In this kind of system, high levels of communication are acceptable and likely
+beneficial.
+Conversely, under our assumption, communication is required to be kept to a
+minimum, given the high cost associated with transferring large swaths of data
+across a network
+
+\section{Potential Future Assumptions}\label{sec:potential}
+
+\assume{Arbitrary classes can be distributed.}
+Generalisation to arbitrary classes is an interesting pursuit, for the obvious
+increases in flexibility, as well as forcing clarity in the existing concepts
+of the system.
+The user offering a class to the system to distribute would be required to
+define methods for splitting, combining, as well as some other functions to aid
+special cases such as indexing.
+A marker of success would be the capacity to distribute matrices, with an
+extension to different types of matrices, such as sparse, diagonal, etc.
+
+\assume{Point-to-point communication is necessary.}
+Point-to-point communication, directly between nodes without master involvement
+is essential to the efficient movement of data between workers, but the
+implementation involves walking a tightrope of user-friendliness.
+At face value, it is antithetical to the expectation that locations should
+remain unknown to the user. 
+This sees a fairly simple resolution in layering the platform, with explicit
+reference to locations existing only at the level of co-ordination and below;
+ideally lower.
+See table \ref{tab:layers} for more detail on platform layering.
+An ideal outcome of point-to-point communication is the implementation of a
+sorting algorithm, with a more pedestrian, but still useful outcome in direct
+alignment of objects on different nodes.
+
+\begin{table}
+	\centering
+	\begin{tabular}{ll}
+		\toprule
+	Layer 		& Definitive Examples \\
+	\midrule
+	User 		& \texttt{table}, \texttt{dist.read.csv}, 
+			  \texttt{dist.scan}\\
+			& \texttt{Math} group (\texttt{`+`} etc.),
+			  \texttt{`[<-`}\\
+	Programming 	& \texttt{dist.do.call} \\
+	Co-ordination 	& \texttt{which.align}, \texttt{align}, \texttt{index}\\
+	Movement 	& \texttt{send}, \texttt{p2p}\\
+	Communication 	& RServe\\
+	\bottomrule
+	\end{tabular}
+\caption{An outline of layers in the distributed architecture}
+\label{tab:layers}
+\end{table}
+
+\end{document}
