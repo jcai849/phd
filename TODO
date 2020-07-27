@@ -1,24 +1,18 @@
-. align:
-.. local != dist
-.. get rid of dependence on as.distributed: use 'send' instead
-. Get writings on computer from paper
-. Record seminar attended on Wednesday
-. prep.args.locs:
-.. create which.align function
-.. replace get(.(...)) with as.symbol(...)
-. distributed.do.call:
-.. remove args.map
+. auxiliary functions
+.. measure
+.. split
+.. combine
+.. reftype
+.. sizes
+. dist.read.csv, dist.scan
 . index
 .. write (generalise with as.list(quote(T[])[[3]]))
-. dist.read.csv, dist.scan
-.. write
 . write tests (try covr) incl. new functions dist.do.call, Summary etc.
 . improve error handling in RServe connection
 . align function:
 .. dist == dist
 .. dist != dist
 . make things less verbose (starting rserve etc.)
-. Write 3rd report
 . working tree (%in% may help)
 . see why failed tests failing
 . multiple choices for categories in tree
@@ -26,6 +20,7 @@
 . Predict method for tree
 . Pruning for tree
 . Writing on doc/experiment-distributed-decision-tree.tex
+. see doc/consideration-dist-arch-assumptions for future potential
 . Regression in CART
 . Write on constraints of distributed objects
 . negative tests
