@@ -2,6 +2,7 @@
 
 \usepackage{hyperref}
 \usepackage{booktabs}
+\usepackage{tabularx}
 \usepackage{biblatex}
 \addbibresource{../bib/bibliography.bib}
 
@@ -34,7 +35,7 @@ At the current iteration of this text, only a few assumptions are laid out,
 however more will be progressively added following further development and
 consideration.
 
-\section{Assumptions}\label{sec:assumptions}
+\section{Present Assumptions}\label{sec:assumptions}
 
 \assume{The large data made use of in the platform originates externally and
 comes pre-distributed.}
@@ -87,6 +88,34 @@ define methods for splitting, combining, as well as some other functions to aid
 special cases such as indexing.
 A marker of success would be the capacity to distribute matrices, with an
 extension to different types of matrices, such as sparse, diagonal, etc.
+Already some generalisation between classes is necessary;
+vectors and data frames are broken into chunks for distribution using a
+\texttt{split} method in order to abstract over their differences in structure.
+The proposed auxiliary functions are given in table \ref{tab:aux}.
+
+\begin{table}
+	\centering
+	\begin{tabularx}{\textwidth}{ l X }
+		\toprule
+		Function		& Purpose \\
+		\midrule
+		\texttt{measure} 	& A count of the number of elements 
+					  within an object\\
+		\texttt{split} 		& A means of breaking an object into
+					  chunks\\
+		\texttt{combine} 	& A means of recombining the chunks
+					  locally\\
+		\texttt{reftype} 	& A means of determining the 
+					  appropriate class of distributed 
+					  object to serve as a reference to the
+					  distributed chunks \\
+		\texttt{sizes} 		& A count of the number of elements 
+					  within each distributed chunk\\
+	\end{tabularx}
+	\caption{Proposed auxiliary functions}
+	\label{tab:aux}
+\end{table}
+			
 
 \assume{Point-to-point communication is necessary.}
 Point-to-point communication, directly between nodes without master involvement
@@ -104,20 +133,19 @@ alignment of objects on different nodes.
 
 \begin{table}
 	\centering
-	\begin{tabular}{ll}
+	\begin{tabularx}{\textwidth}{ l X }
 		\toprule
 	Layer 		& Definitive Examples \\
 	\midrule
 	User 		& \texttt{table}, \texttt{dist.read.csv}, 
-			  \texttt{dist.scan}\\
-			& \texttt{Math} group (\texttt{`+`} etc.),
-			  \texttt{`[<-`}\\
+			  \texttt{dist.scan}, \texttt{Math} group (\texttt{`+`}
+			  etc.), \texttt{`[<-`}\\
 	Programming 	& \texttt{dist.do.call} \\
 	Co-ordination 	& \texttt{which.align}, \texttt{align}, \texttt{index}\\
 	Movement 	& \texttt{send}, \texttt{p2p}\\
 	Communication 	& RServe\\
 	\bottomrule
-	\end{tabular}
+	\end{tabularx}
 \caption{An outline of layers in the distributed architecture}
 \label{tab:layers}
 \end{table}
