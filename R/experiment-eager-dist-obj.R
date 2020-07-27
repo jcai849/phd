@@ -67,58 +67,46 @@ hostlist <- function(cluster) {
 # Communication
 
 # what: function, as per do.call
-# 3 forms of args (each differs based on their locational treatment):
 # dist:	local or distributed objects to be aligned to the same location, 
 # 	including recycling
 # static: local objects to be sent to every location exactly as is
-# map: 	local list containing lists of the same length as the number of
-#	locations, each sublist containing lists to be iterated upon with
-#	each location, as in a slightly stricter mapply
 
 distributed.do.call <- function(what, args.dist = list(),
-				args.static = list(), args.map = list(),
-				cluster = NULL, assign = FALSE,
+				args.static = list(), assign = FALSE,
 				collect = FALSE, recycle = TRUE) {
 	stopifnot(is.list(args.dist), is.list(args.static), 
-		  is.list(args.map), all(sapply(args.map, is.list)),
+		  any(sapply(args.dist, is.distributed)),
 		  is.function(what) || is.character(what),
-		  is.null(cluster)  || is.cluster(cluster),
-		  !(assign && collect))
-	if (! identical(args.dist, list())) {
-		args.dist.locs <- prep.args.locs(args.dist, cluster,
-						 recycle = recycle)
-		args.dist <- args.dist.locs$args
-		locs <- args.dist.locs$locs
-	} else locs <- cluster
-	stopifnot(identical(length(locs), as.vector(lengths(args.map))) || 
-		  identical(args.map, list()))
-	dist.eval <- function(expr) {
-		expr <- substitute(expr)
-		eval(substitute(do.call(mapply,
-					c(list(function(loc, ...)
-					      eval(bquote(RS.eval(loc, expr,
-							   wait = FALSE)))),
-					  loc = list(locs), args.map,
-					  list(SIMPLIFY = FALSE))),
-				list(expr = expr)))
+		  xor(assign, collect), !identical(args.dist, list()))
+
+	dist.eval <- function(expr, locs) {
+		lapply(locs, RS.eval, expr, wait = FALSE)
 	}
+
+	args.dist.locs <- prep.args.locs(args.dist, recycle = recycle)
+	args.dist <- args.dist.locs$args
+	locs <- args.dist.locs$locs
+
 	if (assign) {
-	id <- UUIDgenerate()
-	dist.eval({assign(.(id),
-	                   do.call(.(what),
-				   .(c(args.dist, args.static, list(...)))));
-		   df <- is.data.frame(get(.(id)));
-		   list(df, if (df) nrow(get(.(id))) else length(get(.(id))))})
-	size.type <- lapply(locs, RS.collect)
-	size <- sapply(size.type, function(x) x[[2]])
-	create.dist <- if (any(sapply(size.type, function(x) x[[1]])))
-		distributed.data.frame else distributed.vector
-	return(create.dist(name = id,
-			   locs = locs[size > 0],
-			   size = size[size > 0]))
+		id <- UUIDgenerate()
+		dist.eval(bquote({assign(.(id),
+				do.call(.(what),
+					.(c(args.dist, args.static))));
+				df <- is.data.frame(get(.(id)));
+				list(df, if (df) nrow(get(.(id))) else
+					length(get(.(id))))}),
+			  locs = locs)
+		size.type <- lapply(locs, RS.collect)
+		size <- sapply(size.type, function(x) x[[2]])
+		create.dist <- if (any(sapply(size.type, function(x) x[[1]])))
+			distributed.data.frame else distributed.vector
+		return(create.dist(name = id,
+				   locs = locs[size > 0],
+				   size = size[size > 0]))
 	} else if (collect) {
-		dist.eval(do.call(.(what), 
-				  .(c(args.dist, args.static, list(...)))))
+		dist.eval(bquote(do.call(.(what), 
+					 .(c(args.dist, args.static)))),
+			  locs = locs)
 		return(lapply(locs, RS.collect))
 	}
 	dist.eval({do.call(.(what), .(c(args.dist, args.static, list(...))));
@@ -127,29 +115,20 @@ distributed.do.call <- function(what, args.dist = list(),
 	return()
 }
 
-prep.args.locs <- function(args, cluster, recycle) {
-	are.dist <- sapply(args, is.distributed)
-	stopifnot(xor(is.cluster(cluster), any(are.dist)))
-	if (is.cluster(cluster) && identical(args, list()))
-		return(list(args = args, locs = cluster))
-	if (! (all(are.dist) && do.call(all.aligned, args))) {
-		align_with <- if (any(are.dist)) {
-			match(which.max(sapply(args[are.dist],
-			       function(x) {if (is.distributed.vector(x))
-				       length else nrow}(x))),
-			      cumsum(are.dist))
-		} else  which.max(sapply(args, function(x) {
-						 if (is.data.frame(x))
-							 nrow else length}(x)))
-		if (!is.distributed(args[[align_with]]))
-			args[[align_with]] <- as.distributed(args[[align_with]],
-							     cluster)
-		args <- lapply(args, align,
-			       align_with = args[[align_with]])
-	}
+prep.args.locs <- function(args, recycle) {
+	align_with <- which.align(args, method = "biggest-dist")
+	args <- lapply(args, align, align_with = align_with)
 	locs <- get_locs(args[[1]])
 	args <- lapply(args, function(arg) as.symbol(get_name(arg)))
 	list(args = args, locs = locs)
+}
+
+which.align <- function(args, method = "biggest-dist") {
+	are.dist <- sapply(args, is.distributed)
+	align_with <- which.max(sapply(args[are.dist],
+				       function(x) {if (is.distributed.vector(x))
+					       length else nrow}(x)))
+	args[are.dist][[align_with]]
 }
 
 as.distributed <- function(obj, align_with, recycle = FALSE) {
@@ -160,9 +139,13 @@ as.distributed <- function(obj, align_with, recycle = FALSE) {
 		locs <- as.cluster(send.def$locs)
 		chunks <- send.def$chunks
 	} else stop("no information to align with")
-	distributed.do.call("identity", args.map = list(chunks), 
-			    cluster = locs, assign = TRUE, 
-			    recycle = recycle)
+	id <- send(chunks, locs)
+	dist.class <- if (is.data.frame(obj)) distributed.data.frame else 
+		distributed.vector
+	measure <- if (is.data.frame(obj)) nrow else length
+	dist.class(name = id, 
+		   locs = locs,
+		   size = sapply(chunks, measure, use.names = FALSE))
 }
 
 # returns aligned dist obj 
@@ -194,7 +177,7 @@ align.data.frame <- function(x, align_with = NULL, recycle = TRUE) {
 align.default <- function(x, align_with = NULL, recycle = TRUE) {
 	if (identical(x, align_with)) return(x)
 	locs <- get_locs(align_with)
-	indices <- gen.indices(x, align_with)
+	indices <- recycle.indices(x, align_with)
 	chunks <- lapply(seq(nrow(indices)), function(index) 
 			   c(x[seq(indices[index,"from1"], 
 					indices[index,"to1"])],
@@ -217,7 +200,7 @@ send <- function(chunks, locs) {
 }
 
 # return indices
-gen.indices <- function(x, align_with) {
+recycle.indices <- function(x, align_with) {
 	measure <- if (is.data.frame(x)) nrow else length
 	cap <- get_size(align_with)
 	indices <- matrix(nrow = length(cap), ncol = 4,
