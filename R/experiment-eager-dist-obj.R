@@ -148,8 +148,7 @@ prep.args.locs <- function(args, cluster, recycle) {
 			       align_with = args[[align_with]])
 	}
 	locs <- get_locs(args[[1]])
-	args <- lapply(args, function(arg)
-		       bquote(get(.(get_name(arg)))))
+	args <- lapply(args, function(arg) as.symbol(get_name(arg)))
 	list(args = args, locs = locs)
 }
 
@@ -185,10 +184,7 @@ align.data.frame <- function(x, align_with = NULL, recycle = TRUE) {
 			    if (!is.na(indices[index, "from2"]))
 			    x[seq(indices[index,"from2"], 
 				  indices[index,"to2"]),] else NULL))
-	id <- UUIDgenerate()
-	mapply(function(loc, val)
-	       RS.assign(loc, id, val, wait = FALSE),
-	       locs, chunks)
+	name <- send(chunks, locs)
 	distributed.data.frame(name = id,
 			       locs = locs,
 			       size = sapply(chunks, nrow))
@@ -205,14 +201,19 @@ align.default <- function(x, align_with = NULL, recycle = TRUE) {
 			     if (!is.na(indices[index,"from2"]))
 			     x[seq(indices[index,"from2"],
 				   indices[index,"to2"])] else NULL))
+	name <- send(chunks, locs)
+	distributed.vector(name = name,
+			   locs = locs,
+			   size = sapply(chunks, length))
+}
+
+send <- function(chunks, locs) {
 	id <- UUIDgenerate()
 	mapply(function(loc, val)
 	       RS.assign(loc, id, val, wait = FALSE),
 	       locs, chunks)
 	lapply(locs, RS.collect)
-	distributed.vector(name = id,
-			   locs = locs,
-			   size = sapply(chunks, length))
+	return(id)
 }
 
 # return indices
