@@ -1,20 +1,8 @@
-. auxiliary functions
-.. measure
-.. split
-.. combine
-.. reftype
-.. sizes
-. dist.read.csv, dist.scan
-. index
-.. write (generalise with as.list(quote(T[])[[3]]))
-. write tests (try covr) incl. new functions dist.do.call, Summary etc.
-. improve error handling in RServe connection
-. align function:
-.. dist == dist
-.. dist != dist
-. make things less verbose (starting rserve etc.)
-. working tree (%in% may help)
-. see why failed tests failing
+. create package structure & description
+. Write on the two things written down
+. Draw up new concept for architecture, incl. function details
+. Implement, writing tests prior (use covr)
+. Re-run tree
 . multiple choices for categories in tree
 . dendrogram for tree (unclass to explore)
 . Predict method for tree
