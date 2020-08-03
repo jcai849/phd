@@ -1,5 +1,3 @@
-. create package structure & description
-. Write on the two things written down
 . Draw up new concept for architecture, incl. function details
 . Implement, writing tests prior (use covr)
 . Re-run tree
