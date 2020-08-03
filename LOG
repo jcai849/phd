@@ -1,5 +1,7 @@
 2020-08-03	18:19:12	write up current+proposed info structures
-2020-07-30	17:26:23	read the making R extensions manual
+2020-07-30	17:26:23	read the making R extensions manual; make R
+				extension
+2020-07-28	15:39:21	meeting
 2020-07-27	17:47:44	remove args.map, add send, add further 
 				assumptions
 2020-07-26	21:58:46	write-up of assumptions
