@@ -1,18 +1,6 @@
 \documentclass[10pt, a4paper]{article}
 
-\usepackage{hyperref}
-\usepackage{booktabs}
-\usepackage{tabularx}
-\usepackage{biblatex}
-\addbibresource{../bib/bibliography.bib}
-
-\newcounter{assumption}[section]
-
-\newcommand{\assume}[1]{\begin{quote}
-\centering
-\stepcounter{assumption}
-\arabic{assumption}. {#1}
-\end{quote}}
+\usepackage{doc/header}
 
 \begin{document}
 \title{Distributed Architecture Informal Assumptions and Considerations}

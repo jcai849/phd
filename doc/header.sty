@@ -1,0 +1,77 @@
+\ProvidesPackage{header}
+
+\usepackage{hyperref}
+\usepackage[svgnames]{xcolor}
+\usepackage{csquotes}
+\usepackage{ctable}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+% Bibliography
+\usepackage{biblatex}
+
+\addbibresource{../bib/bibliography.bib}
+
+% Colours
+\usepackage{color}
+
+\definecolor{diffstart}{named}{Grey}
+\definecolor{diffincl}{named}{Green}
+\definecolor{diffrem}{named}{OrangeRed}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{green}{HTML}{61D04F}
+\definecolor{yellow}{HTML}{F5C710}
+\definecolor{red}{HTML}{DF536B}
+\definecolor{gray62}{gray}{0.62}
+
+% Listings
+\usepackage{listings}
+
+\lstset{ 
+	backgroundcolor=\color{white},   
+		basicstyle=\ttfamily\small,
+		breaklines=true,                 
+		captionpos=b,                    
+		commentstyle=\color{mygreen},    
+		frame=single,	                   
+		keepspaces=true,                 
+		keywordstyle=\color{blue},       
+		stringstyle=\color{mymauve},     
+		tabsize=2,	                   
+}
+\lstdefinelanguage{diff}{
+	morecomment=[f][\color{diffstart}]{@@},
+		morecomment=[f][\color{diffincl}]{>\ },
+		morecomment=[f][\color{diffrem}]{<\ },
+}
+
+% Glossary
+\usepackage{glossaries}
+\makeglossaries
+
+\newglossaryentry{distsys}
+{
+	name={Distributed System},
+	description={is a system thats distributed}
+}
+
+% Commands
+\newcommand{\yes}{\textcolor{green}{yes}}
+\newcommand{\simple}{\textcolor{green}{simple}}
+\newcommand{\mostly}{\textcolor{yellow}{mostly}}
+\newcommand{\acceptable}{\textcolor{yellow}{acceptable}}
+\newcommand{\some}{\textcolor{yellow}{some}}
+\newcommand{\mediocre}{\textcolor{red}{mediocre}}
+\newcommand{\no}{\textcolor{red}{no}}
+\newcommand{\NA}{\textcolor{gray62}{NA}}
+\newcommand{\unclear}{\textcolor{gray62}{unclear}}
+
+\newcounter{assumption}[section]
+
+\newcommand{\assume}[1]{\begin{quote}
+	\centering
+	\stepcounter{assumption}
+	\arabic{assumption}. {#1}
+\end{quote}}
