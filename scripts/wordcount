@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 
-echo $(($(cat $(ls *.txt) | wc -w) + $(detex $(ls *.tex) | wc -w)))
+detex $(ls *.tex) | wc -w
