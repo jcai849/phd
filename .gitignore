@@ -1,9 +1,11 @@
 tags
+/out/*.pdf
+/bib/*.pdf
+/meta/*.pdf
 *.epub
 *.run.xml
 *.djvu
 *.mobi
-*.pdf
 *.aux
 *.log
 *.bbl
