@@ -54,7 +54,115 @@
 \newglossaryentry{distsys}
 {
 	name={Distributed System},
-	description={is a system thats distributed}
+	description={A system whose constituent parts are located on different
+	computers which are networked together}
+}
+
+\newglossaryentry{rprocess}
+{
+	name={R Process},
+	description={A live process running an implementation of the
+	programming language R. In comparison with \textbf{R Session}, a
+	greater emphasis is placed on the process from the perspective of the
+	operating system.}
+}
+
+\newglossaryentry{rsession}
+{
+	name={R Session},
+	description={An interactive run with an R process. In comparison with
+	\textbf{R Process}, a greater emphasis is placed on the session from
+	the user perspective.}
+}
+
+\newglossaryentry{master}
+{
+	name={Master},
+	description={The controlling process over other running processes. In a
+	distributed system, typically the initiator process.}
+}
+
+
+\newglossaryentry{worker}
+{
+	name={Worker},
+	description={(\textbf{slave}) a process under direction of the master
+	process.}
+}
+
+\newglossaryentry{node}
+{
+	name={Node},
+	description={A member of a distributed system in a computational
+	capacity}
+}
+
+\newglossaryentry{connection}
+{
+	name={Connection},
+	description={A communication channel from one computer to another as
+	part of a network. RServe also makes use of \textit{connection} in an
+	``RServe connection'', which refers to the handle.}
+}
+
+\newglossaryentry{chunk}
+{
+	name={Chunk},
+	description={A distinct component piece of a larger object, located
+	separately to other chunks.}
+}
+
+\newglossaryentry{object}
+{
+	name={Object},
+	description={A particular instance of a class.}
+}
+
+\newglossaryentry{distobj}
+{
+	name={Distributed Object},
+	description={An object that is dispersed across separate processes and
+	possibly separate computers.}
+}
+
+\newglossaryentry{host}
+{
+	name={Host},
+	description={A singular machine in a network, which may hold multiple
+	communication nodes.}
+}
+
+\newglossaryentry{distobjsys}
+{
+	name={\texttt{distobj} System},
+	description={The platform being developed herein to enable large scale
+	statistical modelling through the creation of a distributed system in
+	R.}
+}
+
+\newglossaryentry{clusttable}
+{
+	name={Cluster Table},
+	description={A central table storing mappings between nodes, chunks,
+	distributed object references, with lower level details such as handles
+	on connections to the nodes, along with additional metadata.}
+}
+
+\newglossaryentry{id}
+{
+	name={ID},
+	description={A unique integer used in the distobj system to uniquely
+	identify nodes, chunks, and distributed object references within the
+	system.}
+}
+
+\newglossaryentry{distobjref}
+{
+	name={Distributed Object Reference},
+	description={An object encapsulating the necessary information with
+	which to access a distributed object. Tangibly symbolises a distributed
+	object, which in turn refers to, and is composed by, it's referent
+	chunks}
 }
 
 % Commands
