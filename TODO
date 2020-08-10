@@ -1,4 +1,9 @@
-. Implement, writing tests prior (use covr)
+. implement:
+.. parseURI
+.. getCluster
+. write documentation
+. write tests (use covr)
+. continue implementation of dist.read.csv
 . Re-run tree
 . multiple choices for categories in tree
 . dendrogram for tree (unclass to explore)
