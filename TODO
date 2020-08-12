@@ -1,5 +1,7 @@
+. Read on Redis (as per Simons email)
+. Plan new backend architecture
+. Write on new backend architecture
 . implement:
-.. parseURI
 .. getCluster
 . write documentation
 . write tests (use covr)
