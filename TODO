@@ -15,9 +15,15 @@
 . see doc/consideration-dist-arch-assumptions for future potential
 . Regression in CART
 . Write on constraints of distributed objects
-. negative tests
 . Attempt to apply GLM as per Simon's email to the distributed object
 . implement some sort in eager dist obj
+. Prepare talk
+. Literature Review:
+.. Distributed Systems in General
+.. Distributed Systems in other languages
+.. Distributed Objects (CORBA etc.)
+.. Last few R packages
+. Prepare proposal
 . Interface: experiment with lazy distributed objects
 . Implementation: experiment with metadata being encapsulated in slave processes
 . Notes on Hadoop Monitoring links (which port for what, etc.)
