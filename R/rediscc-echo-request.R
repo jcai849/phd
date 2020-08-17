@@ -26,7 +26,7 @@ newMsgDetectorNode <- function(msgDetectorHost=MSG_DETECTOR_HOST,
 			   redisServerHost=REDIS_SERVER_HOST,
 			   response="pong") {
 	rsc <- RS.connect(msgDetectorHost)
-	msgDetectorNodeMain <- substitute({
+	msgDetectorMain <- substitute({
 		library(rediscc)
 		rc <- redis.connect(redisServerHost)
 		initiatorHost <- redis.get(rc, "INITIATOR_HOST")
@@ -50,7 +50,7 @@ ping <- function(to, from, via, msg="ping") {
 		cat(sprintf("sending message \"%s\" to host \"%s\"...\n",
 			    msg, to$host))
 	} else {
-		redis.push(from$rc, via$host, paste0("SENDTO",to$hoste, 
+		redis.push(from$rc, via$host, paste0("SENDTO",to$host,
 						     "MSG", msg))
 		cat(sprintf("sending message \"%s\" to host \"%s\" via host \"%s\"...\n",
 		    msg, to$host, via$host))
@@ -72,8 +72,8 @@ main.indirect <- function() {
 
 newForwarderNode <- function(forwarderHost=FORWARDER_HOST,
 			     redisServerHost=REDIS_SERVER_HOST) {
-	rsc <- RS.connect(forward)
-	forwarderNodeMain <- substitute({
+	rsc <- RS.connect(forwarderHost)
+	forwarderMain <- substitute({
 		library(rediscc)
 		rc <- redis.connect(redisServerHost)
 		while (TRUE) {
@@ -85,8 +85,8 @@ newForwarderNode <- function(forwarderHost=FORWARDER_HOST,
 	}},
 	list(redisServerHost=redisServerHost,
 	     forwarderHost=forwarderHost))
-	eval(bquote(RS.eval(rsc, .(msgDetectorMain), wait = FALSE)))
-	forwarderNode <- list(rsc=rsc, host=msgDetectorHost)
+	eval(bquote(RS.eval(rsc, .(forwarderMain), wait = FALSE)))
+	forwarderNode <- list(rsc=rsc, host=forwarderHost)
 	class(forwarderNode) <- c("forwarderNode", "node")
 	forwarderNode
 }
