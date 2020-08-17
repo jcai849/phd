@@ -13,6 +13,14 @@ main.direct <- function() {
 	exit(msgDetectorNode)
 }
 
+main.indirect <- function() {
+	initiatorNode <- newInitiatorNode()
+	forwarderNode <- newForwarderNode()
+	msgDetectorNode <- newMsgDetectorNode()
+	ping(to=msgDetectorNode, from=initiatorNode, via=forwarderNode)
+	exit(msgDetectorNode, forwarderNode)
+}
+
 newInitiatorNode <- function(initiatorHost=INITIATOR_HOST,
 			 redisServerHost=REDIS_SERVER_HOST) {
 	rc <- redis.connect(redisServerHost)
@@ -43,33 +51,6 @@ newMsgDetectorNode <- function(msgDetectorHost=MSG_DETECTOR_HOST,
 	msgDetectorNode
 }
 
-ping <- function(to, from, via, msg="ping") {
-	msg <- as.character(msg)
-	if (missing(via)) {
-		redis.push(from$rc, to$host, msg)
-		cat(sprintf("sending message \"%s\" to host \"%s\"...\n",
-			    msg, to$host))
-	} else {
-		redis.push(from$rc, via$host, paste0("SENDTO",to$host,
-						     "MSG", msg))
-		cat(sprintf("sending message \"%s\" to host \"%s\" via host \"%s\"...\n",
-		    msg, to$host, via$host))
-	}
-	response <- redis.pop(from$rc, from$host, timeout=Inf)
-	cat(sprintf("received message \"%s\"...\n",
-		    response))
-}
-
-exit <- function(...) lapply(list(...), function(node) RS.close(node$rsc))
-
-main.indirect <- function() {
-	initiatorNode <- newInitiatorNode()
-	forwarderNode <- newForwarderNode()
-	msgDetectorNode <- newMsgDetectorNode()
-	ping(to=msgDetectorNode, from=initiatorNode, via=forwarderNode)
-	exit(msgDetectorNode, forwarderNode)
-}
-
 newForwarderNode <- function(forwarderHost=FORWARDER_HOST,
 			     redisServerHost=REDIS_SERVER_HOST) {
 	rsc <- RS.connect(forwarderHost)
@@ -90,3 +71,22 @@ newForwarderNode <- function(forwarderHost=FORWARDER_HOST,
 	class(forwarderNode) <- c("forwarderNode", "node")
 	forwarderNode
 }
+
+ping <- function(to, from, via, msg="ping") {
+	msg <- as.character(msg)
+	if (missing(via)) {
+		redis.push(from$rc, to$host, msg)
+		cat(sprintf("sending message \"%s\" to host \"%s\"...\n",
+			    msg, to$host))
+	} else {
+		redis.push(from$rc, via$host, paste0("SENDTO",to$host,
+						     "MSG", msg))
+		cat(sprintf("sending message \"%s\" to host \"%s\" via host \"%s\"...\n",
+		    msg, to$host, via$host))
+	}
+	response <- redis.pop(from$rc, from$host, timeout=Inf)
+	cat(sprintf("received message \"%s\"...\n",
+		    response))
+}
+
+exit <- function(...) lapply(list(...), function(node) RS.close(node$rsc))
