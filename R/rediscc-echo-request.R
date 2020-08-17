@@ -4,15 +4,16 @@ library(rediscc)
 REDIS_SERVER_HOST <- "hdp"
 INITIATOR_HOST <- "hdp"
 MSG_DETECTOR_HOST <- "hadoop1"
+FORWARDER_HOST <- "hadoop2"
 
 main.direct <- function() {
 	initiatorNode <- newInitiatorNode()
 	msgDetectorNode <- newMsgDetectorNode()
 	ping(to=msgDetectorNode, from=initiatorNode)
-	exit(MsgDetector)
+	exit(msgDetectorNode)
 }
 
-newInitiator <- function(initiatorHost=INITIATOR_HOST,
+newInitiatorNode <- function(initiatorHost=INITIATOR_HOST,
 			 redisServerHost=REDIS_SERVER_HOST) {
 	rc <- redis.connect(redisServerHost)
 	redis.set(rc, "INITIATOR_HOST", initiatorHost)
@@ -21,11 +22,11 @@ newInitiator <- function(initiatorHost=INITIATOR_HOST,
 	initiatorNode
 }
 
-newMsgDetector <- function(msgDetectorHost=MSG_DETECTOR_HOST,
+newMsgDetectorNode <- function(msgDetectorHost=MSG_DETECTOR_HOST,
 			   redisServerHost=REDIS_SERVER_HOST,
 			   response="pong") {
 	rsc <- RS.connect(msgDetectorHost)
-	msgDetectorMain <- substitute({
+	msgDetectorNodeMain <- substitute({
 		library(rediscc)
 		rc <- redis.connect(redisServerHost)
 		initiatorHost <- redis.get(rc, "INITIATOR_HOST")
@@ -36,9 +37,7 @@ newMsgDetector <- function(msgDetectorHost=MSG_DETECTOR_HOST,
 	list(redisServerHost=redisServerHost,
 	     msgDetectorHost=msgDetectorHost,
 	     response=response))
-	eval(bquote(RS.eval(rsc,
-			    .(msgDetectorMain),
-			    wait = FALSE)))
+	eval(bquote(RS.eval(rsc, .(msgDetectorMain), wait = FALSE)))
 	msgDetectorNode <- list(rsc=rsc, host=msgDetectorHost)
 	class(msgDetectorNode) <- c("msgDetectorNode", "node")
 	msgDetectorNode
@@ -57,7 +56,35 @@ ping <- function(to, from, via, msg="ping") {
 	}
 	response <- redis.pop(from$rc, from$host, timeout=Inf)
 	cat(sprintf("received message \"%s\"...\n",
-		    msg))
+		    response))
 }
 
-exit <- function(node) RS.close(node$rsc)
+exit <- function(...) lapply(list(...), function(node) RS.close(node$rsc))
+
+main.indirect <- function() {
+	initiatorNode <- newInitiatorNode()
+	forwarderNode <- newForwarderNode()
+	msgDetectorNode <- newMsgDetectorNode()
+	ping(to=msgDetectorNode, from=initiatorNode, via=forwarderNode)
+	exit(msgDetectorNode, forwarderNode)
+}
+
+newForwarderNode <- function(forwarderHost=FORWARDER_HOST,
+			     redisServerHost=REDIS_SERVER_HOST) {
+	rsc <- RS.connect(forward)
+	forwarderNodeMain <- substitute({
+		library(rediscc)
+		rc <- redis.connect(redisServerHost)
+		while (TRUE) {
+			mail <- redis.pop(rc, forwarderHost, timeout=Inf)
+			m <- regmatches(mail, regexec("([^:]+):(.*)", mail))
+			nextHost <- m[[1]][2]; msg <- m[[1]][3]
+			redis.push(rc, nextHost, msg)
+	}},
+	list(redisServerHost=redisServerHost,
+	     forwarderHost=forwarderHost))
+	eval(bquote(RS.eval(rsc, .(msgDetectorMain), wait = FALSE)))
+	forwarderNode <- list(rsc=rsc, host=msgDetectorHost)
+	class(forwarderNode) <- c("forwarderNode", "node")
+	forwarderNode
+}
