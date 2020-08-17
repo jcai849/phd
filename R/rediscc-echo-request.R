@@ -50,7 +50,8 @@ ping <- function(to, from, via, msg="ping") {
 		cat(sprintf("sending message \"%s\" to host \"%s\"...\n",
 			    msg, to$host))
 	} else {
-		redis.push(from$rc, via$host, paste0(to$hoste, ":", msg))
+		redis.push(from$rc, via$host, paste0("SENDTO",to$hoste, 
+						     "MSG", msg))
 		cat(sprintf("sending message \"%s\" to host \"%s\" via host \"%s\"...\n",
 		    msg, to$host, via$host))
 	}
@@ -77,7 +78,8 @@ newForwarderNode <- function(forwarderHost=FORWARDER_HOST,
 		rc <- redis.connect(redisServerHost)
 		while (TRUE) {
 			mail <- redis.pop(rc, forwarderHost, timeout=Inf)
-			m <- regmatches(mail, regexec("([^:]+):(.*)", mail))
+			m <- regmatches(mail, 
+					regexec("^SENDTO(.*?)MSG(.*)", mail))
 			nextHost <- m[[1]][2]; msg <- m[[1]][3]
 			redis.push(rc, nextHost, msg)
 	}},
