@@ -1,0 +1,108 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{doc/header}
+
+\begin{document}
+\title{Message Queues for Communication in a Distributed Object System}
+\author{Jason Cairns}
+\year=2020 \month=8 \day=19
+\maketitle{}
+
+\section{Introduction}
+A problem exists in the present architecture as described in
+\href{experiment-eager-dist-obj-supp.pdf}{Distributed Object supplementary
+report}.
+At base, the co-ordination between nodes in the cluster requires significant
+effort from the master, with little room for additional features, with all
+inter-node communication being remote procedure calls only.
+This issue compromises nearly every aspect of operations on distributed
+objects, particularly in the initial reading in of data, and later data
+movement.
+The proposed amendments as described in
+\href{current-proposed-info-structures.pdf}{Proposed Information Structures}
+provide some degree of amelioration, however the root of the issue in requiring
+full co-ordinating facilities from the master node is still not solved.
+
+A potential solution exists in the use of message queues.
+Message queues are commonly used for inter-process communication, consisting of
+queues through which applications may communicate over \cite{curry2004message}.
+The use of message queues for communication between nodes will allow for
+significantly less knowledge required about other nodes within the system, and
+enabling greater independence of action within each node.
+Further benefits include allowing for asynchrony in more operations, the
+ability to monitor the system externally through watching queues, as well as
+the attendant benefits of decentralisation such as potentially greater
+resilience and decreased central complexity.
+
+Message queues are well established, seeing use from Operating Systems to Web
+Services.
+For example, the QNX OS makes heavy use of message queues for its microkernel
+architecture \cite{hildebrand1992qnx}.
+Tech companies Stack Overflow and flickr also use message queues from redis as
+central components of their infrastructure
+\cite{nolan2011flickr}\cite{montrose2016stack}.
+In this platform, the flexibility of Redis lists and the availability of the
+rediscc package suggests the use of Redis in the implementation of message
+queues \cite{sanfilippo2009redis}\cite{urbanek2020rediscc}. 
+Alternatives include Apache ActiveMQ, Kafka, and Disque, among others
+\cite{snyder2011activemq}\cite{garg2013kafka}\cite{sanfilippo2016disque}.
+
+\section{Architecture Concept}
+The concept retains the notion of data divided into uniquely identified chunks,
+existing on nodes.
+The nodes each subscribe to queues dedicated to chunks that they possess,
+undertaking action dependent on messages received in their queue.
+In this way, nodes function as state machines, reading messages, performing
+some operation (or not) depending on the message content, and writing back in
+some form.
+
+For example, some node has a chunk \(x\), and receives a message on the \(x\)
+queue to add it to another chunk \(y\); if it didn't have the chunk \(y\), it
+may post a message on the \(y\) queue, requesting it.
+It is likely that the semantics are more general, and the initial message of
+operation actually won't specify which chunk to add to \(x\), giving it a more
+general request of addition between distributed objects, and the node will have
+to determine for itself which chunks to pull to it, if any.
+% SIMPLE example in R on how such communication occurs
+
+With relation to the queues, the functionality of nodes in a group, as in the
+cluster, can be considered, distinct to the functionality of a singular node.
+The cluster must have some means of initialising the queues to listen to for
+the individual nodes, for the reading in of an external dataset.
+The process of operating based on queues is straightforward at the outset, but
+requires considerable thought on the representation and existence of objects
+other than the referent object of a queue when the queues operations require
+those other objects.
+
+The issue of data movement also requires consideration; while this is largely
+an implementation-specific issue, it has a strong bearing on conceptual
+architecture.
+These three considerations mirror the state machine concept at an aggregate
+level, with resultant decisions affecting the architecture at large.
+
+\section{Plausible Extensions}
+
+While the use of message queues looks to ease many significant issues, there
+are additional problems that it require addressing, primarily resulting from
+the asynchrony and decentralisation.
+
+Most pressingly, the issue of deadlock, in the context of data movement; in the
+process of nodes requesting and transferring data, a deadlock is almost certain
+to occur if not dealt with.
+This specific instance may be helped through careful implementation and more
+processing on the initiator node (bringing it closer to a master node), but a
+possibly superior extension is to have queue-adjacent servers on each node that
+are able to operate concurrently with the main R session that has as it's sole
+purpose the transfer of chunks, leaving everything else to the main R session.
+These servers would also be ideal vertices at which to implement
+data-duplication as a feature enabling redundancy in the system
+
+In a similar vein, failure detection can be implemented through a concurrent
+``heartbeat'' server, in the same manner as Hadoop \cite{white2012hadoop}.
+
+These extensions are worth bearing in mind for now, however the considerations
+brought up in the prior section need to be answered first.
+
+\printbibliography{}
+
+\end{document}
