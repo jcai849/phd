@@ -1,15 +1,7 @@
-. try closures/calls over redis queue
-. email for weekly update
-. Discuss mechanism of work of redis queues, and what they solve with Simon
-. Write on solutions offered by redis queues, propose investigationinto rmpi as
-  alternative
-. Plan new backend architecture
-. Write on new backend architecture
-. implement:
-.. getCluster
-. write documentation
-. write tests (use covr)
-. continue implementation of dist.read.csv
+. Email S&P re: new rediscc doc, written and deleted rmpi doc, rmpi actually interactive, backend arch, future article, subscription
+. Subscribe to Rweekly
+. Create simple example in messaging doc
+. create message-queue-based cluster
 . Re-run tree
 . multiple choices for categories in tree
 . dendrogram for tree (unclass to explore)
@@ -25,6 +17,7 @@
 . Literature Review:
 .. Distributed Systems in General;
    <https://web.stanford.edu/~ouster/cgi-bin/quals.php> looks useful
+   CS711 links
 .. Distributed Systems in other languages
 .. Distributed Objects (CORBA etc.)
 .. Last few R packages
