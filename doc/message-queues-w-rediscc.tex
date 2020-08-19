@@ -3,7 +3,7 @@
 \usepackage{doc/header}
 
 \begin{document}
-\title{A Comparison Between Rmpi and rediscc in Cluster Communications}
+\title{Message Queues with rediscc}
 \author{Jason Cairns}
 \year=2020 \month=8 \day=17
 \maketitle{}
@@ -16,26 +16,23 @@ The determination of what node has particular chunks, where those chunks should 
 This immediately presents a significant bottle neck, as well as a single point of failure.
 In addition, the mechanism by which nodes are queried for chunks, as well as the transfer of large data, requires more interconnected architecture than a simple master-worker setup.
 To this end, there has been significant development of major existing platforms that serve to enable large-scale communication, most notably MPI, and Redis\cite{walker1996mpi}\cite{sanfilippo2009redis}.
-To compare the capabilities of their communication in R, the R interface packages rmpi and rediscc will be used to construct some simple communication programs, with the aim being to illustrate how an architecture making use of such packages would be structured, as well as which principal concepts arise as relevant\cite{yu02:_rmpi}\cite{urbanek2020rediscc}.
+The suitability of MPI as a basis for an interactive distributed platform is addressed in the report, \href{review-rmpi.pdf}{A Review of Rmpi}.
+To assess the capabilities of Redis for use in communication in R, the R interface package rediscc will be used to construct some simple communication programs, with the aim being to illustrate how an architecture making use of such packages would be structured, as well as which principal concepts arise as relevant\cite{yu02:_rmpi}\cite{urbanek2020rediscc}.
 
-%mpi detail; rmpi author; rmpi smpd style
 %redis detail;
-rediscc is a simple and fast interface to Redis via the hiredis library, authored by Simon Urbanek.
-Its principal data structure is Redis' linked list, with push and pop operations to treat it as a queue.
+Redis is a data structure store, used extensively as a message broker, particularly for web services.
+It has an R interface in the package rediscc, authored by Simon Urbanek.
+Its principal data structure exposed by rediscc is Redis' linked list, with push and pop operations to treat it as a queue.
 
-Despite the similarities in their capacity for structured communication between nodes, the two platforms and packages are not exactly comparable.
-While both have been used for communication in distributed systems, they have very different mechanisms of action\cite{li2017redis}\cite{gropp1999mpi}\cite{carlson2013redis}.
-MPI is generally considered more for decentralised parallel systems, whereas Redis is typically made use of in web services; two very different fields, though both data-intensive\cite{kleppmann2017dataintensive}.
-The following tests aim to demonstrate some fundamental differences in standard implementation of equivalent functionality. 
+The following tests aim to demonstrate some standard communication operations.
 The first test is a direct echo request, wherein a node ``pings'' a simple message to another node, attaining some response from the node in return.
 A second test performs the ``ping'' routed through another node, as an indirect echo request.
-Finally, the capacity for passing more complex messages will be considered.
+The code for the tests is given by listing \ref{src:redis-echo}.
 
 \section{Direct Echo Request}
 The direct echo request is a standard operation within a computer network\cite{rfc1122}.
 In this test, an initiator node will send a ``ping'' message to some node, whereupon reception of the message, the receptive node will message back acknowledgement to the initiator, such as ``pong'', following an IRC tradition\cite{rfc1459}.
 
-\subsection{rediscc}
 As a result of the simplicity of Redis, there is massive flexibility in the implementation of an echo request.
 This test makes use of an initiator node acting as master, which starts the process and sends the character message ``ping''. The response comes from a message detector node, which sends the message ``pong'' to the initiator node upon reception of any message.
 Message passing between the nodes is implemented through Redis lists where each node monitors the list associated with the Redis key of the same name as their host name, and posts messages to the list associated with the key of their intended recipient.
@@ -49,13 +46,10 @@ Pinging operates through pushing the ``ping'' message to the Redis list with the
 A message is printed, then a blocking pop is entered into on the initiator node, to wait on it's own message list. 
 Upon reception of the message acknowledging the ping on the list, the initiator node prints out reception.
 
-\subsection{Rmpi}
-\subsection{Comparison}
 \section{Indirect Echo Request}
 An indirect echo request sends a message to acknowledge through other nodes which act to forward messages onwards.
 It serves to test point-to-point communications independent of direct action by the master node.
 
-\subsection{rediscc}
 The structure of the indirect echo request for Redis is largely the same as that for the direct request.
 The primary difference is an altered main routine, further changes to the ping function, and an additional forwarder class.
 
@@ -63,15 +57,6 @@ The forwarder node is instantiated in a very similar manner to the message detec
 In the main routine for the forwarder, it looks for mail on it's designated list with a blocking pop, then parses the mail into a message component and a next-host component. 
 It then pushes the message on the queue corresponding to the next host.
 Ping also acts in a similar manner to the direct ping, except that it pushes a message to the forwarder queue, with the message containing fields specifying the next host as well as the content of the message.
-
-\subsection{Rmpi}
-\subsection{Comparison}
-\section{Closure Passing}
-\subsection{rediscc}
-\subsection{Rmpi}
-\subsection{Comparison}
-\section{Conclusion}
-%why not both?
 
 \lstinputlisting[language=R,
 	caption={Echo request with rediscc, from original source at \lstname},
