@@ -1,0 +1,33 @@
+\documentclass[a4paper]{article}
+\usepackage{doc/header}
+
+\begin{document}
+\title{A Review of Rmpi}
+\author{Jason Cairns}
+\year=2020 \month=8 \day=18
+\maketitle
+
+\section{Introduction}
+
+Rmpi is an R package providing an interface to MPI. It is authored by XXX of XXX university and was first released in XXX.
+The package serves as an extensive wrapper to MPI, providing over XXX functions, as well as R-specific provisions, such as \texttt{*apply} functions with an MPI backend.
+
+More on MPI.
+
+\section{Assessment of Suitability}
+
+% Possible benefits
+Given the maturity and widespread usage of MPI for High Performance Computing, utilising the platform would grant excellent capacities with an assurance of robustness.
+High-speed point-to-point and mass-distributed data transfer routines are particularly ideal provisions offered by MPI, which would aid in the critical component of aligning chunks within the platform under development.
+% Unsurmountable drawbacks (refer to notebook)
+The drawbacks to using Rmpi will prove to be practically insurmountable however; in the case of usage on a cluster, rather than a single machine with multi-core cpu, R scripts making use of Rmpi are required to be run through an MPI program, such as openMPI's \texttt{mpirun}, rather than allowing an interactive REPL.
+Even packages supporting the option to use Rmpi as a backend, such as SNOW, require the same form of operation in running an R script through an MPI program, if it is to be run on a cluster.
+The same for doMPI; running on a single machine allows for interactivity, but cluster requires running through an MPI program.
+
+\section{Future Work}
+
+Despite the major drawback of non-interactivity, it is still worth looking into more about MPI at some point, due to it's deserved behemoth status in HPC.
+The concepts and vocabulary developed by MPI has involved an enormous amount of work in terms of both manpower and time; plenty of pre-developed aspects that need not reinventing.
+For such an investigation, Rmpi isn't necessarily essential; the C/C++ MPI bindings are truer to the core of MPI, starting by being the official points of development, and so the investigation is advised to start there.
+
+\end{document}
