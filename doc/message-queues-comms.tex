@@ -63,10 +63,33 @@ It is likely that the semantics are more general, and the initial message of
 operation actually won't specify which chunk to add to \(x\), giving it a more
 general request of addition between distributed objects, and the node will have
 to determine for itself which chunks to pull to it, if any.
-% SIMPLE example in R on how such communication occurs
 
-With relation to the queues, the functionality of nodes in a group, as in the
-cluster, can be considered, distinct to the functionality of a singular node.
+A very simple example is given by listings \ref{src:msg-q-master} and
+\ref{src:msg-q-worker}, demonstrating the master and worker node routines
+respectively.
+
+\lstinputlisting[language=R,float,
+	caption={Message queue master node, from original source at \lstname},
+	label=src:msg-q-master]{../R/simple-msg-q-master.R}
+
+\lstinputlisting[language=R,float,
+	caption={Message queue worker node, from original source at \lstname},
+	label=src:msg-q-worker]{../R/simple-msg-q-worker.R}
+
+The master simply pushes serialised calls to the appropriate queue, and the
+worker loops reading messages from it's particular queue(s), unserialising and
+evaluating any messages.
+The master node and the worker node can be initialised in any order and with
+any time difference, demonstrating the asynchrony.
+In this particular example, the master puts out a call to add the number 1 to a
+predefined chunk named ``chunk'', with the worker executing the call as
+expected.
+The master doesn't have to have any knowledge about where the chunk exists, and
+the worker likewise doesn't necessarily require information on where the
+message originated from.
+
+With relation to the queues, the aggregate functionality of nodes in a cluster,
+can be considered distinctly to the functionality of a singular node.  
 The cluster must have some means of initialising the queues to listen to for
 the individual nodes, for the reading in of an external dataset.
 The process of operating based on queues is straightforward at the outset, but
