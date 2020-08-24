@@ -1,0 +1,90 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{doc/header}
+
+\begin{document}
+\title{Further Experimentation with a Message Queue Communication System}
+\author{Jason Cairns}
+\year=2020 \month=8 \day=19
+\maketitle{}
+
+\section{Introduction}
+
+Given the simplicity and promise of flexibility as demonstrated in the
+documents \href{inter-node-comm-w-redis.pdf}{Inter-node Communication with
+Redis} and \href{message-queues-comms.pdf}{Message Queue Communications},
+further experimentation around the concept is undertaken and documented herein.
+The experiments are built successively upon it's prior, with the aim of rapidly
+approximating a functioning prototype via experimentation.
+
+\section{General Function on Single Chunk}
+
+While the RPC-based architecture as described in
+\href{experiment-eager-dist-obj-pre.pdf}{Experiment: Eager Distributed Object}
+had significant limitations, a particularly powerful construct was the higher
+order function \texttt{distributed.do.call}, which took functions as arguments
+to be performed on the distributed chunks.
+
+This construct is powerful in that it can serve as the basis for nearly every
+function on distributed chunks, and this section serves to document experiments
+relating to the creation of a general function that will perform a function at
+the node hosting a particular chunk.
+
+\subsection{With Value Return}
+
+Regardless of performing the actual function, some means of returning the value
+of a function must be provided; this section focuses on getting a function to
+be performed on a worker node, with the result send back to the requester.
+Listings of an implementation of these concepts are given by listings
+\ref{src:vr-master} and \ref{src:vr-worker}.
+
+To this end, the requesting node has a function defined as \texttt{doFunAt(fun,
+chunk)}, which takes in any function, and the name of a chunk to perform the
+function on.
+\texttt{doFunAt} first composes a message to send to the chunk's queue, being a
+list consisting of the function, the chunk name, and a return address, which
+contains sufficient information for the node performing the operation on the
+chunk to send the results back to via socket connection.
+The message is then serialised and pushed to the chunk's queue, and the
+requesting node sits listening on the socket that it has set up and advertised.
+
+On the chunk-containing-node end, it sits waiting on it's preassigned queues,
+each of which correspond to a chunk that it holds. Upon a message coming
+through, it runs a \texttt{doFun} function on the message, which in turn runs
+the function on the chunk named in the message. 
+It then creates a socket connected to the requesters location as advertised in
+the message, and sends the serialised results through.
+
+\lstinputlisting[language=R,float,
+	caption={Value return to request for Master Node, from original source at \lstname},
+	label=src:vr-master]{../R/val-return-msg-q-master.R}
+
+\lstinputlisting[language=R,float,
+	caption={Value return to request for Worker Node, from original source at \lstname},
+	label=src:vr-worker]{../R/val-return-msg-q-worker.R}
+
+A problem with this approach is the fickle aspect of creating and removing
+sockets for every request; beyond the probability of missed connections and
+high downtime due to requester waiting on a response, R only has a very limited
+number of connections available to it, so it is impossible to scale beyond that
+limit.
+
+\subsection{With Assignment}
+
+Assigning the results of distributed operation to a new chunk is a far more
+common operation in a distributed system in order to minimise data movement.
+This can operate in a similar manner to the worker returning a result to the
+master, but can involve sending back a chunk ID, from which the master can
+initiate a chunk object.
+This will also involve specifying additional directions as part of the request
+message, in order to specify that assignment is desired.
+In order to avoid the sockets of the previous section, the response is placed
+back on a queue for the master to accept.
+
+\section{General Function on Multiple Nodes}
+\section{Data Transfer between Nodes for Multivariate Functions}
+\subsection{Optimisations}
+Self-environment search, hashing cache potential
+\section{Alignment Mechanics}
+
+\end{document}
