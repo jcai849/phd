@@ -1,0 +1,1 @@
+sed -i "1i `date -I`\t`date +%T`\t`read summary; echo \"$summary\"`" LOG

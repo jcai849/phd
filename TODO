@@ -1,7 +1,4 @@
-. Email S&P re: new rediscc doc, written and deleted rmpi doc, rmpi actually interactive, backend arch, future article, subscription
-. Subscribe to Rweekly
-. Create simple example in messaging doc
-. create message-queue-based cluster
+. further-msg-q-experiments.tex
 . Re-run tree
 . multiple choices for categories in tree
 . dendrogram for tree (unclass to explore)
