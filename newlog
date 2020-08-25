@@ -1,1 +1,14 @@
-sed -i "1i `date -I`\t`date +%T`\t`read summary; echo \"$summary\"`" LOG
+#!/bin/sh
+
+if test $# -eq 0
+then
+	echo -n "Task summary: [93m(\".\" to cancel)[0m " >`tty`
+	read input
+	case "$input" in
+		\.) exit 1;;
+	esac
+	set "$input"
+
+fi
+sed -i "1i `date -I`\t`date +%T`\t$@" LOG 
+exit 0
