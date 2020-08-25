@@ -1,4 +1,8 @@
 . further-msg-q-experiments.tex
+. Assumptions:
+.. topology; fully connected? consequences?
+.. mutability of chunks?
+.. redis single point of failure?
 . Re-run tree
 . multiple choices for categories in tree
 . dendrogram for tree (unclass to explore)
