@@ -10,41 +10,42 @@ main <- function() {
 	while (TRUE) {
 		msg <- readMessage(QUEUE)
 		cat("read message:", format(msg), "\n")
-		result <- doFun(msg)
-		cat("result is: ", format(result), "\n")
-		reply(result, getReturnAddr(msg))
+		switch(getOp(msg),
+		       "ASSIGN" = {assignFun(getFun(msg), getChunk(msg),
+					     getChunkID(msg))
+				   if (getAck(msg)) 
+				     writeMsg("Complete", getReturnAddr(msg))},
+		       "DOFUN" = writeMsg(doFun(getFun(msg), getChunk(msg)),
+					  getReturnAddr(msg)))
 	}
 }
 
-doFun <- function(msg) {
-	fun <- getFun(msg); arg <- getArg(msg)
-	do.call(fun, list(arg))
+assignFun <- function(fun, chunk, id) {
+	val <- doFun(fun, chunk)
+	assign(id, val, envir = .GlobalEnv)
+	assign("QUEUE", c(QUEUE, id), envir = .GlobalEnv)
 }
 
-reply <- function(result, returnAddr) {
-	replySock <- NULL
-	while (is.null(replySock)) 
-		replySock <- tryCatch(socketConnection(getHost(returnAddr),
-						       getPort(returnAddr)),
-			      error = function(e) {
-				      cat("Failed to connect to return address",
-					  ", trying again..\n")
-				      NULL})
-	cat("replying to request...\n")
-	serialize(result, replySock)
-	cat("replied\n")
-	close(replySock)
+doFun <- function(fun, chunk) {
+	do.call(fun, list(chunk))
 }
 
-getFun <- function(msg) msg$fun
-getArg <- function(msg) get(msg$chunk)
-getReturnAddr <- function(msg) msg$returnAddr
-getHost <- function(addr) addr$host
-getPort <- function(addr) addr$port
+getMsgField <- function(field) function(msg) msg[[field]]
+getOp <- getMsgField("op"); getFun <- getMsgField("fun")
+getChunk <- function(msg) get(getMsgField("chunk")(msg))
+getChunkID <- getMsgField("id"); getAck <- getMsgField("ack")
+getReturnAddr <- getMsgField("returnAddr")
 
 readMessage <- function(queues) {
 	serializedMsg <- redis.pop(RSC, queues, timeout=Inf)
 	unserialize(charToRaw(serializedMsg))
+}
+
+writeMsg <- function(msg, to) {
+	serializedMsg <- rawToChar(serialize(msg, NULL, T))
+	redis.push(RSC, to, serializedMsg)
+	cat("wrote message: ", format(msg), 
+	    " to queue belonging to chunk \"", to, "\"\n")
 }
 
 main()

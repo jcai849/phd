@@ -73,18 +73,56 @@ limit.
 
 Assigning the results of distributed operation to a new chunk is a far more
 common operation in a distributed system in order to minimise data movement.
-This can operate in a similar manner to the worker returning a result to the
-master, but can involve sending back a chunk ID, from which the master can
-initiate a chunk object.
-This will also involve specifying additional directions as part of the request
-message, in order to specify that assignment is desired.
-In order to avoid the sockets of the previous section, the response is placed
-back on a queue for the master to accept.
+This will involve specifying additional directions as part of the request
+message, in order to specify that assignment, and not merely the operation, is
+desired.
+
+The first issue that arises in assignment is the nature of knowledge in the
+system.
+Specifically, the origination of the name of the new reference; does the
+requesting node generate the name, passing that on as part of the request to
+the worker, or does the worker generate the name, passing that back as
+information to the requester?
+While it may seem arbitrary, it has potentially significant effects on the
+capacity of the system.
+For example, were the requester to generate the name itself, it has the
+potential to generate a reference to the new distributed object with correct
+names and queues to post messages to, before the worker has completed creation
+of the chunks, thus forming a type of eager and asynchronous object creation on
+the requesting node's end.
+If it were the alternative, in the master having no knowledge of the name of
+the new chunk, it would have to wait for that information before proceeding
+with the creation of the object.
+It could proceed with creation and delegate the task of attaining the names of
+chunks to a separate service, which in turn would require a considered portion
+of the architecture.
+This experiment will therefore involve the implementation of master-originated
+names, before considering what form worker-originated names may take.
+
+The actual creation of a chunk name in itself demands a system-wide unique
+identifier; this is a solved problem with a central message server, in redis
+providing an \texttt{INCR} operation, which can be used to generate a new chunk
+ID that is globally unique.
+
+It will be clear from the previous example that the problem of inter-node data
+movement, somewhat solved via direct sockets in that previous example, is
+largely an implementation issue, and a problem entirely distinct to the
+remainder of the logic of the system.
+From this experiment onwards, the mechanism of data movement is abstracted out,
+with the assumption that there will exist some additional tool that can serve
+as a sufficient backend for data movement.
+In reality, until that tool is developed, data will be sent through redis; not
+a solution, but something that can be ignored without loss of generality.
+
+% Implementation complete, examples follow....
+% issue of nulls/0-length resultant chunks?? and what if that is in fact expected??
 
 \section{General Function on Multiple Nodes}
 \section{Data Transfer between Nodes for Multivariate Functions}
 \subsection{Optimisations}
 Self-environment search, hashing cache potential
 \section{Alignment Mechanics}
+\section{Data Origination}
+Hadoop, split csvs, etc.
 
 \end{document}
