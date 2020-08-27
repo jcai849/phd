@@ -30,7 +30,7 @@ function on distributed chunks, and this section serves to document experiments
 relating to the creation of a general function that will perform a function at
 the node hosting a particular chunk.
 
-\subsection{With Value Return}
+\subsection{With Value Return}\label{sec:val-ret}
 
 Regardless of performing the actual function, some means of returning the value
 of a function must be provided; this section focuses on getting a function to
@@ -41,25 +41,27 @@ Listings of an implementation of these concepts are given by listings
 To this end, the requesting node has a function defined as \texttt{doFunAt(fun,
 chunk)}, which takes in any function, and the name of a chunk to perform the
 function on.
+An implementation is given by listing \ref{src:vr-master}.
 \texttt{doFunAt} first composes a message to send to the chunk's queue, being a
 list consisting of the function, the chunk name, and a return address, which
 contains sufficient information for the node performing the operation on the
 chunk to send the results back to via socket connection.
 The message is then serialised and pushed to the chunk's queue, and the
 requesting node sits listening on the socket that it has set up and advertised.
+\newpage
+\lstinputlisting[language=R,
+	caption={Value return to request for Master Node, from original source at \lstname},
+	label=src:vr-master]{../R/val-return-msg-q-master.R}
 
 On the chunk-containing-node end, it sits waiting on it's preassigned queues,
 each of which correspond to a chunk that it holds. Upon a message coming
 through, it runs a \texttt{doFun} function on the message, which in turn runs
 the function on the chunk named in the message. 
+An implementation is given by listing \ref{src:vr-worker}.
 It then creates a socket connected to the requesters location as advertised in
 the message, and sends the serialised results through.
 
-\lstinputlisting[language=R,float,
-	caption={Value return to request for Master Node, from original source at \lstname},
-	label=src:vr-master]{../R/val-return-msg-q-master.R}
-
-\lstinputlisting[language=R,float,
+\lstinputlisting[language=R,
 	caption={Value return to request for Worker Node, from original source at \lstname},
 	label=src:vr-worker]{../R/val-return-msg-q-worker.R}
 
@@ -77,33 +79,6 @@ This will involve specifying additional directions as part of the request
 message, in order to specify that assignment, and not merely the operation, is
 desired.
 
-The first issue that arises in assignment is the nature of knowledge in the
-system.
-Specifically, the origination of the name of the new reference; does the
-requesting node generate the name, passing that on as part of the request to
-the worker, or does the worker generate the name, passing that back as
-information to the requester?
-While it may seem arbitrary, it has potentially significant effects on the
-capacity of the system.
-For example, were the requester to generate the name itself, it has the
-potential to generate a reference to the new distributed object with correct
-names and queues to post messages to, before the worker has completed creation
-of the chunks, thus forming a type of eager and asynchronous object creation on
-the requesting node's end.
-If it were the alternative, in the master having no knowledge of the name of
-the new chunk, it would have to wait for that information before proceeding
-with the creation of the object.
-It could proceed with creation and delegate the task of attaining the names of
-chunks to a separate service, which in turn would require a considered portion
-of the architecture.
-This experiment will therefore involve the implementation of master-originated
-names, before considering what form worker-originated names may take.
-
-The actual creation of a chunk name in itself demands a system-wide unique
-identifier; this is a solved problem with a central message server, in redis
-providing an \texttt{INCR} operation, which can be used to generate a new chunk
-ID that is globally unique.
-
 It will be clear from the previous example that the problem of inter-node data
 movement, somewhat solved via direct sockets in that previous example, is
 largely an implementation issue, and a problem entirely distinct to the
@@ -114,8 +89,108 @@ as a sufficient backend for data movement.
 In reality, until that tool is developed, data will be sent through redis; not
 a solution, but something that can be ignored without loss of generality.
 
-% Implementation complete, examples follow....
-% issue of nulls/0-length resultant chunks?? and what if that is in fact expected??
+The actual creation of a chunk name in itself demands a system-wide unique
+identifier; this is a solved problem with a central message server, in redis
+providing an \texttt{INCR} operation, which can be used to generate a new chunk
+ID that is globally unique.
+
+The name origination and capacity for blocking will dictate different
+algorithms in the creation of the chunk object, as well as the structure of the
+chunk object.
+Table \ref{tab:name-orig-block} shows potential forms these may take.
+Note that non-blocking abstracts blocking, with blocking being an additional
+option to an initialisation process set up for non-blocking.
+In addition, the ``common information repository'' referred to in the table may
+take the concrete form of a simple key-value store, with the key being passed
+and monitored by the requester node.
+
+\begin{table}
+	\centering
+	\begin{tabularx}{\textwidth}{l|XX}
+	\toprule
+	& Requester-Originated Name & Worker-Originated Name \\
+	\midrule
+	Blocking Algorithm & 
+		Requester attains chunk name, sends operation request with
+		chunk name to worker, creating chunk reference concurrently,
+		blocking until direct signal of completion from worker. & 
+		Requester sends operation request with reference to some common
+		information repository to worker. Worker attains name, performs
+		operation, and sends chunk name to common information
+		repository, which requester watches, releasing chunk object
+		after attaining chunk name from repository. \\
+	Blocking Structure & 
+		String name of chunk. & 
+		String name of chunk. \\
+	Non-Blocking Algorithm & 
+		Requester attains chunk name, sends operation request with
+		chunk name to worker, creating chunk reference concurrently. No
+		waiting for worker signal of completion. & 
+		Requester sends operation request with reference to some common
+		information repository to worker. Worker attains name, performs
+		operation, and sends chunk name to common information
+		repository. Before worker completion, requester releases chunk
+		object, not waiting for reception of chunk information. \\
+	Non-Blocking Structure & 
+		String name of chunk &
+		Initially, reference to common information repository. Mutable;
+		can become string name of chunk upon accessing that information
+		in the common information repository. \\
+	\bottomrule
+\end{tabularx}
+	\caption{Description of Algorithms and Data Structure of chunk
+	reference object, by blocking status in creation, and origination of
+	name.}
+	\label{tab:name-orig-block}
+\end{table}
+
+While it is clearly more straightforward for a requester node to originate a
+name, with blocking, the opposite will be the most flexible; worker-originated
+name with no blocking.
+This is because the very existence of a chunk is presupposed when a requester
+node originates a name, while that may not be true in reality.
+For instance, the result may be an unexpected \texttt{NULL}, zero-length
+vector, or even an error.
+In addition, the worker-originated name with no blocking has every feature
+common to that of a future, from the future package; it can be checked for
+completion, and accessed as a value, allowing for many asynchronous and
+parallel operations.
+
+\subsubsection{Requester-Originated Name}
+
+The logic of the master in assigning the result of a distributed operation on a
+chunk is largely encapsulated in a new function, \texttt{assignFunAt}, as
+demonstrated in listing \ref{src:ro-ass-master}.
+The function attains a chunk ID, generates a unique return address, sends a
+message to the operand chunk queue, and waits for a reply, before returning the
+id as a string belonging to the ``chunk'' class.
+There is more information in the message relative the the function-only
+message of section \ref{sec:val-ret}; the chunk ID, request for acknowledgement
+of completion, return address, as well as an operation specifier to direct the
+intent of the message.
+
+\lstinputlisting[language=R,
+	caption={Demonstration of assignment in Master Node, with
+	Requester-Originated chunk name, from original source at \lstname},
+	label=src:ro-ass-master]{../R/assign-msg-q-master.R}
+
+The worker, as shown in listing \ref{src:ro-ass-worker}, consists in a loop of
+reading the message and performing an operation dependent on the operation
+specifier of the message.
+For an operation of \texttt{DOFUN}, all that is run is a \texttt{do.call} on
+the function and chunk specified, with a message being returned to the
+requester with the value of the \texttt{do.call}.
+An operation of \texttt{ASSIGN} runs the same as \texttt{DOFUN}, with the
+addition of assigning the value to the ID as passed in the message, adding
+the ID to the array of queues to monitor, and potentially sending
+acknowledgement back to the requester node.
+\newpage
+\lstinputlisting[language=R,
+	caption={Demonstration of assignment in Worker Node, with
+	Requester-Originated chunk name, from original source at \lstname},
+	label=src:ro-ass-worker]{../R/assign-msg-q-worker.R}
+
+\subsubsection{Worker-Originated Name}
 
 \section{General Function on Multiple Nodes}
 \section{Data Transfer between Nodes for Multivariate Functions}

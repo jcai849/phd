@@ -20,8 +20,7 @@ main <- function() {
 }
 
 assignFunAt <- function(fun, chunk, wait=TRUE) {
-	id <- getChunkID()
-	cat("ID is: ", format(id), "\n")
+	id <- getChunkID(); cat("ID is: ", format(id), "\n")
 	returnAddr <- UUIDgenerate()
 	sendMsg("ASSIGN", fun, chunk, returnAddr, id, ack = wait)
 	if (wait) readReply(returnAddr)
@@ -40,15 +39,13 @@ getChunkID <- function() as.character(redis.inc(RSC, "chunkID"))
 
 readReply <- function(addr, clear=TRUE) {
 	cat("Awaiting response...\n")
-	reply <- redis.pop(RSC, addr, timeout = Inf)
-	cat("Received response\n")
+	reply <- redis.pop(RSC, addr, timeout = Inf); cat("Received response\n")
 	if (clear) redis.rm(RSC, addr)
 	unserialize(charToRaw(reply))
 }
 
 sendMsg <- function(op, fun, chunk, returnAddr, id=NULL, ack=NULL) {
-	msg <- newMsg(op, fun, chunk, id, 
-		      ack, returnAddr)
+	msg <- newMsg(op, fun, chunk, id, ack, returnAddr)
 	writeMsg(msg, chunk)
 }
 
