@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if test $# -gt 1 
+then
+	echo "Enclose message in '' to prevent shell argument issues. Discarded."
+	exit 1
+fi
 if test $# -eq 0
 then
 	echo -n "Task summary: [93m(\".\" to cancel)[0m " >`tty`
