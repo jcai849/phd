@@ -3,18 +3,16 @@
 source("shared.R")
 
 RSC <- redis.connect(host="localhost", port=6379L)
-redis.rm(RSC, "chunkID")
+redis.rm(RSC, c("chunk1", as.character(1:10), "chunkID"))
 chunk1 <- structure(new.env(), class = "chunk")
 assign("chunkID", "chunk1", chunk1)
-redis.rm(RSC, "chunk1")
-redis.rm(RSC, as.character(1:10))
 
 main <- function() {
 	cat("Value of chunk1: ", format(chunk1), "\n")
-	cat("Assigning exp(chunk1) - 1 as x, not waiting for response")
+	cat("Assigning exp(chunk1) - 1 as x, not waiting for response\n")
 	x = assignFunAt(fun=expm1, chunk=chunk1, wait=F)
 	cat("Value of x: ", format(x), "\n")
-	cat("Assigning log(1 + x) as y, waiting for response")
+	cat("Assigning log(1 + x) as y, waiting for response\n")
 	y = assignFunAt(fun=log1p, chunk=x, wait=T)
 	cat("Value of y: ", format(y), "\n")
 }
@@ -22,8 +20,9 @@ main <- function() {
 assignFunAt <- function(fun, chunk, wait=TRUE) {
 	infoRef <- UUIDgenerate()
 	sendMsg(op = "ASSIGN", fun = fun, chunk = chunk, 
-		infoRef = infoRef,  ack = wait, to = getChunkID(chunk))
+		infoRef = infoRef, to = getChunkID(chunk))
 	if (!wait) newChunk(infoRef)
+	cat("Not waiting\n")
 	newChunk(id = getChunkID(readMsg(infoRef, clear=TRUE)))
 }
 

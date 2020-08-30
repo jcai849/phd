@@ -48,10 +48,6 @@ contains sufficient information for the node performing the operation on the
 chunk to send the results back to via socket connection.
 The message is then serialised and pushed to the chunk's queue, and the
 requesting node sits listening on the socket that it has set up and advertised.
-\newpage
-\lstinputlisting[language=R,
-	caption={Value return to request for Master Node, from original source at \lstname},
-	label=src:vr-master]{../R/val-return-msg-q-master.R}
 
 On the chunk-containing-node end, it sits waiting on it's preassigned queues,
 each of which correspond to a chunk that it holds. Upon a message coming
@@ -60,10 +56,6 @@ the function on the chunk named in the message.
 An implementation is given by listing \ref{src:vr-worker}.
 It then creates a socket connected to the requesters location as advertised in
 the message, and sends the serialised results through.
-
-\lstinputlisting[language=R,
-	caption={Value return to request for Worker Node, from original source at \lstname},
-	label=src:vr-worker]{../R/val-return-msg-q-worker.R}
 
 A problem with this approach is the fickle aspect of creating and removing
 sockets for every request; beyond the probability of missed connections and
@@ -169,11 +161,6 @@ message of section \ref{sec:val-ret}; the chunk ID, request for acknowledgement
 of completion, return address, as well as an operation specifier to direct the
 intent of the message.
 
-\lstinputlisting[language=R,
-	caption={Demonstration of assignment in Master Node, with
-	Requester-Originated chunk name, from original source at \lstname},
-	label=src:ro-ass-master]{../R/m-orig-assign-msg-q-master.R}
-
 The worker, as shown in listing \ref{src:ro-ass-worker}, consists in a loop of
 reading the message and performing an operation dependent on the operation
 specifier of the message.
@@ -184,13 +171,11 @@ An operation of \texttt{ASSIGN} runs the same as \texttt{DOFUN}, with the
 addition of assigning the value to the ID as passed in the message, adding
 the ID to the array of queues to monitor, and potentially sending
 acknowledgement back to the requester node.
-\newpage
-\lstinputlisting[language=R,
-	caption={Demonstration of assignment in Worker Node, with
-	Requester-Originated chunk name, from original source at \lstname},
-	label=src:ro-ass-worker]{../R/m-orig-assign-msg-q-worker.R}
 
 \subsubsection{Worker-Originated Name}
+
+Implementation near-completion as per listings \ref{src:wo-ass-master},
+\ref{src:wo-ass-worker}, and \ref{src:wo-ass-shared}; description soon coming
 
 \section{General Function on Multiple Nodes}
 \section{Data Transfer between Nodes for Multivariate Functions}
@@ -199,5 +184,38 @@ Self-environment search, hashing cache potential
 \section{Alignment Mechanics}
 \section{Data Origination}
 Hadoop, split csvs, etc.
+
+\lstinputlisting[language=R, float,
+	caption={Value return to request for Master Node, from original source at \lstname},
+	label=src:vr-master]{../R/val-return-msg-q-master.R}
+
+\lstinputlisting[language=R, float,
+	caption={Value return to request for Worker Node, from original source at \lstname},
+	label=src:vr-worker]{../R/val-return-msg-q-worker.R}
+
+\lstinputlisting[language=R, float,
+	caption={Demonstration of assignment in Master Node, with
+	Requester-Originated chunk name, from original source at \lstname},
+	label=src:ro-ass-master]{../R/msg-q-assign-m-orig/master.R}
+
+\lstinputlisting[language=R, float,
+	caption={Demonstration of assignment in Worker Node, with
+	Requester-Originated chunk name, from original source at \lstname},
+	label=src:ro-ass-worker]{../R/msg-q-assign-m-orig/worker.R}
+
+\lstinputlisting[language=R, float,
+	caption={Demonstration of assignment in Master Node, with
+	Worker-Originated chunk name, from original source at \lstname},
+	label=src:wo-ass-master]{../R/msg-q-assign-w-orig/master.R}
+
+\lstinputlisting[language=R, float,
+	caption={Demonstration of assignment in Worker Node, with
+	Worker-Originated chunk name, from original source at \lstname},
+	label=src:wo-ass-worker]{../R/msg-q-assign-w-orig/worker.R}
+
+\lstinputlisting[language=R, float,
+	caption={Shared functions of Master and Worker in Worker-Originated
+	chunk names for assignment \lstname},
+	label=src:wo-ass-shared]{../R/msg-q-assign-w-orig/shared.R}
 
 \end{document}

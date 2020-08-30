@@ -22,10 +22,10 @@ getChunkID.chunk <- function(x, ...) {
 
 # messaging functions
 
-sendMsg <- function(...) {
+sendMsg <- function(..., to) {
 	items <- list(...)
 	msg <- do.call(newMsg, items)
-	writeMsg(msg, items$to)
+	writeMsg(msg, to)
 }
 
 newMsg <- function(...) {
@@ -52,7 +52,7 @@ readMsg <- function(queues, clear = FALSE) {
 
 getMsgField <- function(field) function(x, ...) x[[field]]
 getOp <- getMsgField("op"); getFun <- getMsgField("fun")
-getAck <- getMsgField("ack"); getVal <- getMsgField("val")
-getChunkID.msg <- getMsgField("chunkID"); getInfoRef <- getMsgField("infoRef")
+getVal <- getMsgField("val"); getChunkID.msg <- getMsgField("chunkID"); 
+getInfoRef <- getMsgField("infoRef")
 getChunk <- function(x, ...) get(getChunkID(getMsgField("chunk")(x)))
 
