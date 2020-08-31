@@ -174,8 +174,69 @@ acknowledgement back to the requester node.
 
 \subsubsection{Worker-Originated Name}
 
-Implementation near-completion as per listings \ref{src:wo-ass-master},
-\ref{src:wo-ass-worker}, and \ref{src:wo-ass-shared}; description soon coming
+By this point the master (listing \ref{src:wo-ass-master}) and worker (listing
+\ref{src:wo-ass-worker}) come to increasingly resemble each other, and most of
+the functions are shared, as in listings \ref{src:wo-ass-chunk},
+\ref{src:wo-ass-shared}, and \ref{src:wo-ass-messages}.
+
+The principal mechanism of action is best demonstrated via a logical time
+diagram, given by figure \ref{fig:w-o-td}, following a Lamport form of
+event ordering\cite{lamport1978ordering}.
+The first message, shown by the \textbf{a} arrow in the diagram, involves a
+master sending a message to a worker regarding the request, including the name
+of a shared information reference for the worker to later place the chunk ID
+into.
+
+Optionally, the master can immediately create a chunk object with no direct
+knowledge of the chunk ID, holding the name of the information reference
+instead, and the master continues whatever work it was doing.
+Only when the chunk ID is required, the chunk object, triggers a blocking pop
+on it's associated information reference queue, which the worker may
+at any point push the chunk name to.
+The chunk object then has the associate the ID associated with it, and the
+information reference queue can be deleted.
+
+\begin{figure}
+	\begin{minipage}{0.4\textwidth}
+		\begin{tikzpicture}
+			\draw[-{>[scale=2]}] (0,8) -- (0,0) node[at start, anchor=south] {M};
+			\draw[-{>[scale=2]}] (2,8) -- (2,0) node[at start, anchor=south] {Q};
+			\draw[-{>[scale=2]}] (4,8) -- (4,0) node[at start, anchor=south] {W};
+
+			\draw[red] (0,7.5) -- (0,3) node[midway, anchor=east] {x};
+			\draw[red] (4,5) -- (4,4.5) node[midway, anchor=west] {y};
+
+			\draw[-{>[scale=2]}] (0,7.5) -- (2, 6.5) node[midway, anchor=south] {a};
+			\draw[-{>[scale=2]}] (4,8) -- (2, 7) node[midway, anchor=south] {b};
+			\draw[-{>[scale=2]}] (2, 6) -- (4, 5) node[midway, anchor=south] {c};
+			\draw[-{>[scale=2]}] (4, 4.5) -- (2, 3.5) node[midway, anchor=south] {d};
+			\draw[-{>[scale=2]}] (0, 3) -- (2, 2) node[midway, anchor=south] {e};
+			\draw[-{>[scale=2]}] (2, 1.5) -- (0, 0.5) node[midway, anchor=south] {f};
+		\end{tikzpicture}
+	\end{minipage}
+	\begin{minipage}{0.6\textwidth}
+		\begin{description}
+			\item [a] Assignment request message pushed to chunk
+				queue
+			\item [b] Blocking pop of queue
+			\item [c] Message popped from queue
+			\item [d] Chunk ID pushed to information reference
+				queue
+			\item [e] Request for chunk ID creates blocking pop for
+				information reference queue
+			\item [f] Chunk ID message popped from information
+				reference queue
+			\item [\textcolor{red}{x}] Creation of chunk object
+				containing name of information reference, but
+				no chunk ID, followed by any operations not
+				requiring chunk ID
+			\item [\textcolor{red}{y}] Perform operation specified
+				by message in \textbf{e}, with assignment
+		\end{description}
+	\end{minipage}
+	\caption{\label{fig:w-o-td}Logical time diagram of chunk assignment for
+	worker-originated name}
+\end{figure}
 
 \section{General Function on Multiple Nodes}
 \section{Data Transfer between Nodes for Multivariate Functions}
@@ -184,6 +245,8 @@ Self-environment search, hashing cache potential
 \section{Alignment Mechanics}
 \section{Data Origination}
 Hadoop, split csvs, etc.
+
+\printbibliography
 
 \lstinputlisting[language=R, float,
 	caption={Value return to request for Master Node, from original source at \lstname},
@@ -214,8 +277,18 @@ Hadoop, split csvs, etc.
 	label=src:wo-ass-worker]{../R/msg-q-assign-w-orig/worker.R}
 
 \lstinputlisting[language=R, float,
+	caption={Chunk functions of Master and Worker in Worker-Originated
+	chunk names for assignment \lstname},
+	label=src:wo-ass-chunk]{../R/msg-q-assign-w-orig/chunk.R}
+
+\lstinputlisting[language=R, float,
 	caption={Shared functions of Master and Worker in Worker-Originated
 	chunk names for assignment \lstname},
 	label=src:wo-ass-shared]{../R/msg-q-assign-w-orig/shared.R}
+
+\lstinputlisting[language=R, float,
+	caption={Message functions of Master and Worker in Worker-Originated
+	chunk names for assignment \lstname},
+	label=src:wo-ass-messages]{../R/msg-q-assign-w-orig/messages.R}
 
 \end{document}
