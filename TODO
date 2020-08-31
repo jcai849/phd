@@ -1,4 +1,5 @@
 . further-msg-q-experiments.tex
+. benchmarks
 . Assumptions:
 .. topology; fully connected? consequences?
 .. mutability of chunks?
