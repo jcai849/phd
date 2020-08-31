@@ -1,58 +1,60 @@
 library(rediscc)
 library(uuid)
 
-# Attain Chunk ID
+# Generics and setters
 
-getChunkID <- function(x, ...) {
-	if (missing(x)) return(as.character(redis.inc(RSC, "chunkID")))
-	UseMethod("getChunkID", x)
-}
-
-getChunkID.chunk <- function(x, ...) {
-	if (! exists("chunkID", x)) { 
-		infoRef <- get("infoRef", x)
-		cat("chunkID not yet associated with chunk; checking infoRef ", infoRef, "\n")
-		id <- redis.pop(RSC, infoRef, timeout = Inf)
-		cat("chunkID \"", id, "\" found; associating...\n")
-		assign("chunkID", id, x)
-		redis.rm(infoRef)
+chunk <- function(x, ...) {
+	if (missing(x)) {
+		c <- new.env()
+		class(c) <- "chunk"
+		return(c)
 	}
-	get("chunkID", x)
+	UseMethod("chunk", x)
 }
 
-# messaging functions
+chunkDo <- function(what, x, wait=FALSE, assign=TRUE) 
+	UseMethod("chunkDo", x)
 
-sendMsg <- function(..., to) {
-	items <- list(...)
-	msg <- do.call(newMsg, items)
-	writeMsg(msg, to)
+chunkID <- function(x, ...) {
+	if (missing(x)) {
+		ID <- as.character(redis.inc(RSC, "chunkID"))
+		class(ID) <- "chunkID"
+		return(ID)
+	}
+	UseMethod("chunkID", x)
 }
 
-newMsg <- function(...) {
-	structure(list(...), class = "msg")
+`chunkID<-` <- function(x, value) {
+	assign("ID", value, x)
+	x
 }
 
-writeMsg <- function(msg, to) {
-	serializedMsg <- rawToChar(serialize(msg, NULL, T))
-	redis.push(RSC, to, serializedMsg)
-	cat("wrote message: ", format(msg), 
-	    " to queue belonging to chunk \"", to, "\"\n")
+infoRef <- function(x, ...) {
+	if (missing(x)) {
+		ref <- UUIDgenerate()
+		class(ref) <- "infoRef"
+		return(ref)
+	}
+	UseMethod("infoRef", x)
 }
 
-readMsg <- function(queues, clear = FALSE) {
-	cat("Awaiting message...\n")
-	serializedMsg <- redis.pop(RSC, queues, timeout=Inf)
-	if (clear) redis.rm(RSC, queues)
-	msg <- unserialize(charToRaw(serializedMsg))
-	cat("Received message: ", format(msg), "\n")
-	msg
+`infoRef<-` <- function(x, value) {
+	assign("ref", value, x)
+	x
 }
 
-# message field accessors
+# infoRef methods
 
-getMsgField <- function(field) function(x, ...) x[[field]]
-getOp <- getMsgField("op"); getFun <- getMsgField("fun")
-getVal <- getMsgField("val"); getChunkID.msg <- getMsgField("chunkID"); 
-getInfoRef <- getMsgField("infoRef")
-getChunk <- function(x, ...) get(getChunkID(getMsgField("chunk")(x)))
+chunk.infoRef <- function(x, ...) {
+	c <- chunk()
+	infoRef(c) <- x
+	c
+}
 
+# chunkID methods
+
+chunk.chunkID <- function(x, ...) {
+	c <- chunk()
+	chunkID(c) <- x
+	c
+}
