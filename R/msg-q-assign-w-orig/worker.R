@@ -12,23 +12,31 @@ main <- function() {
 	repeat {
 		m <- read.queue(QUEUE)
 		switch(op(m),
-		       "ASSIGN" = {cID <- chunkDo(fun(m), chunk(m))
+		       "ASSIGN" = {cID <- do.call.chunk(what=fun(m), 
+							chunkArg=chunk(m), 
+							distArgs=dist(m), 
+							staticArgs=static(m), 
+							assign=TRUE)
 			           send(CHUNK_ID = cID, to = jobID(m))},
-		       "DOFUN" = send(VAL = chunkDo(fun(m), chunk(m), 
-						    assign=FALSE),
-				      to = jobID(m)))
+		       "DOFUN" = {v <- do.call.chunk(what=fun(m), 
+						     chunkArg=chunk(m), 
+						     distArgs=dist(m), 
+						     staticArgs=static(m), 
+						     assign=FALSE)
+			          send(VAL = v, to = jobID(m))})
 	}
 }
 
-chunkDo.default <- function(what, x, assign=TRUE) {
+do.call.chunk <- function(what, chunkArg, distArgs, staticArgs, assign=TRUE) {
 	if (assign) {
 		cID <- chunkID()
-		val <- chunkDo(what, x, assign=FALSE)
-		cat("Assigning value", format(val), "to identifier", format(cID), "\n")
-		assign(cID, val, envir = .GlobalEnv)
+		v <- do.call(what, list(chunkArg))
+		cat("Assigning value", format(v), "to identifier", 
+		    format(cID), "\n")
+		assign(cID, v, envir = .GlobalEnv)
 		assign("QUEUE", c(QUEUE, cID), envir = .GlobalEnv)
 		return(cID)
-	} else do.call(what, list(x))
+	} else do.call(what, list(chunkArg))
 }
 
 main()

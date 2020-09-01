@@ -11,9 +11,6 @@ distChunk <- function(x, ...) {
 	UseMethod("distChunk", x)
 }
 
-chunkDo <- function(what, x, wait=FALSE, assign=TRUE) 
-	UseMethod("chunkDo", x)
-
 chunkID <- function(x, ...) {
 	if (missing(x)) {
 		cID <- as.character(redis.inc(RSC, "CHUNK_ID"))
@@ -43,6 +40,10 @@ jobID <- function(x, ...) {
 }
 
 chunk <- function(x, ...) UseMethod("chunk", x)
+
+dist <- function(x, ...) UseMethod("dist", x)
+
+dist.default <- stats::dist
 
 # jobID methods
 

@@ -14,15 +14,15 @@ write.msg <- function(m, to) {
 	serializedMsg <- rawToChar(serialize(m, NULL, T))
 	redis.push(RSC, to, serializedMsg)
 	cat("wrote message: ", format(m), 
-	    " to queue belonging to distChunk \"", to, "\"\n")
+	    " to queue belonging to chunk \"", to, "\"\n", sep="")
 }
 
 read.queue <- function(queue, clear = FALSE) {
-	cat("Awaiting message...\n")
+	cat("Awaiting message on queues: ", format(queue),  "\n", sep="")
 	serializedMsg <- redis.pop(RSC, queue, timeout=Inf)
 	if (clear) redis.rm(RSC, queue)
 	m <- unserialize(charToRaw(serializedMsg))
-	cat("Received message: ", format(m), "\n")
+	cat("Received message:", format(m), "\n")
 	m
 }
 
@@ -31,7 +31,8 @@ read.queue <- function(queue, clear = FALSE) {
 msgField <- function(field) function(x, ...) x[[field]]
 # Requesters
 op <- msgField("OP"); fun <- msgField("FUN")
+static <- msgField("STATIC_ARGS")
 chunk.msg <- function(x, ...) get(chunkID(msgField("CHUNK")(x)))
-jobID.msg <- msgField("JOB_ID")
+jobID.msg <- msgField("JOB_ID"); dist.msg <- msgField("DIST_ARGS")
 # Responders
 val <- msgField("VAL"); chunkID.msg <- msgField("CHUNK_ID")
