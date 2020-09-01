@@ -1,29 +1,29 @@
 # messaging functions
 
-newMsg <- function(...) {
+msg <- function(...) {
 	structure(list(...), class = "msg")
 }
 
-sendMsg <- function(..., to) {
+send <- function(..., to) {
 	items <- list(...)
-	msg <- do.call(newMsg, items)
-	writeMsg(msg, to)
+	m <- do.call(msg, items)
+	write.msg(m, to)
 }
 
-writeMsg <- function(msg, to) {
-	serializedMsg <- rawToChar(serialize(msg, NULL, T))
+write.msg <- function(m, to) {
+	serializedMsg <- rawToChar(serialize(m, NULL, T))
 	redis.push(RSC, to, serializedMsg)
-	cat("wrote message: ", format(msg), 
+	cat("wrote message: ", format(m), 
 	    " to queue belonging to chunk \"", to, "\"\n")
 }
 
-readMsg <- function(queues, clear = FALSE) {
+read.queue <- function(queue, clear = FALSE) {
 	cat("Awaiting message...\n")
-	serializedMsg <- redis.pop(RSC, queues, timeout=Inf)
-	if (clear) redis.rm(RSC, queues)
-	msg <- unserialize(charToRaw(serializedMsg))
-	cat("Received message: ", format(msg), "\n")
-	msg
+	serializedMsg <- redis.pop(RSC, queue, timeout=Inf)
+	if (clear) redis.rm(RSC, queue)
+	m <- unserialize(charToRaw(serializedMsg))
+	cat("Received message: ", format(m), "\n")
+	m
 }
 
 # message field accessors

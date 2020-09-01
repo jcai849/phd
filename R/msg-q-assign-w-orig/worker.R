@@ -10,13 +10,13 @@ QUEUE <- "chunk1"
 
 main <- function() {
 	while (TRUE) {
-		msg <- readMsg(QUEUE)
-		switch(op(msg),
-		       "ASSIGN" = {id <- chunkDo(fun(msg), chunk(msg))
-			           sendMsg(chunkID = id, to = infoRef(msg))},
-		       "DOFUN" = sendMsg(val = chunkDo(fun(msg), chunk(msg), 
+		m <- read.queue(QUEUE)
+		switch(op(m),
+		       "ASSIGN" = {id <- chunkDo(fun(m), chunk(m))
+			           send(chunkID = id, to = infoRef(m))},
+		       "DOFUN" = send(val = chunkDo(fun(m), chunk(m), 
 						       assign=FALSE),
-					 to = infoRef(msg)))
+					 to = infoRef(m)))
 	}
 }
 

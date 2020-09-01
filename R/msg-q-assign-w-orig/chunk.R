@@ -6,7 +6,7 @@ chunkID.chunk <- function(x, ...) {
 	if (! exists("ID", x)) { 
 		ref <- infoRef(x)
 		cat("chunkID not yet associated with chunk; checking infoRef ", ref, "\n")
-		ID <- chunkID(readMsg(ref, clear=TRUE))
+		ID <- chunkID(read.queue(ref, clear=TRUE))
 		cat("chunkID \"", format(ID), "\" found; associating...\n")
 		chunkID(x) <- ID
 	}
@@ -17,7 +17,7 @@ chunkDo.chunk <- function(what, x, assign=TRUE, wait=FALSE) {
 	ref <- infoRef()
 	cat("Request to perform function ", format(what), " on chunk ",
 	    chunkID(x), " with assignment: ", format(assign), "\n")
-	sendMsg(op = if (assign) "ASSIGN" else "DOFUN", fun = what, chunk = x, 
+	send(op = if (assign) "ASSIGN" else "DOFUN", fun = what, chunk = x, 
 		infoRef = ref, to = chunkID(x))
 	x <- if (assign) {
 		if (!wait){
@@ -25,10 +25,10 @@ chunkDo.chunk <- function(what, x, assign=TRUE, wait=FALSE) {
 			chunk(ref) 
 		} else {
 			cat("waiting...\n")
-			chunk(chunkID(readMsg(ref, clear=TRUE)))
+			chunk(chunkID(read.queue(ref, clear=TRUE)))
 	} } else {
 		cat("taking the value\n")
-		val(readMsg(ref, clear=TRUE))
+		val(read.queue(ref, clear=TRUE))
 	}
 	x
 }
