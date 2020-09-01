@@ -5,8 +5,8 @@ source("messages.R")
 source("chunk.R")
 
 RSC <- redis.connect(host="localhost", port=6379L)
-chunk1 <- seq(10)
-QUEUE <- "chunk1"
+distChunk1 <- seq(10)
+QUEUE <- "distChunk1"
 
 main <- function() {
 	while (TRUE) {

@@ -3,13 +3,15 @@ library(uuid)
 
 # Generics and setters
 
-chunk <- function(x, ...) {
+chunk <- function(x, ...) UseMethod("chunk", x)
+
+distChunk <- function(x, ...) {
 	if (missing(x)) {
 		c <- new.env()
-		class(c) <- "chunk"
+		class(c) <- "distChunk"
 		return(c)
 	}
-	UseMethod("chunk", x)
+	UseMethod("distChunk", x)
 }
 
 chunkDo <- function(what, x, wait=FALSE, assign=TRUE) 
@@ -45,16 +47,16 @@ infoRef <- function(x, ...) {
 
 # infoRef methods
 
-chunk.infoRef <- function(x, ...) {
-	c <- chunk()
+distChunk.infoRef <- function(x, ...) {
+	c <- distChunk()
 	infoRef(c) <- x
 	c
 }
 
 # chunkID methods
 
-chunk.chunkID <- function(x, ...) {
-	c <- chunk()
+distChunk.chunkID <- function(x, ...) {
+	c <- distChunk()
 	chunkID(c) <- x
 	c
 }

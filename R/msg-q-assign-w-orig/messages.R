@@ -14,7 +14,7 @@ write.msg <- function(m, to) {
 	serializedMsg <- rawToChar(serialize(m, NULL, T))
 	redis.push(RSC, to, serializedMsg)
 	cat("wrote message: ", format(m), 
-	    " to queue belonging to chunk \"", to, "\"\n")
+	    " to queue belonging to distChunk \"", to, "\"\n")
 }
 
 read.queue <- function(queue, clear = FALSE) {
