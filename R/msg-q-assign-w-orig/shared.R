@@ -1,15 +1,12 @@
 library(rediscc)
-library(uuid)
 
 # Generics and setters
 
-chunk <- function(x, ...) UseMethod("chunk", x)
-
 distChunk <- function(x, ...) {
 	if (missing(x)) {
-		c <- new.env()
-		class(c) <- "distChunk"
-		return(c)
+		dc <- new.env()
+		class(dc) <- "distChunk"
+		return(dc)
 	}
 	UseMethod("distChunk", x)
 }
@@ -19,44 +16,46 @@ chunkDo <- function(what, x, wait=FALSE, assign=TRUE)
 
 chunkID <- function(x, ...) {
 	if (missing(x)) {
-		ID <- as.character(redis.inc(RSC, "chunkID"))
-		class(ID) <- "chunkID"
-		return(ID)
+		cID <- as.character(redis.inc(RSC, "CHUNK_ID"))
+		class(cID) <- "chunkID"
+		return(cID)
 	}
 	UseMethod("chunkID", x)
 }
 
 `chunkID<-` <- function(x, value) {
-	assign("ID", value, x)
+	assign("CHUNK_ID", value, x)
 	x
 }
 
-infoRef <- function(x, ...) {
+jobID <- function(x, ...) {
 	if (missing(x)) {
-		ref <- UUIDgenerate()
-		class(ref) <- "infoRef"
-		return(ref)
+		jID <- as.character(redis.inc(RSC, "JOB_ID"))
+		class(jID) <- "jobID"
+		return(jID)
 	}
-	UseMethod("infoRef", x)
+	UseMethod("jobID", x)
 }
 
-`infoRef<-` <- function(x, value) {
-	assign("ref", value, x)
+`jobID<-` <- function(x, value) {
+	assign("JOB_ID", value, x)
 	x
 }
 
-# infoRef methods
+chunk <- function(x, ...) UseMethod("chunk", x)
 
-distChunk.infoRef <- function(x, ...) {
-	c <- distChunk()
-	infoRef(c) <- x
-	c
+# jobID methods
+
+distChunk.jobID <- function(x, ...) {
+	dc <- distChunk()
+	jobID(dc) <- x
+	dc
 }
 
 # chunkID methods
 
 distChunk.chunkID <- function(x, ...) {
-	c <- distChunk()
-	chunkID(c) <- x
-	c
+	dc <- distChunk()
+	chunkID(dc) <- x
+	dc
 }

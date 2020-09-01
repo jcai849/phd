@@ -28,8 +28,10 @@ read.queue <- function(queue, clear = FALSE) {
 
 # message field accessors
 
-chunk.msg <- function(x, ...) get(chunkID(msgField("chunk")(x)))
 msgField <- function(field) function(x, ...) x[[field]]
-op <- msgField("op"); fun <- msgField("fun")
-val <- msgField("val"); chunkID.msg <- msgField("chunkID"); 
-infoRef.msg <- msgField("infoRef")
+# Requesters
+op <- msgField("OP"); fun <- msgField("FUN")
+chunk.msg <- function(x, ...) get(chunkID(msgField("CHUNK")(x)))
+jobID.msg <- msgField("JOB_ID")
+# Responders
+val <- msgField("VAL"); chunkID.msg <- msgField("CHUNK_ID")

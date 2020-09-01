@@ -1,39 +1,40 @@
-# Chunk methods
+# distChunk methods
 
-infoRef.distChunk <- function(x, ...) get("ref", x)
+jobID.distChunk <- function(x, ...) get("JOB_ID", x)
 
 chunkID.distChunk <- function(x, ...) {
-	if (! exists("ID", x)) { 
-		ref <- infoRef(x)
-		cat("chunkID not yet associated with distChunk; checking infoRef ", ref, "\n")
-		ID <- chunkID(read.queue(ref, clear=TRUE))
-		cat("chunkID \"", format(ID), "\" found; associating...\n")
-		chunkID(x) <- ID
+	if (! exists("CHUNK_ID", x)) { 
+		jID <- jobID(x)
+		cat("chunkID not yet associated with distChunk; checking jobID ", jID, "\n")
+		cID <- chunkID(read.queue(jID, clear=TRUE))
+		cat("chunkID \"", format(cID), "\" found; associating...\n")
+		chunkID(x) <- cID
 	}
-	get("ID", x)
+	get("CHUNK_ID", x)
 }
 
 chunkDo.distChunk <- function(what, x, assign=TRUE, wait=FALSE) {
-	ref <- infoRef()
+	jID <- jobID()
 	cat("Request to perform function ", format(what), " on distChunk ",
 	    chunkID(x), " with assignment: ", format(assign), "\n")
-	send(op = if (assign) "ASSIGN" else "DOFUN", fun = what, chunk = x, 
-		infoRef = ref, to = chunkID(x))
-	x <- if (assign) {
+	send(OP = if (assign) "ASSIGN" else "DOFUN", FUN = what, CHUNK = x, 
+		JOB_ID = jID, to = chunkID(x))
+	# object creation
+	dc <- if (assign) {
 		if (!wait){
-			cat("not waiting, using reference", format(ref), "\n")
-			distChunk(ref) 
+			cat("not waiting, using job ID", format(jID), "\n")
+			distChunk(jID) 
 		} else {
 			cat("waiting...\n")
-			distChunk(chunkID(read.queue(ref, clear=TRUE)))
+			distChunk(chunkID(read.queue(jID, clear=TRUE)))
 	} } else {
 		cat("taking the value\n")
-		val(read.queue(ref, clear=TRUE))
+		val(read.queue(jID, clear=TRUE))
 	}
-	x
+	dc	
 }
 
 format.distChunk <- function(x, ...) {
-	obj <- chunkDo(identity, x, assign=FALSE)
-	format(obj)
+	c <- chunkDo(identity, x, assign=FALSE)
+	format(c)
 }

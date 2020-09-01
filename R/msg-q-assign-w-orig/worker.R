@@ -9,25 +9,25 @@ distChunk1 <- seq(10)
 QUEUE <- "distChunk1"
 
 main <- function() {
-	while (TRUE) {
+	repeat {
 		m <- read.queue(QUEUE)
 		switch(op(m),
-		       "ASSIGN" = {id <- chunkDo(fun(m), chunk(m))
-			           send(chunkID = id, to = infoRef(m))},
-		       "DOFUN" = send(val = chunkDo(fun(m), chunk(m), 
-						       assign=FALSE),
-					 to = infoRef(m)))
+		       "ASSIGN" = {cID <- chunkDo(fun(m), chunk(m))
+			           send(CHUNK_ID = cID, to = jobID(m))},
+		       "DOFUN" = send(VAL = chunkDo(fun(m), chunk(m), 
+						    assign=FALSE),
+				      to = jobID(m)))
 	}
 }
 
 chunkDo.default <- function(what, x, assign=TRUE) {
 	if (assign) {
-		id <- chunkID()
+		cID <- chunkID()
 		val <- chunkDo(what, x, assign=FALSE)
-		cat("Assigning value", format(val), "to identifier", format(id), "\n")
-		assign(id, val, envir = .GlobalEnv)
-		assign("QUEUE", c(QUEUE, id), envir = .GlobalEnv)
-		return(id)
+		cat("Assigning value", format(val), "to identifier", format(cID), "\n")
+		assign(cID, val, envir = .GlobalEnv)
+		assign("QUEUE", c(QUEUE, cID), envir = .GlobalEnv)
+		return(cID)
 	} else do.call(what, list(x))
 }
 
