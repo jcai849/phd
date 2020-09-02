@@ -18,7 +18,7 @@ chunkID.distChunk <- function(x, ...) {
 do.call.distChunk <- function(what, chunkArg, distArgs=NULL, staticArgs=NULL, 
 			      assign=TRUE, wait=FALSE) {
 	jID <- jobID()
-	cat("Request to perform function", format(what), "on distChunk",
+	cat("Requesting to perform function", format(what), "on chunk",
 	    chunkID(chunkArg), "with", 
 	    if (assign) "assignment" else "no assignment", "\n")
 	send(OP = if (assign) "ASSIGN" else "DOFUN", FUN = what, 

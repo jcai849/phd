@@ -1,4 +1,31 @@
 . further-msg-q-experiments.tex
+. refactor last experiment:
+.. rename and re-logic chunkDo to do.call.chunk etc., as in sheet; don't finish
+   up into distObj territory
+.. test
+.. Redis initialisation
+.. test
+.. format.msg
+.. test
+.. Relocate functions by category
+.. test
+. Update glossary re: distChunk/chunk, jobID, chunkID, the name of a name (ref. carroll)
+.. Create dependency graph of functions
+.. diagram of chunk object and it's transformation; diagram of message
+.. handling of errors
+. Redo diagram in chunk assign section, include modal logic in interpretation
+  (cf. Lamport 1994 Temporal Logic of Action)
+. Wrap up further-msg-q-experiments.tex and rename to be more chunk-specific
+.. change subsections to sections
+.. clarify table
+.. conclusion
+. Put on hdp as package, ready for demonstration
+. New doc for distributed objects
+.. outline
+.. diagram of action
+.. distributed object defined by totally ordered set of chunks; relaxation of
+total ordering leads to interesting new random distributed object, which may be
+faster due to less alignment.
 . benchmarks
 . Assumptions:
 .. topology; fully connected? consequences?

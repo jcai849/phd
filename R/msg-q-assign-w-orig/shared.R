@@ -1,5 +1,3 @@
-library(rediscc)
-
 # Generics and setters
 
 distChunk <- function(x, ...) {
@@ -13,7 +11,7 @@ distChunk <- function(x, ...) {
 
 chunkID <- function(x, ...) {
 	if (missing(x)) {
-		cID <- as.character(redis.inc(RSC, "CHUNK_ID"))
+		cID <- paste0("C", rediscc::redis.inc(conn(), "CHUNK_ID"))
 		class(cID) <- "chunkID"
 		return(cID)
 	}
@@ -27,7 +25,7 @@ chunkID <- function(x, ...) {
 
 jobID <- function(x, ...) {
 	if (missing(x)) {
-		jID <- as.character(redis.inc(RSC, "JOB_ID"))
+		jID <- paste0("J", rediscc::redis.inc(conn(), "JOB_ID"))
 		class(jID) <- "jobID"
 		return(jID)
 	}
@@ -60,3 +58,23 @@ distChunk.chunkID <- function(x, ...) {
 	chunkID(dc) <- x
 	dc
 }
+
+# Initialisation
+
+init <- local({
+	rsc <- NULL
+
+	distInit <- function(queueHost="localhost", queuePort=6379L, ...) {
+		# Place for starting up worker nodes
+		rsc <<- rediscc::redis.connect(queueHost, queuePort)
+	}
+
+	conn <- function() {
+		if (is.null(rsc)) 
+			stop("Redis connection not found. Use `distInit` to initialise.")
+		rsc
+	}
+})
+
+distInit <- get("distInit", environment(init))
+conn <- get("conn", environment(init))

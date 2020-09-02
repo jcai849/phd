@@ -4,7 +4,7 @@ source("shared.R")
 source("messages.R")
 source("chunk.R")
 
-RSC <- redis.connect(host="localhost", port=6379L)
+distInit()
 distChunk1 <- seq(10)
 QUEUE <- "distChunk1"
 

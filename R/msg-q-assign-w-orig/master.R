@@ -4,8 +4,9 @@ source("shared.R")
 source("messages.R")
 source("chunk.R")
 
-RSC <- redis.connect(host="localhost", port=6379L)
-redis.rm(RSC, c("distChunk1", as.character(1:10), "JOB_ID", "CHUNK_ID"))
+distInit()
+rediscc::redis.rm(conn(), c("distChunk1", paste0("C", 1:10), paste0("J", 1:10), 
+		"JOB_ID", "CHUNK_ID"))
 distChunk1 <- structure(new.env(), class = "distChunk")
 chunkID(distChunk1) <- "distChunk1"
 
