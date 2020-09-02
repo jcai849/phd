@@ -81,18 +81,16 @@ as a sufficient backend for data movement.
 In reality, until that tool is developed, data will be sent through redis; not
 a solution, but something that can be ignored without loss of generality.
 
-The actual creation of a chunk name in itself demands a system-wide unique
+The actual creation of a chunk ID in itself demands a system-wide unique
 identifier; this is a solved problem with a central message server, in redis
 providing an \texttt{INCR} operation, which can be used to generate a new chunk
 ID that is globally unique.
 
-The name origination and capacity for blocking will dictate different
-algorithms in the creation of the chunk object, as well as the structure of the
-chunk object.
+The name origination and option of blocking until a chunk is formed will
+dictate different algorithms in the creation of the distributed chunk object,
+as well as the structure of the distributed chunk object.
 Table \ref{tab:name-orig-block} shows potential forms these may take.
-Note that non-blocking abstracts blocking, with blocking being an additional
-option to an initialisation process set up for non-blocking.
-In addition, the ``common information repository'' referred to in the table may
+In addition, the ``job ID'' referred to in the table may
 take the concrete form of a simple key-value store, with the key being passed
 and monitored by the requester node.
 
@@ -100,27 +98,28 @@ and monitored by the requester node.
 	\centering
 	\begin{tabularx}{\textwidth}{l|XX}
 	\toprule
-	& Requester-Originated Name & Worker-Originated Name \\
+	& Requester-Originated chunk ID & Worker-Originated chunk ID \\
 	\midrule
 	Blocking Algorithm & 
-		Requester attains chunk name, sends operation request with
-		chunk name to worker, creating chunk reference concurrently,
+		Requester attains chunk ID, sends operation request with
+		chunk ID to worker, creating chunk reference concurrently,
 		blocking until direct signal of completion from worker. & 
 		Requester sends operation request with reference to some common
-		information repository to worker. Worker attains name, performs
-		operation, and sends chunk name to common information
-		repository, which requester watches, releasing chunk object
-		after attaining chunk name from repository. \\
+		information repository and the job ID to worker. Worker attains
+		chunk ID, performs operation, and sends chunk chunk ID to the
+		job ID at the common information repository, which requester
+		watches, releasing chunk object after attaining chunk ID from
+		repository. \\
 	Blocking Structure & 
 		String name of chunk. & 
 		String name of chunk. \\
 	Non-Blocking Algorithm & 
-		Requester attains chunk name, sends operation request with
-		chunk name to worker, creating chunk reference concurrently. No
+		Requester attains chunk ID, sends operation request with
+		chunk ID to worker, creating chunk reference concurrently. No
 		waiting for worker signal of completion. & 
 		Requester sends operation request with reference to some common
-		information repository to worker. Worker attains name, performs
-		operation, and sends chunk name to common information
+		information repository and the job ID to worker. Worker attains chunk ID, performs
+		operation, and sends chunk ID to the job ID at common information
 		repository. Before worker completion, requester releases chunk
 		object, not waiting for reception of chunk information. \\
 	Non-Blocking Structure & 
@@ -132,23 +131,23 @@ and monitored by the requester node.
 \end{tabularx}
 	\caption{Description of Algorithms and Data Structure of chunk
 	reference object, by blocking status in creation, and origination of
-	name.}
+	chunk ID.}
 	\label{tab:name-orig-block}
 \end{table}
 
 While it is clearly more straightforward for a requester node to originate a
-name, with blocking, the opposite will be the most flexible; worker-originated
-name with no blocking.
+chunk ID, with blocking, the opposite will be the most flexible; worker-originated
+chunk ID with no blocking.
 This is because the very existence of a chunk is presupposed when a requester
-node originates a name, while that may not be true in reality.
+node originates a chunk ID, while that may not be true in reality.
 For instance, the result may be an unexpected \texttt{NULL}, zero-length
 vector, or even an error.
-In addition, the worker-originated name with no blocking has every feature
+In addition, the worker-originated chunk ID with no blocking has every feature
 common to that of a future, from the future package; it can be checked for
 completion, and accessed as a value, allowing for many asynchronous and
 parallel operations.
 
-\subsubsection{Requester-Originated Name}
+\subsubsection{Requester-Originated Chunk ID}
 
 The logic of the master in assigning the result of a distributed operation on a
 chunk is largely encapsulated in a new function, \texttt{assignFunAt}, as
@@ -172,7 +171,7 @@ addition of assigning the value to the ID as passed in the message, adding
 the ID to the array of queues to monitor, and potentially sending
 acknowledgement back to the requester node.
 
-\subsubsection{Worker-Originated Name}
+\subsubsection{Worker-Originated chunk ID}
 
 By this point the master (listing \ref{src:wo-ass-master}) and worker (listing
 \ref{src:wo-ass-worker}) come to increasingly resemble each other, and most of
@@ -183,16 +182,16 @@ The principal mechanism of action is best demonstrated via a logical time
 diagram, given by figure \ref{fig:w-o-td}, following a Lamport form of
 event ordering\cite{lamport1978ordering}.
 The first message, shown by the \textbf{a} arrow in the diagram, involves a
-master sending a message to a worker regarding the request, including the name
-of a shared information reference for the worker to later place the chunk ID
-into.
+master sending a message to a worker regarding the request, including the job
+ID naming a queue in a shared information reference for the worker to later
+place the chunk ID into.
 
 Optionally, the master can immediately create a chunk object with no direct
-knowledge of the chunk ID, holding the name of the information reference
+knowledge of the chunk ID, holding the job ID at the information reference
 instead, and the master continues whatever work it was doing.
 Only when the chunk ID is required, the chunk object, triggers a blocking pop
 on it's associated information reference queue, which the worker may
-at any point push the chunk name to.
+at any point push the chunk ID to.
 The chunk object then has the associate the ID associated with it, and the
 information reference queue can be deleted.
 
@@ -227,15 +226,14 @@ information reference queue can be deleted.
 			\item [f] Chunk ID message popped from information
 				reference queue
 			\item [\textcolor{red}{x}] Creation of chunk object
-				containing name of information reference, but
-				no chunk ID, followed by any operations not
-				requiring chunk ID
+				containing job ID, but no chunk ID, followed by
+				any operations not requiring chunk ID
 			\item [\textcolor{red}{y}] Perform operation specified
 				by message in \textbf{e}, with assignment
 		\end{description}
 	\end{minipage}
 	\caption{\label{fig:w-o-td}Logical time diagram of chunk assignment for
-	worker-originated name}
+	worker-originated chunk ID}
 \end{figure}
 
 \section{Conclusion}
