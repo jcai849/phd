@@ -72,7 +72,7 @@
 	description={A live process running an implementation of the
 	programming language R. In comparison with \textbf{R Session}, a
 	greater emphasis is placed on the process from the perspective of the
-	operating system.}
+	operating system}
 }
 
 \newglossaryentry{rsession}
@@ -80,29 +80,43 @@
 	name={R Session},
 	description={An interactive run with an R process. In comparison with
 	\textbf{R Process}, a greater emphasis is placed on the session from
-	the user perspective.}
+	the user perspective}
 }
 
 \newglossaryentry{master}
 {
 	name={Master},
 	description={The controlling process over other running processes. In a
-	distributed system, typically the initiator process.}
+	distributed system, typically the initiator process}
 }
 
 \newglossaryentry{initiator}
 {
 	name={Initiator},
 	description={The node that initialises and serves to boot the
-	distributed system.}
+	distributed system}
 }
 
+\newglossaryentry{requester}
+{
+	name={Requester},
+	description={A node that sends a message requesting some action of
+	another node.Not a fixed role, and can change based on a state
+	description}
+}
 
 \newglossaryentry{worker}
 {
 	name={Worker},
 	description={A process under direction of the master
-	process.}
+	process}
+}
+
+\newglossaryentry{responder}
+{
+	name={Responder},
+	description={A node that responds to a message from some responder
+	node. Not a fixed role, and can change based on a state description}
 }
 
 \newglossaryentry{node}
@@ -116,43 +130,73 @@
 {
 	name={Connection},
 	description={A communication channel from one computer to another as
-	part of a network. RServe also makes use of \textit{connection} in an
-	``RServe connection'', which refers to the handle.}
+	part of a network}
 }
 
 \newglossaryentry{chunk}
 {
 	name={Chunk},
-	description={A distinct component piece of a larger object, located
-	separately to other chunks.}
+	description={A distinct component piece of a larger object, possibly
+	located at a separate node to other chunks belonging to the object}
+}
+
+\newglossaryentry{chunkid}
+{
+	name={Chunk ID},
+	description={A unique reference for some particular chunk, serving as
+	the name of the chunk's associated queue}
+}
+
+\newglossaryentry{distchunk}
+{
+	name={Distributed Chunk},
+	description={A reference to a chunk, the chunk possibly existing on a
+	separate node}
+}
+
+\newglossaryentry{jobid}
+{
+	name={Job ID},
+	description={A unique reference for a particular request, serving as
+	the name of a queue for any response}
 }
 
 \newglossaryentry{object}
 {
 	name={Object},
-	description={A particular instance of a class.}
+	description={A particular instance of a class}
 }
 
 \newglossaryentry{distobj}
 {
 	name={Distributed Object},
-	description={An object that is dispersed across separate processes and
-	possibly separate computers.}
+	description={1. Conceptually, an object that is composed of a totally
+	ordered set of chunks dispersed across separate nodes. 2. Tangibly, a
+	reference to all of the chunks of the object, symbolising the object
+	and encapsulating the necessary information with which to access the
+	conceptual distributed object}
 }
 
 \newglossaryentry{host}
 {
 	name={Host},
 	description={A singular machine in a network, which may hold multiple
-	communication nodes.}
+	communication nodes}
+}
+
+\newglossaryentry{logicaltime}
+{
+	name={Logical Time},
+	description={A partial ordering of events in time based on the
+	knowledge of which events necessarily happen before others}
 }
 
 \newglossaryentry{distobjsys}
 {
-	name={\texttt{distobj} System},
+	name={\texttt{distObj} System},
 	description={The platform being developed herein to enable large scale
 	statistical modelling through the creation of a distributed system in
-	R.}
+	R}
 }
 
 \newglossaryentry{clusttable}
@@ -160,7 +204,7 @@
 	name={Cluster Table},
 	description={A central table storing mappings between nodes, chunks,
 	distributed object references, with lower level details such as handles
-	on connections to the nodes, along with additional metadata.}
+	on connections to the nodes, along with additional metadata}
 }
 
 \newglossaryentry{id}
@@ -168,16 +212,7 @@
 	name={ID},
 	description={A unique integer used in the distobj system to uniquely
 	identify nodes, chunks, and distributed object references within the
-	system.}
-}
-
-\newglossaryentry{distobjref}
-{
-	name={Distributed Object Reference},
-	description={An object encapsulating the necessary information with
-	which to access a distributed object. Tangibly symbolises a distributed
-	object, which in turn refers to, and is composed by, it's referent
-	chunks}
+	system}
 }
 
 % Commands
