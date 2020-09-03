@@ -1,21 +1,27 @@
-. Wrap up further-msg-q-experiments.tex and rename to be more chunk-specific
-.. conclusion
-.. rename
-. Make package
+. New doc; further consideration on name origination
+.. fill in attributes of the diagrams
+. Refactor package
+.. allow chunk-client.R to be stepped through (unwrap from main())
 .. test
 .. put functions in proper places (master->requester;worker->responder)
 .. test
-.. Put on hdp as package, ready for demonstration
+.. put all chunks in a single environment, with QUEUE being the ls of it, in a
+   similar form to redis init
+.. Create generics for everything
 .. test
-. New doc; further consideration on name origination
-.. from sheets
-.. Redo diagram in chunk assign section, include modal logic in interpretation
-   (cf. Lamport 1994 Temporal Logic of Action)
+.. change style to requester-originated id as per sheets
+.. test
+.. rename distChunk -> chunkRef (include change in glossary)
+.. test
+.. include CHUNK_PREVIEW as part of chunk
+.. test
+.. fill out NAMESPACE and rearrange
+.. test
 . New doc for distributed objects
 .. outline
+.. make use of client/server terminology
 .. handling of errors section
 .. "what we're starting with"
-.. change style to requester-originated id as per sheets
 .. diagram of chunk object and it's transformation; diagram of message
 .. distributed object defined by totally ordered set of chunks; relaxation of
    total ordering leads to interesting new random distributed object, which may
@@ -42,7 +48,7 @@
 . Literature Review:
 .. Distributed Systems in General;
    <https://web.stanford.edu/~ouster/cgi-bin/quals.php> looks useful
-   CS711 links
+   CS711 links; look through 711 notes
 .. Distributed Systems in other languages
 .. Distributed Objects (CORBA etc.)
 .. Last few R packages

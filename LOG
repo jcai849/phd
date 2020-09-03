@@ -1,3 +1,6 @@
+2020-09-03	22:49:14	diagramming for chunk-id-orig
+2020-09-03	14:33:07	complete doc on chunk msg queues; rename to init-chunk-msg-q-exp
+2020-09-03	12:54:36	created package, placed on server
 2020-09-02	19:58:13	diagramming of time logic
 2020-09-02	14:57:15	updates to glossary
 2020-09-02	12:48:04	added redis initialisation functions
