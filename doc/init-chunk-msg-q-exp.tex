@@ -3,7 +3,7 @@
 \usepackage{doc/header}
 
 \begin{document}
-\title{Further Experimentation with a Message Queue Communication System}
+\title{Initial Chunk Experimentation with a Message Queue Communication System}
 \author{Jason Cairns}
 \year=2020 \month=8 \day=19
 \maketitle{}
@@ -34,14 +34,14 @@ the node hosting a particular chunk.
 
 Regardless of performing the actual function, some means of returning the value
 of a function must be provided; this section focuses on getting a function to
-be performed on a worker node, with the result send back to the requester.
+be performed on a server node, with the result send back to the client.
 Listings of an implementation of these concepts are given by listings
-\ref{src:vr-master} and \ref{src:vr-worker}.
+\ref{src:vr-client} and \ref{src:vr-server}.
 
-To this end, the requesting node has a function defined as \texttt{doFunAt(fun,
-chunk)}, which takes in any function, and the name of a chunk to perform the
+To this end, the client node has a function defined as \texttt{doFunAt(fun,
+chunk)}, which takes in any function, and the ID of a chunk to perform the
 function on.
-An implementation is given by listing \ref{src:vr-master}.
+An implementation is given by listing \ref{src:vr-client}.
 \texttt{doFunAt} first composes a message to send to the chunk's queue, being a
 list consisting of the function, the chunk name, and a return address, which
 contains sufficient information for the node performing the operation on the
@@ -49,17 +49,17 @@ chunk to send the results back to via socket connection.
 The message is then serialised and pushed to the chunk's queue, and the
 requesting node sits listening on the socket that it has set up and advertised.
 
-On the chunk-containing-node end, it sits waiting on it's preassigned queues,
-each of which correspond to a chunk that it holds. Upon a message coming
-through, it runs a \texttt{doFun} function on the message, which in turn runs
-the function on the chunk named in the message. 
-An implementation is given by listing \ref{src:vr-worker}.
-It then creates a socket connected to the requesters location as advertised in
+On the server node end, it sits waiting on it's preassigned queues, each of
+which correspond to a chunk that it holds. 
+Upon a message coming through, it runs a \texttt{doFun} function on the
+message, which in turn runs the function on the chunk named in the message. 
+An implementation is given by listing \ref{src:vr-server}.
+It then creates a socket connected to the clients location as advertised in
 the message, and sends the serialised results through.
 
 A problem with this approach is the fickle aspect of creating and removing
 sockets for every request; beyond the probability of missed connections and
-high downtime due to requester waiting on a response, R only has a very limited
+high downtime due to client waiting on a response, R only has a very limited
 number of connections available to it, so it is impossible to scale beyond that
 limit.
 
@@ -71,8 +71,8 @@ This will involve specifying additional directions as part of the request
 message, in order to specify that assignment, and not merely the operation, is
 desired.
 
-It will be clear from the previous example that the problem of inter-node data
-movement, somewhat solved via direct sockets in that previous example, is
+It will be clear from the previous example that the problem of point-to-point
+data movement, somewhat solved via direct sockets in that previous example, is
 largely an implementation issue, and a problem entirely distinct to the
 remainder of the logic of the system.
 From this experiment onwards, the mechanism of data movement is abstracted out,
@@ -92,35 +92,35 @@ as well as the structure of the distributed chunk object.
 Table \ref{tab:name-orig-block} shows potential forms these may take.
 In addition, the ``job ID'' referred to in the table may
 take the concrete form of a simple key-value store, with the key being passed
-and monitored by the requester node.
+and monitored by the client node.
 
 \begin{table}
 	\centering
 	\begin{tabularx}{\textwidth}{l|XX}
 	\toprule
-	& Requester-Originated chunk ID & Worker-Originated chunk ID \\
+	& Client-Originated chunk ID & Server-Originated chunk ID \\
 	\midrule
 	Blocking Algorithm & 
-		Requester attains chunk ID, sends operation request with
-		chunk ID to worker, creating chunk reference concurrently,
-		blocking until direct signal of completion from worker. & 
-		Requester sends operation request with reference to some common
-		information repository and the job ID to worker. Worker attains
+		client attains chunk ID, sends operation request with
+		chunk ID to server, creating chunk reference concurrently,
+		blocking until direct signal of completion from server. & 
+		client sends operation request with reference to some common
+		information repository and the job ID to server. server attains
 		chunk ID, performs operation, and sends chunk chunk ID to the
-		job ID at the common information repository, which requester
+		job ID at the common information repository, which client
 		watches, releasing chunk object after attaining chunk ID from
 		repository. \\
 	Blocking Structure & 
 		String name of chunk. & 
 		String name of chunk. \\
 	Non-Blocking Algorithm & 
-		Requester attains chunk ID, sends operation request with
-		chunk ID to worker, creating chunk reference concurrently. No
-		waiting for worker signal of completion. & 
-		Requester sends operation request with reference to some common
-		information repository and the job ID to worker. Worker attains chunk ID, performs
+		client attains chunk ID, sends operation request with
+		chunk ID to server, creating chunk reference concurrently. No
+		waiting for server signal of completion. & 
+		client sends operation request with reference to some common
+		information repository and the job ID to server. server attains chunk ID, performs
 		operation, and sends chunk ID to the job ID at common information
-		repository. Before worker completion, requester releases chunk
+		repository. Before server completion, client releases chunk
 		object, not waiting for reception of chunk information. \\
 	Non-Blocking Structure & 
 		String name of chunk &
@@ -135,23 +135,23 @@ and monitored by the requester node.
 	\label{tab:name-orig-block}
 \end{table}
 
-While it is clearly more straightforward for a requester node to originate a
-chunk ID, with blocking, the opposite will be the most flexible; worker-originated
-chunk ID with no blocking.
-This is because the very existence of a chunk is presupposed when a requester
+While it is clearly more straightforward for a client node to originate a chunk
+ID, with blocking, the opposite will possibly be the most flexible;
+server-originated chunk ID with no blocking.
+This is because the very existence of a chunk is presupposed when a client
 node originates a chunk ID, while that may not be true in reality.
 For instance, the result may be an unexpected \texttt{NULL}, zero-length
 vector, or even an error.
-In addition, the worker-originated chunk ID with no blocking has every feature
+In addition, the server-originated chunk ID with no blocking has every feature
 common to that of a future, from the future package; it can be checked for
 completion, and accessed as a value, allowing for many asynchronous and
 parallel operations.
 
-\subsubsection{Requester-Originated Chunk ID}
+\subsubsection{Client-Originated Chunk ID}
 
-The logic of the master in assigning the result of a distributed operation on a
+The logic of the client in assigning the result of a distributed operation on a
 chunk is largely encapsulated in a new function, \texttt{assignFunAt}, as
-demonstrated in listing \ref{src:ro-ass-master}.
+demonstrated in listing \ref{src:ro-ass-client}.
 The function attains a chunk ID, generates a unique return address, sends a
 message to the operand chunk queue, and waits for a reply, before returning the
 id as a string belonging to the ``chunk'' class.
@@ -160,21 +160,21 @@ message of section \ref{sec:val-ret}; the chunk ID, request for acknowledgement
 of completion, return address, as well as an operation specifier to direct the
 intent of the message.
 
-The worker, as shown in listing \ref{src:ro-ass-worker}, consists in a loop of
+The server, as shown in listing \ref{src:ro-ass-server}, consists in a loop of
 reading the message and performing an operation dependent on the operation
 specifier of the message.
 For an operation of \texttt{DOFUN}, all that is run is a \texttt{do.call} on
 the function and chunk specified, with a message being returned to the
-requester with the value of the \texttt{do.call}.
+client with the value of the \texttt{do.call}.
 An operation of \texttt{ASSIGN} runs the same as \texttt{DOFUN}, with the
 addition of assigning the value to the ID as passed in the message, adding
 the ID to the array of queues to monitor, and potentially sending
-acknowledgement back to the requester node.
+acknowledgement back to the client node.
 
-\subsubsection{Worker-Originated chunk ID}
+\subsubsection{Server-Originated chunk ID}
 
-By this point the master (listing \ref{src:wo-ass-master}) and worker (listing
-\ref{src:wo-ass-worker}) come to increasingly resemble each other, and most of
+By this point the client (listing \ref{src:wo-ass-client}) and server (listing
+\ref{src:wo-ass-server}) come to increasingly resemble each other, and most of
 the functions are shared, as in listings \ref{src:wo-ass-chunk},
 \ref{src:wo-ass-shared}, and \ref{src:wo-ass-messages}.
 
@@ -182,15 +182,15 @@ The principal mechanism of action is best demonstrated via a logical time
 diagram, given by figure \ref{fig:w-o-td}, following a Lamport form of
 event ordering\cite{lamport1978ordering}.
 The first message, shown by the \textbf{a} arrow in the diagram, involves a
-master sending a message to a worker regarding the request, including the job
-ID naming a queue in a shared information reference for the worker to later
+client sending a message to a server regarding the request, including the job
+ID naming a queue in a shared information reference for the server to later
 place the chunk ID into.
 
-Optionally, the master can immediately create a chunk object with no direct
+Optionally, the client can immediately create a chunk object with no direct
 knowledge of the chunk ID, holding the job ID at the information reference
-instead, and the master continues whatever work it was doing.
+instead, and the client continues whatever work it was doing.
 Only when the chunk ID is required, the chunk object, triggers a blocking pop
-on it's associated information reference queue, which the worker may
+on it's associated information reference queue, which the server may
 at any point push the chunk ID to.
 The chunk object then has the associate the ID associated with it, and the
 information reference queue can be deleted.
@@ -198,9 +198,9 @@ information reference queue can be deleted.
 \begin{figure}
 	\begin{minipage}{0.4\textwidth}
 		\begin{tikzpicture}
-			\draw[-{>[scale=2]}] (0,8) -- (0,0) node[at start, anchor=south] {M};
+			\draw[-{>[scale=2]}] (0,8) -- (0,0) node[at start, anchor=south] {C};
 			\draw[-{>[scale=2]}] (2,8) -- (2,0) node[at start, anchor=south] {Q};
-			\draw[-{>[scale=2]}] (4,8) -- (4,0) node[at start, anchor=south] {W};
+			\draw[-{>[scale=2]}] (4,8) -- (4,0) node[at start, anchor=south] {S};
 
 			\draw[red] (0,7.5) -- (0,3) node[midway, anchor=east] {x};
 			\draw[red] (4,5) -- (4,4.5) node[midway, anchor=west] {y};
@@ -233,53 +233,51 @@ information reference queue can be deleted.
 		\end{description}
 	\end{minipage}
 	\caption{\label{fig:w-o-td}Logical time diagram of chunk assignment for
-	worker-originated chunk ID}
+	server-originated chunk ID}
 \end{figure}
-
-\section{Conclusion}
 
 \printbibliography
 
 \lstinputlisting[language=R, float,
-	caption={Value return to request for Master Node, from original source at \lstname},
-	label=src:vr-master]{../R/val-return-msg-q-master.R}
+	caption={Value return to request for client Node, from original source at \lstname},
+	label=src:vr-client]{../R/val-return-msg-q-master.R}
 
 \lstinputlisting[language=R, float,
-	caption={Value return to request for Worker Node, from original source at \lstname},
-	label=src:vr-worker]{../R/val-return-msg-q-worker.R}
+	caption={Value return to request for server Node, from original source at \lstname},
+	label=src:vr-server]{../R/val-return-msg-q-worker.R}
 
 \lstinputlisting[language=R, float,
-	caption={Demonstration of assignment in Master Node, with
-	Requester-Originated chunk name, from original source at \lstname},
-	label=src:ro-ass-master]{../R/msg-q-assign-m-orig/master.R}
+	caption={Demonstration of assignment in client Node, with
+	client-Originated chunk name, from original source at \lstname},
+	label=src:ro-ass-client]{../R/msg-q-assign-m-orig/master.R}
 
 \lstinputlisting[language=R, float,
-	caption={Demonstration of assignment in Worker Node, with
-	Requester-Originated chunk name, from original source at \lstname},
-	label=src:ro-ass-worker]{../R/msg-q-assign-m-orig/worker.R}
+	caption={Demonstration of assignment in server Node, with
+	client-Originated chunk name, from original source at \lstname},
+	label=src:ro-ass-server]{../R/msg-q-assign-m-orig/worker.R}
 
 \lstinputlisting[language=R, float,
-	caption={Demonstration of assignment in Master Node, with
-	Worker-Originated chunk name, from original source at \lstname},
-	label=src:wo-ass-master]{../R/msg-q-assign-w-orig/master.R}
+	caption={Demonstration of assignment in client Node, with
+	server-Originated chunk name, from original source at \lstname},
+	label=src:wo-ass-client]{../R/msg-q-assign-w-orig/master.R}
 
 \lstinputlisting[language=R, float,
-	caption={Demonstration of assignment in Worker Node, with
-	Worker-Originated chunk name, from original source at \lstname},
-	label=src:wo-ass-worker]{../R/msg-q-assign-w-orig/worker.R}
+	caption={Demonstration of assignment in server Node, with
+	server-Originated chunk name, from original source at \lstname},
+	label=src:wo-ass-server]{../R/msg-q-assign-w-orig/worker.R}
 
 \lstinputlisting[language=R, float,
-	caption={Chunk functions of Master and Worker in Worker-Originated
+	caption={Chunk functions of client and server in server-Originated
 	chunk names for assignment \lstname},
 	label=src:wo-ass-chunk]{../R/msg-q-assign-w-orig/chunk.R}
 
 \lstinputlisting[language=R, float,
-	caption={Shared functions of Master and Worker in Worker-Originated
+	caption={Shared functions of client and server in server-Originated
 	chunk names for assignment \lstname},
 	label=src:wo-ass-shared]{../R/msg-q-assign-w-orig/shared.R}
 
 \lstinputlisting[language=R, float,
-	caption={Message functions of Master and Worker in Worker-Originated
+	caption={Message functions of client and server in server-Originated
 	chunk names for assignment \lstname},
 	label=src:wo-ass-messages]{../R/msg-q-assign-w-orig/messages.R}
 
