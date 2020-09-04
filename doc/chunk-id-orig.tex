@@ -26,29 +26,33 @@ intermediated by a queue server.
 The client runs the pseudo-program described in listing \ref{src:client-p},
 where variables \texttt{x}, \texttt{y}, and \texttt{z} are chunk references,
 and variables \texttt{i} and \texttt{j} are local. 
-Every action on distributed chunk references entails a message to the queue
-named by the associated chunk ID, requesting the relevant action to be
+Every action on distributed chunk references entails pushing a  message to the
+queue named by the associated chunk ID, requesting the relevant action to be
 performed.
 
 \begin{lstlisting}[language=R, float, 
 caption={Modelled Client Program}, label=src:client-p]
 	y <- f(x)	# dist, no wait
-	f(i)		# local
+	f(i)			# local
 	z <- f(y)	# dist, no wait
-	f(j)		# local
-	f(z)		# dist, wait
+	f(j)			# local
+	f(z)			# dist, wait
 \end{lstlisting}
 
-The server follows a loop of waiting on queues relevant to the chunks that it
-stores and performing requests from the messages, through taking the function
-relayed in the message and performing it on the local object identified by the
-chunk ID given by the queue name the message was popped from.
+The server follows a loop of listening on queues relevant to the chunks that it
+stores and performing requests from the messages popped in order from them,
+through taking the function relayed in the message and performing it on the
+local object identified by the chunk ID given by the queue name the message was
+popped from.
 Without loss of generality, the function \texttt{f} is considered to take
 constant time on local objects, and messages likewise have constant latency;
 the ratio of latency to operation time is irrelevent to what is demonstrated in
 these models.
 Assignment, message listening, and message switching by the queue are
 considered to be instantaneous events.
+The models are depicted as space-time diagrams, with modifications to the
+original styling\cite{lamport1978ordering}, including colour coding, where the
+colours aim to make each job more distinct.
 
 \subsection{Client-Originated Chunk ID}
 
@@ -61,12 +65,13 @@ queue to be monitored by the client.
 If the server receives a job ID, it sends the value of the computed function to
 the queue with that job ID as it's key, sending no messages otherwise.
 
-A Space-Time Diagram\cite{lamport1978ordering} of the client-originated chunk
-ID model is given in figure \ref{fig:mci}.
+A space-time diagram of the client-originated chunk ID model is given in figure
+\ref{fig:mci}.
 
 \begin{figure}
 	\begin{minipage}{0.6\textwidth}
 	\begin{tikzpicture}
+		% nodes
 		\draw[very thin, -{>[scale=2]}] (0,10) -- (0,0) 
 			node[at start, anchor=south] {C};
 		\draw[very thin, -{>[scale=2]}] (2,10) -- (2,0) 
@@ -74,68 +79,77 @@ ID model is given in figure \ref{fig:mci}.
 		\draw[very thin, -{>[scale=2]}] (4,10) -- (4,0) 
 			node[at start, anchor=south] {S};
 
+		% listeners
+		\draw[color=gray62] (4,9.5) -- (2,9.5) 
+			node[midway, anchor=south] {b};
+		\draw[color=dark2-5] (0,7.5) -- (2,7.5) 
+			node[midway, anchor=south] {e};
+		\draw[color=gray62] (4,7.5) -- (2,7.5) 
+			node[midway, anchor=south] {g};
+		\draw[color=gray62] (4,6) -- (2,6) 
+			node[midway, anchor=south] {i};
+		\draw[color=gray62] (4,4.5) -- (2,4.5) 
+			node[midway, anchor=south] {k};
+
+		% y <- f(x)
 		\draw[-{>[scale=2]}, dark2-1] (0, 9.5) -- (2,9) 
 			node[at start, anchor=east] {\texttt{y <- f(x)}}
 			node[midway, anchor=south] {a};
 		\draw[-{>[scale=2]}, dark2-1] (2, 9) -- (4,8.5)
-			node[midway, anchor=south] {b};
-		\draw[very thick, dark2-1] (4,8.5) -- (4,7.5) 
-			node[midway, anchor=west] {\texttt{f(C1)}};
-		\draw[-{>[scale=2]}, dark2-1] (4, 7.5) -- (2,7) 
 			node[midway, anchor=south] {c};
-		\draw[-{>[scale=2]}, dark2-1] (2, 7) -- (0, 6.5)
-			node[midway, anchor=south] {d};
+		\draw[very thick, dark2-1] (4,8.5) -- (4,7.5) 
+			node[midway, anchor=west] {\texttt{C2 <- f(C1)}};
 
-		\draw[very thick, dark2-2] (0, 9.5) -- (0, 8.5)
+		% f(i)
+		\draw[very thick, dark2-2] (0, 9.5) -- (0,8.5) 
 			node[midway, anchor=east] {\texttt{f(i)}};
 
-		\node[anchor=east, color=dark2-3] at (0,8.5) {\texttt{z <- f(y)}};
-		\draw[-{>[scale=2]}, dark2-3] (0, 6.5) -- (2,6) 
-			node[midway, anchor=south] {e};
-		\draw[-{>[scale=2]}, dark2-3] (2,6) -- (4,5.5)
-			node[midway, anchor=south] {f};
-		\draw[very thick, dark2-3] (4,5.5) -- (4,4.5) 
+		% z <- f(y)
+		\draw[-{>[scale=2]}, dark2-3] (0, 8.5) -- (2,8) 
+			node[at start, anchor=east] {\texttt{z <- f(y)}}
+			node[midway, anchor=south] {d};
+		\draw[-{>[scale=2]}, dark2-3] (2,7.5) -- (4,7)
+			node[midway, anchor=north] {h};
+		\draw[very thick, dark2-3] (4,7) -- (4,6) 
 			node[midway, anchor=west] {\texttt{f(C2)}};
-		\draw[-{>[scale=2]}, dark2-3] (4,4.5) -- (2,4) 
-			node[midway, anchor=south] {g};
-		\draw[-{>[scale=2]}, dark2-3] (2,4) -- (0,3.5)
-			node[midway, anchor=south] {h};
 
-		\draw[very thick, dark2-4] (0, 6.5) -- (0,5.5)
+		% f(j)
+		\draw[very thick, dark2-4] (0, 8.5) -- (0,7.5)
 			node[midway, anchor=east] {\texttt{f(j)}};
 			
-		\node[anchor=east, color=dark2-5] at (0,5.5) {\texttt{f(z)}};
-		\draw[-{>[scale=2]}, dark2-5] (0,3.5) -- (2, 3) 
-			node[midway, anchor=south] {i};
-		\draw[-{>[scale=2]}, dark2-5] (2,3) -- (4,2.5)
-			node[midway, anchor=south] {j};
-		\draw[very thick, dark2-5] (4,2.5) -- (4,1.5) 
+		% f(z)
+		\draw[-{>[scale=2]}, dark2-5] (0, 7.5) -- (2,7) 
+			node[at start, anchor=east] {\texttt{f(z)}}
+			node[midway, anchor=north] {f};
+		\draw[-{>[scale=2]}, dark2-5] (2,6) -- (4,5.5)
+			node[midway, anchor=north] {j};
+		\draw[very thick, dark2-5] (4,5.5) -- (4,4.5) 
 			node[midway, anchor=west] {\texttt{f(C3)}};
-		\draw[-{>[scale=2]}, dark2-5] (4,1.5) -- (2,1) 
-			node[midway, anchor=south] {k};
-		\draw[-{>[scale=2]}, dark2-5] (2, 1) -- (0,0.5)
-			node[midway, anchor=south] {l};
+		\draw[-{>[scale=2]}, dark2-5] (4,4.5) -- (2,4)
+			node[midway, anchor=north] {l};
+		\draw[-{>[scale=2]}, dark2-5] (2,4) -- (0,3.5)
+			node[midway, anchor=south] {m};
 	\end{tikzpicture}
 	\end{minipage}
 	\begin{minipage}{0.4\textwidth}
 		\begin{description}
-			\item [\textcolor{dark2-1}{a}]
-			\item [\textcolor{dark2-1}{b}] 
-			\item [\textcolor{dark2-1}{c}] 
-			\item [\textcolor{dark2-1}{d}] 
-			\item [\textcolor{dark2-3}{e}] 
-			\item [\textcolor{dark2-3}{f}] 
-			\item [\textcolor{dark2-3}{g}] 
-			\item [\textcolor{dark2-3}{h}] 
-			\item [\textcolor{dark2-5}{i}] 
-			\item [\textcolor{dark2-5}{j}] 
-			\item [\textcolor{dark2-5}{k}] 
-			\item [\textcolor{dark2-5}{l}] 
+			\item [\textcolor{dark2-1}{a}] Push \texttt{<f, chunkID=C2>} to queue \texttt{C1}
+			\item [\textcolor{gray62}{b}] Listen to queue \texttt{C1}
+			\item [\textcolor{dark2-1}{c}] Pop \texttt{<f, chunkID=C2>} from queue \texttt{C1}
+			\item [\textcolor{dark2-3}{d}] Push \texttt{<f, chunkID=C3>} to queue \texttt{C2}
+			\item [\textcolor{dark2-5}{e}] Listen to queue \texttt{C3}
+			\item [\textcolor{dark2-5}{f}] Push \texttt{<f, jobID=J1>} to queue \texttt{C3}
+			\item [\textcolor{gray62}{g}] Listen to queues \texttt{C1, C2}
+			\item [\textcolor{dark2-3}{h}] Pop \texttt{<f, chunkID=C3>} from queue \texttt{C2}
+			\item [\textcolor{gray62}{i}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{dark2-5}{j}] Pop \texttt{<f, jobID=J1>} from queue \texttt{C3}
+			\item [\textcolor{gray62}{k}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{dark2-5}{l}] Push \texttt{<val>} to queue \texttt{J1}
+			\item [\textcolor{dark2-5}{m}] Pop \texttt{<val>} from queue \texttt{J1}
 		\end{description}
 	\end{minipage}
 	\caption{\label{fig:mci} Space-Time Diagram of Client-Originated Chunk ID}
 \end{figure}
-
 
 \subsection{Server-Originated Chunk ID}
 
@@ -150,9 +164,11 @@ to perform assignment.
 
 A diagram of the server-originated chunk ID model is given in figure \ref{fig:msi}.
 
+\setlength{\columnsep}{50pt}
 \begin{figure}
-	\begin{minipage}{0.6\textwidth}
+	\centering
 	\begin{tikzpicture}
+		% nodes
 		\draw[very thin, -{>[scale=2]}] (0,10) -- (0,0) 
 			node[at start, anchor=south] {C};
 		\draw[very thin, -{>[scale=2]}] (2,10) -- (2,0) 
@@ -160,56 +176,98 @@ A diagram of the server-originated chunk ID model is given in figure \ref{fig:ms
 		\draw[very thin, -{>[scale=2]}] (4,10) -- (4,0) 
 			node[at start, anchor=south] {S};
 
+		% listeners
+		\draw[color=gray62] (4,9.5) -- (2,9.5) 
+			node[midway, anchor=south] {b};
+		\draw[color=dark2-3] (0,8.5) -- (2,8.5) 
+			node[midway, anchor=south] {d};
+		\draw[color=gray62] (4,7.5) -- (2,7.5) 
+			node[midway, anchor=south] {e};
+		\draw[color=dark2-5] (0,5.5) -- (2,5.5) 
+			node[midway, anchor=south] {j};
+		\draw[color=gray62] (4,4.5) -- (2,4.5) 
+			node[midway, anchor=south] {k};
+		\draw[color=gray62] (4,1.5) -- (2,1.5) 
+			node[midway, anchor=south] {p};
+
+		% y <- f(x)
 		\draw[-{>[scale=2]}, dark2-1] (0, 9.5) -- (2,9) 
 			node[at start, anchor=east] {\texttt{y <- f(x)}}
 			node[midway, anchor=south] {a};
 		\draw[-{>[scale=2]}, dark2-1] (2, 9) -- (4,8.5)
-			node[midway, anchor=south] {b};
+			node[midway, anchor=south] {c};
 		\draw[very thick, dark2-1] (4,8.5) -- (4,7.5) 
-			node[midway, anchor=west] {\texttt{f(C1)}};
+			node[midway, anchor=west] {\texttt{C2 <- f(C1)}};
+		\draw[-{>[scale=2]}, dark2-1] (4, 7.5) -- (2,7) 
+			node[midway, anchor=north] {f};
+		\draw[-{>[scale=2]}, dark2-1] (2, 7) -- (0, 6.5)
+			node[midway, anchor=south] {g};
 
-		\draw[very thick, dark2-2] (0, 9.5) -- (0,8.5) 
+		% f(i)
+		\draw[very thick, dark2-2] (0, 9.5) -- (0, 8.5)
 			node[midway, anchor=east] {\texttt{f(i)}};
 
-		\draw[-{>[scale=2]}, dark2-3] (0, 8.5) -- (2,8) 
-			node[at start, anchor=east] {\texttt{z <- f(y)}}
-			node[midway, anchor=south] {c};
-		\draw[-{>[scale=2]}, dark2-3] (2,7.5) -- (4,7)
-			node[midway, anchor=south] {e};
-		\draw[very thick, dark2-3] (4,7) -- (4,7) 
-			node[midway, anchor=west] {\texttt{f(C2)}};
+		% z <- f(y)
+		\node[anchor=east, color=dark2-3] at (0,8.5) {\texttt{z <- f(y)}};
+		\draw[-{>[scale=2]}, dark2-3] (0, 6.5) -- (2,6) 
+			node[midway, anchor=south] {h};
+		\draw[-{>[scale=2]}, dark2-3] (2,6) -- (4,5.5)
+			node[midway, anchor=south] {i};
+		\draw[very thick, dark2-3] (4,5.5) -- (4,4.5) 
+			node[midway, anchor=west] {\texttt{C3 <- f(C2)}};
+		\draw[-{>[scale=2]}, dark2-3] (4,4.5) -- (2,4) 
+			node[midway, anchor=north] {l};
+		\draw[-{>[scale=2]}, dark2-3] (2,4) -- (0,3.5)
+			node[midway, anchor=south] {m};
 
-		\draw[very thick, dark2-4] (0, 8.5) -- (0,7.5)
+		% f(j)
+		\draw[very thick, dark2-4] (0, 6.5) -- (0,5.5)
 			node[midway, anchor=east] {\texttt{f(j)}};
 			
-		\draw[-{>[scale=2]}, dark2-5] (0, 7.5) -- (2,7) 
-			node[at start, anchor=east] {\texttt{z <- f(y)}}
-			node[midway, anchor=south] {d};
-		\draw[-{>[scale=2]}, dark2-5] (2,6) -- (4,5.5)
-			node[midway, anchor=south] {f};
-		\draw[very thick, dark2-5] (4,5.5) -- (4,4.5) 
-			node[midway, anchor=west] {\texttt{f(C2)}};
-		\draw[-{>[scale=2]}, dark2-5] (4,4.5) -- (2,4)
-			node[midway, anchor=south] {g};
-		\draw[-{>[scale=2]}, dark2-5] (2,4) -- (0,3.5)
-			node[midway, anchor=south] {h};
+		% f(z)
+		\node[anchor=east, color=dark2-5] at (0,5.5) {\texttt{f(z)}};
+		\draw[-{>[scale=2]}, dark2-5] (0,3.5) -- (2, 3) 
+			node[midway, anchor=south] {n};
+		\draw[-{>[scale=2]}, dark2-5] (2,3) -- (4,2.5)
+			node[midway, anchor=south] {o};
+		\draw[very thick, dark2-5] (4,2.5) -- (4,1.5) 
+			node[midway, anchor=west] {\texttt{f(C3)}};
+		\draw[-{>[scale=2]}, dark2-5] (4,1.5) -- (2,1) 
+			node[midway, anchor=north] {q};
+		\draw[-{>[scale=2]}, dark2-5] (2, 1) -- (0,0.5)
+			node[midway, anchor=south] {r};
 	\end{tikzpicture}
-	\end{minipage}
-	\begin{minipage}{0.4\textwidth}
+	\begin{multicols}{2}
 		\begin{description}
-			\item [\textcolor{dark2-1}{a}]
-			\item [\textcolor{dark2-1}{b}] 
-			\item [\textcolor{dark2-3}{c}] 
-			\item [\textcolor{dark2-5}{d}] 
-			\item [\textcolor{dark2-3}{e}] 
-			\item [\textcolor{dark2-5}{f}] 
-			\item [\textcolor{dark2-5}{g}] 
-			\item [\textcolor{dark2-5}{h}] 
+			\item [\textcolor{dark2-1}{a}] Push \texttt{<f, jobID=J1>} to queue \texttt{C1}
+			\item [\textcolor{gray62}{b}] Listen to queue \texttt{C1}
+			\item [\textcolor{dark2-1}{c}] Pop \texttt{<f, jobID=J1>} from queue \texttt{C1}
+			\item [\textcolor{dark2-3}{d}] Listen to queue \texttt{J1}
+			\item [\textcolor{gray62}{e}] Listen to queues \texttt{C1, C2}
+			\item [\textcolor{dark2-1}{f}] Push \texttt{<chunkID=C2>} to queue \texttt{J1}
+			\item [\textcolor{dark2-1}{g}] Pop \texttt{<chunkID=C2>} from queue \texttt{J1}
+			\item [\textcolor{dark2-3}{h}] Push \texttt{<f, jobID=J2>} to queue \texttt{C2}
+			\item [\textcolor{dark2-3}{i}] Pop \texttt{<f, jobID=J2>} from queue \texttt{C2}
+			\item [\textcolor{dark2-5}{j}] Listen to queue \texttt{J2}
+			\item [\textcolor{gray62}{k}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{dark2-3}{l}] Push \texttt{<chunkID=C3>} to queue \texttt{J2}
+			\item [\textcolor{dark2-3}{m}] Pop \texttt{<chunkID=C3>} from queue \texttt{J2}
+			\item [\textcolor{dark2-5}{n}] Push \texttt{<f, jobID=J3>} to queue \texttt{C3}
+			\item [\textcolor{dark2-5}{o}] Pop \texttt{<f, jobID=J3>} from queue \texttt{C3}
+			\item [\textcolor{gray62}{p}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{dark2-5}{q}] Push \texttt{<val>} to queue \texttt{J3}
+			\item [\textcolor{dark2-5}{r}] Pop \texttt{<val>} from queue \texttt{J3}
 		\end{description}
-	\end{minipage}
+	\end{multicols}
 	\caption{\label{fig:msi} Space-Time Diagram of Server-Originated Chunk ID}
 \end{figure}
 
+An important aspect of figure \ref{fig:msi} is the fact that the client has to
+wait to get the chunk ID's of the chunk references \texttt{y} and \texttt{z}
+before it can push requests to their relevent queues, hence the delay between
+the communications labelled in the diagram as \textcolor{dark2-3}{\textbf{d}}
+and \textcolor{dark2-3}{\textbf{h}}; the client still needs to receive
+\textcolor{dark2-1}{\textbf{g}}, which contains the necessary chunk ID.
 
 \section{Evaluation}\label{sec:mod-eval}
 
@@ -260,8 +318,9 @@ A diagram of the proposed model, along with an additional \texttt{resolved(x)}
 step, is given in \ref{fig:masi}
 
 \begin{figure}
-	\begin{minipage}{0.6\textwidth}
+	\centering
 	\begin{tikzpicture}
+		% nodes
 		\draw[very thin, -{>[scale=2]}] (0,10) -- (0,0) 
 			node[at start, anchor=south] {C};
 		\draw[very thin, -{>[scale=2]}] (2,10) -- (2,0) 
@@ -269,70 +328,100 @@ step, is given in \ref{fig:masi}
 		\draw[very thin, -{>[scale=2]}] (4,10) -- (4,0) 
 			node[at start, anchor=south] {S};
 
-		\draw[-{>[scale=2]}, color=dark2-1] (0, 9.5) -- (2,9) 
+		% listeners
+		\draw[color=gray62] (4,9.5) -- (2,9.5) 
+			node[midway, anchor=south] {b};
+		\draw[color=dark2-5] (0,7.5) -- (2,7.5) 
+			node[midway, anchor=south] {e};
+		\draw[color=gray62] (4,7.5) -- (2,7.5) 
+			node[midway, anchor=south] {g};
+		\draw[color=gray62] (4,6) -- (2,6) 
+			node[midway, anchor=south] {j};
+		\draw[color=gray62] (4,4.5) -- (2,4.5) 
+			node[midway, anchor=south] {m};
+
+		% y <- f(x)
+		\draw[-{>[scale=2]}, dark2-1] (0, 9.5) -- (2,9) 
 			node[at start, anchor=east] {\texttt{y <- f(x)}}
 			node[midway, anchor=south] {a};
-		\draw[-{>[scale=2]}, color=dark2-1] (2, 9) -- (4,8.5)
-			node[midway, anchor=south] {b};
-		\draw[very thick, color=dark2-1] (4,8.5) -- (4,7.5) 
-			node[midway, anchor=west] {\texttt{f(C1)}};
-		\draw[-{>[scale=2]}, color=dark2-1] (4,7.5) -- (2, 7)
-			node[midway, anchor=south] {e};
+		\draw[-{>[scale=2]}, dark2-1] (2, 9) -- (4,8.5)
+			node[midway, anchor=south] {c};
+		\draw[very thick, dark2-1] (4,8.5) -- (4,7.5) 
+			node[midway, anchor=west] {\texttt{C2 <- f(C1)}};
+		\draw[-{>[scale=2]}, dark2-1] (4,7.5) -- (2,7)
+			node[pos=0.8, anchor=north] {h};
 
-		\draw[very thick, color=dark2-2] (0, 9.5) -- (0,8.5) 
+		% f(i)
+		\draw[very thick, dark2-2] (0, 9.5) -- (0,8.5) 
 			node[midway, anchor=east] {\texttt{f(i)}};
 
-		\draw[-{>[scale=2]}, color=dark2-3] (0, 8.5) -- (2,8) 
-			node[at start, anchor=east] {\texttt{z <- f(y)}}
-			node[midway, anchor=south] {c};
-		\draw[-{>[scale=2]}, color=dark2-3] (2,7) -- (4,6.5)
-			node[midway, anchor=south] {f};
-		\draw[very thick, color=dark2-3] (4,6.5) -- (4,5.5) 
-			node[midway, anchor=west] {\texttt{f(C2)}};
-		\draw[-{>[scale=2]}, color=dark2-3] (4,5.5) -- (2, 5)
-			node[midway, anchor=south] {g};
-
-		\draw[very thick, color=dark2-4] (0, 8.5) -- (0,7.5)
-			node[midway, anchor=east] {\texttt{f(j)}};
-			
-		\draw[-{>[scale=2]}, color=dark2-5] (0, 7.5) -- (2,7) 
+		% z <- f(y)
+		\draw[-{>[scale=2]}, dark2-3] (0, 8.5) -- (2,8) 
 			node[at start, anchor=east] {\texttt{z <- f(y)}}
 			node[midway, anchor=south] {d};
-		\draw[-{>[scale=2]}, color=dark2-5] (2,5) -- (4,4.5)
-			node[midway, anchor=south] {h};
-		\draw[very thick, color=dark2-5] (4,4.5) -- (4,3.5) 
-			node[midway, anchor=west] {\texttt{f(C2)}};
-		\draw[-{>[scale=2]}, color=dark2-5] (4,3.5) -- (2,3)
-			node[midway, anchor=south] {i};
-		\draw[-{>[scale=2]}, color=dark2-5] (2,3) -- (0,2.5)
-			node[midway, anchor=south] {j};
+		\draw[-{>[scale=2]}, dark2-3] (2,7.5) -- (4,7)
+			node[pos=0.8, anchor=north] {i};
+		\draw[very thick, dark2-3] (4,7) -- (4,6) 
+			node[midway, anchor=west] {\texttt{C3 <- f(C2)}};
+		\draw[-{>[scale=2]}, dark2-3] (4, 6) -- (2, 5.5)
+			node[pos=0.8, anchor=north] {k};
 
-		\draw[-{>[scale=2]}, color=dark2-6] (0,2.5) -- (2,2)
+		% f(j)
+		\draw[very thick, dark2-4] (0, 8.5) -- (0,7.5)
+			node[midway, anchor=east] {\texttt{f(j)}};
+			
+		% f(z)
+		\draw[-{>[scale=2]}, dark2-5] (0, 7.5) -- (2,7) 
+			node[at start, anchor=east] {\texttt{f(z)}}
+			node[midway, anchor=north] {f};
+		\draw[-{>[scale=2]}, dark2-5] (2,6) -- (4,5.5)
+			node[pos=0.8, anchor=north] {l};
+		\draw[very thick, dark2-5] (4,5.5) -- (4,4.5) 
+			node[midway, anchor=west] {\texttt{f(C3)}};
+		\draw[-{>[scale=2]}, dark2-5] (4,4.5) -- (2,4)
+			node[midway, anchor=north] {n};
+		\draw[-{>[scale=2]}, dark2-5] (2,4) -- (0,3.5)
+			node[midway, anchor=south] {o};
+
+		% resolved(x)
+		\draw[-{>[scale=2]}, dark2-6] (0, 3.5) -- (2,3.5) 
 			node[at start, anchor=east] {\texttt{resolved(x)}}
-			node[midway, anchor=south] {k};
-		\draw[-{>[scale=2]}, color=dark2-6] (2,2) -- (0,1.5)
-			node[midway, anchor=south] {l};
+			node[pos=0.8, anchor=south] {p};
+		\draw[-{>[scale=2]}, dark2-6] (2, 3.5) -- (0,3)
+			node[midway, anchor=north] {q};
 	\end{tikzpicture}
-	\end{minipage}
-	\begin{minipage}{0.4\textwidth}
+	\setlength{\columnsep}{50pt}
+	\begin{multicols}{2}
 		\begin{description}
-			\item [\textcolor{dark2-1}{a}]
-			\item [\textcolor{dark2-1}{b}] 
-			\item [\textcolor{dark2-3}{c}] 
-			\item [\textcolor{dark2-5}{d}] 
-			\item [\textcolor{dark2-1}{e}] 
-			\item [\textcolor{dark2-3}{f}] 
-			\item [\textcolor{dark2-3}{g}] 
-			\item [\textcolor{dark2-5}{h}] 
-			\item [\textcolor{dark2-5}{i}] 
-			\item [\textcolor{dark2-5}{j}] 
-			\item [\textcolor{dark2-6}{k}] 
-			\item [\textcolor{dark2-6}{l}] 
+			\item [\textcolor{dark2-1}{a}] Push \texttt{<f, chunkID=C2, jobID=J1>} to queue \texttt{C1}
+			\item [\textcolor{gray62}{b}] Listen to queue \texttt{C1}
+			\item [\textcolor{dark2-1}{c}] Pop \texttt{<f, chunkID=C2, jobID=J1>} from queue \texttt{C1}
+			\item [\textcolor{dark2-3}{d}] Push \texttt{<f, chunkID=C3 jobID=J2>} to queue \texttt{C2}
+			\item [\textcolor{dark2-5}{e}] Listen to queue \texttt{J3}
+			\item [\textcolor{dark2-5}{f}] Push \texttt{<f, jobID=J3>} to queue \texttt{C3}
+			\item [\textcolor{gray62}{g}] Listen to queues \texttt{C1, C2}
+			\item [\textcolor{dark2-1}{h}] Push \texttt{<success>} to queue \texttt{J1}
+			\item [\textcolor{dark2-3}{i}] Pop \texttt{<f, chunkID=C3, jobID=J2>} from queue \texttt{C2}
+			\item [\textcolor{gray62}{j}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{dark2-3}{k}] Push \texttt{<success>} to queue \texttt{J2}
+			\item [\textcolor{dark2-5}{l}] Pop \texttt{<f, jobID=J3>} from queue \texttt{C3}
+			\item [\textcolor{gray62}{m}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{dark2-5}{n}] Push \texttt{<val>} to queue \texttt{J3}
+			\item [\textcolor{dark2-5}{o}] Pop \texttt{<val>} from queue \texttt{J3}
+			\item [\textcolor{dark2-6}{p}] Listen to queue \texttt{J1}
+			\item [\textcolor{dark2-6}{q}] Pop \texttt{<success>} from queue \texttt{J1}
 		\end{description}
-	\end{minipage}
+	\end{multicols}
 	\caption{\label{fig:masi} Space-Time Diagram of Proposed Amended Server-Originated Chunk ID}
 \end{figure}
 
+Note in the diagram how the message sent by the server as part of
+\textcolor{dark2-1}{h} is listened for in \textcolor{dark2-6}{p} and popped to
+determine status of resolution in \textcolor{dark2-6}{q}.
+Such job ID queues will mostly remain un-popped, so it may be worth associating
+an expiry time with them.
+
+\subsection{Server-Originated Chunk ID}
 \printbibliography
 \end{document}
 
