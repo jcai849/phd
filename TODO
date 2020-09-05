@@ -1,26 +1,14 @@
-. New doc; further consideration on name origination
-.. fill in attributes of the diagrams
 . Refactor package
-.. allow chunk-client.R to be stepped through (unwrap from main())
-.. test
-.. put functions in proper places (master->requester;worker->responder)
-.. test
-.. put all chunks in a single environment, with QUEUE being the ls of it, in a
-   similar form to redis init
-.. Create generics for everything
-.. test
-.. change style to requester-originated id as per sheets
-.. test
-.. rename distChunk -> chunkRef (include change in glossary)
-.. test
-.. include CHUNK_PREVIEW as part of chunk
+.. put functions in proper places
 .. test
 .. fill out NAMESPACE and rearrange
 .. test
+.. verbose function for messages
+.. test
+.. Produce nice demo, including errors
 . New doc for distributed objects
 .. outline
 .. make use of client/server terminology
-.. handling of errors section
 .. "what we're starting with"
 .. diagram of chunk object and it's transformation; diagram of message
 .. distributed object defined by totally ordered set of chunks; relaxation of

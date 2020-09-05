@@ -1,3 +1,5 @@
+2020-09-05	18:48:58	massive changes to distObj (see git log)
+2020-09-04	19:07:29	diagramming, chunk-id-orig doc
 2020-09-03	22:49:14	diagramming for chunk-id-orig
 2020-09-03	14:33:07	complete doc on chunk msg queues; rename to init-chunk-msg-q-exp
 2020-09-03	12:54:36	created package, placed on server
