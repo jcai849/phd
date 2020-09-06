@@ -1,21 +1,14 @@
-. Refactor package
-.. put functions in proper places
-.. test
-.. fill out NAMESPACE and rearrange
-.. test
-.. verbose function for messages
-.. test
-.. Produce nice demo, including errors
+. Summary of chunk work; current product
+.. diagram of chunk object and it's transformation; diagram of message
 . New doc for distributed objects
 .. outline
-.. make use of client/server terminology
-.. "what we're starting with"
-.. diagram of chunk object and it's transformation; diagram of message
+.. do.call.Obj takes additional "index" argument for sake of alignment
 .. distributed object defined by totally ordered set of chunks; relaxation of
    total ordering leads to interesting new random distributed object, which may
    be faster due to less alignment.
 .. diagram of distributed object
 .. Go through sections
+.. docs & tests
 . benchmarks
 . Assumptions:
 .. topology; fully connected? consequences?
