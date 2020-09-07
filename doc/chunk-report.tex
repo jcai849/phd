@@ -32,20 +32,24 @@ The full source code of the implementation is given in section
 \section{Overview}
 
 The central units of this distributed system are a client, a queue server, and
-a chunk server.
+a chunk server, as demonstrated in figure \ref{fig:chunk-arch}.
+
 The client contains chunk references, which can be passed as arguments to
 \texttt{do.call.chunkRef}, alongside some function, in order to begin the
 process of evaluation, and if assignment is desired, producing a new chunk
 reference to continue computation with on the client end while the evaluation
 continues on the other units.
+
 \texttt{do.call.chunkRef} composes a message based on the request, pushing that
 to the queue identified by the chunk ID contained in the chunk reference, with
 the queue existing on some central queue server.
+
 The chunk server concurrently monitors all queues identified by the chunk ID's
 of the chunks that the chunk server stores in a local chunk table.
 It pops the message off the related queue, and has \texttt{do.call.chunk}
 evaluate the function on the chunk, with various options determined by the
 content of the received message.
+
 The chunk server pushes some response message to the queue associated with that
 particular job through a unique job ID, which may be picked up later by the
 client later.
@@ -59,65 +63,68 @@ client later.
 		\pgfdeclarelayer{categories}
 		\pgfsetlayers{units, categories, main}
 
-		\tikzstyle{object}=[fill=dark2-1]
-		\tikzstyle{proc}=[fill=dark2-2]
-		\tikzstyle{queue}=[fill=dark2-3]
-		\tikzstyle{msg}=[circle, fill=dark2-4]
-		\tikzstyle{counter}=[fill=dark2-5, rounded corners, draw=black]
-		\tikzstyle{unit}=[fill=yellow, rounded corners, draw=black]
-		\tikzstyle{category}=[fill=blue, rounded corners, draw=black]
+		\tikzstyle{object}=[rectangle, fill=white, draw=black]
+		\tikzstyle{proc}=[rectangle, fill=white, draw=black]
+		\tikzstyle{queue}=[rectangle, fill=white, draw=black]
+		\tikzstyle{counter}=[rectangle, fill=white, draw=black]
+		\tikzstyle{unit}=[fill=blue!10, rounded corners, draw=black]
+		\tikzstyle{category}=[fill=green!10, rounded corners, draw=black]
+		\tikzstyle{table}=[fill=yellow!10, rounded corners, draw=black]
 
-		\def\blockdist{1}
-		\def\borderdist{0.25}
-		\def\labeldist{1.25}
+		\tikzstyle{mypath}=[-{>[scale=2]}]
+
+		\def\commdist{1.5}
+		\def\blockdist{0.1}
 
 		% client
+		\node[object] (chunkref) {Chunk Reference (C1)};
+		\node[proc, below=of chunkref] (docallcr) {\texttt{do.call.chunkRef()}};
 
-		\path (1, 6) node[object] (chunkref) {Chunk Reference};
-		\node[proc, right=of chunkref] (docallcr) {do.call.chunkref};
+		% Queue server
+		%% chunk queues
+		\node[queue, right=\commdist of docallcr] (c1) {Queue C1};
+		\node[queue, below=\blockdist of c1] (cdotdot) {\(\dots\)};
+		\node[queue, below=\blockdist of cdotdot] (cn) {Queue C\(n\)};
+		%% job queues
+		\node[queue, below=of cn] (j1) {Queue J1};
+		\node[queue, below=\blockdist of j1] (jdotdot) {\(\dots\)};
+		\node[queue, below=\blockdist of jdotdot] (jm) {Queue J\(m\)};
+		%% counters
+		\node[counter, above=of c1] (jc) {Job Counter};
+		\node[counter, above=\blockdist of jc] (cc) {Chunk Counter};
 
-		% queue server
-		% chunk queues
-		\path (9, 4.5) node (cqb) {};
-		\foreach \y in {4.25, 5, 5.75}{
-			\path[queue] (9,\y) rectangle ++(7,0.5) node {};
-			\foreach \x in {14.5, 15, 15.5}{
-				\draw (\x+0.25, \y+0.25) node[msg] {};
-				}
-		}
-		\path (9,6.5) node[right, align=right] {Chunk Queues};
-		% job queues
-		\foreach \y in {1, 1.75, 2.5}{
-			\path[queue] (9,\y) node (jqb\y) {} rectangle ++(7,0.5) node (jqe\y) {};
-			\foreach \x in {9, 9.5, 10}{
-				\draw (\x+0.25, \y+0.25) node[msg] {};
-				}
-		}
-		\path (9,3.25) node[right, align=right] {Job Queues};
-		% counters
-		\path[counter] (8.75, 7.25) rectangle node {Job ID Counter} +(3.625, 3);
-		\path[counter] (12.625, 7.25) rectangle node {Job ID Counter} +(3.625, 3);
-
-		% Arrows
-		\draw[->] (chunkref) -- (docallcr);
-		\draw[->] (docallcr.east) -- (cqb);
-
+		% Chunk server
+		\node[proc, right=\commdist of c1] (docallc) {\texttt{do.call.chunk()}};
+		\node[object, below=of docallc] (chunk1) {Chunk C1};
+		\node[object, below=\blockdist of chunk1] (chunkdotdot) {\(\dots\)};
+		\node[object, below=\blockdist of chunkdotdot] (chunkn) {Chunk C\(n\)};
 
 		\begin{pgfonlayer}{categories}
-			% Chunk Queues
-			\path[category] (8.75, 4) rectangle (16.25, 7);
-			% Job Queues
-			\path[category] (8.75, 0.75) rectangle (16.25, 3.75);
+			\node[category, fit=(c1)(cdotdot)(cn), label={[name=cq] Chunk Queues}] (chunkq) {};
+			\node[category, fit=(j1)(jdotdot)(jm), label={[name=jq] Job Queues}] (jobq) {};
+			\node[table, fit=(chunk1)(chunkn), label={[name=ct] Chunk Table}] (chunkt) {};
 		\end{pgfonlayer}
+
 		\begin{pgfonlayer}{units}
-			% Queue server
-			\path[unit] (8, 0) rectangle (17.25, 11.25);
+			\node[unit, fit=(chunkref)(docallcr), label={Client}] (client) {};
+			\node[unit, fit=(cc)(chunkq)(jobq), label={Queue Server}] (qserv) {};
+			\node[unit, fit=(docallc)(chunkt), label={Chunk Server}] (cserv) {};
 		\end{pgfonlayer}
+		
+		% Connections
+		\draw[mypath] (chunkref) -- (docallcr);
+		\draw[mypath] (docallcr.north east) -- (c1.west);
+		\draw[mypath] (jm.west) -- (docallcr.south east);
+		\draw[mypath] (c1.east) -- (docallc.north west);
+		\draw[mypath] (docallc.south west) -- (jm.east);
+		\draw[mypath] (ct.north) -- (docallc.south);
+
 	\end{tikzpicture}
 	\caption{\label{fig:chunk-arch} An outline of the architecture of the
 	chunk component in the distributed system}
 \end{figure}
 
+\newpage
 \section{Object Formats}
 The fields belonging to a \texttt{chunkRef} object are the following:
 \begin{description}
@@ -167,6 +174,7 @@ a fast and reliable mechanism for co-ordination and data movement in the system.
 
 \section{Listings}\label{sec:listings}
 
+\newpage
 \lstinputlisting[language=R, float,
 	caption={Chunk server implementation, source at \lstname},
 	label=src:chunk-server]{../R/msg-q-chunk/chunk-server.R}
