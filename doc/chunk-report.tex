@@ -52,40 +52,66 @@ client later.
 
 
 \begin{figure}
-	\begin{tikzpicture}
+	\centering
+	\begin{tikzpicture}[scale=0.5]
 		% init
 		\pgfdeclarelayer{units}
 		\pgfdeclarelayer{categories}
 		\pgfsetlayers{units, categories, main}
 
-		\tikzstyle{object}=[regular polygon, regular polygon sides=4, fill=dark2-1]
-		\tikzstyle{proc}=[diamond, fill=dark2-2]
+		\tikzstyle{object}=[fill=dark2-1]
+		\tikzstyle{proc}=[fill=dark2-2]
 		\tikzstyle{queue}=[fill=dark2-3]
 		\tikzstyle{msg}=[circle, fill=dark2-4]
+		\tikzstyle{counter}=[fill=dark2-5, rounded corners, draw=black]
 		\tikzstyle{unit}=[fill=yellow, rounded corners, draw=black]
+		\tikzstyle{category}=[fill=blue, rounded corners, draw=black]
 
 		\def\blockdist{1}
 		\def\borderdist{0.25}
 		\def\labeldist{1.25}
 
 		% client
-		\node[object] (chunkref) {chunkRef};
-		\node[proc, right=of chunkref] (docallcr) {\texttt{do.call.chunkRef}};
-		\node[above=\labeldist of chunkref] {Chunk Client};
+
+		\path (1, 6) node[object] (chunkref) {Chunk Reference};
+		\node[proc, right=of chunkref] (docallcr) {do.call.chunkref};
 
 		% queue server
-		\node[right=of docallcr] (cqbegin) {};
-		\foreach \i in {1, 1.5, 2}{
-			\path[queue] (cqbegin)++(0,\i) node (cqb\i) {} rectangle ++(3,0.25) node (cqe\i) {};
+		% chunk queues
+		\path (9, 4.5) node (cqb) {};
+		\foreach \y in {4.25, 5, 5.75}{
+			\path[queue] (9,\y) rectangle ++(7,0.5) node {};
+			\foreach \x in {14.5, 15, 15.5}{
+				\draw (\x+0.25, \y+0.25) node[msg] {};
+				}
 		}
+		\path (9,6.5) node[right, align=right] {Chunk Queues};
+		% job queues
+		\foreach \y in {1, 1.75, 2.5}{
+			\path[queue] (9,\y) node (jqb\y) {} rectangle ++(7,0.5) node (jqe\y) {};
+			\foreach \x in {9, 9.5, 10}{
+				\draw (\x+0.25, \y+0.25) node[msg] {};
+				}
+		}
+		\path (9,3.25) node[right, align=right] {Job Queues};
+		% counters
+		\path[counter] (8.75, 7.25) rectangle node {Job ID Counter} +(3.625, 3);
+		\path[counter] (12.625, 7.25) rectangle node {Job ID Counter} +(3.625, 3);
 
+		% Arrows
 		\draw[->] (chunkref) -- (docallcr);
-		\draw[->] (docallcr.east) -- (cqb1.west);
+		\draw[->] (docallcr.east) -- (cqb);
 
+
+		\begin{pgfonlayer}{categories}
+			% Chunk Queues
+			\path[category] (8.75, 4) rectangle (16.25, 7);
+			% Job Queues
+			\path[category] (8.75, 0.75) rectangle (16.25, 3.75);
+		\end{pgfonlayer}
 		\begin{pgfonlayer}{units}
-			\path (chunkref.west |- docallcr.north)+(-\borderdist,\borderdist) node (clienttl) {};
-			\path (docallcr.south -| docallcr.east)+(\borderdist,-\borderdist) node (clientbr) {};
-			\path[unit] (clienttl) rectangle (clientbr);
+			% Queue server
+			\path[unit] (8, 0) rectangle (17.25, 11.25);
 		\end{pgfonlayer}
 	\end{tikzpicture}
 	\caption{\label{fig:chunk-arch} An outline of the architecture of the
