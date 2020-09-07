@@ -10,14 +10,164 @@
 
 \section{Introduction}
 
+The purpose of this report is to outline the workings of the present
+architecture at the chunk layer.
+This follows the experiments recorded in
+\href{init-chunk-msg-q-exp.pdf}{``Initial chunk message queue experiments''},
+with the final experiment providing the basis for modifications allowing a
+self-sufficient distObj package.
+
+The functionality of the package can be demonstrated through installing distObj
+and it's prerequisites, and, with a running \texttt{redis-server}, evaluating
+\lstinline[language=R]{demo("chunk-server", package="distObj")} in one R
+process, and \lstinline[language=R]{demo("chunk-client", package="distObj")} in
+another process on the same host, stepping through the ``chunk-client'' demo to
+control operation.
+
+
+
+The full source code of the implementation is given in section
+\ref{sec:listings} as listings \ref{src:chunk-server}-\ref{src:chunk-client}.
+
 \section{Overview}
 
-\section{Communication}
+The central units of this distributed system are a client, a queue server, and
+a chunk server.
+The client contains chunk references, which can be passed as arguments to
+\texttt{do.call.chunkRef}, alongside some function, in order to begin the
+process of evaluation, and if assignment is desired, producing a new chunk
+reference to continue computation with on the client end while the evaluation
+continues on the other units.
+\texttt{do.call.chunkRef} composes a message based on the request, pushing that
+to the queue identified by the chunk ID contained in the chunk reference, with
+the queue existing on some central queue server.
+The chunk server concurrently monitors all queues identified by the chunk ID's
+of the chunks that the chunk server stores in a local chunk table.
+It pops the message off the related queue, and has \texttt{do.call.chunk}
+evaluate the function on the chunk, with various options determined by the
+content of the received message.
+The chunk server pushes some response message to the queue associated with that
+particular job through a unique job ID, which may be picked up later by the
+client later.
+
+
+\begin{figure}
+	\begin{tikzpicture}
+		% init
+		\pgfdeclarelayer{units}
+		\pgfdeclarelayer{categories}
+		\pgfsetlayers{units, categories, main}
+
+		\tikzstyle{object}=[regular polygon, regular polygon sides=4, fill=dark2-1]
+		\tikzstyle{proc}=[diamond, fill=dark2-2]
+		\tikzstyle{queue}=[fill=dark2-3]
+		\tikzstyle{msg}=[circle, fill=dark2-4]
+		\tikzstyle{unit}=[fill=yellow, rounded corners, draw=black]
+
+		\def\blockdist{1}
+		\def\borderdist{0.25}
+		\def\labeldist{1.25}
+
+		% client
+		\node[object] (chunkref) {chunkRef};
+		\node[proc, right=of chunkref] (docallcr) {\texttt{do.call.chunkRef}};
+		\node[above=\labeldist of chunkref] {Chunk Client};
+
+		% queue server
+		\node[right=of docallcr] (cqbegin) {};
+		\foreach \i in {1, 1.5, 2}{
+			\path[queue] (cqbegin)++(0,\i) node (cqb\i) {} rectangle ++(3,0.25) node (cqe\i) {};
+		}
+
+		\draw[->] (chunkref) -- (docallcr);
+		\draw[->] (docallcr.east) -- (cqb1.west);
+
+		\begin{pgfonlayer}{units}
+			\path (chunkref.west |- docallcr.north)+(-\borderdist,\borderdist) node (clienttl) {};
+			\path (docallcr.south -| docallcr.east)+(\borderdist,-\borderdist) node (clientbr) {};
+			\path[unit] (clienttl) rectangle (clientbr);
+		\end{pgfonlayer}
+	\end{tikzpicture}
+	\caption{\label{fig:chunk-arch} An outline of the architecture of the
+	chunk component in the distributed system}
+\end{figure}
+
+\section{Object Formats}
+The fields belonging to a \texttt{chunkRef} object are the following:
+\begin{description}
+	\item[\texttt{CHUNK\_ID}] The name of the queue to post messages to, as
+		well as the name of the chunk existing on the server to perform
+		operations upon.
+	\item[\texttt{JOB\_ID}] The name of the queue to pop a response from.
+	\item[\texttt{RESOLUTION}] The status of whether a response has been
+		heard from the server, taking the values ``UNRESOLVED'',
+		``RESOLVED'', or a condition object signalling an error.
+	\item[\texttt{PREVIEW}] A small preview of the complete object for use
+		in printing.
+\end{description}
+
+Messages all belong to the \texttt{msg} class, and are currently categorised as
+either requests, or responses, with the following fields:\\
+
+Request:
+\begin{description}
+	\item[\texttt{OP}] Directive for server to carry out, e.g. ``ASSIGN''.
+	\item[\texttt{FUN}] Function object or character naming function to
+		perform on the chunk.
+	\item[\texttt{CHUNK}] Chunk Reference for the server to attain
+		information from.
+	\item[\texttt{JOB\_ID}] The name of the queue to push a response to.
+	\item[\texttt{DIST\_ARGS}] Additional distributed arguments to the
+		function.
+	\item[\texttt{STATIC\_ARGS}] Additional static arguments to the
+		function.
+\end{description}
+
+Response:
+\begin{description}
+	\item[\texttt{RESOLUTION}] Resolution status; either ``RESOLVED'', or a
+		condition object detailing failure due to error.
+	\item[\texttt{PREVIEW}]  A small snapshot of the completed object for
+		use in printing chunk references.
+\end{description}
 
 \section{Next Steps}
 
-Distributed Objects
+The next step is to experiment with aggregates of chunks, as distributed objects.
+A significant component of this involves point-to-point chunk movement, between multiple servers.
+The package ``osrv'' looks to satisfy much of the infrastructure required for
+this, with particular experiments to be dedicated specifically to establishing
+a fast and reliable mechanism for co-ordination and data movement in the system.
 
-Data movement with osrv
+\section{Listings}\label{sec:listings}
+
+\lstinputlisting[language=R, float,
+	caption={Chunk server implementation, source at \lstname},
+	label=src:chunk-server]{../R/msg-q-chunk/chunk-server.R}
+\lstinputlisting[language=R, float,
+	caption={Declaration of generic functions, source at \lstname},
+	label=src:chunk-generic]{../R/msg-q-chunk/generic.R}
+\lstinputlisting[language=R, float,
+	caption={Declaration of chunk-specific functions, source at \lstname},
+	label=src:chunk-chunk]{../R/msg-q-chunk/chunk.R}
+\lstinputlisting[language=R, float,
+	caption={Implementation of local-dependent functions, source at
+	\lstname},
+	label=src:chunk-local]{../R/msg-q-chunk/local.R}
+\lstinputlisting[language=R, float,
+	caption={Implementation of queue communication functions, source at
+	\lstname},
+	label=src:chunk-q]{../R/msg-q-chunk/q-comm.R}
+\lstinputlisting[language=R, float,
+	caption={Implementation of \texttt{do.call} functions, source at
+	\lstname},
+	label=src:chunk-docall]{../R/msg-q-chunk/do.call.R}
+\lstinputlisting[language=R, float,
+	caption={Miscellaneous utility functions, source at
+	\lstname},
+	label=src:chunk-util]{../R/msg-q-chunk/util.R}
+\lstinputlisting[language=R, float,
+	caption={Chunk client demo, source at \lstname},
+	label=src:chunk-client]{../R/msg-q-chunk/chunk-client.R}
 
 \end{document}

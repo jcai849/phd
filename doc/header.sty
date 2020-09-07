@@ -4,17 +4,22 @@
 
 % Tikz
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning,shapes,arrows.meta}
 
 % misc
 
 \usepackage{multicol}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{hyperref}
 \usepackage{geometry}
 \usepackage{csquotes}
 \usepackage{ctable}
 \usepackage{tabularx}
 \usepackage{booktabs}
+
+\DeclareUnicodeCharacter{001B}{\textcurrency}
 
 % Bibliography
 \usepackage{biblatex}
@@ -53,31 +58,152 @@
 
 \lstset{ 
 	backgroundcolor=\color{white},   
-		basicstyle=\ttfamily\small,
-		breaklines=true,                 
-		captionpos=b,                    
-		commentstyle=\color{mygreen},    
-		frame=single,	                   
-		keepspaces=true,                 
-		keywordstyle=\color{blue},       
-		stringstyle=\color{mymauve},     
-		tabsize=2,	                   
+	basicstyle=\ttfamily\small,
+	breaklines=true,                 
+	captionpos=b,                    
+	commentstyle=\color{mygreen},    
+	frame=single,	                   
+	keepspaces=true,                 
+	keywordstyle=\color{blue},       
+	stringstyle=\color{mymauve}
 }
 \lstdefinelanguage{diff}{
 	morecomment=[f][\color{diffstart}]{@@},
-		morecomment=[f][\color{diffincl}]{>\ },
-		morecomment=[f][\color{diffrem}]{<\ },
+	morecomment=[f][\color{diffincl}]{>\ },
+	morecomment=[f][\color{diffrem}]{<\ },
 }
 
 % Glossary
 \usepackage{glossaries}
 \makeglossaries
 
+\newglossaryentry{chunk}
+{
+	name={Chunk},
+	description={A distinct component piece of a larger object, possibly
+	located at a separate node to other chunks belonging to the object}
+}
+
+\newglossaryentry{chunkid}
+{
+	name={Chunk ID},
+	description={A unique reference for some particular chunk, serving as
+	the name of the chunk's associated queue}
+}
+
+\newglossaryentry{chunkref}
+{
+	name={Chunk Reference},
+	description={A reference to a chunk, the chunk possibly existing on a
+	separate node}
+}
+
+\newglossaryentry{clusttable}
+{
+	name={Cluster Table},
+	description={A central table storing mappings between nodes, chunks,
+	distributed object references, with lower level details such as handles
+	on connections to the nodes, along with additional metadata}
+}
+
+\newglossaryentry{connection}
+{
+	name={Connection},
+	description={A communication channel from one computer to another as
+	part of a network}
+}
+
+\newglossaryentry{distobj}
+{
+	name={Distributed Object},
+	description={An object that is composed of a totally
+	ordered set of chunks dispersed across separate nodes}
+}
+
 \newglossaryentry{distsys}
 {
 	name={Distributed System},
 	description={A system whose constituent parts are located on different
 	computers which are networked together}
+}
+
+\newglossaryentry{host}
+{
+	name={Host},
+	description={A singular machine in a network, which may hold multiple
+	communication nodes}
+}
+
+\newglossaryentry{id}
+{
+	name={ID},
+	description={A unique integer used in the distobj system to uniquely
+	identify nodes, chunks, and distributed object references within the
+	system}
+}
+
+\newglossaryentry{initiator}
+{
+	name={Initiator},
+	description={The node that initialises and serves to boot the
+	distributed system}
+}
+
+\newglossaryentry{jobid}
+{
+	name={Job ID},
+	description={A unique reference for a particular request, serving as
+	the name of a queue for any response}
+}
+
+\newglossaryentry{logicaltime}
+{
+	name={Logical Time},
+	description={A partial ordering of events in time based on the
+	knowledge of which events necessarily happen before others}
+}
+
+\newglossaryentry{master}
+{
+	name={Master},
+	description={The controlling process over other running processes. In a
+	distributed system, typically the initiator process}
+}
+
+\newglossaryentry{node}
+{
+	name={Node},
+	description={A member of a distributed system in a computational
+	capacity}
+}
+
+\newglossaryentry{object}
+{
+	name={Object},
+	description={A particular instance of a class}
+}
+
+\newglossaryentry{objref}
+{
+	name={Object Reference},
+	description={A reference to all of the chunks of a distributed object,
+	symbolising the object and encapsulating the necessary information with
+	which to access the distributed object}
+}
+
+\newglossaryentry{requester}
+{
+	name={Requester},
+	description={A node that sends a message requesting some action of
+	another node.Not a fixed role, and can change based on a state
+	description}
+}
+
+\newglossaryentry{responder}
+{
+	name={Responder},
+	description={A node that responds to a message from some responder
+	node. Not a fixed role, and can change based on a state description}
 }
 
 \newglossaryentry{rprocess}
@@ -97,112 +223,11 @@
 	the user perspective}
 }
 
-\newglossaryentry{master}
-{
-	name={Master},
-	description={The controlling process over other running processes. In a
-	distributed system, typically the initiator process}
-}
-
-\newglossaryentry{initiator}
-{
-	name={Initiator},
-	description={The node that initialises and serves to boot the
-	distributed system}
-}
-
-\newglossaryentry{requester}
-{
-	name={Requester},
-	description={A node that sends a message requesting some action of
-	another node.Not a fixed role, and can change based on a state
-	description}
-}
-
 \newglossaryentry{worker}
 {
 	name={Worker},
 	description={A process under direction of the master
 	process}
-}
-
-\newglossaryentry{responder}
-{
-	name={Responder},
-	description={A node that responds to a message from some responder
-	node. Not a fixed role, and can change based on a state description}
-}
-
-\newglossaryentry{node}
-{
-	name={Node},
-	description={A member of a distributed system in a computational
-	capacity}
-}
-
-\newglossaryentry{connection}
-{
-	name={Connection},
-	description={A communication channel from one computer to another as
-	part of a network}
-}
-
-\newglossaryentry{chunk}
-{
-	name={Chunk},
-	description={A distinct component piece of a larger object, possibly
-	located at a separate node to other chunks belonging to the object}
-}
-
-\newglossaryentry{chunkid}
-{
-	name={Chunk ID},
-	description={A unique reference for some particular chunk, serving as
-	the name of the chunk's associated queue}
-}
-
-\newglossaryentry{distchunk}
-{
-	name={Distributed Chunk},
-	description={A reference to a chunk, the chunk possibly existing on a
-	separate node}
-}
-
-\newglossaryentry{jobid}
-{
-	name={Job ID},
-	description={A unique reference for a particular request, serving as
-	the name of a queue for any response}
-}
-
-\newglossaryentry{object}
-{
-	name={Object},
-	description={A particular instance of a class}
-}
-
-\newglossaryentry{distobj}
-{
-	name={Distributed Object},
-	description={1. Conceptually, an object that is composed of a totally
-	ordered set of chunks dispersed across separate nodes. 2. Tangibly, a
-	reference to all of the chunks of the object, symbolising the object
-	and encapsulating the necessary information with which to access the
-	conceptual distributed object}
-}
-
-\newglossaryentry{host}
-{
-	name={Host},
-	description={A singular machine in a network, which may hold multiple
-	communication nodes}
-}
-
-\newglossaryentry{logicaltime}
-{
-	name={Logical Time},
-	description={A partial ordering of events in time based on the
-	knowledge of which events necessarily happen before others}
 }
 
 \newglossaryentry{distobjsys}
@@ -211,22 +236,6 @@
 	description={The platform being developed herein to enable large scale
 	statistical modelling through the creation of a distributed system in
 	R}
-}
-
-\newglossaryentry{clusttable}
-{
-	name={Cluster Table},
-	description={A central table storing mappings between nodes, chunks,
-	distributed object references, with lower level details such as handles
-	on connections to the nodes, along with additional metadata}
-}
-
-\newglossaryentry{id}
-{
-	name={ID},
-	description={A unique integer used in the distobj system to uniquely
-	identify nodes, chunks, and distributed object references within the
-	system}
 }
 
 % Commands
