@@ -1,14 +1,25 @@
 . Summary of chunk work; current product
 .. diagram of chunk object and it's transformation; diagram of message
+. Utilisation of osrv; memory model and why it needs a central chunk table; how
+  the  chunk table may as well be used for indexing as well
 . New doc for distributed objects
 .. outline
-.. do.call.Obj takes additional "index" argument for sake of alignment
 .. distributed object defined by totally ordered set of chunks; relaxation of
    total ordering leads to interesting new random distributed object, which may
    be faster due to less alignment.
 .. diagram of distributed object
-.. Go through sections
+.. do.call.distObj
 .. docs & tests
+.. do.call.Obj takes additional "index" argument for sake of alignment
+.. osrv could do with a central chunk table; this will help with indexing as well.
+.. central queue server could be replaced with local queues + distributed hash
+   table of locations
+.. no forcing of resolution by preview(); issue warning that chunk not yet resolved
+.. consider transparent mechanism to resolve
+.. maybe better to differentiate between dist and static args only
+   conceptually; let do.call simply take on args parameter, and detect which
+   are distributed, replacing them with their whole counterparts
+.. Go through sections
 . benchmarks
 . Assumptions:
 .. topology; fully connected? consequences?
