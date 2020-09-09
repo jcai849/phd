@@ -10,9 +10,23 @@
 
 \section{Introduction}
 
-dist object def
+Building on the infrastructure outlined in \href{chunk-report.pdf}{Report on
+Current Chunk Architecture}, the aggragation of chunks as a distributed object
+is a logical continuation, and this document serves to record experimentation
+in the creation of such a feature.
+
+For our purposes, a Distributed Object is defined herein as a set \(D\) of
+chunks \(c_1, c_2, \dots, c_n\), with some total ordering defined on the
+chunks.  In a corresponding manner, distributed object references are sets of
+chunk references, with ordering defined to match that of the referent
+distributed object.
+
+This definition will be expanded upon and serve to inform the nature of the
+following experiments.
 
 \section{Formation and Univariate Function}
+
+do.call generic on location as well as objects (maybe need chunkRefServer and chunkRefClient?)
 
 diagram
 
@@ -20,10 +34,29 @@ diagram
 
 \section{Multivariate Function with Distributed Arguments}
 
+\subsection{Improved Formal Parameters}
+
+Allowing a higher do.call take one big list of args, determining and attaining
+the whole versions from the distributed.
+
 \subsection{Indexing and Data Movement}
+
+The need for a central chunk table for data movement; how this helps with indexing
 
 \section{Multivariate Function with Implicit Mixed Arguments}
 
-\section{Conclusion}
+\section{Conclusion and Next Steps}
+
+Decision Tree
+
+With point to point data movement, full decentralisation possible if using a
+distributed hash table to track chunk locations (apache cassandra etc.) in
+order to have no central point of failure, along with local queues.
+
+Randomly ordered distributed objects and their properties
+
+Data Redundancy
+
+Chunk subset transfers
 
 \end{document}
