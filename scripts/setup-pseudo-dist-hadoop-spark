@@ -23,11 +23,11 @@ hadoop-install () {
 	sudo tar -xzf ${INSTALL_DIR}/hadoop-3.2.1.tar.gz -C ${INSTALL_DIR}
 	sudo ln -s ${INSTALL_DIR}/hadoop-3.2.1 ${INSTALL_DIR}/hadoop
 	cat >>~/.profile <<EOF
-	export HADOOP_HOME=/shared/hadoop
-	export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
-	export HADOOP_LOG_DIR=${HADOOP_HOME}/logs
-	export PATH=${PATH}:${HADOOP_HOME}/sbin:${HADOOP_HOME}/bin
-	EOF
+export HADOOP_HOME=/shared/hadoop
+export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
+export HADOOP_LOG_DIR=${HADOOP_HOME}/logs
+export PATH=${PATH}:${HADOOP_HOME}/sbin:${HADOOP_HOME}/bin
+EOF
 }
 
 hadoop-configure () {
@@ -50,9 +50,9 @@ spark-install () {
 	sudo tar -xzf ${INSTALL_DIR}/spark-3.0.0-preview2-bin-hadoop3.2.tgz -C ${INSTALL_DIR}
 	sudo ln -s ${INSTALL_DIR}/spark-3.0.0-preview2-bin-hadoop3.2 ${INSTALL_DIR}/spark
 	cat >>~/.profile <<EOF
-	export SPARK_HOME=/shared/spark
-	export PATH=$PATH:${SPARK_HOME}/sbin:${SPARK_HOME}/bin
-	EOF
+export SPARK_HOME=/shared/spark
+export PATH=$PATH:${SPARK_HOME}/sbin:${SPARK_HOME}/bin
+EOF
 }
 
 hadoop-install
