@@ -1,10 +1,12 @@
-############################### Initialisation ################################
+#### Initialisation 
 
 library(distObj)
 distInit(verbose=T)
+
 # Clear any previous examples
 rediscc::redis.rm(conn(), c("chunkRef1", paste0("C", 1:10), paste0("J", 1:10), 
 		"JOB_ID", "CHUNK_ID"))
+
 # Create new example object
 chunk1 <- structure(new.env(), class = "chunkRef")
 chunkID(chunk1) <- structure("chunk1", class="chunkID")
@@ -13,26 +15,26 @@ resolution(chunk1) <- "RESOLVED"
 
 chunk1
 
-invisible(readline()) ##### [32mAssign Chunk Reference[0m #################
+ ##### Assign Chunk Reference
 
 x <- do.call.chunkRef(what="expm1", chunkArg=chunk1)
 
-invisible(readline()) ##### [32mAssign Chunk Reference with Failure[0m ####
+##### Assign Chunk Reference with Failure
 
 y <- do.call.chunkRef("as.Date", x)
 
-invisible(readline()) ##### [32mLocal Operations while Chunks Resolve[0m ##
+##### Local Operations while Chunks Resolve
 
 expm1(1:10)
 
-invisible(readline()) ##### [32mPreview of Successful Chunk[0m ############
+##### Preview of Successful Chunk
 
 x
 
-invisible(readline()) ##### [32mValue of Successful Chunk[0m ##############
+##### Value of Successful Chunk
 
 do.call.chunkRef("identity", x, assign=FALSE)
 
-invisible(readline()) ##### [32mResolution of Unsuccessful Chunk[0m #######
+##### Resolution of Unsuccessful Chunk
 
 resolve(y)
