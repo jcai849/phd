@@ -1,19 +1,9 @@
 . New doc for distributed objects
-.. distributed object defined by totally ordered set of chunks; relaxation of
-   total ordering leads to interesting new random distributed object, which may
-   be faster due to less alignment.
-.. diagram of distributed object
-.. do.call.distObj
+.. create demo
 .. docs & tests
-.. do.call.Obj takes additional "index" argument for sake of alignment
-.. osrv could do with a central chunk table; this will help with indexing as well.
-.. central queue server could be replaced with local queues + distributed hash
-   table of locations
-.. maybe better to differentiate between dist and static args only
-   conceptually; let do.call simply take on args parameter, and detect which
-   are distributed, replacing them with their whole counterparts
 .. Go through sections
 . benchmarks
+.. abdallah2005sommseqproc
 . Assumptions:
 .. topology; fully connected? consequences?
 .. mutability of chunks?
@@ -26,6 +16,7 @@
 . Writing on doc/experiment-distributed-decision-tree.tex
 . see doc/consideration-dist-arch-assumptions for future potential
 . Regression in CART
+. kleppmann2017dataintensive
 . Write on constraints of distributed objects
 . Attempt to apply GLM as per Simon's email to the distributed object
 . implement some sort in eager dist obj
