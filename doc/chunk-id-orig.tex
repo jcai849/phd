@@ -80,15 +80,15 @@ A space-time diagram of the client-originated chunk ID model is given in figure
 			node[at start, anchor=south] {S};
 
 		% listeners
-		\draw[color=gray62] (4,9.5) -- (2,9.5) 
+		\draw[color=mygray] (4,9.5) -- (2,9.5) 
 			node[midway, anchor=south] {b};
 		\draw[color=dark2-5] (0,7.5) -- (2,7.5) 
 			node[midway, anchor=south] {e};
-		\draw[color=gray62] (4,7.5) -- (2,7.5) 
+		\draw[color=mygray] (4,7.5) -- (2,7.5) 
 			node[midway, anchor=south] {g};
-		\draw[color=gray62] (4,6) -- (2,6) 
+		\draw[color=mygray] (4,6) -- (2,6) 
 			node[midway, anchor=south] {i};
-		\draw[color=gray62] (4,4.5) -- (2,4.5) 
+		\draw[color=mygray] (4,4.5) -- (2,4.5) 
 			node[midway, anchor=south] {k};
 
 		% y <- f(x)
@@ -134,16 +134,16 @@ A space-time diagram of the client-originated chunk ID model is given in figure
 	\begin{minipage}{0.4\textwidth}
 		\begin{description}
 			\item [\textcolor{dark2-1}{a}] Push \texttt{<f, chunkID=C2>} to queue \texttt{C1}
-			\item [\textcolor{gray62}{b}] Listen to queue \texttt{C1}
+			\item [\textcolor{mygray}{b}] Listen to queue \texttt{C1}
 			\item [\textcolor{dark2-1}{c}] Pop \texttt{<f, chunkID=C2>} from queue \texttt{C1}
 			\item [\textcolor{dark2-3}{d}] Push \texttt{<f, chunkID=C3>} to queue \texttt{C2}
 			\item [\textcolor{dark2-5}{e}] Listen to queue \texttt{C3}
 			\item [\textcolor{dark2-5}{f}] Push \texttt{<f, jobID=J1>} to queue \texttt{C3}
-			\item [\textcolor{gray62}{g}] Listen to queues \texttt{C1, C2}
+			\item [\textcolor{mygray}{g}] Listen to queues \texttt{C1, C2}
 			\item [\textcolor{dark2-3}{h}] Pop \texttt{<f, chunkID=C3>} from queue \texttt{C2}
-			\item [\textcolor{gray62}{i}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{mygray}{i}] Listen to queues \texttt{C1, C2, C3}
 			\item [\textcolor{dark2-5}{j}] Pop \texttt{<f, jobID=J1>} from queue \texttt{C3}
-			\item [\textcolor{gray62}{k}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{mygray}{k}] Listen to queues \texttt{C1, C2, C3}
 			\item [\textcolor{dark2-5}{l}] Push \texttt{<val>} to queue \texttt{J1}
 			\item [\textcolor{dark2-5}{m}] Pop \texttt{<val>} from queue \texttt{J1}
 		\end{description}
@@ -177,17 +177,17 @@ A diagram of the server-originated chunk ID model is given in figure \ref{fig:ms
 			node[at start, anchor=south] {S};
 
 		% listeners
-		\draw[color=gray62] (4,9.5) -- (2,9.5) 
+		\draw[color=mygray] (4,9.5) -- (2,9.5) 
 			node[midway, anchor=south] {b};
 		\draw[color=dark2-3] (0,8.5) -- (2,8.5) 
 			node[midway, anchor=south] {d};
-		\draw[color=gray62] (4,7.5) -- (2,7.5) 
+		\draw[color=mygray] (4,7.5) -- (2,7.5) 
 			node[midway, anchor=south] {e};
 		\draw[color=dark2-5] (0,5.5) -- (2,5.5) 
 			node[midway, anchor=south] {j};
-		\draw[color=gray62] (4,4.5) -- (2,4.5) 
+		\draw[color=mygray] (4,4.5) -- (2,4.5) 
 			node[midway, anchor=south] {k};
-		\draw[color=gray62] (4,1.5) -- (2,1.5) 
+		\draw[color=mygray] (4,1.5) -- (2,1.5) 
 			node[midway, anchor=south] {p};
 
 		% y <- f(x)
@@ -240,21 +240,21 @@ A diagram of the server-originated chunk ID model is given in figure \ref{fig:ms
 	\begin{multicols}{2}
 		\begin{description}
 			\item [\textcolor{dark2-1}{a}] Push \texttt{<f, jobID=J1>} to queue \texttt{C1}
-			\item [\textcolor{gray62}{b}] Listen to queue \texttt{C1}
+			\item [\textcolor{mygray}{b}] Listen to queue \texttt{C1}
 			\item [\textcolor{dark2-1}{c}] Pop \texttt{<f, jobID=J1>} from queue \texttt{C1}
 			\item [\textcolor{dark2-3}{d}] Listen to queue \texttt{J1}
-			\item [\textcolor{gray62}{e}] Listen to queues \texttt{C1, C2}
+			\item [\textcolor{mygray}{e}] Listen to queues \texttt{C1, C2}
 			\item [\textcolor{dark2-1}{f}] Push \texttt{<chunkID=C2>} to queue \texttt{J1}
 			\item [\textcolor{dark2-1}{g}] Pop \texttt{<chunkID=C2>} from queue \texttt{J1}
 			\item [\textcolor{dark2-3}{h}] Push \texttt{<f, jobID=J2>} to queue \texttt{C2}
 			\item [\textcolor{dark2-3}{i}] Pop \texttt{<f, jobID=J2>} from queue \texttt{C2}
 			\item [\textcolor{dark2-5}{j}] Listen to queue \texttt{J2}
-			\item [\textcolor{gray62}{k}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{mygray}{k}] Listen to queues \texttt{C1, C2, C3}
 			\item [\textcolor{dark2-3}{l}] Push \texttt{<chunkID=C3>} to queue \texttt{J2}
 			\item [\textcolor{dark2-3}{m}] Pop \texttt{<chunkID=C3>} from queue \texttt{J2}
 			\item [\textcolor{dark2-5}{n}] Push \texttt{<f, jobID=J3>} to queue \texttt{C3}
 			\item [\textcolor{dark2-5}{o}] Pop \texttt{<f, jobID=J3>} from queue \texttt{C3}
-			\item [\textcolor{gray62}{p}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{mygray}{p}] Listen to queues \texttt{C1, C2, C3}
 			\item [\textcolor{dark2-5}{q}] Push \texttt{<val>} to queue \texttt{J3}
 			\item [\textcolor{dark2-5}{r}] Pop \texttt{<val>} from queue \texttt{J3}
 		\end{description}
@@ -329,15 +329,15 @@ step, is given in \ref{fig:masi}
 			node[at start, anchor=south] {S};
 
 		% listeners
-		\draw[color=gray62] (4,9.5) -- (2,9.5) 
+		\draw[color=mygray] (4,9.5) -- (2,9.5) 
 			node[midway, anchor=south] {b};
 		\draw[color=dark2-5] (0,7.5) -- (2,7.5) 
 			node[midway, anchor=south] {e};
-		\draw[color=gray62] (4,7.5) -- (2,7.5) 
+		\draw[color=mygray] (4,7.5) -- (2,7.5) 
 			node[midway, anchor=south] {g};
-		\draw[color=gray62] (4,6) -- (2,6) 
+		\draw[color=mygray] (4,6) -- (2,6) 
 			node[midway, anchor=south] {j};
-		\draw[color=gray62] (4,4.5) -- (2,4.5) 
+		\draw[color=mygray] (4,4.5) -- (2,4.5) 
 			node[midway, anchor=south] {m};
 
 		% y <- f(x)
@@ -394,18 +394,18 @@ step, is given in \ref{fig:masi}
 	\begin{multicols}{2}
 		\begin{description}
 			\item [\textcolor{dark2-1}{a}] Push \texttt{<f, chunkID=C2, jobID=J1>} to queue \texttt{C1}
-			\item [\textcolor{gray62}{b}] Listen to queue \texttt{C1}
+			\item [\textcolor{mygray}{b}] Listen to queue \texttt{C1}
 			\item [\textcolor{dark2-1}{c}] Pop \texttt{<f, chunkID=C2, jobID=J1>} from queue \texttt{C1}
 			\item [\textcolor{dark2-3}{d}] Push \texttt{<f, chunkID=C3 jobID=J2>} to queue \texttt{C2}
 			\item [\textcolor{dark2-5}{e}] Listen to queue \texttt{J3}
 			\item [\textcolor{dark2-5}{f}] Push \texttt{<f, jobID=J3>} to queue \texttt{C3}
-			\item [\textcolor{gray62}{g}] Listen to queues \texttt{C1, C2}
+			\item [\textcolor{mygray}{g}] Listen to queues \texttt{C1, C2}
 			\item [\textcolor{dark2-1}{h}] Push \texttt{<success>} to queue \texttt{J1}
 			\item [\textcolor{dark2-3}{i}] Pop \texttt{<f, chunkID=C3, jobID=J2>} from queue \texttt{C2}
-			\item [\textcolor{gray62}{j}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{mygray}{j}] Listen to queues \texttt{C1, C2, C3}
 			\item [\textcolor{dark2-3}{k}] Push \texttt{<success>} to queue \texttt{J2}
 			\item [\textcolor{dark2-5}{l}] Pop \texttt{<f, jobID=J3>} from queue \texttt{C3}
-			\item [\textcolor{gray62}{m}] Listen to queues \texttt{C1, C2, C3}
+			\item [\textcolor{mygray}{m}] Listen to queues \texttt{C1, C2, C3}
 			\item [\textcolor{dark2-5}{n}] Push \texttt{<val>} to queue \texttt{J3}
 			\item [\textcolor{dark2-5}{o}] Pop \texttt{<val>} from queue \texttt{J3}
 			\item [\textcolor{dark2-6}{p}] Listen to queue \texttt{J1}

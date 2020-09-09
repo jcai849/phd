@@ -54,61 +54,42 @@ The chunk server pushes some response message to the queue associated with that
 particular job through a unique job ID, which may be picked up later by the
 client later.
 
-
 \begin{figure}
 	\centering
 	\begin{tikzpicture}[scale=0.5]
-		% init
-		\pgfdeclarelayer{units}
-		\pgfdeclarelayer{categories}
-		\pgfsetlayers{units, categories, main}
-
-		\tikzstyle{object}=[rectangle, fill=white, draw=black]
-		\tikzstyle{proc}=[rectangle, fill=white, draw=black]
-		\tikzstyle{queue}=[rectangle, fill=white, draw=black]
-		\tikzstyle{counter}=[rectangle, fill=white, draw=black]
-		\tikzstyle{unit}=[fill=blue!10, rounded corners, draw=black]
-		\tikzstyle{category}=[fill=green!10, rounded corners, draw=black]
-		\tikzstyle{table}=[fill=yellow!10, rounded corners, draw=black]
-
-		\tikzstyle{mypath}=[-{>[scale=2]}]
-
-		\def\commdist{1.5}
-		\def\blockdist{0.1}
-
 		% client
 		\node[object] (chunkref) {Chunk Reference (C1)};
-		\node[proc, below=of chunkref] (docallcr) {\texttt{do.call.chunkRef()}};
+		\node[proc,below=of chunkref] (docallcr) {\texttt{do.call.chunkRef()}};
 
 		% Queue server
 		%% chunk queues
-		\node[queue, right=\commdist of docallcr] (c1) {Queue C1};
-		\node[queue, below=\blockdist of c1] (cdotdot) {\(\dots\)};
-		\node[queue, below=\blockdist of cdotdot] (cn) {Queue C\(n\)};
+		\node[queue,right=\commdist of docallcr] (c1) {Queue C1};
+		\node[queue,below=\blockdist of c1] (cdotdot) {\(\dots\)};
+		\node[queue,below=\blockdist of cdotdot] (cn) {Queue C\(n\)};
 		%% job queues
-		\node[queue, below=of cn] (j1) {Queue J1};
-		\node[queue, below=\blockdist of j1] (jdotdot) {\(\dots\)};
-		\node[queue, below=\blockdist of jdotdot] (jm) {Queue J\(m\)};
+		\node[queue,below=of cn] (j1) {Queue J1};
+		\node[queue,below=\blockdist of j1] (jdotdot) {\(\dots\)};
+		\node[queue,below=\blockdist of jdotdot] (jm) {Queue J\(m\)};
 		%% counters
-		\node[counter, above=of c1] (jc) {Job Counter};
-		\node[counter, above=\blockdist of jc] (cc) {Chunk Counter};
+		\node[counter,above=of c1] (jc) {Job Counter};
+		\node[counter,above=\blockdist of jc] (cc) {Chunk Counter};
 
 		% Chunk server
-		\node[proc, right=\commdist of c1] (docallc) {\texttt{do.call.chunk()}};
-		\node[object, below=of docallc] (chunk1) {Chunk C1};
-		\node[object, below=\blockdist of chunk1] (chunkdotdot) {\(\dots\)};
-		\node[object, below=\blockdist of chunkdotdot] (chunkn) {Chunk C\(n\)};
+		\node[proc,right=\commdist of c1] (docallc) {\texttt{do.call.chunk()}};
+		\node[object,below=of docallc] (chunk1) {Chunk C1};
+		\node[object,below=\blockdist of chunk1] (chunkdotdot) {\(\dots\)};
+		\node[object,below=\blockdist of chunkdotdot] (chunkn) {Chunk C\(n\)};
 
 		\begin{pgfonlayer}{categories}
-			\node[category, fit=(c1)(cdotdot)(cn), label={[name=cq] Chunk Queues}] (chunkq) {};
-			\node[category, fit=(j1)(jdotdot)(jm), label={[name=jq] Job Queues}] (jobq) {};
-			\node[table, fit=(chunk1)(chunkn), label={[name=ct] Chunk Table}] (chunkt) {};
+			\node[category,fit=(c1)(cdotdot)(cn),label={[name=cq] Chunk Queues}] (chunkq) {};
+			\node[category,fit=(j1)(jdotdot)(jm),label={[name=jq] Job Queues}] (jobq) {};
+			\node[table,fit=(chunk1)(chunkn),label={[name=ct] Chunk Table}] (chunkt) {};
 		\end{pgfonlayer}
 
 		\begin{pgfonlayer}{units}
-			\node[unit, fit=(chunkref)(docallcr), label={Client}] (client) {};
-			\node[unit, fit=(cc)(chunkq)(jobq), label={Queue Server}] (qserv) {};
-			\node[unit, fit=(docallc)(chunkt), label={Chunk Server}] (cserv) {};
+			\node[unit,fit=(chunkref)(docallcr),label={Client}] (client) {};
+			\node[unit,fit=(cc)(chunkq)(jobq),label={Queue Server}] (qserv) {};
+			\node[unit,fit=(docallc)(chunkt),label={Chunk Server}] (cserv) {};
 		\end{pgfonlayer}
 		
 		% Connections
@@ -118,7 +99,6 @@ client later.
 		\draw[mypath] (c1.east) -- (docallc.north west);
 		\draw[mypath] (docallc.south west) -- (jm.east);
 		\draw[mypath] (ct.north) -- (docallc.south);
-
 	\end{tikzpicture}
 	\caption{\label{fig:chunk-arch} An outline of the architecture of the
 	chunk component in the distributed system}

@@ -4,21 +4,18 @@
 \usepackage[utf8]{inputenc}
 \usepackage{xcolor}
 
-% Tikz
-\usepackage{tikz}
-\usetikzlibrary{fit, positioning,shapes,arrows.meta}
-
 % misc
 \usepackage[english]{babel}
 \usepackage{textcomp}
 \usepackage{lmodern}
 \usepackage{microtype}
-\usepackage{multicol}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{hyperref}
-\usepackage{geometry}
 \usepackage{csquotes}
+\usepackage{multicol}
 \usepackage{ctable}
 \usepackage{tabularx}
 \usepackage{booktabs}
@@ -31,17 +28,17 @@
 % Colours
 \usepackage{color}
 
-\definecolor{diffstart}{named}{gray}
-\definecolor{diffincl}{named}{green}
-\definecolor{diffrem}{named}{red}
-\definecolor{mygreen}{rgb}{0,0.6,0}
-\definecolor{mygray}{rgb}{0.5,0.5,0.5}
-\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{mygreen}{HTML}{099A07}
+\definecolor{mymauve}{HTML}{98079A}
 \definecolor{myorange}{HTML}{F1A340}
 \definecolor{mybrown}{HTML}{9A4E07}
 \definecolor{mynavy}{HTML}{07539A}
 \definecolor{mypurple}{HTML}{998EC3}
-\definecolor{gray62}{gray}{0.62}
+\definecolor{mygray}{gray}{0.75}
+
+\definecolor{diffstart}{named}{mygray}
+\definecolor{diffincl}{named}{mygreen}
+\definecolor{diffrem}{named}{myorange}
 
 \definecolor{set2-1}{HTML}{66C2A5}
 \definecolor{set2-2}{HTML}{FC8D62}
@@ -55,6 +52,26 @@
 \definecolor{dark2-4}{HTML}{E7298A}
 \definecolor{dark2-5}{HTML}{66A61E}
 \definecolor{dark2-6}{HTML}{E6AB02}
+
+% Tikz
+\usetikzlibrary{fit,positioning,shapes,arrows.meta}
+
+\pgfdeclarelayer{units}
+\pgfdeclarelayer{categories}
+\pgfsetlayers{units,categories,main}
+
+\tikzstyle{object}=[rectangle,fill=white,draw=black]
+\tikzstyle{proc}=[rectangle,fill=white,draw=black]
+\tikzstyle{queue}=[rectangle,fill=white,draw=black]
+\tikzstyle{counter}=[rectangle,fill=white,draw=black]
+\tikzstyle{unit}=[fill=blue!10,rounded corners,draw=black]
+\tikzstyle{category}=[fill=green!10,rounded corners,draw=black]
+\tikzstyle{table}=[fill=yellow!10,rounded corners,draw=black]
+
+\tikzstyle{mypath}=[-{>[scale=2]}]
+
+\def\commdist{1.5}
+\def\blockdist{0.1}
 
 % Listings
 \usepackage{listings}
@@ -249,8 +266,8 @@
 \newcommand{\some}{\textcolor{yellow}{some}}
 \newcommand{\mediocre}{\textcolor{red}{mediocre}}
 \newcommand{\no}{\textcolor{red}{no}}
-\newcommand{\NA}{\textcolor{gray62}{NA}}
-\newcommand{\unclear}{\textcolor{gray62}{unclear}}
+\newcommand{\NA}{\textcolor{mygray}{NA}}
+\newcommand{\unclear}{\textcolor{mygray}{unclear}}
 
 \newcounter{assumption}[section]
 
