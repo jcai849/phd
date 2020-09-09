@@ -72,63 +72,63 @@ A space-time diagram of the client-originated chunk ID model is given in figure
 	\begin{minipage}{0.6\textwidth}
 	\begin{tikzpicture}
 		% nodes
-		\draw[very thin, -{>[scale=2]}] (0,10) -- (0,0) 
-			node[at start, anchor=south] {C};
-		\draw[very thin, -{>[scale=2]}] (2,10) -- (2,0) 
-			node[at start, anchor=south] {Q};
-		\draw[very thin, -{>[scale=2]}] (4,10) -- (4,0) 
-			node[at start, anchor=south] {S};
+		\draw[very thin,-{>[scale=2]}] (0,10) -- (0,0) 
+			node[at start,anchor=south] {C};
+		\draw[very thin,-{>[scale=2]}] (2,10) -- (2,0) 
+			node[at start,anchor=south] {Q};
+		\draw[very thin,-{>[scale=2]}] (4,10) -- (4,0) 
+			node[at start,anchor=south] {S};
 
 		% listeners
 		\draw[color=mygray] (4,9.5) -- (2,9.5) 
-			node[midway, anchor=south] {b};
+			node[midway,anchor=south] {b};
 		\draw[color=dark2-5] (0,7.5) -- (2,7.5) 
-			node[midway, anchor=south] {e};
+			node[midway,anchor=south] {e};
 		\draw[color=mygray] (4,7.5) -- (2,7.5) 
-			node[midway, anchor=south] {g};
+			node[midway,anchor=south] {g};
 		\draw[color=mygray] (4,6) -- (2,6) 
-			node[midway, anchor=south] {i};
+			node[midway,anchor=south] {i};
 		\draw[color=mygray] (4,4.5) -- (2,4.5) 
-			node[midway, anchor=south] {k};
+			node[midway,anchor=south] {k};
 
 		% y <- f(x)
-		\draw[-{>[scale=2]}, dark2-1] (0, 9.5) -- (2,9) 
-			node[at start, anchor=east] {\texttt{y <- f(x)}}
-			node[midway, anchor=south] {a};
-		\draw[-{>[scale=2]}, dark2-1] (2, 9) -- (4,8.5)
-			node[midway, anchor=south] {c};
-		\draw[very thick, dark2-1] (4,8.5) -- (4,7.5) 
-			node[midway, anchor=west] {\texttt{C2 <- f(C1)}};
+		\draw[-{>[scale=2]},dark2-1] (0,9.5) -- (2,9) 
+			node[at start,anchor=east] {\texttt{y <- f(x)}}
+			node[midway,anchor=south] {a};
+		\draw[-{>[scale=2]},dark2-1] (2,9) -- (4,8.5)
+			node[midway,anchor=south] {c};
+		\draw[very thick,dark2-1] (4,8.5) -- (4,7.5) 
+			node[midway,anchor=west] {\texttt{C2 <- f(C1)}};
 
 		% f(i)
-		\draw[very thick, dark2-2] (0, 9.5) -- (0,8.5) 
-			node[midway, anchor=east] {\texttt{f(i)}};
+		\draw[very thick,dark2-2] (0,9.5) -- (0,8.5) 
+			node[midway,anchor=east] {\texttt{f(i)}};
 
 		% z <- f(y)
-		\draw[-{>[scale=2]}, dark2-3] (0, 8.5) -- (2,8) 
-			node[at start, anchor=east] {\texttt{z <- f(y)}}
-			node[midway, anchor=south] {d};
-		\draw[-{>[scale=2]}, dark2-3] (2,7.5) -- (4,7)
-			node[midway, anchor=north] {h};
-		\draw[very thick, dark2-3] (4,7) -- (4,6) 
-			node[midway, anchor=west] {\texttt{f(C2)}};
+		\draw[-{>[scale=2]},dark2-3] (0,8.5) -- (2,8) 
+			node[at start,anchor=east] {\texttt{z <- f(y)}}
+			node[midway,anchor=south] {d};
+		\draw[-{>[scale=2]},dark2-3] (2,7.5) -- (4,7)
+			node[midway,anchor=north] {h};
+		\draw[very thick,dark2-3] (4,7) -- (4,6) 
+			node[midway,anchor=west] {\texttt{f(C2)}};
 
 		% f(j)
-		\draw[very thick, dark2-4] (0, 8.5) -- (0,7.5)
-			node[midway, anchor=east] {\texttt{f(j)}};
+		\draw[very thick,dark2-4] (0,8.5) -- (0,7.5)
+			node[midway,anchor=east] {\texttt{f(j)}};
 			
 		% f(z)
-		\draw[-{>[scale=2]}, dark2-5] (0, 7.5) -- (2,7) 
-			node[at start, anchor=east] {\texttt{f(z)}}
-			node[midway, anchor=north] {f};
-		\draw[-{>[scale=2]}, dark2-5] (2,6) -- (4,5.5)
-			node[midway, anchor=north] {j};
-		\draw[very thick, dark2-5] (4,5.5) -- (4,4.5) 
-			node[midway, anchor=west] {\texttt{f(C3)}};
-		\draw[-{>[scale=2]}, dark2-5] (4,4.5) -- (2,4)
-			node[midway, anchor=north] {l};
-		\draw[-{>[scale=2]}, dark2-5] (2,4) -- (0,3.5)
-			node[midway, anchor=south] {m};
+		\draw[-{>[scale=2]},dark2-5] (0,7.5) -- (2,7) 
+			node[at start,anchor=east] {\texttt{f(z)}}
+			node[midway,anchor=north] {f};
+		\draw[-{>[scale=2]},dark2-5] (2,6) -- (4,5.5)
+			node[midway,anchor=north] {j};
+		\draw[very thick,dark2-5] (4,5.5) -- (4,4.5) 
+			node[midway,anchor=west] {\texttt{f(C3)}};
+		\draw[-{>[scale=2]},dark2-5] (4,4.5) -- (2,4)
+			node[midway,anchor=north] {l};
+		\draw[-{>[scale=2]},dark2-5] (2,4) -- (0,3.5)
+			node[midway,anchor=south] {m};
 	\end{tikzpicture}
 	\end{minipage}
 	\begin{minipage}{0.4\textwidth}
@@ -169,73 +169,73 @@ A diagram of the server-originated chunk ID model is given in figure \ref{fig:ms
 	\centering
 	\begin{tikzpicture}
 		% nodes
-		\draw[very thin, -{>[scale=2]}] (0,10) -- (0,0) 
-			node[at start, anchor=south] {C};
-		\draw[very thin, -{>[scale=2]}] (2,10) -- (2,0) 
-			node[at start, anchor=south] {Q};
-		\draw[very thin, -{>[scale=2]}] (4,10) -- (4,0) 
-			node[at start, anchor=south] {S};
+		\draw[very thin,-{>[scale=2]}] (0,10) -- (0,0) 
+			node[at start,anchor=south] {C};
+		\draw[very thin,-{>[scale=2]}] (2,10) -- (2,0) 
+			node[at start,anchor=south] {Q};
+		\draw[very thin,-{>[scale=2]}] (4,10) -- (4,0) 
+			node[at start,anchor=south] {S};
 
 		% listeners
 		\draw[color=mygray] (4,9.5) -- (2,9.5) 
-			node[midway, anchor=south] {b};
+			node[midway,anchor=south] {b};
 		\draw[color=dark2-3] (0,8.5) -- (2,8.5) 
-			node[midway, anchor=south] {d};
+			node[midway,anchor=south] {d};
 		\draw[color=mygray] (4,7.5) -- (2,7.5) 
-			node[midway, anchor=south] {e};
+			node[midway,anchor=south] {e};
 		\draw[color=dark2-5] (0,5.5) -- (2,5.5) 
-			node[midway, anchor=south] {j};
+			node[midway,anchor=south] {j};
 		\draw[color=mygray] (4,4.5) -- (2,4.5) 
-			node[midway, anchor=south] {k};
+			node[midway,anchor=south] {k};
 		\draw[color=mygray] (4,1.5) -- (2,1.5) 
-			node[midway, anchor=south] {p};
+			node[midway,anchor=south] {p};
 
 		% y <- f(x)
-		\draw[-{>[scale=2]}, dark2-1] (0, 9.5) -- (2,9) 
-			node[at start, anchor=east] {\texttt{y <- f(x)}}
-			node[midway, anchor=south] {a};
-		\draw[-{>[scale=2]}, dark2-1] (2, 9) -- (4,8.5)
-			node[midway, anchor=south] {c};
-		\draw[very thick, dark2-1] (4,8.5) -- (4,7.5) 
-			node[midway, anchor=west] {\texttt{C2 <- f(C1)}};
-		\draw[-{>[scale=2]}, dark2-1] (4, 7.5) -- (2,7) 
-			node[midway, anchor=north] {f};
-		\draw[-{>[scale=2]}, dark2-1] (2, 7) -- (0, 6.5)
-			node[midway, anchor=south] {g};
+		\draw[-{>[scale=2]},dark2-1] (0,9.5) -- (2,9) 
+			node[at start,anchor=east] {\texttt{y <- f(x)}}
+			node[midway,anchor=south] {a};
+		\draw[-{>[scale=2]},dark2-1] (2,9) -- (4,8.5)
+			node[midway,anchor=south] {c};
+		\draw[very thick,dark2-1] (4,8.5) -- (4,7.5) 
+			node[midway,anchor=west] {\texttt{C2 <- f(C1)}};
+		\draw[-{>[scale=2]},dark2-1] (4,7.5) -- (2,7) 
+			node[midway,anchor=north] {f};
+		\draw[-{>[scale=2]},dark2-1] (2,7) -- (0,6.5)
+			node[midway,anchor=south] {g};
 
 		% f(i)
-		\draw[very thick, dark2-2] (0, 9.5) -- (0, 8.5)
-			node[midway, anchor=east] {\texttt{f(i)}};
+		\draw[very thick,dark2-2] (0,9.5) -- (0,8.5)
+			node[midway,anchor=east] {\texttt{f(i)}};
 
 		% z <- f(y)
-		\node[anchor=east, color=dark2-3] at (0,8.5) {\texttt{z <- f(y)}};
-		\draw[-{>[scale=2]}, dark2-3] (0, 6.5) -- (2,6) 
-			node[midway, anchor=south] {h};
-		\draw[-{>[scale=2]}, dark2-3] (2,6) -- (4,5.5)
-			node[midway, anchor=south] {i};
-		\draw[very thick, dark2-3] (4,5.5) -- (4,4.5) 
-			node[midway, anchor=west] {\texttt{C3 <- f(C2)}};
-		\draw[-{>[scale=2]}, dark2-3] (4,4.5) -- (2,4) 
-			node[midway, anchor=north] {l};
-		\draw[-{>[scale=2]}, dark2-3] (2,4) -- (0,3.5)
-			node[midway, anchor=south] {m};
+		\node[anchor=east,color=dark2-3] at (0,8.5) {\texttt{z <- f(y)}};
+		\draw[-{>[scale=2]},dark2-3] (0,6.5) -- (2,6) 
+			node[midway,anchor=south] {h};
+		\draw[-{>[scale=2]},dark2-3] (2,6) -- (4,5.5)
+			node[midway,anchor=south] {i};
+		\draw[very thick,dark2-3] (4,5.5) -- (4,4.5) 
+			node[midway,anchor=west] {\texttt{C3 <- f(C2)}};
+		\draw[-{>[scale=2]},dark2-3] (4,4.5) -- (2,4) 
+			node[midway,anchor=north] {l};
+		\draw[-{>[scale=2]},dark2-3] (2,4) -- (0,3.5)
+			node[midway,anchor=south] {m};
 
 		% f(j)
-		\draw[very thick, dark2-4] (0, 6.5) -- (0,5.5)
-			node[midway, anchor=east] {\texttt{f(j)}};
+		\draw[very thick,dark2-4] (0,6.5) -- (0,5.5)
+			node[midway,anchor=east] {\texttt{f(j)}};
 			
 		% f(z)
-		\node[anchor=east, color=dark2-5] at (0,5.5) {\texttt{f(z)}};
-		\draw[-{>[scale=2]}, dark2-5] (0,3.5) -- (2, 3) 
-			node[midway, anchor=south] {n};
-		\draw[-{>[scale=2]}, dark2-5] (2,3) -- (4,2.5)
-			node[midway, anchor=south] {o};
-		\draw[very thick, dark2-5] (4,2.5) -- (4,1.5) 
-			node[midway, anchor=west] {\texttt{f(C3)}};
-		\draw[-{>[scale=2]}, dark2-5] (4,1.5) -- (2,1) 
-			node[midway, anchor=north] {q};
-		\draw[-{>[scale=2]}, dark2-5] (2, 1) -- (0,0.5)
-			node[midway, anchor=south] {r};
+		\node[anchor=east,color=dark2-5] at (0,5.5) {\texttt{f(z)}};
+		\draw[-{>[scale=2]},dark2-5] (0,3.5) -- (2,3) 
+			node[midway,anchor=south] {n};
+		\draw[-{>[scale=2]},dark2-5] (2,3) -- (4,2.5)
+			node[midway,anchor=south] {o};
+		\draw[very thick,dark2-5] (4,2.5) -- (4,1.5) 
+			node[midway,anchor=west] {\texttt{f(C3)}};
+		\draw[-{>[scale=2]},dark2-5] (4,1.5) -- (2,1) 
+			node[midway,anchor=north] {q};
+		\draw[-{>[scale=2]},dark2-5] (2,1) -- (0,0.5)
+			node[midway,anchor=south] {r};
 	\end{tikzpicture}
 	\begin{multicols}{2}
 		\begin{description}
@@ -321,74 +321,74 @@ step, is given in \ref{fig:masi}
 	\centering
 	\begin{tikzpicture}
 		% nodes
-		\draw[very thin, -{>[scale=2]}] (0,10) -- (0,0) 
-			node[at start, anchor=south] {C};
-		\draw[very thin, -{>[scale=2]}] (2,10) -- (2,0) 
-			node[at start, anchor=south] {Q};
-		\draw[very thin, -{>[scale=2]}] (4,10) -- (4,0) 
-			node[at start, anchor=south] {S};
+		\draw[very thin,-{>[scale=2]}] (0,10) -- (0,0) 
+			node[at start,anchor=south] {C};
+		\draw[very thin,-{>[scale=2]}] (2,10) -- (2,0) 
+			node[at start,anchor=south] {Q};
+		\draw[very thin,-{>[scale=2]}] (4,10) -- (4,0) 
+			node[at start,anchor=south] {S};
 
 		% listeners
 		\draw[color=mygray] (4,9.5) -- (2,9.5) 
-			node[midway, anchor=south] {b};
+			node[midway,anchor=south] {b};
 		\draw[color=dark2-5] (0,7.5) -- (2,7.5) 
-			node[midway, anchor=south] {e};
+			node[midway,anchor=south] {e};
 		\draw[color=mygray] (4,7.5) -- (2,7.5) 
-			node[midway, anchor=south] {g};
+			node[midway,anchor=south] {g};
 		\draw[color=mygray] (4,6) -- (2,6) 
-			node[midway, anchor=south] {j};
+			node[midway,anchor=south] {j};
 		\draw[color=mygray] (4,4.5) -- (2,4.5) 
-			node[midway, anchor=south] {m};
+			node[midway,anchor=south] {m};
 
 		% y <- f(x)
-		\draw[-{>[scale=2]}, dark2-1] (0, 9.5) -- (2,9) 
-			node[at start, anchor=east] {\texttt{y <- f(x)}}
-			node[midway, anchor=south] {a};
-		\draw[-{>[scale=2]}, dark2-1] (2, 9) -- (4,8.5)
-			node[midway, anchor=south] {c};
-		\draw[very thick, dark2-1] (4,8.5) -- (4,7.5) 
-			node[midway, anchor=west] {\texttt{C2 <- f(C1)}};
-		\draw[-{>[scale=2]}, dark2-1] (4,7.5) -- (2,7)
-			node[pos=0.8, anchor=north] {h};
+		\draw[-{>[scale=2]},dark2-1] (0,9.5) -- (2,9) 
+			node[at start,anchor=east] {\texttt{y <- f(x)}}
+			node[midway,anchor=south] {a};
+		\draw[-{>[scale=2]},dark2-1] (2,9) -- (4,8.5)
+			node[midway,anchor=south] {c};
+		\draw[very thick,dark2-1] (4,8.5) -- (4,7.5) 
+			node[midway,anchor=west] {\texttt{C2 <- f(C1)}};
+		\draw[-{>[scale=2]},dark2-1] (4,7.5) -- (2,7)
+			node[pos=0.8,anchor=north] {h};
 
 		% f(i)
-		\draw[very thick, dark2-2] (0, 9.5) -- (0,8.5) 
-			node[midway, anchor=east] {\texttt{f(i)}};
+		\draw[very thick,dark2-2] (0,9.5) -- (0,8.5) 
+			node[midway,anchor=east] {\texttt{f(i)}};
 
 		% z <- f(y)
-		\draw[-{>[scale=2]}, dark2-3] (0, 8.5) -- (2,8) 
-			node[at start, anchor=east] {\texttt{z <- f(y)}}
-			node[midway, anchor=south] {d};
-		\draw[-{>[scale=2]}, dark2-3] (2,7.5) -- (4,7)
-			node[pos=0.8, anchor=north] {i};
-		\draw[very thick, dark2-3] (4,7) -- (4,6) 
-			node[midway, anchor=west] {\texttt{C3 <- f(C2)}};
-		\draw[-{>[scale=2]}, dark2-3] (4, 6) -- (2, 5.5)
-			node[pos=0.8, anchor=north] {k};
+		\draw[-{>[scale=2]},dark2-3] (0,8.5) -- (2,8) 
+			node[at start,anchor=east] {\texttt{z <- f(y)}}
+			node[midway,anchor=south] {d};
+		\draw[-{>[scale=2]},dark2-3] (2,7.5) -- (4,7)
+			node[pos=0.8,anchor=north] {i};
+		\draw[very thick,dark2-3] (4,7) -- (4,6) 
+			node[midway,anchor=west] {\texttt{C3 <- f(C2)}};
+		\draw[-{>[scale=2]},dark2-3] (4,6) -- (2,5.5)
+			node[pos=0.8,anchor=north] {k};
 
 		% f(j)
-		\draw[very thick, dark2-4] (0, 8.5) -- (0,7.5)
-			node[midway, anchor=east] {\texttt{f(j)}};
+		\draw[very thick,dark2-4] (0,8.5) -- (0,7.5)
+			node[midway,anchor=east] {\texttt{f(j)}};
 			
 		% f(z)
-		\draw[-{>[scale=2]}, dark2-5] (0, 7.5) -- (2,7) 
-			node[at start, anchor=east] {\texttt{f(z)}}
-			node[midway, anchor=north] {f};
-		\draw[-{>[scale=2]}, dark2-5] (2,6) -- (4,5.5)
-			node[pos=0.8, anchor=north] {l};
-		\draw[very thick, dark2-5] (4,5.5) -- (4,4.5) 
-			node[midway, anchor=west] {\texttt{f(C3)}};
-		\draw[-{>[scale=2]}, dark2-5] (4,4.5) -- (2,4)
-			node[midway, anchor=north] {n};
-		\draw[-{>[scale=2]}, dark2-5] (2,4) -- (0,3.5)
-			node[midway, anchor=south] {o};
+		\draw[-{>[scale=2]},dark2-5] (0,7.5) -- (2,7) 
+			node[at start,anchor=east] {\texttt{f(z)}}
+			node[midway,anchor=north] {f};
+		\draw[-{>[scale=2]},dark2-5] (2,6) -- (4,5.5)
+			node[pos=0.8,anchor=north] {l};
+		\draw[very thick,dark2-5] (4,5.5) -- (4,4.5) 
+			node[midway,anchor=west] {\texttt{f(C3)}};
+		\draw[-{>[scale=2]},dark2-5] (4,4.5) -- (2,4)
+			node[midway,anchor=north] {n};
+		\draw[-{>[scale=2]},dark2-5] (2,4) -- (0,3.5)
+			node[midway,anchor=south] {o};
 
 		% resolved(x)
-		\draw[-{>[scale=2]}, dark2-6] (0, 3.5) -- (2,3.5) 
-			node[at start, anchor=east] {\texttt{resolved(x)}}
-			node[pos=0.8, anchor=south] {p};
-		\draw[-{>[scale=2]}, dark2-6] (2, 3.5) -- (0,3)
-			node[midway, anchor=north] {q};
+		\draw[-{>[scale=2]},dark2-6] (0,3.5) -- (2,3.5) 
+			node[at start,anchor=east] {\texttt{resolved(x)}}
+			node[pos=0.8,anchor=south] {p};
+		\draw[-{>[scale=2]},dark2-6] (2,3.5) -- (0,3)
+			node[midway,anchor=north] {q};
 	\end{tikzpicture}
 	\setlength{\columnsep}{50pt}
 	\begin{multicols}{2}
