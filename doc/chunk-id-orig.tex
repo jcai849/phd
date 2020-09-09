@@ -33,10 +33,10 @@ performed.
 \begin{lstlisting}[language=R, float, 
 caption={Modelled Client Program}, label=src:client-p]
 	y <- f(x)	# dist, no wait
-	f(i)			# local
+	f(i)		# local
 	z <- f(y)	# dist, no wait
-	f(j)			# local
-	f(z)			# dist, wait
+	f(j)		# local
+	f(z)		# dist, wait
 \end{lstlisting}
 
 The server follows a loop of listening on queues relevant to the chunks that it
