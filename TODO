@@ -1,7 +1,8 @@
 . New doc for distributed objects
-.. create demo
-.. docs & tests
+.. distobj
+... create demo
 .. Go through sections
+.. docs & tests
 . benchmarks
 .. abdallah2005sommseqproc
 . Assumptions:
