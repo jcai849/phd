@@ -1,6 +1,7 @@
-. New doc for distributed objects
-.. distobj
-... create demo
+. # TODO functions
+. test TODO functions
+. alignment test
+. Create distributed central table of chunk data; remove job queue concept
 .. Go through sections
 .. docs & tests
 . benchmarks
