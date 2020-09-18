@@ -1,7 +1,8 @@
 . # TODO functions
-. test TODO functions
 . alignment test
+. Get demo working for first expression
 . Create distributed central table of chunk data; remove job queue concept
+.. include all methods capable of access and update dependent on table updates; to, from, size, preview, resolved, etc.
 .. Go through sections
 .. docs & tests
 . benchmarks
