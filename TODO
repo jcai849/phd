@@ -7,6 +7,7 @@
 .. docs & tests
 . benchmarks
 .. abdallah2005sommseqproc
+. Formalisation of models
 . Assumptions:
 .. topology; fully connected? consequences?
 .. mutability of chunks?
