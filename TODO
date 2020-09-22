@@ -1,7 +1,19 @@
-. # TODO functions
+. fix diagram to include output
+. make phd repo public
+. Writing on recursive solution to race condition problem
+.. counter-example to termination if blocking pop used
+.. inefficiency of non-blocking pop when all stack layers other than top are resolved
+.. solution: circular linked list (simplified to list in R)
+.. proof of termination of solution (two-part: DAG dependency, indctive w/ cases)
+.. probabilistic analysis of solution incl. distribution of messages in inbox when given a fixed set; markov model w/ non-fixed
 . alignment test
-. Get demo working for first expression
 . Create distributed central table of chunk data; remove job queue concept
+. demo self-contained with mcparallel
+. get single-node demo working with resolves between
+. get multi-node demo working with resolves between
+.. osrv etc.
+. redis-tests self-containing with mcparallel
+. Implementation of inbox; contrive async situation to demonstrate difference
 .. include all methods capable of access and update dependent on table updates; to, from, size, preview, resolved, etc.
 .. Go through sections
 .. docs & tests
