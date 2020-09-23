@@ -1,5 +1,4 @@
-. fix diagram to include output
-. make phd repo public
+. lamport 1978ordering ghemawat2003google shvachko2010hadoop zaharia2016apache
 . Writing on recursive solution to race condition problem
 .. counter-example to termination if blocking pop used
 .. inefficiency of non-blocking pop when all stack layers other than top are resolved
