@@ -1,10 +1,13 @@
-. New doc for distributed objects
-.. distobj
-... create demo
+. # TODO functions
+. alignment test
+. Get demo working for first expression
+. Create distributed central table of chunk data; remove job queue concept
+.. include all methods capable of access and update dependent on table updates; to, from, size, preview, resolved, etc.
 .. Go through sections
 .. docs & tests
 . benchmarks
 .. abdallah2005sommseqproc
+. Formalisation of models
 . Assumptions:
 .. topology; fully connected? consequences?
 .. mutability of chunks?

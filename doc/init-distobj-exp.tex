@@ -15,39 +15,364 @@ Current Chunk Architecture}, the aggragation of chunks as a distributed object
 is a logical continuation, and this document serves to record experimentation
 in the creation of such a feature.
 
-For our purposes, a Distributed Object is defined herein as a set \(D\) of
-chunks \(c_1, c_2, \dots, c_n\), with some total ordering defined on the
-chunks.  In a corresponding manner, distributed object references are sets of
-chunk references, with ordering defined to match that of the referent
-distributed object.
+For our purposes, a distributed object and it's reference is defined
+conceptually as the following:
+
+\begin{definition}
+	\label{distobj}
+	A distributed object is a set \(D\) of chunks \(c_1, c_2, \dots, c_n\),
+	with some total ordering defined on the chunks. 
+	In a corresponding manner, distributed object \textit{references} are
+	sets of chunk references, along with an ordering on the chunk
+	references to match that of the chunks composing the referent
+	distributed object.
+\end{definition}
 
 This definition will be expanded upon and serve to inform the nature of the
 following experiments.
 
-\section{Formation and Univariate Function}
+\section{Formation}
 
-do.call generic on location as well as objects (maybe need chunkRefServer and chunkRefClient?)
+The first experiment is the most important, in composing a basic distributed
+object reference along with sufficient infrastructure to allow for operations
+to take place on the referent chunks composing the conceptual distributed
+object.
+This section sees an informal description of the initial model, as well as
+issues in such a model, along with proposed solutions and an example
+implementation.
 
-diagram
+\subsection{Model Description}
 
-\section{Multivariate Function with Static Arguments}
+Following definition \ref{distobj}, as well as the existing infrastructure
+provided and outlined in \href{chunk-report.pdf}{Chunk Report}, the distributed
+object reference consists of an environment containing a list of chunk
+references.
+The capacity for further components is reserved, however the prime information
+is encapsulated within the chunk references.
 
-\section{Multivariate Function with Distributed Arguments}
+Some changes are made to the chunk references as described in
+\href{chunk-report.pdf}{Chunk Report}, based on the need for decoupling data
+from process when communicating among client and server.
+This takes the principal form of removing the job ID in favour of posting chunk
+information directly to the distributed table as keys.
+In this manner, all necessary information relating to a chunk ID is
+encapsulated in the chunk reference, with no need to couple this with job ID's
+and the implied necessity of a job reference.
+As an example, the resolution status of a chunk ID (whether it has actually
+been created) is posted as a resolution key identified by the chunk ID in the
+distributed table, rather than being rolled into a message object and sent to a
+job ID queue.
+This change has further motivations in allowing access to attributes of a chunk
+that may resolve asynchronously, by nodes other than the original requesting
+client.
+For example, an as-yet undefined alignment process requires knowledge of chunk
+sizes, and may be taking place on a node separate and prior to determination of
+such information on another node, which upon realisation, posts the chunk size
+data to the distributed table, and the node performing alignment may now have
+access to that information despite not being the original requesting client.
+This would not be possible were the job queue concept still used, as the chunk
+reference on the aligning node wouldn't have the ability to access the job
+queue, for lack of knowledge as well as the destruction it would cause by
+obstructing the original client in it's intended pop of the jobID queue.
 
-\subsection{Improved Formal Parameters}
+In addition to the changes to the chunk reference, there is now the essential
+need for further information in the way chunks relate to each other as parts of
+a greater whole.
+This is a heavily language-dependent aspect, as it relies on R's paradigmatic
+nature of being array-oriented.
+R takes it's array-oriented style from S, which was in turn influenced by
+Iverson's languages FORTRAN and APL, both heavily
+array-oriented\cite{becker1994shistory}\cite{iverson2007notation}.
+A central feature of array-oriented languages involves ``parallel'' (in array,
+not computational terms) operation on arrays with elements in corresponding
+indices; beyond serving as a store of information, arrays can be comparable
+with each other, and operations performed on associated elements between them.
+This is obvious even in simple expressions such as 
+\lstinline[language=R]{1:10 + 11:20}, wherein vectors are operated upon in
+adjacently.
+This expectation raises a problem for operations on multiple distributed
+objects, where if the chunks holding adjacent elements are required for a
+multivariate operation yet exist on entirely separate nodes, there is no
+possibility for executing the operation absent movement of data.
 
-Allowing a higher do.call take one big list of args, determining and attaining
-the whole versions from the distributed.
+The movement of data is to a degree not the most difficult aspect, but an
+immediate issue is the efficient co-ordination of such data movement, a process
+described here as \textit{alignment}.
+Alignment requires all elements adjacent and relevant to other elements in an
+operation to be located on the same node for processing.
+Such a task is further compounded by the standard operation of recycling,
+wherein arrays of shorter length than others are copied end-to-end in order to
+achieve the same size.
+An example is given in the expression \lstinline[language=R]{1:10 + 1:2}, where
+the second vector of length 2 is repeated 4 additional times in order to match
+the size of the larger.
+This is a sufficiently common task that the system should provide it by default
+when moving data.
 
-\subsection{Indexing and Data Movement}
+With these problems stated, a fuller description of the base model can now be
+entered into, with figure \ref{fig:distobj} accompanying.
 
-The need for a central chunk table for data movement; how this helps with indexing
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		% distobjrefs
+		\node[object] (cn) {\(c_n\)};
+		\node[object,right=\blockdist of cn] (cndot) {\(\dots\)};
+		\node[object,right=\blockdist of cndot] (cm) {\(c_m\)};
+		\node[object,right={5*\blockdist} of cm] (ci) {\(c_i\)};
+		\node[object,right=\blockdist of ci] (cidot) {\(\dots\)};
+		\node[object,right=\blockdist of cidot] (cj) {\(c_j\)};
+		\path (cm.east) -- (ci.west) node(midclient) [midway] {};
 
-\section{Multivariate Function with Implicit Mixed Arguments}
+		% client args
+		\node[proc,below=of midclient] (dcdor) {\texttt{do.call.distObjRef}};
+		\node[proc,below=of dcdor] (ft) {\texttt{findTarget}};
+		\node[proc,below=of ft] (dccr) {\texttt{do.call.chunkRef}};
+		\node[below=of dccr] (midlowcl) {};
+		\node[proc,left=\blockdist of midlowcl] (dor) {\texttt{distObjRef}};
+		\node[below=of dor] (out) {};
+		\node[proc,right=\blockdist of midlowcl] (sendreq) {\texttt{send}};
+
+		% chunk queues
+		\node[queue,right={1.5*\commdist} of dccr] (cmq) {\(c_m\)};
+		\node[queue,above=of cmq] (cmdotq) {\(\dots\)};
+		\node[queue,above=of cmdotq] (cnq) {\(c_n\)};
+		\node[queue,right={3*\blockdist} of cmdotq] (cmdotqdot) {\(\dots\)};
+		\node[queue,right={3*\blockdist} of cmq] (cmqdot) {\(\dots\)};
+
+		% server args
+		\node[proc,right={1.5*\commdist} of cmq] (dc) {\texttt{do.call}};
+		\node[proc,above=of dc] (alignment) {\texttt{alignment}};
+		\node[proc,above=of alignment] (r2r) {\texttt{refToRec}};
+		\node[proc,above=of r2r] (dcm) {\texttt{do.call.msg}};
+		\node[proc,below=of dc] (set) {\texttt{set}};
+
+		% metadata
+		\node[object,below=of cmq] (cns) {\(c_n\) size};
+		\node[object,below=of cns] (cdots) {\(\dots\)};
+
+		\begin{pgfonlayer}{categories}
+			\node[category,fit=(cn)(cndot)(cm),label={[name=dnl] \texttt{distObjRef x}}] (dn) {};
+			\node[category,fit=(ci)(cidot)(cj),label={[name=dil] \texttt{distObjRef y}}] (di) {};
+		\end{pgfonlayer}
+
+		\begin{pgfonlayer}{units}
+			\node[unit,fit=(dnl)(dil)(dor)(sendreq),label={[name=cl] Client}] (c) {};
+			\node[unit,fit=(cmq)(cnq),label={[name=qsl] Queue Server}] (qs) {};
+			\node[unit,fit=(cns)(cdots),label={[name=setsl] Distributed Keys}] (sets) {};
+			\node[unit,fit=(dcm)(set),label={[name=sl] Server}] (s) {};
+		\end{pgfonlayer}
+
+		\draw[mypath] (dn) -- (dcdor);
+		\draw[mypath] (di) -- (dcdor);
+		\draw[mypath] (dcdor) -- (ft);
+		\draw[mypath] (ft) -- (dccr);
+		\draw[mypath] (dccr) -- (dor);
+		\draw[mypath] (dccr) -- (sendreq);
+		\draw[mypath] (dor) -- (out);
+
+		\draw[mypath] (sendreq.east) -- (cmq.west);
+		\draw[mypath] (sendreq.east) -- (cmdotq.west);
+		\draw[mypath] (sendreq.east) -- (cnq.west);
+
+		\draw[mypath] (cnq.east) -- (dcm);
+		\draw[mypath] (cmdotq) -- (cmdotqdot);
+		\draw[mypath] (cmq) -- (cmqdot);
+		
+		\draw[mypath] (dcm) -- (r2r);
+		\draw[mypath] (r2r) -- (alignment);
+		\draw[mypath] (alignment) -- (dc);
+		\draw[mypath] (dc) -- (set);
+
+		\draw[mypath] (set) -- (cns);
+		\draw[mypath] (set) -- (cdots);
+	\end{tikzpicture}
+	\caption{\label{fig:distobj}Process of evaluation and alignment for
+	distributed object references}
+\end{figure}
+
+Similarly to chunk manipulation, the central function for performing operations
+is the \lstinline[language=R]{do.call} function, with a method defined for
+\texttt{distObjRef}. It possesses similar formal parameters to the standard
+\lstinline[language=R]{do.call}, being \texttt{what}, \texttt{args}, and
+\texttt{assign}, which respectively describe the function to be called, a list
+of arguments to serve as arguments to \texttt{what}, and whether to return a
+value or to save the result and monitor it as a distributed object.
+
+A node acting in the role of client will call a
+\lstinline[language=R]{do.call.distObjRef} on a list of distributed object
+references, as well as non-distributed.
+Of this list, one distributed object reference will be chosen as the target
+with which all alignment is to be performed relative to, with the function
+\lstinline[language=R]{findTarget}.
+From this target, \lstinline[language=R]{do.call.chunkRef} is called with an
+additional \texttt{target} argument relating the target chunk, on all of the
+chunk references within the target, with the standard resultant messages being
+sent to the appropriate chunk queues.
+
+The queues are monitored and popped by the nodes holding the chunks, and
+\lstinline[language=R]{do.call.msg} is called on the popped message, taking the
+same arguments as \lstinline[language=R]{do.call.chunkRef}.
+Within \lstinline[language=R]{do.call.msg}, \lstinline[language=R]{refToRec}
+and \lstinline[language=R]{alignment} are called to replace the reference
+objects in the \texttt{args} list with copies of their referent objects at
+indices analogous to the target chunk, thereby ensuring correctness in
+adjacent operations between arrays.
+
+The standard \lstinline[language=R]{do.call} is then used on the list of whole,
+aligned objects, with the results sent to keys in the distributed table
+associated with the new chunk ID, completing work on the server side.
+
+\subsection{Model Issues}
+
+As presented, the model suffers from a fatal flaw when used asynchronously.
+Alignment necessarily depends on knowing the indices of where in a distributed
+object a chunk belongs.
+This information is attained from the distributed keys which the server sets
+based on the resultant chunk's size after \lstinline[language=R]{do.call.msg}.
+Upon receiving this information, a node holding a distributed object containing
+the appropriate chunk reference can cache this information within the chunk
+reference object, to avoid future lookups.
+
+Therefore the distributed object references forming the list of \texttt{args}
+in \lstinline[language=R]{do.call.distObjRef} can either have all of the index
+information cached inside, as a fully resolved object, avoiding any need for
+lookup in the table, or they may lack some of the information, being
+unresolved, and a lookup will have to be performed during alignment on the
+server end.
+
+A race condition arises when the size of an unresolved object is needed during
+alignment, but that object is to be computed on that same node some time after
+completing the evaluation of the current \lstinline[language=R]{do.call.msg}. 
+\newpage
+Formulated as a counter example, with the correspondence to the diagram in
+figure \ref{fig:counterex} denoted with the coloured letters in brackets:
+
+Consider some distributed object containing fully resolved chunks belonging to
+a set \({c_1, c_2, \dots, c_n}\) for some finite \(n\), all of which reside on
+a singular node \(S\).
+Let this object have reference \texttt{x} with full resolution on a node \(K\).
+(\textcolor{dark2-1}{a}) The node \(K\) may execute the expression 
+\lstinline[language=R]{y <- do.call.distObjRef(what=f1, args=list(x))}, returning an
+unresolved distributed object reference and assigning it to the symbol
+\texttt{y}.
+(\textcolor{dark2-1}{b}) Following the model description, messages containing sufficient information on
+the request are pushed to all of the target chunk queues, which in this case,
+given that there is only one distributed object reference in \texttt{args}, are
+chunks \(c_1, c_2, \dots, c_n\).
+(\textcolor{dark2-1}{c}) Node \(S\) may pop from any of these queues in any order, so consider the first
+popped message to relate to chunk \(c_m\) for some \(1 \geq m \geq n\).
+(\textcolor{dark2-1}{d}) The server-side expression will take the form, 
+\lstinline[language=R]{do.call.msg(what=f1, args=list(<distObjRef x>), target=Cm, assign=TRUE)},
+where \texttt{<obj>} refers to the value of \texttt{obj}.
+(\textcolor{dark2-1}{e}) The expression will in turn call \lstinline[language=R]{refToRec} and
+\lstinline[language=R]{alignment} on \texttt{Cm} and the \texttt{args} list,
+which, given the resolved state of all chunks, will replace the
+\texttt{<distObjRef x>} in \texttt{args} with it's corresponding emerged
+object, in this case the referent of \texttt{Cm}.
+Upon completion of performing \texttt{f1} on the new \texttt{args} list, the
+resultant chunk \(c_{n+k}\) for \(k > 0 \) is (\textcolor{dark2-1}{f}) added to the local chunk table
+of node \(S\) for later retrieval, with it's queue also monitored, and (\textcolor{dark2-1}{g})
+information on the size and other metadata of \(c_{n+k}\) are obtained and sent
+to the distributed table for future reference.
+
+ If the node \(K\) (\textcolor{dark2-2}{i}) sent out another batch of requests
+ based on the expression (\textcolor{dark2-2}{h})
+\lstinline[language=R]{do.call.distObjRef(what=f2, args=list(x, y))}, and
+\texttt{x} is given as the target, then (\textcolor{dark2-2}{j}) with node \(S\) popping from queue
+\(c_m\) once again, (\textcolor{dark2-2}{k}) the following expression is then formed on \(S\):
+\lstinline[language=R]{do.call.msg(what=f2, args=list(<distObjRef x>, <distObjRef y>), target=Cm, assign=TRUE)}.
+(\textcolor{dark2-2}{l}) As before, the expression will call \lstinline[language=R]{refToRec} and
+\lstinline[language=R]{alignment} on \texttt{Cm} and the \texttt{args} list,
+but the relevant index information on the chunks belonging to the value of
+distributed object reference \texttt{y} is missing, and will be blocked
+indefinitely, as there is no means of determining where in the distributed
+object \(y\) is the chunk adjacent to chunk \texttt{Cm}.
+The algorithm therefore never terminates in such a situation.
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		\draw[very thin,-{>[scale=2]}] (0,10) -- (0,5.5) node[at start,anchor=south] {\(K\)};
+		\draw[very thin,-{>[scale=2]}] (2,10) -- (2,5.5) node[at start, anchor=south] {Q};
+		\draw[very thin] (4,10) -- (4,5) node[at start, anchor=south] {\(S\)};
+
+		% from K
+		\draw[-{>[scale=2]},dark2-1] (0,9.5) -- (2,9)
+		node[at start,anchor=east] {a}
+		node[midway,anchor=south] {b};
+		\draw[-{>[scale=2]},dark2-2] (0,8.5) -- (2,8)
+		node[at start,anchor=east] {\texttt{h}}
+		node[midway,anchor=south] {i};
+
+		% from Q
+		\draw[-{>[scale=2]},dark2-1] (2,9) -- (4,8.5)
+		node[at end,anchor=west] {\texttt{d}}
+		node[midway,anchor=south] {c};
+		\draw[-{>[scale=2]},dark2-2] (2,7.5) -- (4,7)
+		node[at end,anchor=west] {\texttt{k}}
+		node[midway,anchor=north] {j};
+
+		% from S
+		\draw[very thick,dark2-1] (4,8.5) -- (4,7.5)
+		node[midway,anchor=west] {e};
+		\draw[-{>[scale=2]},dark2-1] (4,7.5) -- (2,7.5)
+		node[at start,anchor=west] {\texttt{f}}
+		node[midway,anchor=south] {g};
+		\draw[-{>[scale=2]},very thick,dark2-2] (4,7) -- (4,5)
+		node[midway,anchor=west] {l};
+	\end{tikzpicture}
+	\caption{\label{fig:counterex}A simple failure example to demonstrate a race condition in the model.}
+\end{figure}
+
+\subsection{Model Solutions}
+
+A client-side solution exists in forcing resolution of distributed object
+references prior to sending any messages to the chunk queues.
+This guarantees that any information relating to chunk alignment is cached with
+each chunk reference, and that the server will always have access to this
+information.
+This would be immediately implementable, but will have a significant
+corresponding drawback in removing prior asynchrony on the client end, blocking
+a \lstinline[language=R]{do.call.distObjRef} until full chunk resolution of the
+underlying arguments.
+It is therefore not a full solution in itself, but removes race conditions
+until a more complete solution is implemented.
+
+The node acting as server presents a more likely candidate for the location of
+a solution to the race condition.
+If the \lstinline[language=R]{do.call.msg} was made concurrent through a
+backgrounding-like operation, the blocking until alignment data was available
+would remain, but with a guarantee of eventual availability of the data, thus
+allowing for termination.
+
+\subsection{Solution Implementation}
+
+Implementation of server-side concurrency in the
+\lstinline[language=R]{do.call.msg} and it's surrounding constructs implies a
+parallel operation such as that provided by the \texttt{parallel} package,
+located principally in the \lstinline[language=R]{mcparallel} function.
+An initial problem with reliance on \lstinline[language=R]{mcparallel} is the
+fork produces copy-on-write semantics, and so storing chunks in the local chunk
+table becomes impossible when the chunk table is forked.
+This may be overcome by removing the concept of a local chunk table, and
+storing all objects in the local \texttt{osrv} server, which, being a separate
+process, would not be forked itself. 
+A potential problem in this solution is in the memory management of
+\texttt{osrv}, and what would be done if references to the R objects are forked
+away, but the data is intended to remain on the server.
 
 \section{Conclusion and Next Steps}
 
+TODO after implementing the above...
+
+Initialisation
+
+Chunk subset transfers
+
 Decision Tree
+
+Data Redundancy
 
 With point to point data movement, full decentralisation possible if using a
 distributed hash table to track chunk locations (apache cassandra etc.) in
@@ -55,8 +380,6 @@ order to have no central point of failure, along with local queues.
 
 Randomly ordered distributed objects and their properties
 
-Data Redundancy
-
-Chunk subset transfers
+\printbibliography
 
 \end{document}
