@@ -81,7 +81,7 @@ a greater whole.
 This is a heavily language-dependent aspect, as it relies on R's paradigmatic
 nature of being array-oriented.
 R takes it's array-oriented style from S, which was in turn influenced by
-Iverson's languages FORTRAN and APL, both heavily
+Iverson's APL and Backus' FORTRAN, both heavily
 array-oriented\cite{becker1994shistory}\cite{iverson2007notation}.
 A central feature of array-oriented languages involves ``parallel'' (in array,
 not computational terms) operation on arrays with elements in corresponding
@@ -130,15 +130,18 @@ entered into, with figure \ref{fig:distobj} accompanying.
 		\node[proc,below=of ft] (dccr) {\texttt{do.call.chunkRef}};
 		\node[below=of dccr] (midlowcl) {};
 		\node[proc,left=\blockdist of midlowcl] (dor) {\texttt{distObjRef}};
-		\node[below=of dor] (out) {};
 		\node[proc,right=\blockdist of midlowcl] (sendreq) {\texttt{send}};
+
+		\node[object,below=2 of dor] (cpdot) {\(\dots\)};
+		\node[object,left=\blockdist of cpdot] (cp) {\(c_p\)};
+		\node[object,right=\blockdist of cpdot] (cq) {\(c_q\)};
 
 		% chunk queues
 		\node[queue,right={1.5*\commdist} of dccr] (cmq) {\(c_m\)};
 		\node[queue,above=of cmq] (cmdotq) {\(\dots\)};
 		\node[queue,above=of cmdotq] (cnq) {\(c_n\)};
-		\node[queue,right={3*\blockdist} of cmdotq] (cmdotqdot) {\(\dots\)};
-		\node[queue,right={3*\blockdist} of cmq] (cmqdot) {\(\dots\)};
+		\node[queue,right={5*\blockdist} of cmdotq] (cmdotqdot) {\(\dots\)};
+		\node[queue,right={5*\blockdist} of cmq] (cmqdot) {\(\dots\)};
 
 		% server args
 		\node[proc,right={1.5*\commdist} of cmq] (dc) {\texttt{do.call}};
@@ -154,10 +157,11 @@ entered into, with figure \ref{fig:distobj} accompanying.
 		\begin{pgfonlayer}{categories}
 			\node[category,fit=(cn)(cndot)(cm),label={[name=dnl] \texttt{distObjRef x}}] (dn) {};
 			\node[category,fit=(ci)(cidot)(cj),label={[name=dil] \texttt{distObjRef y}}] (di) {};
+			\node[category,fit=(cp)(cpdot)(cq),label={[name=dql]\texttt{distObjRef z}}] (dq) {};
 		\end{pgfonlayer}
 
 		\begin{pgfonlayer}{units}
-			\node[unit,fit=(dnl)(dil)(dor)(sendreq),label={[name=cl] Client}] (c) {};
+			\node[unit,fit=(dnl)(dil)(dor)(sendreq)(dq)(dql),label={[name=cl] Client}] (c) {};
 			\node[unit,fit=(cmq)(cnq),label={[name=qsl] Queue Server}] (qs) {};
 			\node[unit,fit=(cns)(cdots),label={[name=setsl] Distributed Keys}] (sets) {};
 			\node[unit,fit=(dcm)(set),label={[name=sl] Server}] (s) {};
@@ -169,7 +173,7 @@ entered into, with figure \ref{fig:distobj} accompanying.
 		\draw[mypath] (ft) -- (dccr);
 		\draw[mypath] (dccr) -- (dor);
 		\draw[mypath] (dccr) -- (sendreq);
-		\draw[mypath] (dor) -- (out);
+		\draw[mypath] (dor) -- (dql);
 
 		\draw[mypath] (sendreq.east) -- (cmq.west);
 		\draw[mypath] (sendreq.east) -- (cmdotq.west);
@@ -188,7 +192,8 @@ entered into, with figure \ref{fig:distobj} accompanying.
 		\draw[mypath] (set) -- (cdots);
 	\end{tikzpicture}
 	\caption{\label{fig:distobj}Process of evaluation and alignment for
-	distributed object references}
+	distributed object references resulting from the expresssion,
+	\lstinline[language=R]{z <- do.call.distObjRef(what=f, args=list(x, y))}}
 \end{figure}
 
 Similarly to chunk manipulation, the central function for performing operations
@@ -244,7 +249,8 @@ server end.
 A race condition arises when the size of an unresolved object is needed during
 alignment, but that object is to be computed on that same node some time after
 completing the evaluation of the current \lstinline[language=R]{do.call.msg}. 
-\newpage
+
+
 Formulated as a counter example, with the correspondence to the diagram in
 figure \ref{fig:counterex} denoted with the coloured letters in brackets:
 
