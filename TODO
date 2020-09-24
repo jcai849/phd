@@ -3,6 +3,7 @@
 . Get demo working for first expression
 . Create distributed central table of chunk data; remove job queue concept
 .. include all methods capable of access and update dependent on table updates; to, from, size, preview, resolved, etc.
+. Rename msg to job, read to select
 .. Go through sections
 .. docs & tests
 . benchmarks
