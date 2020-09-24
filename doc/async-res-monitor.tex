@@ -1,0 +1,93 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{doc/header}
+
+\begin{document}
+\title{Asynchronous Server-Side Resolution Monitoring}
+\author{Jason Cairns}
+\year=2020 \month=9 \day=24
+\maketitle{}
+
+\section{Introduction}
+
+The advantages of asynchrony in the system come with significant costs, with an
+example of a race condition arising from asynchrony examined in
+\href{ini-distobj-exp.pdf}{Initial Distributed Object Experiments}.
+The correctness of this system is not altered by asynchrony in itself, but the
+object models and the state of resolution in particular are clear derivatives
+of errors.
+In the general case, every message containing a list of distributed references
+for arguments contains the implicit dependency on the resolution of those
+distributed arguments which must be forced prior to emerging and aligning them
+as part of standard server operations.
+When unresolved references are sent through to a node that can only resolve
+them after evaluating the current message, rather than being able to rely on
+another node for generating a resolution, a deadlock situation arises.
+This document shows some potential solutions to the issues associated with the
+model in asynchronous flow.
+
+\section{Alternating Recursive Blocking Pop and Evaluation}
+Rather than blocking and waiting for resolution of distributed references, an
+alternative model recurses on the \lstinline[language=R]{server} function upon
+encountering unresolved references, returning upon an evaluation which possibly
+serves to resolve the relevant distributed reference.
+Given that resolution dependencies form a directed acyclic graph, due to
+references only being created out of existing references, and assuming a fixed
+set of messages, any unresolved reference that leads to recursion will
+eventually be resolved upon evaluation of it's associated message by either
+another node, or more importantly, by the same node at some deeper level of
+recursion.
+This solution uses the call stack as a central data structure.
+It is equivalent to performing a blocking pop on the message queues, then
+pushing the message on a stack, and either evaluating the content of the
+message or returning to the message queues, depending on whether the references
+in the message are in the state of being resolved or not, respectively.
+
+% diagram for below
+Potential for a problem arises when a node is at some recursive step, having
+unresolved references, and is in the state of waiting on the message queues.
+If the references contained on it's stack all depend on jobs that are evaluated
+by other nodes, thereby being markedfor resolution themselves, and no more
+messages come through in any of the monitored queues, the server is in a state
+of having the messages on the stack ready for evaluation, yet it will instead
+stay listening on it's queues indefinitely, never terminating.
+
+This issue can be weakened by changing the pop of the message queues to be
+non-blocking.
+With this in place, given a message with unresolved references, a server would
+recurse, perform a pop on the message queues, and either receive an element,
+and perform as previously specified, or receive no element and return to check
+if the message has references resolved yet, repeating the process until
+resolution of the original message has taken place, thereby ideally servicing
+every message that arrives to the node.
+
+% diagrams
+The stack data structure serves to limit even this change, in association with
+the fact that popped message queues have no ordering defined between them, with
+such an ordering having no means of imposition.
+An example of non-termination can be given by constructing a directed acyclic
+graph of dependencies, then having the stack filled in such a manner that the
+ability to move to a state of evaluation is impossible.
+This is given in the diagram of dependencies in figure , and the stack diagram
+in figure .
+As can be seen, some message identified in the figure by \(d\) depends on the
+evaluation of message \(a\) for resolution, but is barred from it by message
+\(b\), which depends on message \(c\), which in turn is evaluated on some other
+node.
+The order of events in the system follow that message \(c\) is sent out, taking
+a very long time to be evaluated on node \(B\).
+Immediately after sending, and concurrent to evaluation, messages \(d\), \(b\),
+and \(a\) are sent out, and read by node \(A\) in inverse order, as \(a\),
+\(b\), and \(d\).
+If no more messages are sent, the end result is a constant switching between
+monitoring message queues, and checking the prerequisites of message \(d\) if,
+speaking equivalently, \(a\) has been evaluated yet, which as long as the
+server remains in these described states, will never occur.
+
+\section{Inbox List Controlling Finite State Machine}
+% explain
+% problem - polling massively inefficient; # of messages bounded only by evaluation time of prereqs, which is theoretically unbounded.
+
+\section{Job Completion Queues}
+Pushing after popping resolution queue to serve as centralised gossip protocol
+\end{document}

@@ -14,6 +14,7 @@
 . redis-tests self-containing with mcparallel
 . Implementation of inbox; contrive async situation to demonstrate difference
 .. include all methods capable of access and update dependent on table updates; to, from, size, preview, resolved, etc.
+. Rename msg to job, read to select
 .. Go through sections
 .. docs & tests
 . benchmarks
