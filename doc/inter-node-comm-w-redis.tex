@@ -91,9 +91,11 @@ Ping also acts in a similar manner to the direct ping, except that it pushes a
 message to the forwarder queue, with the message containing fields specifying
 the next host as well as the content of the message.
 
-\lstinputlisting[language=R,
-	caption={Echo request with rediscc, from original source at \lstname},
-	label=src:redis-echo]{../R/rediscc-echo-request.R}
+\begin{listing}
+	\inputminted{r}{R/rediscc-echo-request.R}
+	\caption{Echo request with rediscc}
+	\label{src:redis-echo}
+\end{listing}
 
 \printbibliography{}
 

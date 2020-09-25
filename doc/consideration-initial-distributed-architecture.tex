@@ -44,7 +44,7 @@ The following is an idealised R session running and testing a distributed R
 architecture, with favourable attributes taken from other distributed packages,
 as well as some new concepts introduced.
 
-\begin{lstlisting}[language=R]
+\begin{minted}{r}
 > c <- makeCluster(hosts = paste0("host", 1:10, type = "SOCK")	<1>
 > c
 
@@ -114,7 +114,7 @@ Distributed Integer
 	cont <- any(x < 70)	<11>
 	receive(cont)
 }
-\end{lstlisting}
+\end{minted}
 
 \begin{description}
 	\item[1] Possible alternative: \texttt{makeYARNcluster()}.

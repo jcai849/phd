@@ -49,10 +49,14 @@ single function as in the registration for doParallel,
 The syntax of foreach consists of a \texttt{foreach()} function call
 next to a \texttt{\%do\%} operator, and some expression to the
 right\cite{weston19:_using}. Without loss in generality, the syntactic
-form is given in Listing~\ref{lst:syntax}.
-\begin{lstlisting}[caption={Standard foreach syntax},label=lst:syntax,language=R]
+form is given in Listing~\ref{src:syntax}.
+
+\begin{listing}
+\begin{minted}{r}
 foreach(i=1:n) %do% {expr}
-\end{lstlisting}
+\end{minted}
+\caption{Standard foreach syntax}\label{src:syntax}
+\end{listing}
 
 The \texttt{foreach()} function can take other arguments including
 changing the means of combination along iterations, whether iterations
@@ -128,14 +132,18 @@ concepts are mutually exclusive.
 In spite of the constraints, iterated functions can actually be emulated in
 foreach through the use of destructive reassignment within the passed
 expression, or through the use of stateful iterators.
-Examples of both are given in listings \ref{lst:serial} and \ref{lst:serial-iter}.
+Examples of both are given in listings \ref{src:serial} and \ref{lst:serial-iter}.
 
-\begin{lstlisting}[language=R,caption={Serial iterated function through destructive reassignment},label=lst:serial]
+\begin{listing}
+\begin{minted}{R}
 x <- 10
 foreach(i=1:5) %do% {x <- x+1}
-\end{lstlisting}
+\end{minted}
+\caption{Serial iterated function through destructive reassignment}\label{src:serial}
+\end{listing}
 
-\begin{lstlisting}[language=R,caption={Serial iterated function through creation of a stateful iterator},label=lst:serial-iter]
+\begin{listing}
+\begin{minted}{R}
 addsone <- function(start, to) {
 	nextEl <- function(){
 		start <<- start + 1
@@ -152,26 +160,34 @@ it <- addsone(10, 15)
 nextElem(it)
 
 foreach(i = addsone(10, 15), .combine = c) %do% i
-\end{lstlisting}
+\end{minted}
+\caption{Serial iterated function through creation of a stateful iterator}\label{src:serial-iter}
+\end{listing}
 
 As alluded to earlier, the functionality breaks down when attempting to run
 them in parallel.
-Listings \ref{lst:parallel} and \ref{lst:parallel-iter} demonstrate attempts to
+Listings \ref{src:parallel} and \ref{lst:parallel-iter} demonstrate attempts to
 evaluate these iterated functions in parallel.
 They only return a list of 5 repetitions of the same ``next'' number, not
 iterating beyond it.
 
-\begin{lstlisting}[language=R,caption={Parallel Iteration attempt through destructive reassignment},label=lst:parallel]
+\begin{listing}
+\begin{minted}{R}
 cl <- makeCluster(2)
 doParallel::registerDoParallel(cl)
 x <- 10
 foreach(i=1:5) %dopar% {x <- x+1}
-\end{lstlisting}
+\end{minted}
+\caption{Parallel Iteration attempt through destructive reassignment}\label{src:parallel}
+\end{listing}
 
-\begin{lstlisting}[language=R,caption={Parallel Iteration attempt through a stateful iterator},label=lst:parallel-iter]
+\begin{listing}
+\begin{minted}{R}
 doParallel::registerDoParallel
 foreach(i = addsone(10, 15), .combine = c) %dopar% i
-\end{lstlisting}
+\end{minted}
+\caption{Parallel Iteration attempt through a stateful iterator}\label{src:parallel-iter}
+\end{listing}
 
 \section{Extensions}
 \label{sec:extensions}

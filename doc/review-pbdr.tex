@@ -79,32 +79,43 @@ over iteration on distributed objects is tested.
 
 To work comparatively, a simple working local-only version of the algorithm is
 produced in listing \ref{src:local-rwls}.
-\lstinputlisting[float, language=R,
-	caption={Local GLM with RWLS},
-	label=src:local-rwls]{../R/review-rwls.R}
+
+\begin{listing}
+\inputminted{r}{R/review-rwls.R}
+	\caption{Local GLM with RWLS}
+	\label{src:local-rwls}
+\end{listing}
+
 It outputs a \(\hat{\beta}\) matrix after several seconds of computation.
 
 Were pbdDMAT to function transparently as regular matrices, as the package
 README implies, then all that would be required to convert a local algorithm to
 distributed would be to prefix a \texttt{dd} to every \texttt{matrix} call, and
 bracket the program with a template as per listing \ref{src:bracket}.
-\begin{lstlisting}[float, language=R, frame=L,
-caption={Idealised Common Wrap for Local to Distributed Matrices},
-label=src:bracket]
+
+\begin{listing}
+\begin{minted}{r}
 suppressMessages(library(pbdDMAT))
 init.grid()
 
 # program code with `dd` prefixed to every `matrix` call
 
 finalize()
-\end{lstlisting}
+\end{minted}
+\caption={Idealised Common Wrap for Local to Distributed Matrices}\label{src:bracket}
+\end{listing}
+
 This is the form of transparency offered by packages such as \textit{parallel},
 \textit{foreach}, or \textit{sparklyr} in relation to dplyr.
 The program would then be written to disk, then executed, for example with the
 following:
-\begin{lstlisting}
+
+\begin{listing}
+\begin{minted}{bash}
 mpirun -np <# of cores> Rscript <script name>
-\end{lstlisting}
+\end{minted}
+\end{listing}
+
 The program halts however, as forms of matrix creation other than through
 explicit \texttt{matrix()} calls are not necessarily picked up by that process;
 \texttt{cbind} requires a second formation of a \texttt{ddmatrix}. The first
@@ -120,15 +131,19 @@ necessary, including specifying return type of the diag matrix as a replacement.
 The final working code of pbdDMAT GLM through RWLS is given in listing
 \ref{src:dmat}, with the code diff given in listing \ref{src:diff}.
 Execution time was longer for the pbdR code on a dual-core laptop, however it
-is likely faster over a cluster. %% TEST THIS!!
+is likely faster over a cluster.
 
-\lstinputlisting[float, language=R,
-	caption={pbdDMAT GLM with RWLS},
-	label=src:dmat]{../R/review-pbdr.R}
+\begin{listing}
+\inputminted{r}{R/review-pbdr.R}
+	\caption{pbdDMAT GLM with RWLS}
+	\label{src:dmat}
+\end{listing}
 
-\lstinputlisting[float, language=diff,
-	caption={Diff between local and pbdR code},
-	label=src:diff]{../R/review-pbdr.diff}
+\begin{listing}
+\inputminted{r}{R/review-pbdr.diff}
+	\caption{Diff between local and pbdR code}
+	\label{src:diff}
+\end{listing}
 
 It is worth noting that options for optimisation and tuning are far more
 extensive than those utilised in this example, including the capacity to set

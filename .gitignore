@@ -1,5 +1,6 @@
 tags
 /out/*.pdf
+/out/_minted*
 /bib/*.pdf
 /meta/*.pdf
 *.epub

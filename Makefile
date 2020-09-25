@@ -10,15 +10,16 @@ all: $(TEXOUT)
 
 $(OUTDIR)/%.pdf: $(DOCDIR)/%.tex
 	mkdir -p $(OUTDIR)
-	lualatex -output-directory $(OUTDIR) $<
+	lualatex -shell-escape -output-directory $(OUTDIR) $<
 	makeglossaries -d $(OUTDIR) $(notdir $(basename $<))
 	biber --input-directory $(OUTDIR) $(OUTDIR)/$(notdir $(basename $<))
-	lualatex -output-directory $(OUTDIR) $<
+	lualatex -shell-escape -output-directory $(OUTDIR) $<
 
 print-%  : ; @echo $* = $($*)
 
 clean:
 	rm -f $(OUTDIR)/*.aux
+	rm -rf $(OUTDIR)/_minted*
 	rm -f $(OUTDIR)/*.svg
 	rm -f $(OUTDIR)/*.bbl
 	rm -f $(OUTDIR)/*.blg

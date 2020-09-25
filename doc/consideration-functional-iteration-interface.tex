@@ -70,7 +70,7 @@ methods dispatched based on the class of \texttt{x0}.
 As an example of an iterated function, a GLM can be defined using this
 interface, as outlined in the following listing:
 
-\begin{lstlisting}[float, language=R]
+\begin{minted}{r}
 # include definitions for X and y
 
 pr <- function(X, B){
@@ -90,7 +90,7 @@ x0 <- matrix(x(0,0))
 P <- quote(colSums(xn_1 - xn)^2) > tolerance)
 
 iter(x0, P, fn)
-\end{lstlisting}
+\end{minted}
 
 \section{Implementation Details}
 
@@ -98,7 +98,7 @@ Internally, a while loop with predicate \texttt{P} runs function \texttt{fn} on
 it's returned output, starting with \texttt{x0}.
 A basic, non-generic implementation could take the following form:
 
-\begin{lstlisting}[float, language=R]
+\begin{minted}{r}
 iter <- function(x0, P, fn){
 	ModifyBaseEnv(P, fn)		<1>
 	while (P) {
@@ -107,7 +107,7 @@ iter <- function(x0, P, fn){
 	}
 	xn
 }
-\end{lstlisting}
+\end{minted}
 
 \begin{description}
 	\item[1] This is required in the case that \texttt{P} or \texttt{fn}

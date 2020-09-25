@@ -22,6 +22,11 @@
 \usepackage{tabularx}
 \usepackage{booktabs}
 
+% minted
+\usepackage[outputdir=out]{minted}
+\usemintedstyle{friendly}
+\setminted{obeytabs=true}
+
 % Theorems
 \usepackage{amsthm}
 \newtheorem{definition}{Definition}
@@ -80,30 +85,10 @@
 \def\commdist{1.5}
 \def\blockdist{0.1}
 
-% Listings
-\usepackage{listings}
-
-\lstset{ 
-	backgroundcolor=\color{white},   
-	basicstyle=\ttfamily\small,
-	breaklines=true,                 
-	captionpos=b,                    
-	commentstyle=\color{mygreen},    
-	frame=single,	                   
-	keepspaces=true,                 
-	keywordstyle=\color{mynavy},       
-	stringstyle=\color{mymauve}
-}
-\lstdefinelanguage{diff}{
-	morecomment=[f][\color{diffstart}]{@@},
-	morecomment=[f][\color{diffincl}]{>\ },
-	morecomment=[f][\color{diffrem}]{<\ },
-}
-
 % clrscode3e
 \usepackage{clrscode3e}
-\newfloat{lstclrs}{thpb}{lol}
-\floatname{lstclrs}{Listing}
+\newfloat{srcclrs}{thpb}{lol}
+\floatname{srcclrs}{Listing}
 
 % Glossary
 \usepackage{glossaries}

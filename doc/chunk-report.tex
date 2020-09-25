@@ -20,8 +20,8 @@ self-sufficient distObj package, along with the modifications recommended by
 
 The functionality of the package can be demonstrated through installing distObj
 and it's prerequisites, and, with a running \texttt{redis-server}, evaluating
-\lstinline[language=R]{demo("chunk-server", package="distObj")} in one R
-process, and \lstinline[language=R]{demo("chunk-client", package="distObj")} in
+\mintinline{r}{demo("chunk-server", package="distObj")} in one R
+process, and \mintinline{r}{demo("chunk-client", package="distObj")} in
 another process on the same host, stepping through the ``chunk-client'' demo to
 control operation, with the results appearing similar to those recorded in
 table \ref{tab:chunk-comm}.
@@ -222,33 +222,45 @@ a fast and reliable mechanism for co-ordination and data movement in the system.
 \section{Listings}\label{sec:listings}
 
 \newpage
-\lstinputlisting[language=R, float,
-	caption={Chunk client demo, source at \lstname},
-	label=src:chunk-client]{../R/msg-q-chunk/chunk-client.R}
-\lstinputlisting[language=R, float,
-	caption={Chunk server implementation, source at \lstname},
-	label=src:chunk-server]{../R/msg-q-chunk/chunk-server.R}
-\lstinputlisting[language=R, float,
-	caption={Declaration of generic functions, source at \lstname},
-	label=src:chunk-generic]{../R/msg-q-chunk/generic.R}
-\lstinputlisting[language=R, float,
-	caption={Declaration of chunk-specific functions, source at \lstname},
-	label=src:chunk-chunk]{../R/msg-q-chunk/chunk.R}
-\lstinputlisting[language=R, float,
-	caption={Implementation of local-dependent functions, source at
-	\lstname},
-	label=src:chunk-local]{../R/msg-q-chunk/local.R}
-\lstinputlisting[language=R, float,
-	caption={Implementation of queue communication functions, source at
-	\lstname},
-	label=src:chunk-q]{../R/msg-q-chunk/q-comm.R}
-\lstinputlisting[language=R, float,
-	caption={Implementation of \texttt{do.call} functions, source at
-	\lstname},
-	label=src:chunk-docall]{../R/msg-q-chunk/do.call.R}
-\lstinputlisting[language=R, float,
-	caption={Miscellaneous utility functions, source at
-	\lstname},
-	label=src:chunk-util]{../R/msg-q-chunk/util.R}
+\begin{listing}
+	\inputminted{r}{R/msg-q-chunk/chunk-client.R}
+	\caption{Chunk client demo}
+	\label{src:chunk-client}
+\end{listing}
+\begin{listing}
+	\inputminted{r}{R/msg-q-chunk/chunk-server.R}
+	\caption{Chunk server implementation}
+	\label{src:chunk-server}
+\end{listing}
+\begin{listing}
+	\inputminted{r}{R/msg-q-chunk/generic.R}
+	\caption{Declaration of generic functions}
+	\label{src:chunk-generic}
+\end{listing}
+\begin{listing}
+	\inputminted{r}{R/msg-q-chunk/chunk.R}
+	\caption{Declaration of chunk-specific functions}
+	\label{src:chunk-chunk}
+\end{listing}
+\begin{listing}
+	\inputminted{r}{R/msg-q-chunk/local.R}
+	\caption{Implementation of local-dependent functions}
+	\label{src:chunk-local}
+\end{listing}
+\begin{listing}
+	\inputminted{r}{R/msg-q-chunk/q-comm.R}
+	\caption{Implementation of queue communication functions}
+	\label{src:chunk-q}
+\end{listing}
+\begin{listing}
+	\inputminted{r}{R/msg-q-chunk/do.call.R}
+	\caption{Implementation of \texttt{do.call} functions}
+	\label{src:chunk-docall}
+\end{listing}
+\begin{listing}
+	\inputminted{r}{R/msg-q-chunk/util.R}
+	\caption{Miscellaneous utility functions}
+	\label{src:chunk-util}
+\end{listing}
 
 \end{document}

@@ -50,9 +50,10 @@ evaluation then caching; performed in sparklyr through \texttt{sdf\_persist()}.
 The Babylonian method for calculating a square root is a simple iterative
 procedure, used here as an example.
 A standard form in R with non-optmimised initial value is given in listing
-\ref{lst:basicbab}.
+\ref{src:basicbab}.
 
-\begin{lstlisting}[language=R, caption={Simple Iteration with the Babylonian Method}, label=lst:basicbab]
+\begin{listing}
+\begin{minted}{r}
 basic_sqrt <- function(S, frac_tolerance=0.01, initial=1){
 	x <- initial
 	while(abs(x\^2 - S)/S > frac_tolerance){
@@ -60,7 +61,9 @@ basic_sqrt <- function(S, frac_tolerance=0.01, initial=1){
 	}
 	x
 }
-\end{lstlisting}
+\end{minted}
+\caption{Simple Iteration with the Babylonian Method}\label{src:basicbab}
+\end{listing}
 
 This iterative function is trivial, but translation to sparklyr is not entirely so.
 
@@ -93,34 +96,44 @@ joining them, \texttt{show\_query()} reveals that the Data Frame that is
 referenced through the \texttt{.data} variable is translated, but the other
 Data Frame has it's list representation passed through, which Spark SQL doesn't
 have the capacity to parse; 
-an example is given in listing \ref{lst:computer-no} (generated through listing
-\ref{lst:bad}), showing an attempt to create a new column from the difference
+an example is given in listing \ref{src:computer-no} (generated through listing
+\ref{src:bad}), showing an attempt to create a new column from the difference
 between two seperate Data Frames
 
-\begin{lstlisting}[language=R, caption={Attempt in R to form new column from the difference between two separate Spark data frames \texttt{S} and \texttt{x}}, label=lst:bad]
+\begin{listing}
+\begin{minted}{r}
 show_query(mutate(S, S = S - x)
-\end{lstlisting}
+\end{minted}
+\caption{Attempt in R to form new column from the difference between two separate Spark data frames \texttt{S} and \texttt{x}}\label{src:bad}
+\end{listing}
 
-\begin{lstlisting}[language=SQL, caption={Spark SQL query generated from attempt to form the difference from two seperate data frames}, label=lst:computer-no]
+\begin{listing}
+\begin{minted}{sql}
 SELECT `S` - list(con = list(master = "yarn", method = "shell", app_name = "sparklyr", config = list(spark.env.SPARK_LOCAL_IP.local = "127.0.0.1", sparklyr.connect.csv.embedded = "\^1.*", spark.sql.legacy.utcTimestampFunc.enabled = TRUE, sparklyr.connect.cores.local = 4, spark.sql.shuffle.partitions.local = 4), state = <environment>, extensions = list(jars = character(0), packages = character(0), initializers = list(), catalog_jars = character(0)), spark_home = "/shared/spark-3.0.0-preview2-bin-hadoop3.2", backend = 4,
     monitoring = 5, gateway = 3, output_file = "/tmp/Rtmpbi2dqk/file44ec187daaf4_spark.log", sessionId = 58600, home_version = "3.0.0")) AS `S1`, `S` - list(x = "x", vars = "initial") AS `S2`
 FROM `S`
-\end{lstlisting}
+\end{minted}
+\caption{Spark SQL query generated from attempt to form the difference from two seperate data frames}\label{src:computer-no}
+\end{listing}
 
 Global variables that evaluate to SQL-friendly objects can be passed and are
 evaluated prior to translation.
-An example is given through listing \ref{lst:global-ok}, generated through
-listing \ref{lst:ok-generator}, where the difference between a variable holding
+An example is given through listing \ref{src:global-ok}, generated through
+listing \ref{src:ok-generator}, where the difference between a variable holding
 a numeric and a Spark Data Frame is translated into the evaluation of the
 variable, transformed to a float for Spark SQL, and its difference with the
 Spark Data Frame, referenced directly.
 
-\begin{lstlisting}[language=SQL, caption={Spark SQL query generated from attempt to form the difference between a data frame and a numeric}, label=lst:global-ok]
+\begin{listing}
+\begin{minted}{sql}
 SELECT `S` - 3.0 AS `S`
 FROM `S`
-\end{lstlisting}
+\end{minted}
+\caption{Spark SQL query generated from attempt to form the difference between a data frame and a numeric}\label{src:global-ok}
+\end{listing}
 
-\begin{lstlisting}[language=R, caption={Capacity in sparklyr to form new column from the difference between a spark data frame and a numeric}, label=lst:ok-generator]
+\begin{listing}
+\begin{minted}{r}
 S
 # Source: spark<S> [?? x 1]
 #      S
@@ -132,13 +145,16 @@ mutate(S, S = S - x)
 #      S
 #  <dbl>
 #     6
-\end{lstlisting}
+\end{minted}
+\caption{Capacity in sparklyr to form new column from the difference between a spark data frame and a numeric}\label{src:ok-generator}
+\end{listing}
 
 A reasonable approach to implementing a Babylonian method in sparklyr is then
 to combine \texttt{S} and \texttt{x} in one dataframe, and iterate within
 columns.
 
-\begin{lstlisting}[language=R, caption={Babylonian method implementation using sparklyr}, label=lst:sparklyr-bab]
+\begin{listing}
+\begin{minted}{R}
 library(sparklyr)
 
 sc <- spark_connect(master = "yarn")
@@ -154,7 +170,9 @@ sparklyr_sqrt <- function(S, sc, frac_tolerance=0.01, initial=1){
         }
         collect(bab)$x
 }
-\end{lstlisting}
+\end{minted}
+\caption{Babylonian method implementation using sparklyr}\label{src:sparklyr-bab}
+\end{listing}
 
 % A sneaky optimised version using global variables evaluated purely with SQL
 

@@ -88,7 +88,7 @@ not computational terms) operation on arrays with elements in corresponding
 indices; beyond serving as a store of information, arrays can be comparable
 with each other, and operations performed on associated elements between them.
 This is obvious even in simple expressions such as 
-\lstinline[language=R]{1:10 + 11:20}, wherein vectors are operated upon in
+\mintinline{r}{1:10 + 11:20}, wherein vectors are operated upon in
 adjacently.
 This expectation raises a problem for operations on multiple distributed
 objects, where if the chunks holding adjacent elements are required for a
@@ -103,7 +103,7 @@ operation to be located on the same node for processing.
 Such a task is further compounded by the standard operation of recycling,
 wherein arrays of shorter length than others are copied end-to-end in order to
 achieve the same size.
-An example is given in the expression \lstinline[language=R]{1:10 + 1:2}, where
+An example is given in the expression \mintinline{r}{1:10 + 1:2}, where
 the second vector of length 2 is repeated 4 additional times in order to match
 the size of the larger.
 This is a sufficiently common task that the system should provide it by default
@@ -193,38 +193,38 @@ entered into, with figure \ref{fig:distobj} accompanying.
 	\end{tikzpicture}
 	\caption{\label{fig:distobj}Process of evaluation and alignment for
 	distributed object references resulting from the expresssion,
-	\lstinline[language=R]{z <- do.call.distObjRef(what=f, args=list(x, y))}}
+	\mintinline{r}{z <- do.call.distObjRef(what=f, args=list(x, y))}}
 \end{figure}
 
 Similarly to chunk manipulation, the central function for performing operations
-is the \lstinline[language=R]{do.call} function, with a method defined for
+is the \mintinline{r}{do.call} function, with a method defined for
 \texttt{distObjRef}. It possesses similar formal parameters to the standard
-\lstinline[language=R]{do.call}, being \texttt{what}, \texttt{args}, and
+\mintinline{r}{do.call}, being \texttt{what}, \texttt{args}, and
 \texttt{assign}, which respectively describe the function to be called, a list
 of arguments to serve as arguments to \texttt{what}, and whether to return a
 value or to save the result and monitor it as a distributed object.
 
 A node acting in the role of client will call a
-\lstinline[language=R]{do.call.distObjRef} on a list of distributed object
+\mintinline{r}{do.call.distObjRef} on a list of distributed object
 references, as well as non-distributed.
 Of this list, one distributed object reference will be chosen as the target
 with which all alignment is to be performed relative to, with the function
-\lstinline[language=R]{findTarget}.
-From this target, \lstinline[language=R]{do.call.chunkRef} is called with an
+\mintinline{r}{findTarget}.
+From this target, \mintinline{r}{do.call.chunkRef} is called with an
 additional \texttt{target} argument relating the target chunk, on all of the
 chunk references within the target, with the standard resultant messages being
 sent to the appropriate chunk queues.
 
 The queues are monitored and popped by the nodes holding the chunks, and
-\lstinline[language=R]{do.call.msg} is called on the popped message, taking the
-same arguments as \lstinline[language=R]{do.call.chunkRef}.
-Within \lstinline[language=R]{do.call.msg}, \lstinline[language=R]{refToRec}
-and \lstinline[language=R]{alignment} are called to replace the reference
+\mintinline{r}{do.call.msg} is called on the popped message, taking the
+same arguments as \mintinline{r}{do.call.chunkRef}.
+Within \mintinline{r}{do.call.msg}, \mintinline{r}{refToRec}
+and \mintinline{r}{alignment} are called to replace the reference
 objects in the \texttt{args} list with copies of their referent objects at
 indices analogous to the target chunk, thereby ensuring correctness in
 adjacent operations between arrays.
 
-The standard \lstinline[language=R]{do.call} is then used on the list of whole,
+The standard \mintinline{r}{do.call} is then used on the list of whole,
 aligned objects, with the results sent to keys in the distributed table
 associated with the new chunk ID, completing work on the server side.
 
@@ -234,13 +234,13 @@ As presented, the model suffers from a fatal flaw when used asynchronously.
 Alignment necessarily depends on knowing the indices of where in a distributed
 object a chunk belongs.
 This information is attained from the distributed keys which the server sets
-based on the resultant chunk's size after \lstinline[language=R]{do.call.msg}.
+based on the resultant chunk's size after \mintinline{r}{do.call.msg}.
 Upon receiving this information, a node holding a distributed object containing
 the appropriate chunk reference can cache this information within the chunk
 reference object, to avoid future lookups.
 
 Therefore the distributed object references forming the list of \texttt{args}
-in \lstinline[language=R]{do.call.distObjRef} can either have all of the index
+in \mintinline{r}{do.call.distObjRef} can either have all of the index
 information cached inside, as a fully resolved object, avoiding any need for
 lookup in the table, or they may lack some of the information, being
 unresolved, and a lookup will have to be performed during alignment on the
@@ -248,7 +248,7 @@ server end.
 
 A race condition arises when the size of an unresolved object is needed during
 alignment, but that object is to be computed on that same node some time after
-completing the evaluation of the current \lstinline[language=R]{do.call.msg}. 
+completing the evaluation of the current \mintinline{r}{do.call.msg}. 
 
 
 Formulated as a counter example, with the correspondence to the diagram in
@@ -259,7 +259,7 @@ a set \({c_1, c_2, \dots, c_n}\) for some finite \(n\), all of which reside on
 a singular node \(S\).
 Let this object have reference \texttt{x} with full resolution on a node \(K\).
 (\textcolor{dark2-1}{a}) The node \(K\) may execute the expression 
-\lstinline[language=R]{y <- do.call.distObjRef(what=f1, args=list(x))}, returning an
+\mintinline{r}{y <- do.call.distObjRef(what=f1, args=list(x))}, returning an
 unresolved distributed object reference and assigning it to the symbol
 \texttt{y}.
 (\textcolor{dark2-1}{b}) Following the model description, messages containing sufficient information on
@@ -269,10 +269,10 @@ chunks \(c_1, c_2, \dots, c_n\).
 (\textcolor{dark2-1}{c}) Node \(S\) may pop from any of these queues in any order, so consider the first
 popped message to relate to chunk \(c_m\) for some \(1 \geq m \geq n\).
 (\textcolor{dark2-1}{d}) The server-side expression will take the form, 
-\lstinline[language=R]{do.call.msg(what=f1, args=list(<distObjRef x>), target=Cm, assign=TRUE)},
+\mintinline{r}{do.call.msg(what=f1, args=list(<distObjRef x>), target=Cm, assign=TRUE)},
 where \texttt{<obj>} refers to the value of \texttt{obj}.
-(\textcolor{dark2-1}{e}) The expression will in turn call \lstinline[language=R]{refToRec} and
-\lstinline[language=R]{alignment} on \texttt{Cm} and the \texttt{args} list,
+(\textcolor{dark2-1}{e}) The expression will in turn call \mintinline{r}{refToRec} and
+\mintinline{r}{alignment} on \texttt{Cm} and the \texttt{args} list,
 which, given the resolved state of all chunks, will replace the
 \texttt{<distObjRef x>} in \texttt{args} with it's corresponding emerged
 object, in this case the referent of \texttt{Cm}.
@@ -284,12 +284,12 @@ to the distributed table for future reference.
 
  If the node \(K\) (\textcolor{dark2-2}{i}) sent out another batch of requests
  based on the expression (\textcolor{dark2-2}{h})
-\lstinline[language=R]{do.call.distObjRef(what=f2, args=list(x, y))}, and
+\mintinline{r}{do.call.distObjRef(what=f2, args=list(x, y))}, and
 \texttt{x} is given as the target, then (\textcolor{dark2-2}{j}) with node \(S\) popping from queue
 \(c_m\) once again, (\textcolor{dark2-2}{k}) the following expression is then formed on \(S\):
-\lstinline[language=R]{do.call.msg(what=f2, args=list(<distObjRef x>, <distObjRef y>), target=Cm, assign=TRUE)}.
-(\textcolor{dark2-2}{l}) As before, the expression will call \lstinline[language=R]{refToRec} and
-\lstinline[language=R]{alignment} on \texttt{Cm} and the \texttt{args} list,
+\mintinline{r}{do.call.msg(what=f2, args=list(<distObjRef x>, <distObjRef y>), target=Cm, assign=TRUE)}.
+(\textcolor{dark2-2}{l}) As before, the expression will call \mintinline{r}{refToRec} and
+\mintinline{r}{alignment} on \texttt{Cm} and the \texttt{args} list,
 but the relevant index information on the chunks belonging to the value of
 distributed object reference \texttt{y} is missing, and will be blocked
 indefinitely, as there is no means of determining where in the distributed
@@ -340,14 +340,14 @@ each chunk reference, and that the server will always have access to this
 information.
 This would be immediately implementable, but will have a significant
 corresponding drawback in removing prior asynchrony on the client end, blocking
-a \lstinline[language=R]{do.call.distObjRef} until full chunk resolution of the
+a \mintinline{r}{do.call.distObjRef} until full chunk resolution of the
 underlying arguments.
 It is therefore not a full solution in itself, but removes race conditions
 until a more complete solution is implemented.
 
 The node acting as server presents a more likely candidate for the location of
 a solution to the race condition.
-If the \lstinline[language=R]{do.call.msg} was made concurrent through a
+If the \mintinline{r}{do.call.msg} was made concurrent through a
 backgrounding-like operation, the blocking until alignment data was available
 would remain, but with a guarantee of eventual availability of the data, thus
 allowing for termination.
@@ -355,10 +355,10 @@ allowing for termination.
 \subsection{Solution Implementation}
 
 Implementation of server-side concurrency in the
-\lstinline[language=R]{do.call.msg} and it's surrounding constructs implies a
+\mintinline{r}{do.call.msg} and it's surrounding constructs implies a
 parallel operation such as that provided by the \texttt{parallel} package,
-located principally in the \lstinline[language=R]{mcparallel} function.
-An initial problem with reliance on \lstinline[language=R]{mcparallel} is the
+located principally in the \mintinline{r}{mcparallel} function.
+An initial problem with reliance on \mintinline{r}{mcparallel} is the
 fork produces copy-on-write semantics, and so storing chunks in the local chunk
 table becomes impossible when the chunk table is forked.
 This may be overcome by removing the concept of a local chunk table, and

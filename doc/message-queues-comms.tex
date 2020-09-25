@@ -68,13 +68,17 @@ A very simple example is given by listings \ref{src:msg-q-master} and
 \ref{src:msg-q-worker}, demonstrating the master and worker node routines
 respectively.
 
-\lstinputlisting[language=R,float,
-	caption={Message queue master node, from original source at \lstname},
-	label=src:msg-q-master]{../R/simple-msg-q-master.R}
+\begin{listing}
+\inputminted{r}{R/simple-msg-q-master.R}
+	\caption{Message queue master node}
+	\label{src:msg-q-master}
+\end{listing}
 
-\lstinputlisting[language=R,float,
-	caption={Message queue worker node, from original source at \lstname},
-	label=src:msg-q-worker]{../R/simple-msg-q-worker.R}
+\begin{listing}
+\inputminted{r}{R/simple-msg-q-worker.R}
+	\caption{Message queue worker node}
+	\label{src:msg-q-worker}
+\end{listing}
 
 The master simply pushes serialised calls to the appropriate queue, and the
 worker loops reading messages from it's particular queue(s), unserialising and

@@ -29,7 +29,7 @@ model in asynchronous flow.
 \section{Alternating Recursive Blocking Pop and Evaluation}
 \label{recurs-stack}
 Rather than blocking and waiting for resolution of distributed references, an
-alternative model recurses on the \lstinline[language=R]{server} function upon
+alternative model recurses on the \mintinline{r}{server} function upon
 encountering unresolved references, returning upon an evaluation which possibly
 serves to resolve the relevant distributed reference.
 Given that resolution dependencies form a directed acyclic graph, due to
@@ -137,10 +137,10 @@ associated procedure which iterates along them, checking their resolution
 status and evaluating if possible, returning eventually to read the queues,
 then assuming finite messages, there will be no issues as in section
 \ref{recurs-stack}.
-Server pseudocode is given in listing \ref{lst:q-state}, with the associated
-state transition diagram in \ref{lst:q-state}.
+Server pseudocode is given in listing \ref{src:q-state}, with the associated
+state transition diagram in \ref{src:q-state}.
 
-\begin{lstclrs}
+\begin{srcclrs}
 \begin{codebox}
 	\Procname{\proc{Server}()}
 	\li \(\id{inbox} \gets \proc{list()}\)
@@ -159,9 +159,9 @@ state transition diagram in \ref{lst:q-state}.
 	\li \(i \gets i + 1 \mod n + 1\)
 	\End
 \end{codebox}
-	\caption{\label{lst:q-state}Pseudocode for server using elements of an
+	\caption{\label{src:q-state}Pseudocode for server using elements of an
 	\textit{inbox} list to control program flow.}
-\end{lstclrs}
+\end{srcclrs}
 
 \begin{figure}
 	\centering
@@ -239,7 +239,7 @@ unbounded - making the poll particularly inefficient.
 	completed processing.}
 \end{figure}
 
-\begin{lstclrs}
+\begin{srcclrs}
 \begin{codebox}
 	\Procname{\proc{Server}()}
 	\li \(\id{inbox} \gets \proc{List}()\)
@@ -252,12 +252,12 @@ unbounded - making the poll particularly inefficient.
 	\li \(\id{inbox} \gets \proc{UpdateDependencies}(\id{inbox},\id{msg})\)
 	\li \(\id{inbox} \gets \proc{evalResolvedMsgs}(\id{inbox})\)
 \end{codebox}
-	\caption{\label{lst:two-part-sol-serv}Pseudocode for server scanning
+	\caption{\label{src:two-part-sol-serv}Pseudocode for server scanning
 	queues for both job messages and resolution messages, and updating
 	local inbox accordingly.}
-\end{lstclrs}
+\end{srcclrs}
 
-\begin{lstclrs}
+\begin{srcclrs}
 \begin{codebox}
 	\Procname{\proc{ResolutionLookup}(\(\id{chunkRef}\))}
 	\li \(\id{toMonitor} \gets \proc{GetReturnQueue}()\)
@@ -270,12 +270,12 @@ unbounded - making the poll particularly inefficient.
 	\proc{AddToResQueues}(\id{toMonitor})
 	\li \(\Return 1\)
 \end{codebox}
-	\caption{\label{lst:two-part-sol-res}Pseudocode for resolution lookup
+	\caption{\label{src:two-part-sol-res}Pseudocode for resolution lookup
 	of references, called as part of dependency checking in
 	\texttt{UpdateDependencies} of the \texttt{Server} function at listing
-	\ref{lst:two-part-sol-serv}. Returns the resolution status to allow
+	\ref{src:two-part-sol-serv}. Returns the resolution status to allow
 	marking of inbox items for the \texttt{evalResolvedMsgs} function.}
-\end{lstclrs}
+\end{srcclrs}
 
 An amendment to the solution proferred in section \ref{inbox-list} is to have
 the resolution status of chunks propagated to every relevant node while they
@@ -295,7 +295,7 @@ as the forced serialisation of one node strictly popping after another, waiting
 for every round-trip.
 
 Alternatively, a two-part solution, as per figure \ref{fig:two-part-sol} and
-listings \ref{lst:two-part-sol-serv} and  \ref{lst:two-part-sol-res} for the
+listings \ref{src:two-part-sol-serv} and  \ref{lst:two-part-sol-res} for the
 server and resolution lookup respectively, could be performed with all
 interested nodes posting their interest to some queue, and upon resolution the
 server first posts the resolution status as a key for all interested future

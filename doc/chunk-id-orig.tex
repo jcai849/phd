@@ -30,14 +30,16 @@ Every action on distributed chunk references entails pushing a  message to the
 queue named by the associated chunk ID, requesting the relevant action to be
 performed.
 
-\begin{lstlisting}[language=R, float, 
-caption={Modelled Client Program}, label=src:client-p]
+\begin{listing}
+\begin{minted}{r}
 	y <- f(x)	# dist, no wait
 	f(i)		# local
 	z <- f(y)	# dist, no wait
 	f(j)		# local
 	f(z)		# dist, wait
-\end{lstlisting}
+\end{minted}
+\caption{Modelled Client Program}\label{src:client-p}
+\end{listing}
 
 The server follows a loop of listening on queues relevant to the chunks that it
 stores and performing requests from the messages popped in order from them,

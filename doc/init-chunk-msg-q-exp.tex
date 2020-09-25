@@ -22,7 +22,7 @@ approximating a functioning prototype via experimentation.
 While the RPC-based architecture as described in
 \href{experiment-eager-dist-obj-pre.pdf}{Experiment: Eager Distributed Object}
 had significant limitations, a particularly powerful construct was the higher
-order function \texttt{distributed.do.call}, which took functions as arguments
+order function \mintinline{r}{distributed.do.call}, which took functions as arguments
 to be performed on the distributed chunks.
 
 This construct is powerful in that it can serve as the basis for nearly every
@@ -238,47 +238,65 @@ information reference queue can be deleted.
 
 \printbibliography
 
-\lstinputlisting[language=R, float,
-	caption={Value return to request for client Node, from original source at \lstname},
-	label=src:vr-client]{../R/val-return-msg-q-master.R}
+\begin{listing}
+	\inputminted{r}{R/val-return-msg-q-master.R}
+	\caption{Value return to request for client Node}
+	\label{src:vr-client}
+\end{listing}
 
-\lstinputlisting[language=R, float,
-	caption={Value return to request for server Node, from original source at \lstname},
-	label=src:vr-server]{../R/val-return-msg-q-worker.R}
+\begin{listing}
+	\inputminted{r}{R/val-return-msg-q-worker.R}
+	\caption{Value return to request for server Node}
+	\label{src:vr-server}
+\end{listing}
 
-\lstinputlisting[language=R, float,
-	caption={Demonstration of assignment in client Node, with
-	client-Originated chunk name, from original source at \lstname},
-	label=src:ro-ass-client]{../R/msg-q-assign-m-orig/master.R}
+\begin{listing}
+	\inputminted{r}{R/msg-q-assign-m-orig/master.R}
+	\caption{Demonstration of assignment in client Node, with
+	client-Originated chunk name}
+	\label{src:ro-ass-client}
+\end{listing}
 
-\lstinputlisting[language=R, float,
-	caption={Demonstration of assignment in server Node, with
-	client-Originated chunk name, from original source at \lstname},
-	label=src:ro-ass-server]{../R/msg-q-assign-m-orig/worker.R}
+\begin{listing}
+	\inputminted{r}{R/msg-q-assign-m-orig/worker.R}
+	\caption{Demonstration of assignment in server Node, with
+	client-Originated chunk name}
+	\label{src:ro-ass-server}
+\end{listing}
 
-\lstinputlisting[language=R, float,
-	caption={Demonstration of assignment in client Node, with
-	server-Originated chunk name, from original source at \lstname},
-	label=src:wo-ass-client]{../R/msg-q-assign-w-orig/master.R}
+\begin{listing}
+	\inputminted{r}{R/msg-q-assign-w-orig/master.R}
+	\caption{Demonstration of assignment in client Node, with
+	server-Originated chunk name}
+	\label{src:wo-ass-client}
+\end{listing}
 
-\lstinputlisting[language=R, float,
-	caption={Demonstration of assignment in server Node, with
-	server-Originated chunk name, from original source at \lstname},
-	label=src:wo-ass-server]{../R/msg-q-assign-w-orig/worker.R}
+\begin{listing}
+	\inputminted{r}{R/msg-q-assign-w-orig/worker.R}
+	\caption{Demonstration of assignment in server Node, with
+	server-Originated chunk name}
+	\label{src:wo-ass-server}
+\end{listing}
 
-\lstinputlisting[language=R, float,
-	caption={Chunk functions of client and server in server-Originated
-	chunk names for assignment \lstname},
-	label=src:wo-ass-chunk]{../R/msg-q-assign-w-orig/chunk.R}
+\begin{listing}
+	\inputminted{r}{R/msg-q-assign-w-orig/chunk.R}
+	\caption{Chunk functions of client and server in server-Originated
+	chunk names for assignment}
+	\label{src:wo-ass-chunk}
+\end{listing}
 
-\lstinputlisting[language=R, float,
-	caption={Shared functions of client and server in server-Originated
-	chunk names for assignment \lstname},
-	label=src:wo-ass-shared]{../R/msg-q-assign-w-orig/shared.R}
+\begin{listing}
+	\inputminted{r}{R/msg-q-assign-w-orig/shared.R}
+	\caption{Shared functions of client and server in server-Originated
+	chunk names for assignment}
+	\label{src:wo-ass-shared}
+\end{listing}
 
-\lstinputlisting[language=R, float,
-	caption={Message functions of client and server in server-Originated
-	chunk names for assignment \lstname},
-	label=src:wo-ass-messages]{../R/msg-q-assign-w-orig/messages.R}
+\begin{listing}
+	\inputminted{r}{R/msg-q-assign-w-orig/messages.R}
+	\caption{Message functions of client and server in server-Originated
+	chunk names for assignment}
+	\label{src:wo-ass-messages}
+\end{listing}
 
 \end{document}
