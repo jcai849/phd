@@ -1,5 +1,12 @@
 PhD research Repository
 
+Depends:
+- luatex
+- MiKTeX
+- biber
+- R
+
+Navigation:
 .
 ├── bib				Bibliographic information
 │   ├── bibliography.bib	Biblatex database file
@@ -16,5 +23,4 @@ PhD research Repository
 ├── R				R scripts
 ├── README			self
 ├── scripts			Miscellaneous scripts
-├── tags			ctags file
 └── TODO			Stack of next requirements

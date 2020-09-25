@@ -10,10 +10,10 @@ all: $(TEXOUT)
 
 $(OUTDIR)/%.pdf: $(DOCDIR)/%.tex
 	mkdir -p $(OUTDIR)
-	pdflatex -output-directory $(OUTDIR) $<
+	lualatex -output-directory $(OUTDIR) $<
 	makeglossaries -d $(OUTDIR) $(notdir $(basename $<))
 	biber --input-directory $(OUTDIR) $(OUTDIR)/$(notdir $(basename $<))
-	pdflatex -output-directory $(OUTDIR) $<
+	lualatex -output-directory $(OUTDIR) $<
 
 print-%  : ; @echo $* = $($*)
 
