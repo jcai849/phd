@@ -10,7 +10,9 @@
 \usepackage{lmodern}
 \usepackage{microtype}
 \usepackage{hyperref}
+\usepackage{float}
 \usepackage{tikz}
+\usepackage{drawstack}
 \usepackage{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -57,13 +59,15 @@
 \definecolor{dark2-6}{HTML}{E6AB02}
 
 % Tikz
-\usetikzlibrary{fit,positioning,shapes,arrows.meta}
+\usetikzlibrary{quotes,graphs,graphdrawing,fit,positioning,backgrounds,shapes,arrows.meta}
+\usegdlibrary{trees,layered}
 
 \pgfdeclarelayer{units}
 \pgfdeclarelayer{categories}
 \pgfsetlayers{units,categories,main}
 
 \tikzstyle{object}=[rectangle,fill=white,draw=black]
+\tikzstyle{node}=[circle,fill=white,draw=black]
 \tikzstyle{proc}=[rectangle,fill=white,draw=black]
 \tikzstyle{queue}=[rectangle,fill=white,draw=black]
 \tikzstyle{counter}=[rectangle,fill=white,draw=black]
@@ -95,6 +99,11 @@
 	morecomment=[f][\color{diffincl}]{>\ },
 	morecomment=[f][\color{diffrem}]{<\ },
 }
+
+% clrscode3e
+\usepackage{clrscode3e}
+\newfloat{lstclrs}{thpb}{lol}
+\floatname{lstclrs}{Listing}
 
 % Glossary
 \usepackage{glossaries}
