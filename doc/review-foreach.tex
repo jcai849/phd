@@ -132,7 +132,7 @@ concepts are mutually exclusive.
 In spite of the constraints, iterated functions can actually be emulated in
 foreach through the use of destructive reassignment within the passed
 expression, or through the use of stateful iterators.
-Examples of both are given in listings \ref{src:serial} and \ref{lst:serial-iter}.
+Examples of both are given in listings \ref{src:serial} and \ref{src:serial-iter}.
 
 \begin{listing}
 \begin{minted}{R}
@@ -166,7 +166,7 @@ foreach(i = addsone(10, 15), .combine = c) %do% i
 
 As alluded to earlier, the functionality breaks down when attempting to run
 them in parallel.
-Listings \ref{src:parallel} and \ref{lst:parallel-iter} demonstrate attempts to
+Listings \ref{src:parallel} and \ref{src:parallel-iter} demonstrate attempts to
 evaluate these iterated functions in parallel.
 They only return a list of 5 repetitions of the same ``next'' number, not
 iterating beyond it.
