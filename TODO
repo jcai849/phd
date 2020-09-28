@@ -1,14 +1,10 @@
-. lamport 1978ordering ghemawat2003google shvachko2010hadoop zaharia2016apache
-. alignment test
-. Rename msg to job, read to select
-. demo self-contained with mcparallel
-. get single-node demo working with resolves between
+. test existing chunk demos, merge w/ master if working
+. 'job' inherits from msg?
 . get multi-node demo working with resolves between
 .. osrv etc.
-. redis-tests self-containing with mcparallel
-. Implementation of inbox; contrive async situation to demonstrate difference
-.. include all methods capable of access and update dependent on table updates; to, from, size, preview, resolved, etc.
-.. Go through sections
+. demo self-contained with mcparallel
+. redis-tests in inst/ from demos
+. Implementation of inbox as described in async doc; contrive async situation to demonstrate difference
 .. docs & tests
 . benchmarks
 .. abdallah2005sommseqproc
