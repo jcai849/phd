@@ -10,7 +10,8 @@ do.call.chunkRef <- function(what, chunkArg, distArgs=NULL, staticArgs=NULL,
 	     CHUNK = chunkArg, DIST_ARGS = distArgs, STATIC_ARGS = staticArgs,
 	     JOB_ID = jID, CHUNK_ID = cID, to = chunkID(chunkArg))
 	# output reference or value
-	if (assign) chunkRef(cID, jID) else resolution(read.queue(jID, clear=TRUE))
+	if (assign) chunkRef(cID, jID) else
+		resolution(read.queue(jID, clear=TRUE))
 }
 
 do.call.chunk <- function(what, chunkArg, distArgs, staticArgs, jID, cID) {
