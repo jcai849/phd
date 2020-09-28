@@ -22,11 +22,6 @@
 \usepackage{tabularx}
 \usepackage{booktabs}
 
-% minted
-\usepackage[outputdir=out]{minted}
-\usemintedstyle{friendly}
-\setminted{obeytabs=true}
-
 % Theorems
 \usepackage{amsthm}
 \newtheorem{definition}{Definition}
@@ -46,6 +41,8 @@
 \definecolor{mypurple}{HTML}{998EC3}
 \definecolor{mygray}{gray}{0.5}
 
+\definecolor{Base3}{HTML}{FDF6E3}
+
 \definecolor{diffstart}{named}{mygray}
 \definecolor{diffincl}{named}{mygreen}
 \definecolor{diffrem}{named}{myorange}
@@ -62,6 +59,12 @@
 \definecolor{dark2-4}{HTML}{E7298A}
 \definecolor{dark2-5}{HTML}{66A61E}
 \definecolor{dark2-6}{HTML}{E6AB02}
+
+% minted
+\usepackage[outputdir=out]{minted}
+\usemintedstyle{solarizedlight}
+\setminted{obeytabs=true,bgcolor=Base3}
+\setmintedinline{bgcolor={}}
 
 % Tikz
 \usetikzlibrary{quotes,graphs,graphdrawing,fit,positioning,backgrounds,shapes,arrows.meta}
