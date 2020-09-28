@@ -306,7 +306,21 @@ queue, then checking for a key, before monitoring the interest queue and
 performing associated cleanup afterwards.
 The unusual ordering of operations as part of resolution lookup ensures
 atomicity, with there being no possibility of missing either a key or a queue
-on the client end.
+on the client end, as given through the following proof:
+
+Consider the moment a client has successfully posted interest on the interest queue.
+At this point, there are two relevent states for server communication,
+dependent on whether the server has posted a key or not.
+
+If the server has not yet posted the key, then the client is guaranteed
+notification via either the server posting a key just before the client scans
+for one, or the server pushing to the client's queue after the server posts the
+key, were the client to move past the operation of scanning for a key, prior to
+the server posting one.
+
+If the server has posted the key, the client will then pick it up as part of
+the next operation.
+
 The solution is well paired with a local inbox with tracking of dependencies
 associated with messages in the inbox.
 This solution ensures none of the documented race conditions, no polling
