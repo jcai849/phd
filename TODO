@@ -1,4 +1,4 @@
-. test existing chunk demos, merge w/ master if working
+. test existing chunk demos, merge w/ master if working & version bump
 . 'job' inherits from msg?
 . get multi-node demo working with resolves between
 .. osrv etc.
