@@ -93,7 +93,7 @@ stack diagram in figure \ref{fig:deps-block-stack}.
 
 \begin{figure}
 	\centering
-	\begin{drawstack}
+	\begin{tikzpicture}
 		\startframe
 		\cell{Evaluating reference: \(d\)}
 		\cell{Prerequisite evaluation: \(c\)}
@@ -106,7 +106,8 @@ stack diagram in figure \ref{fig:deps-block-stack}.
 		\cell{Evaluating reference: \(c\)}
 		\cell{Prerequisite evaluation: \(b\)}
 		\finishframe{\texttt{server()}}
-	\end{drawstack}
+		\stackbottom{}
+	\end{tikzpicture}
 	\caption{\label{fig:deps-block-stack}Stack causing non-termination if
 	no further messages are sent under the weak recursive model.} 
 \end{figure}
@@ -138,7 +139,7 @@ status and evaluating if possible, returning eventually to read the queues,
 then assuming finite messages, there will be no issues as in section
 \ref{recurs-stack}.
 Server pseudocode is given in listing \ref{src:q-state}, with the associated
-state transition diagram in \ref{src:q-state}.
+state transition diagram in figure \ref{fig:q-state}.
 
 \begin{srcclrs}
 \begin{codebox}
