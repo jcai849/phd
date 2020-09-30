@@ -1,10 +1,14 @@
-. test existing chunk demos, merge w/ master if working & version bump
-. 'job' inherits from msg?
 . create distObj repo README
-. get multi-node demo working with resolves between
-.. osrv etc.
+. Multi-node
+.. storage with osrv upon chunk addition
+.. test
+.. emerge uses osrv
+.. test
+.. create demo
 . demo self-contained with mcparallel
 . redis-tests in inst/ from demos
+. 'job' inherits from msg
+. Create perfect listing syntax maybe with lex for R
 . Implementation of inbox as described in async doc; contrive async situation to demonstrate difference
 .. docs & tests
 . benchmarks
