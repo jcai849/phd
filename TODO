@@ -1,5 +1,6 @@
 . test existing chunk demos, merge w/ master if working & version bump
 . 'job' inherits from msg?
+. create distObj repo README
 . get multi-node demo working with resolves between
 .. osrv etc.
 . demo self-contained with mcparallel
