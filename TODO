@@ -1,9 +1,19 @@
-. Make demo more obvious
-.. put auto nodename in info via distobj init
-. demo self-contained with mcparallel
+. write paragraph on do.call.distObjref -> ... -> do.call process
+. write on intended non-assigning data transfer in same paradigm as async res
+. write on input methods (bootstrapping the system)
+. tighten up demo
+.. better chunk names
+.. verbosity in alignment and findTarget
+.. do.call.distObjRef(x, distObj1)
+.. no 0's in the demo
+.. print method for distObj's
+.. emerge for distObj's on client? test
+.. better data constructor for descriptor incl. auto diagrams; place in R/test.R
+.. as-is data in demo using AsIs (I()); recycle everything else
+. create breaking async example
 . redis-tests in inst/ from demos
-. 'job' inherits from msg
 . Discuss project with Radu
+. 'job' inherits from msg
 . Implementation of inbox as described in async doc; contrive async situation to demonstrate difference
 .. docs & tests
 . benchmarks
