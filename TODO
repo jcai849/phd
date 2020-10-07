@@ -1,6 +1,5 @@
-. write paragraph on do.call.distObjref -> ... -> do.call process
-. write on intended non-assigning data transfer in same paradigm as async res
 . write on input methods (bootstrapping the system)
+. write a val return using osrv
 . tighten up demo
 .. better chunk names
 .. verbosity in alignment and findTarget
