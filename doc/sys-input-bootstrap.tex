@@ -10,12 +10,74 @@
 
 \section{Introduction}
 
+The problem of initialising the system and populating it with data has been
+largely abstracted over thus far, with all development and experimentation
+making use of a manually specified running system.
+Naturally, it is an essential aspect of the system, and worth turning our
+attention to, now that object movement and distributed evaluations are at a
+sufficient level of functionality.
+This document first considers how similar systems handle their input and
+startup along with an evaluation, before turning to a description of
+requirements for the distObj interface, followed by a suggestion for
+implementation and an evaluation thereof.
+
+
 \section{Other Systems}
 
+% SNOW
+SNOW is a related system that enables distributed operations in parallel,
+though differs in not maintaining distributed objects as in our system, though
+does allow for cluster-wide global variables with
+\mintinline{r}{clusterExport}\cite{tierney18}.
+A cluster must be initialised, using a \mintinline{r}{makeCluster} function,
+which takes as minimum arguments some cluster specification, and the type of
+cluster.
+Further options allow shoosing ports, timeout, and other additional options.
+\mintinline{r}{makeCluster} returns a cluster object, which is then to be used
+as an argument to all further operations on that cluster.
+Data is always originated from the master node, and so is not pulled into the
+system in any distributed manner, rather using existing objects imported in a
+standard single-node manner, and exported as arguments to the various operative
+functions provided by SNOW.
+% foreach
+Foreach is another package that is commonly used for high(er)-performance work
+in R, which possesses a different means of initialisation when using parallel
+backends; foreach has a variety of \mintinline{r}{register} functions which are
+intended for the end user to specify the desired parallel backend, and all
+subsequent \mintinline{r}{foreach} functions then make use of that
+backend\cite{microsoft20}\cite{corporation19}.
+In this way, initialisation takes place once, with no additional objects
+required to be kept in userspace.
+% sparklyr
+Sparklyr provides a means of connecting to Spark from R.
+While a means of connecting to external distributed file and data systems is
+highly desirable, given that the focus is on very large data, and that data
+typically resides in such systems, Spark's RDDs and DataFrames are lower
+priority targets than the more general HDFS, due to HDFS being more ubiquitous
+and flexible.
+Sparklyr follows a similar setup procedure to SNOW, with
+\mintinline{r}{spark\_connect} returning a connection object with shich to use
+in subsequent operations.
+One difference is that sparklyr requires a running spark instance, whereas SNOW
+will create new R sessions as needed.
+Data is input through several different methods; it can be created locally and fed to the spark cluster, using the \mintinline{r}{copy\_to} function.
+Alternatively, external tabular data can be read into spark through
+\mintinline{spark\_read\_csv} (or \mintinline{r}{json}, or
+\mintinline{r}{parquet}), which takes as primary arguments the spark
+connection, a name, and a path to a particular file which can be local, HDFS,
+or Amazon S3-based, depending on the scheme indicated in the URI.
+There is also the option to take a pre-existing Spark table into memory through
+the \mintinline{r}{tbl\_cache} function.
+% DSL dlist
+% disk.frame
+
 \section{Interface}
+How closely coupled should initialisation and input be? What are the effects of such coupling?
+Should we have a ``system object'' as is common in many of the discussed packages?
 
 \section{Implementation}
 
 \section{Evaluation}
 
+\printbibliography
 \end{document}
