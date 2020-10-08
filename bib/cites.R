@@ -12,7 +12,7 @@ cran <- c("base", "foreach", "doParallel", "doSNOW", "doMPI",
           "biglasso", "bigstatsr", "disk.frame", "data.table", "fst",
           "iotools", "ff", "biglm", "ffbase", "pbdMPI", "doRNG",
           "doRedis", "promises", "graphframes", "rbenchmark", "microbenchmark",
-	  "kazaam", "tidyverse")
+	  "kazaam", "tidyverse", "DSL")
 
 install.packages(cran)
 remotes::install_github(c("wrathematics/getip", "RBigData/hpcvis", "RBigData/pbdCS", "RBigData/pbdDMAT", "RBigData/pbdML", "edwindj/ffbase2", "Azure/rAzureBatch", "Azure/doAzureParallel", "RBigData/pmclust", "RBigData/pbdSLAP"))
