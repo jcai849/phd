@@ -3,7 +3,7 @@
 \usepackage{doc/header}
 
 \begin{document}
-\title{distObj System Bootstrap and Initialisation}
+\title{distObj System Initialisation and Input}
 \author{Jason Cairns}
 \year=2020 \month=10 \day=7
 \maketitle{}
@@ -33,12 +33,11 @@ A cluster must be initialised, using a \mintinline{r}{makeCluster} function,
 which takes as minimum arguments some cluster specification, and the type of
 cluster.
 Further options allow shoosing ports, timeout, and other additional options.
-\mintinline{r}{makeCluster} returns a cluster object, which is then to be used
-as an argument to all further operations on that cluster.
 Data is always originated from the master node, and so is not pulled into the
 system in any distributed manner, rather using existing objects imported in a
 standard single-node manner, and exported as arguments to the various operative
 functions provided by SNOW.
+
 % foreach
 Foreach is another package that is commonly used for high(er)-performance work
 in R, which possesses a different means of initialisation when using parallel
@@ -48,8 +47,9 @@ subsequent \mintinline{r}{foreach} functions then make use of that
 backend\cite{microsoft20}\cite{corporation19}.
 In this way, initialisation takes place once, with no additional objects
 required to be kept in userspace.
+
 % sparklyr
-Sparklyr provides a means of connecting to Spark from R.
+Sparklyr provides a means of connecting to Spark from R\cite{luraschi20}.
 While a means of connecting to external distributed file and data systems is
 highly desirable, given that the focus is on very large data, and that data
 typically resides in such systems, Spark's RDDs and DataFrames are lower
@@ -68,12 +68,35 @@ connection, a name, and a path to a particular file which can be local, HDFS,
 or Amazon S3-based, depending on the scheme indicated in the URI.
 There is also the option to take a pre-existing Spark table into memory through
 the \mintinline{r}{tbl\_cache} function.
+
 % DSL dlist
-% disk.frame
+DSL: Distributed Storage and List, provides the capacity to store serialised R
+objects in distributed storage, as well as a means of operation on such
+objects\cite{theussl2020dsl}.
+The distObj project differs in locating the distributed objects in memory, with
+storage primarily serving for initial input or final output.
+DSL has the capacity to interface with HDFS as well as a standard local file systems.
+A distributed storage object is instantiated with details on the storage
+system, such as the type, directory, and chunk size, with the
+\mintinline{r}{DStorage} constructor function.
+This is then used as an argument to the \mintinline{r}{DList} function, which
+behaves much like a standard list, including the associated behaviour with
+key-value pairs to the dots argument.
+There exists no single function for reading in external data, though an example
+is given in the vignette of a construct using DSL to perform such an action.
+
+\section{Evaluation of Other Systems}
+
+% data direction
+% setup explicitness
+% system reference
+% external coupling
 
 \section{Interface}
 How closely coupled should initialisation and input be? What are the effects of such coupling?
 Should we have a ``system object'' as is common in many of the discussed packages?
+How about a ``storage object''?
+Or just a ``system mode'', like foreach?
 
 \section{Implementation}
 
