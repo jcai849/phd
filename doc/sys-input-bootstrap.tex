@@ -20,7 +20,8 @@ This document first considers how similar systems handle their input and
 startup along with an evaluation, before turning to a description of
 requirements for the distObj interface, followed by a suggestion for
 implementation and an evaluation thereof.
-
+A particular focus is given on interface, due to the massive difference in
+algorithms that is to be expected with the systems being entirely different.
 
 \section{Other Systems}
 
@@ -60,9 +61,10 @@ Sparklyr follows a similar setup procedure to SNOW, with
 in subsequent operations.
 One difference is that sparklyr requires a running spark instance, whereas SNOW
 will create new R sessions as needed.
-Data is input through several different methods; it can be created locally and fed to the spark cluster, using the \mintinline{r}{copy\_to} function.
+Data is input through several different methods; it can be created locally and
+fed to the spark cluster, using the \mintinline{r}{copy\_to} function.
 Alternatively, external tabular data can be read into spark through
-\mintinline{spark\_read\_csv} (or \mintinline{r}{json}, or
+\mintinline{r}{spark\_read\_csv} (or \mintinline{r}{json}, or
 \mintinline{r}{parquet}), which takes as primary arguments the spark
 connection, a name, and a path to a particular file which can be local, HDFS,
 or Amazon S3-based, depending on the scheme indicated in the URI.
@@ -73,8 +75,8 @@ the \mintinline{r}{tbl\_cache} function.
 DSL: Distributed Storage and List, provides the capacity to store serialised R
 objects in distributed storage, as well as a means of operation on such
 objects\cite{theussl2020dsl}.
-The distObj project differs in locating the distributed objects in memory, with
-storage primarily serving for initial input or final output.
+The distObj project differs from DSL in locating the distributed objects in
+memory, with storage primarily serving for initial input or final output.
 DSL has the capacity to interface with HDFS as well as a standard local file systems.
 A distributed storage object is instantiated with details on the storage
 system, such as the type, directory, and chunk size, with the
@@ -85,21 +87,76 @@ key-value pairs to the dots argument.
 There exists no single function for reading in external data, though an example
 is given in the vignette of a construct using DSL to perform such an action.
 
-% disk.frame
+% iotools & hmr
+iotools is a package providing high-performance I/O tools, serving particularly
+to allow for streaming data\cite{urbanek20}.
+It provides functions such as the \mintinline{r}{read.csv} replacement,
+\mintinline{r}{read.csv.raw}, as well as chunk processing from binary
+connections, using the \mintinline{r}{read.chunk} function. 
+The \mintinline{r}{read.chunk} function is paired with a
+\mintinline{r}{chunk.reader} function, which creates a reader that reads from
+a binary connection, and is passed as an argument to
+\mintinline{r}{read.chunk}.
+iotools is closely related to another package, hmr\cite{urbanek20b}.
+hmr has hadoop as it's specific target for computation, allowing easy access to
+hadoop map-reduce jobs through R.
+It provides the \mintinline{r}{hmr} function, which takes as arguments,
+\mintinline{r}{input}, \mintinline{r}{output}, \mintinline{r}{map}, and
+\mintinline{r}{reduce}.
+Most relevant to this discussion is the \mintinline{r}{input} argument, which
+take the form of hadoop filepaths, as constructed using the
+\mintinline{r}{hpath} or \mintinline{r}{hinput} functions.
+It is hinted by error messages that future versions may allow for local input.
 
 \section{Evaluation of Other Systems}
 
-% data direction
-% setup explicitness
-% system reference
-% coupling with external process
-% relation between output and input
+While the descriptions of the input and startup of other systems focussed
+largely on interface, greater aspects of the packages can be drawn out.
+
+The central provision within R of most of these systems is data movement; SNOW,
+foreach, and DSL all enable ways of dispersing data such that memory is not
+saturated.
+The complement to this is having computation as a central provision, as in
+sparklyr and hmr, where the data is stored externally, and functions as
+described in R are used to operate on the data.
+Of the two, it is good to offer both, as most of these do in varying measures,
+but an ideal system would allow interfacing with data in distributed storage,
+combined with movement of that data into memory for direct manipulation with R.
+
+The level of explicitness in setup varies significantly among these packages as
+well.
+Some, as in SNOW, sparklyr, and DSL, require ``system objects'', where a
+reference to the system and its configuration must be kept and passed as an
+argument to all system-specific functions.
+iotools \& hmr require no setup beyond the external hadoop process, working
+without any need for initialisation.
+foreach sits somewhere in between, where it runs with no explicit
+initialisation calls, but different backends can be ``registered'' with a
+single function that is used only for its side effect, and doesn't produce a
+system object as in many of the other packages.
+Naturally, the less setup that is required the better, but sometimes the system
+absolutely requires configuration, such as lists of hosts to be included; in
+this case, producing and maintaining a system object entails more effort and
+overhead than using an initialisation function once for it's side effects; an
+analogy may be made between by comparison of using the double colon for access
+to R objects in a namespace, or the \mintinline{r}{library} function to attach
+an add-on package.
 
 \section{Interface}
-How closely coupled should initialisation and input be? What are the effects of such coupling?
-Should we have a ``system object'' as is common in many of the discussed packages?
-How about a ``storage object''?
-Or just a ``system mode'', like foreach?
+
+Based on the analysis of other systems, an attempt can be made at describing a
+reasonable initialisation and input system for distObj.
+
+In this system, initialisation is implicit in the input, so can be coupled
+together at a high level for ease of use.
+This renders a system object as unnecessary.
+Updates, including elastic, can be run through a side-effect producing
+function.
+
+With the large size of data targeted by the system, the data source has a
+higher probability of coming from HDFS, and this must be accommodated for.
+Nodes already serving as nodes for HDFS can therefore be put to use as distObj
+nodes, due to their proximity to the data
 
 \section{Implementation}
 
