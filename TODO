@@ -1,4 +1,6 @@
-. write a val return using osrv
+. Write overview doc
+. Create airlines demo with tables, beginning with filepaths
+. remove job queues
 . tighten up demo
 .. better chunk names
 .. verbosity in alignment and findTarget
@@ -8,14 +10,15 @@
 .. emerge for distObj's on client? test
 .. better data constructor for descriptor incl. auto diagrams; place in R/test.R
 .. as-is data in demo using AsIs (I()); recycle everything else
+. lm for flights demo
+. dask document
+. Remove caching of host/port in chunks
 . create breaking async example
 . redis-tests in inst/ from demos
-. Discuss project with Radu
 . 'job' inherits from msg
 . Implementation of inbox as described in async doc; contrive async situation to demonstrate difference
 .. docs & tests
 . benchmarks
-. connect with biglm
 .. abdallah2005sommseqproc
 . Formalisation of models
 . Assumptions:
