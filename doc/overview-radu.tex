@@ -10,8 +10,8 @@
 
 \section{Introduction}
 % motivation
-How does a statistician compose and fit a modelling algorithm for a dataset
-consisting of over 165 million flight data?
+How does a statistician compose and fit a novel modelling algorithm for a
+dataset consisting of over 165 million flight datapoints?
 More generally, how does one perform a statistical analysis over a dataset too
 large to fit in computer memory?
 There are many solutions to this problem, all involving a variety of tradeoffs.
@@ -20,19 +20,34 @@ There are many solutions to this problem, all involving a variety of tradeoffs.
 What is missing is a platform that is fast and robust, with a focus on a simple
 interface for fitting statistical models, and the flexibility for
 implementation of arbitrary new models within R.
-% demo
+
+In this document I will provide some context of other solutions to the problem
+of large datasets for R, before describing \textit{distObj}, the focus of my
+project which aims to provide a powerful platform for large-scale statistical
+modelling with R; the interface, architecture, and further development goals of
+distObj will be explained in detail.
+
+% demo?
 \section{State of the Field}
 % R packages
+% keeping on disk: disk.frame
+% using external system: sparklyr, pbdDMAT
+% distributed computation: SNOW, foreach
 % python: dask
 \section{System Interface}
-% introduction to R; arrays & recycling
-% R generic object system S3; function.class as method
+% future-like objects resulting from do.call methods
 % make clear what do.call actually does
+% distributed objects with emerge
+% programmer level for manipulation of chunks
+% R generic object system S3; function.class as method
 \section{System Architecture}
-% description of ideal system
+% general layout; clients, servers, and queues
+% other considerations: alignment, etc.
+% journey of a task
 % diagram from ...
 % explanation of current system (job queues etc.)
 \section{Next Steps}
 % asynchrony through resolution monitoring
-% robustness
+% robustness & resiliance
+% further decentralisation
 \end{document}
