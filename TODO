@@ -1,6 +1,12 @@
-. Write overview doc
-. Create airlines demo with tables, beginning with filepaths
-. remove job queues
+. Create airlines demo with tables
+.. initialise servers with filepath chunks using startup script
+.. create dummy filepath object
+.. read in csv's
+.. make demo
+. remove job queues, replace with keys
+. create automatic distribution of local variables
+. create static variables
+. subsetting
 . tighten up demo
 .. better chunk names
 .. verbosity in alignment and findTarget
