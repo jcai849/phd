@@ -222,6 +222,7 @@ unbounded - making the poll particularly inefficient.
 		node[pos=0.4,anchor=south] {3};
 		\draw[mypath,mygray] (server) -- (dots);
 		\draw[mypath,mygray] (server) -- (qn);
+		\draw[mypath,mygray] (server) -- (resk);
 		\draw[mypath,dark2-1] (q1) -- (pre)
 		node[midway,anchor=north] {4};
 
@@ -235,9 +236,9 @@ unbounded - making the poll particularly inefficient.
 	\caption{\label{fig:two-part-sol}Activity between nodes and a server
 	through the distributed information space, with numbering following the
 	logical order of communication events for each node. The node named
-	'\texttt{pre}' posts seeks resolution prior to processing of the job,
-	while the node '\texttt{post}' seeks resolution after the job has
-	completed processing.}
+	'\texttt{pre}' seeks resolution prior to processing of the job, while
+	the node '\texttt{post}' seeks resolution after the job has completed
+	processing.}
 \end{figure}
 
 \begin{srcclrs}
