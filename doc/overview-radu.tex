@@ -9,15 +9,16 @@
 \maketitle{}
 
 \section{Introduction}
+
 % motivation
-How does a statistician compose and fit a novel modelling algorithm for a
+How does a statistician compose and fit a novel modelling algorithm in R for a
 dataset consisting of over 165 million flight datapoints?
-More generally, how does one perform a statistical analysis over a dataset too
-large to fit in computer memory?
+More generally, how does one perform a statistical analysis in R over a dataset
+too large to fit in computer memory?
 There are many solutions to this problem, all involving a variety of tradeoffs.
 
 % solution
-What is missing is a platform that is fast and robust, with a focus on a simple
+What is needed is a platform that is fast and robust, with a focus on a simple
 interface for fitting statistical models, and the flexibility for
 implementation of arbitrary new models within R.
 
@@ -29,25 +30,455 @@ distObj will be explained in detail.
 
 % demo?
 \section{State of the Field}
+
 % R packages
+R provides a means of shared extensions called packages, similar to libraries
+or modules in other languages.
+Several packages exist which answer some of the need for large-scale
+statistical analysis.
+
 % keeping on disk: disk.frame
+A most integral data structure for data analysis in R is the data frame; it can
+be conceived of as effectively a table, wherein each column may be of differing
+type.
+The package \textit{disk.frame} provides class which interfaces transparently
+as data frames, with the data being stored on disk\cite{zj20}.
+In this way, the dataset size may be expanded to as large as disk capacity,
+along with the associated speed drawbacks\cite{zj19:_key}.
+Other limitations exist, including the fact that grouped data operations
+require shuffling of the data on disk, making performance somewhat
+unpredictable, as well as many operations being of practical necessity
+estimates, such as determination of median, as such an operation is too slow to
+perform out of
+core\cite{zj19:_group_by}\cite{zj19:_custom_one_stage_group_by_funct}.
+
 % using external system: sparklyr, pbdDMAT
+While keeping the data on disk presents some solution to the lower end of
+large-scale, the speed losses and lack of resilience offered by a single
+machine are excessive once the statistician is presented with truly large data.
+For this, external distributed systems are typically relied upon.
+
+The R package \textit{sparklyr} presents an R interface to Spark\cite{luraschi20}.
+The user connects to Spark and accumulates instructions for the manipulation of
+Spark DataFrame objects, before executing the request on the Spark cluster.
+This is implemented primarily through translation of the instructions to
+SparkSQL in the backend.
+While the package opens up enormous capabilities for the R world, it shares
+Sparks limitations, with much of statistical analyses being made available
+remaining pre-made, with little room for novel algorithms written in R,
+especially in an iterative context.
+
+The \textit{pbdR} project also provides interfaces to external distributed systems,
+including MPI, ZeroMQ, and others\cite{pbdR2012}\cite{pbdBASEpackage}.
+Of the many packages delivered by the project, they also provide a user-end
+package, pbdDMAT, which offers classes encapsulating distributed matrices,
+which have near-identical interfaces to standard R matrices.
+Like sparklyr, pbdDMAT shares equivalent limitations with the systems it
+depends upon, including most notably, a lack of interactivity, being only able
+to run in batch mode through MPI.
+
 % distributed computation: SNOW, foreach
+Another group of packages attempting to solve the problem of large-scale data
+has taken the approach of leaving backends more general, and providing new
+constructs in R to handle big data.
+\textit{SNOW} is foremost among these packages, allowing a cluster to be
+initialised through R, typically with socket connections, then providing
+mapping commands and the like to automatically process data through the
+cluster\cite{tierney18}.
+This is a powerful capability, though suffers from having a lack of persistence
+in the distributed data.
+
+\textit{foreach} is a package that follows and builds upon SNOW, providing a
+foreach construct in R\cite{microsoft20}.
+foreach is a fairly well-known concept in most other high-level programming
+languages, behaving in a similar manner to a for-loop, with the generalisation
+that the order of iterations is left arbitrary.
+From such a generalisation, parallelisation of the loop is trivial, and the
+foreach package allows for a variety of backends to be registered to handle the
+loop processing, with SNOW among these.
+In spite of the incredibly simple user interface, the limitations are the same
+as those of the backend that it rests upon, and there is no persistence of
+distributed objects.
+
 % python: dask
+Outside of the R package ecosystem, an enormously capable distributed system
+that satisfies many of the necessities of large-scale data analysis is provided
+in the Python world with dask\cite{rocklin2015dask}.
+Dask provides a platform for large-scale computations, though like most Python
+modules, it was not built with statistical analysis as it's central aim, and
+falls short for such an aim because of it.
+
 \section{System Interface}
+
+What dictates the success of many of the existing platforms is the interface to
+the system.
+At the basic level, R is a statistical programming language, for statisticians,
+not system administrators, and a large-scale platform demanding admin skills to
+set up and use is bound for failure.
+Beyond the negative determinants of success in a distributed system interface,
+it should ideally go further and offer as user-friendly an interface as
+possible.
+Taken to the ideal extreme, the statistician using the system may forget for
+most tasks that they are using a distributed platform.
+Realistically, multiple levels of control should be offered, with more serious
+programming taking place at an explicitly distributed level.
+
+As it currently stands, the prototype \textit{distObj} packages does have such
+delineation between levels, with most work having been done at the programmer
+level, rather than the user level.
+A description of some of the more important features follows.
+
 % future-like objects resulting from do.call methods
+At the heart of the system are the distributed objects.
+These objects encapsulate information on various distributed chunks, and aim to
+emulate the underlying objects they reference, through taking advantage of R's
+S3 generic object system.
+Specifically, the value returned by some arbitrary function, with the
+distributed object taken as an argument, should be precisely the same were that
+distributed object replaced with it's referent object.
+
+At a lower level, such a claim is relaxed, by offering future-like behaviour in
+distributed objects, wherein rather than the computed value being returned
+immediately, a new distributed object is returned with information on the
+computation of the new value, and can at some point be resolved to produce the
+value.
+The future aspect allows for extremely powerful capabilities, such as
+asynchrony in the distributed computation, though such asynchrony introduces
+thorny new problems, with some solutions to be discussed in section
+\ref{sec:sys-arch}
+
 % make clear what do.call actually does
+The principal function enabling computation over distributed objects is a
+variant on R's \mintinline{r}{do.call()} function.
+\mintinline{r}{do.call()} takes the function that is to be performed as it's first
+argument, followed by a list of objects to pass in as arguments to that
+function.
+In this way, something of a lisp-like operator-operand manner of specifying
+computation can be performed, and nearly every function in R can be computed
+using \mintinline{r}{do.call()}.
+Therefore, the point of entry for computation over distributed objects is
+through derivatives of \mintinline{r}{do.call()}, which have the capacity to
+ensure computation on all of the chunks and return the appropriate distributed
+objects.
+
 % distributed objects with emerge
+At some point, the records pointed to by distributed objects will be desired by
+the user, and so an \mintinline{r}{emerge()} exists to pull all of the distributed
+data into the currently running local session.
+
 % programmer level for manipulation of chunks
+Individual chunks may also be addressed, and routines run on them, with a
+simple opening available at the programmer level.
+
 % R generic object system S3; function.class as method
-\section{System Architecture}
+Finally, this system is highly extensible.
+Nearly any new class with methods to split into chunks can be represented in
+this platform, again taking advantage of R's S3 generic object system.
+
+\section{System Architecture}\label{sec:sys-arch}
+
+The architecture of the system is both the point of departure from other systems, as well as the source of speed and stability.
+
+Again, the distributed object is core to the system, defined by the following:
+
+\begin{definition}
+	\label{distobj}
+	A distributed object is a set \(D\) of chunks \(c_1, c_2, \dots, c_n\),
+	with some total ordering defined on the chunks.
+	In a corresponding manner, distributed object \textit{references} are
+	sets of chunk references, along with an ordering on the chunk
+	references to match that of the chunks composing the referent
+	distributed object.
+\end{definition}
+
 % general layout; clients, servers, and queues
+The general layout of the system follows a mostly decentralised structure, with
+chunks of distributed objects being held in nodes that hold roles of both
+client and server.
+There is one main initiator and controlling session that holds references to
+the distributed objects, aand sends initial requests for computation.
+A central feature is the usage of message queues to co-ordinate computation;
+each chunk in the system has a unique ID, and the nodes holding the chunk
+monitor queues identified by that same ID.
+Every computation involving a particular chunk has relevant information pushed
+to said chunk's queue, and a node holding that chunk will pop from the queue
+and perform whatever is requested, including pushing to other chunk's queues.
+This is currently implemented using Redis lists.
+Computations requiring chunks that exist on disparate nodes will naturally
+demand relocation of some chunks so that computation can procede at one single
+location; this is managed through a threaded object server, using the
+\textit{osrv} package\cite{urbanek2020osrv}.
+
 % other considerations: alignment, etc.
+The nature of R also produces other considerations; most notably, R is a
+vectorised language, with computation commonly occuring directly over vectors
+where in most other languages would require looping over an array.
+Thus what may be represented in C as 
+\begin{minted}{c}
+	int i;
+	int x[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	int y[] = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+
+	for (i=0; i < 10; i++)
+		sum += x[i] + y[i]; 
+	mean = sum / 10;
+\end{minted}
+can be given in R simply as
+\begin{minted}{r}
+	x = 1:10
+	y = 11:20
+	mean(x+y)
+\end{minted}
+The vector-oriented programming paradigm is extremely valuable for statistical
+computation, with some other languages, notably Fortran and APL, also having
+similar features.
+Functions involving multiple vectors are where the capacities truly shine,
+however problems are raised when vectors have differing lengths, with a trivial
+example being \mintinline{r}{1:10 + 1:2}, where two vectors of length 10 and 2
+are attempted to be summed together.
+The standard R mechanism of response is to ``recycle'' the shorter vectors,
+repeating them end-to-end to match the length of the longest vector.
+
+This is particularly difficult to implement in an efficient distributed manner,
+as the pieces of chunks that are involved in computation together may exist in
+entirely seperate locations.
+It is solved by selecting one distributed object to be the target object, based
+on some metric including length, then sending computation messages to the
+queues representing the chunks composing the distributed object.
+At the node hosting the chunks, the correct indices of the other objects to be
+recycled are determined, and are then requested from their host nodes and
+subset appropriately.
+
 % journey of a task
-% diagram from ...
+In more detail, the journey of a task can be described as follows:
+
+\begin{enumerate}
+	\item The process is initialised on a node which will act as a client,
+		with \mintinline{r}{do.call.distObjRef()} call, using at least
+		one distributed object reference in the arguments.
+
+	\item Of the distributed object references, one is picked as a target,
+		for which the nodes hosting the chunks making up the referent
+		distributed object will serve as the points of evaluation, with
+		all other distributed object chunks eventually transported to
+		these nodes.
+
+	\item One message for each chunk reference within the distributed
+		object reference is sent to the corresponding nodes hosting the
+		chunks.  The message contains information including the
+		requested function, the arguments to the function in the form
+		of a list of distributed object references as well as other
+		non-distributed arguments, and the name with which to assign
+		the results to, which the client also keeps as an address to
+		send messages to for any future work on the results.  The
+		client may continue with the remainder of its process,
+		including producing a future reference for the expected final
+		results of evaluation.
+
+	\item Concurrent to the initialisers further work after sending a
+		message, the node hosting a target chunk receives the message,
+		unpacks it and feeds the relevant information to
+		\mintinline{r}{do.call.msg()}.
+
+	\item All distributed reference arguments are replaced in the list of
+		arguments by their actual referents, using the alignment and
+		object-sending process described above.
+
+	\item \mintinline{r}{do.call()} is then used to perform the terminal
+		evaluation of the given function over the argument list.
+
+	\item The server then assigns the value of the
+		\mintinline{r}{do.call()} to the given chunk name within an
+		internal chunk store environment, sending relevant details such
+		as size and error information back to the initial requesting
+		node.  The object server is also supplied with a reference to
+		the chunk, used to send the chunk point-to-point upon request.
+\end{enumerate}
+
+A diagram depicting the primary calls is given in figure \ref{fig:distobj}
+
+\begin{figure}
+        \centering
+        \begin{tikzpicture}
+                % distobjrefs
+                \node[object] (cn) {\(c_n\)};
+                \node[object,right=\blockdist of cn] (cndot) {\(\dots\)};
+                \node[object,right=\blockdist of cndot] (cm) {\(c_m\)};
+                \node[object,right={5*\blockdist} of cm] (ci) {\(c_i\)};
+                \node[object,right=\blockdist of ci] (cidot) {\(\dots\)};
+                \node[object,right=\blockdist of cidot] (cj) {\(c_j\)};
+                \path (cm.east) -- (ci.west) node(midclient) [midway] {};
+
+                % client args
+                \node[proc,below=of midclient] (dcdor) {\texttt{do.call.distObjRef}};
+                \node[proc,below=of dcdor] (ft) {\texttt{findTarget}};
+                \node[proc,below=of ft] (dccr) {\texttt{do.call.chunkRef}};
+                \node[below=of dccr] (midlowcl) {};
+                \node[proc,left=\blockdist of midlowcl] (dor) {\texttt{distObjRef}};
+                \node[proc,right=\blockdist of midlowcl] (sendreq) {\texttt{send}};
+
+                \node[object,below=2 of dor] (cpdot) {\(\dots\)};
+                \node[object,left=\blockdist of cpdot] (cp) {\(c_p\)};
+                \node[object,right=\blockdist of cpdot] (cq) {\(c_q\)};
+
+                % chunk queues
+                \node[queue,right={1.5*\commdist} of dccr] (cmq) {\(c_m\)};
+                \node[queue,above=of cmq] (cmdotq) {\(\dots\)};
+                \node[queue,above=of cmdotq] (cnq) {\(c_n\)};
+                \node[queue,right={5*\blockdist} of cmdotq] (cmdotqdot) {\(\dots\)};
+                \node[queue,right={5*\blockdist} of cmq] (cmqdot) {\(\dots\)};
+
+                % server args
+                \node[proc,right={1.5*\commdist} of cmq] (dc) {\texttt{do.call}};
+                \node[proc,above=of dc] (alignment) {\texttt{alignment}};
+                \node[proc,above=of alignment] (r2r) {\texttt{refToRec}};
+                \node[proc,above=of r2r] (dcm) {\texttt{do.call.msg}};
+                \node[proc,below=of dc] (set) {\texttt{set}};
+
+                % metadata
+                \node[object,below=of cmq] (cns) {\(c_n\) size};
+                \node[object,below=of cns] (cdots) {\(\dots\)};
+
+                \begin{pgfonlayer}{categories}
+                        \node[category,fit=(cn)(cndot)(cm),label={[name=dnl] \texttt{distObjRef x}}] (dn) {};
+                        \node[category,fit=(ci)(cidot)(cj),label={[name=dil] \texttt{distObjRef y}}] (di) {};
+                        \node[category,fit=(cp)(cpdot)(cq),label={[name=dql]\texttt{distObjRef z}}] (dq) {};
+                \end{pgfonlayer}
+
+                \begin{pgfonlayer}{units}
+                        \node[unit,fit=(dnl)(dil)(dor)(sendreq)(dq)(dql),label={[name=cl] Client}] (c) {};
+                        \node[unit,fit=(cmq)(cnq),label={[name=qsl] Queue Server}] (qs) {};
+                        \node[unit,fit=(cns)(cdots),label={[name=setsl] Distributed Keys}] (sets) {};
+                        \node[unit,fit=(dcm)(set),label={[name=sl] Server}] (s) {};
+                \end{pgfonlayer}
+
+                \draw[mypath] (dn) -- (dcdor);
+                \draw[mypath] (di) -- (dcdor);
+                \draw[mypath] (dcdor) -- (ft);
+                \draw[mypath] (ft) -- (dccr);
+                \draw[mypath] (dccr) -- (dor);
+                \draw[mypath] (dccr) -- (sendreq);
+                \draw[mypath] (dor) -- (dql);
+
+                \draw[mypath] (sendreq.east) -- (cmq.west);
+                \draw[mypath] (sendreq.east) -- (cmdotq.west);
+                \draw[mypath] (sendreq.east) -- (cnq.west);
+
+                \draw[mypath] (cnq.east) -- (dcm);
+                \draw[mypath] (cmdotq) -- (cmdotqdot);
+                \draw[mypath] (cmq) -- (cmqdot);
+
+                \draw[mypath] (dcm) -- (r2r);
+                \draw[mypath] (r2r) -- (alignment);
+                \draw[mypath] (alignment) -- (dc);
+                \draw[mypath] (dc) -- (set);
+
+                \draw[mypath] (set) -- (cns);
+                \draw[mypath] (set) -- (cdots);
+        \end{tikzpicture}
+        \caption{\label{fig:distobj}Process of evaluation and alignment for
+        distributed object references resulting from the expresssion,
+        \mintinline{r}{z <- do.call.distObjRef(what=f, args=list(x, y))}}
+\end{figure}
+
 % explanation of current system (job queues etc.)
+As it currently stands, return communication to the requester from the node
+performing the computation on the chunk takes place through job queues, the
+access information encapsulated in the new distributed object on the requester
+end; any tasks on the new distributed objects require task completion,
+signalled through the job queues, with any further information on the job
+queues cached locally in the distributed object.
+It has been determined that there are some mixed semantics and potential issues
+with asynchrony in using job queues, and these are to be replaced with
+distributed keys an job interest queues (to be described in the next section),
+along with an appropriate garbage collection routine to delete old keys.
+
 \section{Next Steps}
+
+There is still significant work that needs to be done, even for prototypical features.
+
 % asynchrony through resolution monitoring
+The problem of enabling asynchrony without the system itself facing inherent
+race conditions is decidedly nontrivial.
+Asynchronous evaluation in this system is foundationally dependent on when
+computation on distributed objects is complete, and equivalently, when the new
+distributed objects acting as futures can be resolved.
+Sending resolution status via a job queue is unsufficient if multiple nodes are
+interested in the result of compuation, as only one node will receive the
+message.
+Thus I have proposed a two-part system, where nodes register interest in the
+results as part of a queue monitored by the server, as well as check a key,
+with a specific ordering of events as depicted in figure \ref{fig:two-part-sol}
+to ensure atomicity. 
+Garbage collection of resolution keys, beyond a simple timeout, is still to be
+determined.
+
+\begin{figure}
+        \centering
+        \begin{tikzpicture}
+                \node[queue] (q1) {\(q1\)};
+                \node[queue,below=\blockdist of q1] (dots) {\(\dots\)};
+                \node[queue,below=\blockdist of dots] (qn) {\(qn\)};
+
+                \begin{pgfonlayer}{categories}
+                        \node[category,fit=(q1)(dots)(qn),label={below:Resolution Queues}] (resq) {};
+                \end{pgfonlayer}{categories}
+
+                \node[queue,above=of resq] (interest) {Job Interest Queue};
+                \node[queue,below=of resq] (resk) {Resolution Key};
+
+                \begin{pgfonlayer}{units}
+                        \node[unit,fit=(interest)(resk),label={Distributed Information Space}] (infsp) {};
+                \end{pgfonlayer}{units}
+
+                \node[unit,right=\commdist of infsp] (server) {Server processing the job};
+                \node[left=\commdist of infsp] (null) {};
+                \node[unit,above=\blockdist of null] (pre) {node \texttt{pre}};
+                \node[unit,below=\blockdist of null] (post) {node \texttt{post}};
+
+                \draw[mypath,dark2-1] (pre.north) -- (interest.west)
+                node[midway,anchor=south] {1};
+                \draw[mypath,dark2-1] (interest.east) -- (server.north)
+                node[midway,anchor=south] {2};
+                \draw[mypath,dark2-1] (server) -- (q1)
+                node[pos=0.4,anchor=south] {3};
+                \draw[mypath,mygray] (server) -- (dots);
+                \draw[mypath,mygray] (server) -- (qn);
+                \draw[mypath,mygray] (server) -- (resk);
+                \draw[mypath,dark2-1] (q1) -- (pre)
+                node[midway,anchor=north] {4};
+
+                \draw[mypath,dark2-2] (post) -- (interest.south)
+                node[midway,anchor=south] {1};
+                \draw[mypath,dark2-2] (post) -- (resk.166)
+                node[midway,anchor=south] {2};
+                \draw[mypath,dark2-2] (resk.west) -- (post.south)
+                node[midway,anchor=north] {3};
+        \end{tikzpicture}
+        \caption{\label{fig:two-part-sol}Activity between nodes and a server
+        through the distributed information space, with numbering following the
+        logical order of communication events for each node. The node named
+        '\texttt{pre}' seeks resolution prior to processing of the job, while
+        the node '\texttt{post}' seeks resolution after the job has completed
+        processing.}
+\end{figure}
+
 % robustness & resiliance
+A feature of nearly all modern distributed systems for data processing is the
+capacity for resiliance in the face of hardware failure.
+This is, likewise, a necessity for the platform described herein, and has been
+implicitly allowed for in the flexibility entailed by chunk queues.
+This concept requires further development and refinement before being added as
+a system component.
+
 % further decentralisation
+With the high level of decentralisation given by such an architecture,
+especially relative to the original RPC-based master-worker paradigm explored
+in a previous incarnation, it is worth exploring how much further such
+decentralisation can be pushed.
+If it proves to not impact performance to heavily, many emergent effects of
+decentralisation may imbue themselves in the system, such as high scalability
+and further resiliance.
+
+\printbibliography
 \end{document}
