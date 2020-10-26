@@ -3,7 +3,7 @@ options(citation.bibtex.max=999)
 noncran <- c("distributedR", "RHadoop", "RHIPE", "hmr", "bigalgebra",
              "ffbase2", "pbdDMAT", "pbdML", "hpcvis", "pbdCS",
              "doAzureParallel", "pbdSLAP", "RBigData/pmclust",
-		"rediscc")
+	     "rediscc", "osrv")
 cran <- c("base", "foreach", "doParallel", "doSNOW", "doMPI",
           "future", "furrr", "partools", "pbdBASE", "Rmpi",
           "sparklyr", "SparkR", "doFuture", "future.batchtools",
