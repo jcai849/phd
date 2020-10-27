@@ -1,3 +1,4 @@
+. Ideas for a better name!
 . Create airlines demo with tables
 .. initialise servers with filepath chunks using startup script
 .. create dummy filepath object
@@ -6,6 +7,7 @@
 . remove job queues, replace with keys
 . create automatic distribution of local variables
 . create static variables
+. introduce clarity to demo, through tmux etc.
 . subsetting
 . tighten up demo
 .. better chunk names
