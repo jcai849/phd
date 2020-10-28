@@ -4,6 +4,8 @@
 .. create dummy filepath object
 .. read in csv's
 .. make demo
+. Diagrams of comparable packages in comparison with distObj
+. Slides
 . remove job queues, replace with keys
 . create automatic distribution of local variables
 . create static variables
