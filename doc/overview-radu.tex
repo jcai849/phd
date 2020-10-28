@@ -23,7 +23,7 @@ interface for fitting statistical models, and the flexibility for
 implementation of arbitrary new models within R.
 
 In this document I will provide some context of other solutions to the problem
-of large datasets for R, before describing \textit{distObj}, the focus of my
+of large datasets for R, before describing \textbf{distObj}, the focus of my
 project which aims to provide a powerful platform for large-scale statistical
 modelling with R; the interface, architecture, and further development goals of
 distObj will be explained in detail.
@@ -38,10 +38,10 @@ Several packages exist which answer some of the need for large-scale
 statistical analysis.
 
 % keeping on disk: disk.frame
-A most integral data structure for data analysis in R is the data frame; it can
-be conceived of as effectively a table, wherein each column may be of differing
-type.
-The package \textit{disk.frame} provides class which interfaces transparently
+The most integral data structure for data analysis in R is the data frame; it
+can be conceived of as effectively a table, wherein each column may be of
+differing type.
+The package \textbf{disk.frame} provides a class which interfaces transparently
 as data frames, with the data being stored on disk\cite{zj20}.
 In this way, the dataset size may be expanded to as large as disk capacity,
 along with the associated speed drawbacks\cite{zj19:_key}.
@@ -52,28 +52,28 @@ estimates, such as determination of median, as such an operation is too slow to
 perform out of
 core\cite{zj19:_group_by}\cite{zj19:_custom_one_stage_group_by_funct}.
 
-% using external system: sparklyr, pbdDMAT
+% using external system: sparklyr, \textbf{pbdDMAT}
 While keeping the data on disk presents some solution to the lower end of
 large-scale, the speed losses and lack of resilience offered by a single
 machine are excessive once the statistician is presented with truly large data.
 For this, external distributed systems are typically relied upon.
 
-The R package \textit{sparklyr} presents an R interface to Spark\cite{luraschi20}.
+The R package \textbf{sparklyr} presents an R interface to Spark\cite{luraschi20}.
 The user connects to Spark and accumulates instructions for the manipulation of
 Spark DataFrame objects, before executing the request on the Spark cluster.
 This is implemented primarily through translation of the instructions to
 SparkSQL in the backend.
 While the package opens up enormous capabilities for the R world, it shares
-Sparks limitations, with much of statistical analyses being made available
-remaining pre-made, with little room for novel algorithms written in R,
+Sparks limitations, with most of the statistical analyses that are available
+being pre-made, with little room for novel algorithms written in R,
 especially in an iterative context.
 
-The \textit{pbdR} project also provides interfaces to external distributed systems,
+The \textbf{pbdR} project also provides interfaces to external distributed systems,
 including MPI, ZeroMQ, and others\cite{pbdR2012}\cite{pbdBASEpackage}.
 Of the many packages delivered by the project, they also provide a user-end
-package, pbdDMAT, which offers classes encapsulating distributed matrices,
+package, \textbf{pbdDMAT}, which offers classes encapsulating distributed matrices,
 which have near-identical interfaces to standard R matrices.
-Like sparklyr, pbdDMAT shares equivalent limitations with the systems it
+Like \textbf{sparklyr}, \textbf{pbdDMAT} shares equivalent limitations with the systems it
 depends upon, including most notably, a lack of interactivity, being only able
 to run in batch mode through MPI.
 
@@ -81,21 +81,21 @@ to run in batch mode through MPI.
 Another group of packages attempting to solve the problem of large-scale data
 has taken the approach of leaving backends more general, and providing new
 constructs in R to handle big data.
-\textit{SNOW} is foremost among these packages, allowing a cluster to be
+\textbf{SNOW} is foremost among these packages, allowing a cluster to be
 initialised through R, typically with socket connections, then providing
 mapping commands and the like to automatically process data through the
 cluster\cite{tierney18}.
-This is a powerful capability, though suffers from having a lack of persistence
+This is a powerful capability, though it suffers from having a lack of persistence
 in the distributed data.
 
-\textit{foreach} is a package that follows and builds upon SNOW, providing a
+\textbf{foreach} is a package that follows and builds upon \textbf{SNOW}, providing a
 foreach construct in R\cite{microsoft20}.
 foreach is a fairly well-known concept in most other high-level programming
 languages, behaving in a similar manner to a for-loop, with the generalisation
 that the order of iterations is left arbitrary.
 From such a generalisation, parallelisation of the loop is trivial, and the
-foreach package allows for a variety of backends to be registered to handle the
-loop processing, with SNOW among these.
+\textbf{foreach} package allows for a variety of backends to be registered to handle the
+loop processing, with \textbf{SNOW} among these.
 In spite of the incredibly simple user interface, the limitations are the same
 as those of the backend that it rests upon, and there is no persistence of
 distributed objects.
@@ -103,7 +103,7 @@ distributed objects.
 % python: dask
 Outside of the R package ecosystem, an enormously capable distributed system
 that satisfies many of the necessities of large-scale data analysis is provided
-in the Python world with dask\cite{rocklin2015dask}.
+in the Python world with Dask\cite{rocklin2015dask}.
 Dask provides a platform for large-scale computations, though like most Python
 modules, it was not built with statistical analysis as it's central aim, and
 falls short for such an aim because of it.
@@ -123,7 +123,7 @@ most tasks that they are using a distributed platform.
 Realistically, multiple levels of control should be offered, with more serious
 programming taking place at an explicitly distributed level.
 
-As it currently stands, the prototype \textit{distObj} packages does have such
+As it currently stands, the prototype \textbf{distObj} packages does have such
 delineation between levels, with most work having been done at the programmer
 level, rather than the user level.
 A description of some of the more important features follows.
@@ -196,7 +196,7 @@ The general layout of the system follows a mostly decentralised structure, with
 chunks of distributed objects being held in nodes that hold roles of both
 client and server.
 There is one main initiator and controlling session that holds references to
-the distributed objects, aand sends initial requests for computation.
+the distributed objects, and sends initial requests for computation.
 A central feature is the usage of message queues to co-ordinate computation;
 each chunk in the system has a unique ID, and the nodes holding the chunk
 monitor queues identified by that same ID.
@@ -207,7 +207,7 @@ This is currently implemented using Redis lists.
 Computations requiring chunks that exist on disparate nodes will naturally
 demand relocation of some chunks so that computation can procede at one single
 location; this is managed through a threaded object server, using the
-\textit{osrv} package\cite{urbanek2020osrv}.
+\textbf{osrv} package\cite{urbanek2020osrv}.
 
 % other considerations: alignment, etc.
 The nature of R also produces other considerations; most notably, R is a
@@ -265,13 +265,14 @@ In more detail, the journey of a task can be described as follows:
 
 	\item One message for each chunk reference within the distributed
 		object reference is sent to the corresponding nodes hosting the
-		chunks.  The message contains information including the
-		requested function, the arguments to the function in the form
-		of a list of distributed object references as well as other
+		chunks, via the chunk queues. 
+		The message contains information including the requested
+		function, the arguments to the function in the form of a list
+		of distributed object references as well as other
 		non-distributed arguments, and the name with which to assign
 		the results to, which the client also keeps as an address to
-		send messages to for any future work on the results.  The
-		client may continue with the remainder of its process,
+		send messages to for any future work on the results.  
+		The client may continue with the remainder of its process,
 		including producing a future reference for the expected final
 		results of evaluation.
 
@@ -390,7 +391,7 @@ signalled through the job queues, with any further information on the job
 queues cached locally in the distributed object.
 It has been determined that there are some mixed semantics and potential issues
 with asynchrony in using job queues, and these are to be replaced with
-distributed keys an job interest queues (to be described in the next section),
+distributed keys and job interest queues (to be described in the next section),
 along with an appropriate garbage collection routine to delete old keys.
 
 \section{Next Steps}
@@ -403,7 +404,7 @@ race conditions is decidedly nontrivial.
 Asynchronous evaluation in this system is foundationally dependent on when
 computation on distributed objects is complete, and equivalently, when the new
 distributed objects acting as futures can be resolved.
-Sending resolution status via a job queue is unsufficient if multiple nodes are
+Sending resolution status via a job queue is insufficient if multiple nodes are
 interested in the result of compuation, as only one node will receive the
 message.
 Thus I have proposed a two-part system, where nodes register interest in the
@@ -463,9 +464,9 @@ determined.
         processing.}
 \end{figure}
 
-% robustness & resiliance
+% robustness & resilience
 A feature of nearly all modern distributed systems for data processing is the
-capacity for resiliance in the face of hardware failure.
+capacity for resilience in the face of hardware failure.
 This is, likewise, a necessity for the platform described herein, and has been
 implicitly allowed for in the flexibility entailed by chunk queues.
 This concept requires further development and refinement before being added as
@@ -478,7 +479,7 @@ in a previous incarnation, it is worth exploring how much further such
 decentralisation can be pushed.
 If it proves to not impact performance to heavily, many emergent effects of
 decentralisation may imbue themselves in the system, such as high scalability
-and further resiliance.
+and further resilience.
 
 \printbibliography
 \end{document}
