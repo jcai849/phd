@@ -20,6 +20,7 @@
 .. as-is data in demo using AsIs (I()); recycle everything else
 . lm for flights demo
 . dask document
+. ddR & distributed dplyr as per Paul's email
 . Remove caching of host/port in chunks
 . create breaking async example
 . redis-tests in inst/ from demos
