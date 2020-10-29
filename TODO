@@ -1,15 +1,19 @@
-. Ideas for a better name!
-. Create airlines demo with tables
-.. initialise servers with filepath chunks using startup script
-.. create dummy filepath object
-.. read in csv's
-.. make demo
+This week:
+. Continue names doc with aid of thesaurus
+. create do.call versions of adding 1 as an anonymous function, making a table, and fitting a linear model, as well as kill command
+. Create talk outline doc
+next week:
+. Fix print methods
+. create automatic distribution of local variables, add demo of recycling local vector
+. Dashboard using R's internal http server
 . Diagrams of comparable packages in comparison with distObj
 . Slides
+later:
+. Send overview doc to Radu
 . remove job queues, replace with keys
-. create automatic distribution of local variables
 . create static variables
 . introduce clarity to demo, through tmux etc.
+. callCC
 . subsetting
 . tighten up demo
 .. better chunk names
@@ -20,7 +24,6 @@
 .. emerge for distObj's on client? test
 .. better data constructor for descriptor incl. auto diagrams; place in R/test.R
 .. as-is data in demo using AsIs (I()); recycle everything else
-. lm for flights demo
 . dask document
 . ddR & distributed dplyr as per Paul's email
 . Remove caching of host/port in chunks
