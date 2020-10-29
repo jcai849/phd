@@ -1,13 +1,14 @@
 This week:
 . Continue names doc with aid of thesaurus
+. Fix print methods
 . create do.call versions of adding 1 as an anonymous function, making a table, and fitting a linear model, as well as kill command
 . Create talk outline doc
 next week:
-. Fix print methods
-. create automatic distribution of local variables, add demo of recycling local vector
-. Dashboard using R's internal http server
-. Diagrams of comparable packages in comparison with distObj
 . Slides
+. Diagrams of comparable packages in comparison with distObj
+. Dashboard using R's internal http server
+. chunk demo (?)
+. create automatic distribution of local variables, add demo of recycling local vector
 later:
 . Send overview doc to Radu
 . remove job queues, replace with keys
