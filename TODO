@@ -1,8 +1,7 @@
 This week:
-. Continue names doc with aid of thesaurus
-. Fix print methods
 . create do.call versions of adding 1 as an anonymous function, making a table, and fitting a linear model, as well as kill command
 . Create talk outline doc
+. Continue names doc with aid of thesaurus
 next week:
 . Slides
 . Diagrams of comparable packages in comparison with distObj
