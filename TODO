@@ -1,17 +1,14 @@
 This week:
-. create do.call versions of adding 1 as an anonymous function, making a table, and fitting a linear model, as well as kill command
+. fix alignment creating unnecessarily large objects; test on cluster
 . Create talk outline doc
 . Continue names doc with aid of thesaurus
-next week:
 . Slides
 . Diagrams of comparable packages in comparison with distObj
-. Dashboard using R's internal http server
-. chunk demo (?)
-. create automatic distribution of local variables, add demo of recycling local vector
+next week:
 later:
+. Dashboard using R's internal http server
 . Send overview doc to Radu
 . remove job queues, replace with keys
-. create static variables
 . introduce clarity to demo, through tmux etc.
 . callCC
 . subsetting
