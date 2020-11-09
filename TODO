@@ -1,26 +1,18 @@
 This week:
-. fix alignment creating unnecessarily large objects; test on cluster
 . Create talk outline doc
-. Continue names doc with aid of thesaurus
 . Slides
 . Diagrams of comparable packages in comparison with distObj
+. Continue names doc with aid of thesaurus
 next week:
-later:
-. Dashboard using R's internal http server
-. Send overview doc to Radu
-. remove job queues, replace with keys
 . introduce clarity to demo, through tmux etc.
+. Send overview doc to Radu
+. print method for distObj's
+. remove job queues, replace with keys
+. Dashboard using R's internal http server
+. benchmarks
+later:
 . callCC
 . subsetting
-. tighten up demo
-.. better chunk names
-.. verbosity in alignment and findTarget
-.. do.call.distObjRef(x, distObj1)
-.. no 0's in the demo
-.. print method for distObj's
-.. emerge for distObj's on client? test
-.. better data constructor for descriptor incl. auto diagrams; place in R/test.R
-.. as-is data in demo using AsIs (I()); recycle everything else
 . dask document
 . ddR & distributed dplyr as per Paul's email
 . Remove caching of host/port in chunks
@@ -29,7 +21,6 @@ later:
 . 'job' inherits from msg
 . Implementation of inbox as described in async doc; contrive async situation to demonstrate difference
 .. docs & tests
-. benchmarks
 .. abdallah2005sommseqproc
 . Formalisation of models
 . Assumptions:
