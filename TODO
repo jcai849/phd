@@ -1,16 +1,16 @@
 This week:
-. Create talk outline doc
-. Slides
-. Diagrams of comparable packages in comparison with distObj
+. Practice demo with emacs & test print method
+. Assertions for frame titles
+. Place some theory prior to demo
+. diagrams for demo (hand-drawn first)
 . Continue names doc with aid of thesaurus
+. Make repository more attractive
+. benchmarks
 next week:
-. introduce clarity to demo, through tmux etc.
-. Send overview doc to Radu
-. print method for distObj's
+later:
+. Provide means for rebalancing loads between nodes
 . remove job queues, replace with keys
 . Dashboard using R's internal http server
-. benchmarks
-later:
 . callCC
 . subsetting
 . dask document
