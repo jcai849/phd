@@ -1,0 +1,88 @@
+\documentclass[handout]{beamer}
+\usetheme{Rochester}
+\usecolortheme{seahorse}
+\usepackage{doc/header}
+%\usepackage{pgfpages}
+%\pgfpagesuselayout{4 on 1}[a4paper,border shrink=5mm,landscape]
+\title{A Platform for Large-Scale Statistical Modelling Using R}
+\subtitle{Preliminary Results}
+\author{Jason Cairns}
+\institute{University of Auckland}
+\date{NZSA Unconference 2020}
+\begin{document}
+\frame{\titlepage}
+
+\section{Introduction}
+	\begin{frame}
+		\frametitle{Introduction}
+		\framesubtitle{Outline \& Motivation}
+		\begin{itemize}
+			\item \url{https://github.com/jcai849/distObj.git}
+			\item User friendly and programmer friendly platform in R for performing analyses with larger-than-memory data
+			\item More computers = more memory
+			\item More computers = more processing power
+			\item How? 1. Get multiple computers; 2. Run package
+		\end{itemize}
+	\end{frame}
+\section{Demo}
+	\begin{frame}
+		\frametitle{Demo}
+		\framesubtitle{Simple Analysis of flights data}
+		\begin{itemize}
+			\item 118M observations of commercial flights in US
+			\item 16Gb dataset
+			\item How many flights from SAN? (Implicit recycling)
+			\item How many flights per day of week? (Any class)
+		\end{itemize}
+	\end{frame}
+\section{Interface}
+	\begin{frame}
+		\frametitle{Interface}
+		\framesubtitle{Layers}
+		\begin{itemize}
+			\item User layer: (nearly) regular R
+			\item Programmer layer: do.call derivatives, future-like references to chunks, \& emerge
+			\item Systems layer: splits, combinations, custom classes \& direct chunk addressing
+		\end{itemize}
+	\end{frame}
+\section{Architecture}
+	\begin{frame}
+		\frametitle{Architecture}
+		\framesubtitle{Overview}
+		\begin{itemize}
+			\item Nodes; client-server
+			\item Chunk Queues
+			\item References \& Resolution for Asynchrony
+		\end{itemize}
+	\end{frame}
+\section{Similar Packages}
+	\begin{frame}
+		\frametitle{Similar Packages}
+		\begin{itemize}
+			\item Sparklyr - Spark + dplyr
+			\item pbdDMAT - Interface to HPI platforms
+			\item SNOW - Distributed processing
+			\item foreach - loop interface
+		\end{itemize}
+	\end{frame}
+\section{Project Direction}
+	\begin{frame}
+		\frametitle{Next Steps}
+		\begin{itemize}
+			\item Asynchrony, scheduling, \& resolution
+			\item Resilience \& further decentralisation
+			\item Memory management
+			\item Dashboard
+		\end{itemize}
+	\end{frame}
+\section{Summary and Questions}
+	\begin{frame}
+		\frametitle{Summary \& Questions}
+		\begin{itemize}
+			\item \url{https://github.com/jcai849/distObj.git}
+			\item User friendly and programmer friendly platform in R for performing analyses with larger-than-memory data
+			\item Plenty more in store!
+			\item Questions?
+		\end{itemize}
+	\end{frame}
+\end{document}

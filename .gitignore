@@ -29,3 +29,5 @@ tags
 *.gls
 *.ist
 *.rdb
+*.nav
+*.snm
