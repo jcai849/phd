@@ -14,14 +14,25 @@
 
 \section{Introduction}
 	\begin{frame}
-		\frametitle{Introduction}
-		\framesubtitle{Outline \& Motivation}
+		\frametitle{Introducing a Platform for Large-Scale Analysis in R}
+		\framesubtitle{Introduction \& Motivation}
 		\begin{itemize}
 			\item \url{https://github.com/jcai849/distObj.git}
-			\item User friendly and programmer friendly platform in R for performing analyses with larger-than-memory data
+			\item User friendly and programmer friendly platform in
+				R for performing analyses with
+				larger-than-memory data
 			\item More computers = more memory
 			\item More computers = more processing power
 			\item How? 1. Get multiple computers; 2. Run package
+		\end{itemize}
+	\end{frame}
+	\begin{frame}
+		\frametitle{Some Background before a Demo}
+		\framesubtitle{Simple Analysis of flights data}
+		\begin{itemize}
+			\item Split data into chunks
+			\item Scatter chunks across nodes
+			\item Use platform to coordinate nodes
 		\end{itemize}
 	\end{frame}
 \section{Demo}
@@ -30,25 +41,26 @@
 		\framesubtitle{Simple Analysis of flights data}
 		\begin{itemize}
 			\item 118M observations of commercial flights in US
-			\item 16Gb dataset
+			\item 16Gb dataset; 32 nodes on 8 low--mid-tier machines
 			\item How many flights from SAN? (Implicit recycling)
-			\item How many flights per day of week? (Any class)
+			\item How many flights per day of week by location?
+				(Any class)
 		\end{itemize}
 	\end{frame}
 \section{Interface}
 	\begin{frame}
-		\frametitle{Interface}
-		\framesubtitle{Layers}
+		\frametitle{A User- and Programmer-friendly Interface}
 		\begin{itemize}
 			\item User layer: (nearly) regular R
-			\item Programmer layer: do.call derivatives, future-like references to chunks, \& emerge
-			\item Systems layer: splits, combinations, custom classes \& direct chunk addressing
+			\item Programmer layer: do.call derivatives,
+				future-like references to chunks, \& emerge
+			\item Systems layer: splits, combinations, custom
+				classes \& direct chunk addressing
 		\end{itemize}
 	\end{frame}
 \section{Architecture}
 	\begin{frame}
-		\frametitle{Architecture}
-		\framesubtitle{Overview}
+		\frametitle{A Clean and Flexible Architecture}
 		\begin{itemize}
 			\item Nodes; client-server
 			\item Chunk Queues
@@ -57,7 +69,7 @@
 	\end{frame}
 \section{Similar Packages}
 	\begin{frame}
-		\frametitle{Similar Packages}
+		\frametitle{Similar Packages have Different Focuses}
 		\begin{itemize}
 			\item Sparklyr - Spark + dplyr
 			\item pbdDMAT - Interface to HPI platforms
@@ -67,7 +79,7 @@
 	\end{frame}
 \section{Project Direction}
 	\begin{frame}
-		\frametitle{Next Steps}
+		\frametitle{There is a lot More in Store}
 		\begin{itemize}
 			\item Asynchrony, scheduling, \& resolution
 			\item Resilience \& further decentralisation
@@ -80,8 +92,10 @@
 		\frametitle{Summary \& Questions}
 		\begin{itemize}
 			\item \url{https://github.com/jcai849/distObj.git}
-			\item User friendly and programmer friendly platform in R for performing analyses with larger-than-memory data
-			\item Plenty more in store!
+			\item User friendly and programmer friendly platform in
+				R for performing analyses with
+				larger-than-memory data
+			\item Plenty more in store - watch this space!
 			\item Questions?
 		\end{itemize}
 	\end{frame}
