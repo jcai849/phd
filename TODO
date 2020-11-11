@@ -1,9 +1,8 @@
 This week:
-. fix alignment creating unnecessarily large objects; test on cluster
 . Create talk outline doc
-. Continue names doc with aid of thesaurus
 . Slides
 . Diagrams of comparable packages in comparison with distObj
+. Continue names doc with aid of thesaurus
 next week:
 later:
 . Dashboard using R's internal http server
