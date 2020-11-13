@@ -18,22 +18,92 @@
 		\framesubtitle{Introduction \& Motivation}
 		\begin{itemize}
 			\item \url{https://github.com/jcai849/distObj.git}
-			\item User friendly and programmer friendly platform in
-				R for performing analyses with
+			\item User friendly and programmer friendly distributed
+				system in R for performing analyses with
 				larger-than-memory data
-			\item More computers = more memory
-			\item More computers = more processing power
-			\item How? 1. Get multiple computers; 2. Run package
+			\item More computers \(\to\) more memory
+			\item More computers \(\to\) more processing power
+			\item Simply get multiple computers and run package
 		\end{itemize}
 	\end{frame}
 	\begin{frame}
-		\frametitle{Some Background before a Demo}
-		\framesubtitle{Simple Analysis of flights data}
-		\begin{itemize}
-			\item Split data into chunks
-			\item Scatter chunks across nodes
-			\item Use platform to coordinate nodes
-		\end{itemize}
+		\frametitle{A Brief Background}
+		\framesubtitle{Split data into chunks}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+				\begin{tikzpicture}
+				\node (rect) [draw,minimum width=10,minimum height=30] {};
+
+				\node (midc) [object,right=of rect] {};
+				\node (topc) [object,above=of midc] {};
+				\node (botc) [object,below=of midc] {};
+
+				\draw[mypath] (rect) -- (midc);
+				\draw[mypath] (rect) -- (topc);
+				\draw[mypath] (rect) -- (botc);
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+	\begin{frame}
+		\frametitle{A Brief Background}
+		\framesubtitle{Scatter chunks across nodes}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (midc) [object] {};
+				\node (topc) [object,above=of midc] {};
+				\node (botc) [object,below=of midc] {};
+				
+				\node (rmidc) [object,right=of midc] {};
+				\node (rtopc) [object,above=of rmidc] {};
+				\node (rbotc) [object,below=of rmidc] {};
+
+
+				\begin{pgfonlayer}{units}
+					\node[unit,fit=(rtopc)] (rtopnode) {};
+					\node[unit,fit=(rmidc)] (rmidnode) {};
+					\node[unit,fit=(rbotc)] (rbotnode) {};
+				\end{pgfonlayer}
+
+				\draw[mypath] (midc) -- (rmidnode);
+				\draw[mypath] (topc) -- (rtopnode);
+				\draw[mypath] (botc) -- (rbotnode);
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+	\begin{frame}
+		\frametitle{A Brief Background}
+		\framesubtitle{Use platform to coordinate chunks/nodes through reference objects}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (master) [object,opacity=0] {};
+
+				\node (mc) [object,above=of master] {};
+				\node (rc) [object,right=of mc] {};
+				\node (lc) [object,left=of mc] {};
+
+				\begin{pgfonlayer}{units}
+					\node[unit,fit=(master)] (msn) {};
+					\node[unit,fit=(mc)] (mn) {};
+					\node[unit,fit=(rc)] (rn) {};
+					\node[unit,fit=(lc)] (ln) {};
+				\end{pgfonlayer}
+
+				\draw[mydoublepath] (mn) -- (rn);
+				\draw[mydoublepath] (mn) -- (ln);
+				\draw[mydoublepath] (msn) -- (mn);
+				\path[mydoublepath] (ln.north) edge[bend left] (rn.north);
+				\draw[mydoublepath] (msn) -- (rn);
+				\draw[mydoublepath] (msn) -- (ln);
+			\end{tikzpicture}
+			}
+		\end{figure}
 	\end{frame}
 \section{Demo}
 	\begin{frame}
@@ -50,22 +120,84 @@
 \section{Interface}
 	\begin{frame}
 		\frametitle{A User- and Programmer-friendly Interface}
+		\framesubtitle{User Layer}
 		\begin{itemize}
-			\item User layer: (nearly) regular R
-			\item Programmer layer: do.call derivatives,
-				future-like references to chunks, \& emerge
-			\item Systems layer: splits, combinations, custom
-				classes \& direct chunk addressing
+			\item Regular R (objects are just references behind the scenes)
+			\item All group methods already functioning
+			\item Massively extensible at the programmer layer
+		\end{itemize}
+	\end{frame}
+	\begin{frame}
+		\frametitle{A User- and Programmer-friendly Interface}
+		\framesubtitle{Programmer Layer}
+		\begin{itemize}
+			\item Future-like references to chunks
+			\item \mintinline{r}{do.call()} derivatives;
+				\mintinline{r}{do.call.distObjRef(what, args)}
+			\item \mintinline{r}{emerge(ref)}
+		\end{itemize}
+	\end{frame}
+	\begin{frame}
+		\frametitle{A User- and Programmer-friendly Interface}
+		\framesubtitle{Systems Layer}
+		\begin{itemize}
+			\item Splits
+			\item Combinations
+			\item Custom classes 
+			\item Direct chunk addressing
 		\end{itemize}
 	\end{frame}
 \section{Architecture}
 	\begin{frame}
 		\frametitle{A Clean and Flexible Architecture}
 		\begin{itemize}
-			\item Nodes; client-server
-			\item Chunk Queues
+			\item Client-server communication
 			\item References \& Resolution for Asynchrony
+			\item Node/Chunk decoupling
 		\end{itemize}
+	\end{frame}
+	\begin{frame}
+		\frametitle{A Clean and Flexible Architecture}
+		\framesubtitle{Chunk Queues}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (master) [object,opacity=0] {};
+				\node (m1) [node,right=\blockdist of master,scale=0.5] {};
+
+				\node (c3) [object,right=\commdist of master] {};
+				\node (c2) [object,above=\blockdist of c3] {};
+				\node (c1) [object,above=\blockdist of c2] {};
+
+				\node (c4) [object,below={0.3*\commdist} of c3] {};
+				\node (c5) [object,below=\blockdist of c4] {};
+
+				\node (c3m1) [node,left=\blockdist of c3,scale=0.5] {};
+				\node (c3m2) [node,left=\blockdist of c3m1,scale=0.5] {};
+
+				\node (c1m1) [node,left=\blockdist of c1,scale=0.5] {};
+				\node (c1m2) [node,left=\blockdist of c1m1,scale=0.5] {};
+				\node (c1m3) [node,left=\blockdist of c1m2,scale=0.5] {};
+
+				\node (c4m1) [node,left=\blockdist of c4,scale=0.5] {};
+
+				\node (c5m1) [node,left=\blockdist of c5,scale=0.5] {};
+				\node (c5m2) [node,left=\blockdist of c5m1,scale=0.5] {};
+
+				\begin{pgfonlayer}{units}
+					\node[unit,fit=(master)] (msn) {};
+					\node[unit,fit=(c1)(c2)(c3)] (n1) {};
+					\node[unit,fit=(c4)(c5)] (n2) {};
+				\end{pgfonlayer}
+
+				\path[mypath] (m1.east) edge[bend left] (c1m3.west);
+				%\path[mypath] (c5m2.west) edge[bend left] (c3m2.west);
+				\path[mypath] (c3m2.west) edge[bend right] (c5m2.west);
+
+			\end{tikzpicture}
+			}
+		\end{figure}
 	\end{frame}
 \section{Similar Packages}
 	\begin{frame}
