@@ -34,3 +34,5 @@ clean:
 	rm -f $(OUTDIR)/*.glo
 	rm -f $(OUTDIR)/*.gls
 	rm -f $(OUTDIR)/*.ist
+	rm -f $(OUTDIR)/*.nav
+	rm -f $(OUTDIR)/*.snm
