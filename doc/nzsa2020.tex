@@ -97,7 +97,7 @@
 				\draw[mydoublepath] (mn) -- (rn);
 				\draw[mydoublepath] (mn) -- (ln);
 				\draw[mydoublepath] (msn) -- (mn);
-				\path[mydoublepath] (ln.north) edge[bend left] (rn.north);
+				\draw[mydoublepath] (ln.north) to[bend left] (rn.north);
 				\draw[mydoublepath] (msn) -- (rn);
 				\draw[mydoublepath] (msn) -- (ln);
 			\end{tikzpicture}
@@ -110,10 +110,7 @@
 		\framesubtitle{Simple Analysis of flights data}
 		\begin{itemize}
 			\item 118M observations of commercial flights in US
-			\item 16Gb dataset; 32 nodes on 8 low--mid-tier machines
-			\item How many flights from SAN? (Implicit recycling)
-			\item How many flights per day of week by location?
-				(Any class)
+			\item 16Gb dataset; 32 processes on 8 low--mid-tier machines
 		\end{itemize}
 	\end{frame}
 \section{Interface}
@@ -121,79 +118,161 @@
 		\frametitle{A User- and Programmer-friendly Interface}
 		\framesubtitle{User Layer}
 		\begin{itemize}
+			\item For general usage
 			\item Regular R (objects are just references behind the scenes)
 			\item All group methods already functioning
-			\item Massively extensible at the programmer layer
 		\end{itemize}
 	\end{frame}
 	\begin{frame}
 		\frametitle{A User- and Programmer-friendly Interface}
 		\framesubtitle{Programmer Layer}
 		\begin{itemize}
-			\item Future-like references to chunks
+			\item For extensibility and arbitrary parallel programming
+			\item Asynchronous references to chunks (futures)
 			\item \mintinline{r}{do.call()} derivatives;
 				\mintinline{r}{do.call.distObjRef(what, args)}
 			\item \mintinline{r}{emerge(ref)}
 		\end{itemize}
 	\end{frame}
-	\begin{frame}
-		\frametitle{A User- and Programmer-friendly Interface}
-		\framesubtitle{Systems Layer}
-		\begin{itemize}
-			\item Splits
-			\item Combinations
-			\item Custom classes 
-			\item Direct chunk addressing
-		\end{itemize}
-	\end{frame}
 \section{Architecture}
 	\begin{frame}
-		\frametitle{A Clean and Flexible Architecture}
-		\begin{itemize}
-			\item Client-server communication
-			\item References \& Resolution for Asynchrony
-			\item Node/Chunk decoupling
-		\end{itemize}
+		\frametitle{Architecture, by Way of Example}
+		\framesubtitle{Recycling}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (x1) [object,label=\mintinline{r}{x}] {};
+				\node (x2) [object,below=0 of x1] {};
+				\node (x3) [object,below=0 of x2] {};
+				\node (x4) [object,below=0 of x3] {};
+				\node (x5) [object,below=0 of x4] {};
+				\node (x6) [object,below=0 of x5] {};
+
+				\node (y1) [object,label=\mintinline{r}{y},right={0.5*\commdist} of x1] {};
+				\node (y2) [object,below=0 of y1] {};
+
+				\node (y3) [object,draw=dark2-3,below=0 of y2] {};
+				\node (y4) [object,draw=dark2-3,below=0 of y3] {};
+
+				\node (y5) [object,draw=dark2-1,below=0 of y4] {};
+				\node (y6) [object,draw=dark2-1,below=0 of y5] {};
+			\end{tikzpicture}
+			}
+		\end{figure}
 	\end{frame}
 	\begin{frame}
-		\frametitle{A Clean and Flexible Architecture}
-		\framesubtitle{Chunk Queues}
+		\frametitle{Architecture, by Way of Example}
+		\framesubtitle{A need for Communication and Movement}
 		\begin{figure}
 			\centering
 			\scalebox{2}{
 			\begin{tikzpicture}
 				\node (master) [object,opacity=0] {};
+
+				\node (x3) [object,right=\commdist of master] {};
+				\node (x2) [object,above=0 of x3] {};
+				\node (x1) [object,above=0 of x2] {};
+
+				\node (x4) [object,below={3*\blockdist} of x3] {};
+				\node (x5) [object,below=0 of x4] {};
+				\node (x6) [object,below=0 of x5] {};
+
+				\node (y1) [object,right={0.5*\commdist} of x1] {};
+				\node (y2) [object,below=0 of y1] {};
+
+				\begin{pgfonlayer}{units}
+					\node[unit,fit=(master),label={\mintinline{r}{z <-}}] (msn) {};
+					\node[unit,fit=(x1)(x2)(x3),label={\mintinline{r}{x}}] (xd1) {};
+					\node[unit,fit=(x4)(x5)(x6)] (xd2) {};
+					\node[unit,fit=(y1)(y2),label={\mintinline{r}{y}}] (yd1) {};
+				\end{pgfonlayer}
+
+				\path (xd1) -- (yd1) node[midway,anchor=south] {\mintinline{r}{+}};
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+	\begin{frame}
+		\frametitle{Architecture, by Way of Example}
+		\framesubtitle{A means for Communication and Movement}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (master) [object,opacity=0] {};
+
+				\node (x3) [object,right=\commdist of master] {};
+				\node (x2) [object,above=0 of x3] {};
+				\node (x1) [object,above=0 of x2] {};
+
+				\node (x4) [object,below={3*\blockdist} of x3] {};
+				\node (x5) [object,below=0 of x4] {};
+				\node (x6) [object,below=0 of x5] {};
+
+				\node (y1) [object,right={0.5*\commdist} of x1] {};
+				\node (y2) [object,below=0 of y1] {};
+
 				\node (m1) [node,right=\blockdist of master,scale=0.5] {};
+				\node (m2) [node,left=\blockdist of x2,scale=0.5] {};
+				\node (m3) [node,left=\blockdist of x5,scale=0.5] {};
 
-				\node (c3) [object,right=\commdist of master] {};
-				\node (c2) [object,above=\blockdist of c3] {};
-				\node (c1) [object,above=\blockdist of c2] {};
+				\begin{pgfonlayer}{units}
+					\node[unit,fit=(master),label={\mintinline{r}{z <-}}] (msn) {};
+					\node[unit,fit=(x1)(x2)(x3),label={\mintinline{r}{x}}] (xd1) {};
+					\node[unit,fit=(x4)(x5)(x6)] (xd2) {};
+					\node[unit,fit=(y1)(y2),label={\mintinline{r}{y}}] (yd1) {};
+				\end{pgfonlayer}
 
-				\node (c4) [object,below={0.3*\commdist} of c3] {};
-				\node (c5) [object,below=\blockdist of c4] {};
+				\draw[mypath] (m1) -- (m2);
+				\draw[mypath] (m1) -- (m3);
+				\draw[mydoublepath] (xd1) -- (yd1);
+				\draw[mydoublepath] (xd2) -- (yd1);
+				\path (xd1) -- (yd1) node[midway,anchor=south] {\mintinline{r}{+}};
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+	\begin{frame}
+		\frametitle{Architecture, by Way of Example}
+		\framesubtitle{Ready for the next instruction}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (master) [object,opacity=0] {};
 
-				\node (c3m1) [node,left=\blockdist of c3,scale=0.5] {};
-				\node (c3m2) [node,left=\blockdist of c3m1,scale=0.5] {};
+				\node (x3) [object,right=\commdist of master] {};
+				\node (x2) [object,above=0 of x3] {};
+				\node (x1) [object,above=0 of x2] {};
 
-				\node (c1m1) [node,left=\blockdist of c1,scale=0.5] {};
-				\node (c1m2) [node,left=\blockdist of c1m1,scale=0.5] {};
-				\node (c1m3) [node,left=\blockdist of c1m2,scale=0.5] {};
+				\node (x4) [object,below={3*\blockdist} of x3] {};
+				\node (x5) [object,below=0 of x4] {};
+				\node (x6) [object,below=0 of x5] {};
 
-				\node (c4m1) [node,left=\blockdist of c4,scale=0.5] {};
+				\node (z1) [object,right=\blockdist of x1] {};
+				\node (z2) [object,right=\blockdist of x2] {};
+				\node (z3) [object,right=\blockdist of x3] {};
+				\node (z4) [object,right=\blockdist of x4] {};
+				\node (z5) [object,right=\blockdist of x5] {};
+				\node (z6) [object,right=\blockdist of x6] {};
 
-				\node (c5m1) [node,left=\blockdist of c5,scale=0.5] {};
-				\node (c5m2) [node,left=\blockdist of c5m1,scale=0.5] {};
+				\node (y1) [object,right={0.5*\commdist} of z1] {};
+				\node (y2) [object,below=0 of y1] {};
+
+				\node (m1) [node,left=\blockdist of x2,scale=0.5] {};
+				\node (m2) [node,left=\blockdist of x3,scale=0.5] {};
+				\node (m3) [node,left=\blockdist of m2,scale=0.5] {};
+				\node (m4) [node,left=\blockdist of x5,scale=0.5] {};
+				\node (m5) [node,left=\blockdist of x6,scale=0.5] {};
+				\node (m6) [node,left=\blockdist of m5,scale=0.5] {};
 
 				\begin{pgfonlayer}{units}
 					\node[unit,fit=(master)] (msn) {};
-					\node[unit,fit=(c1)(c2)(c3)] (n1) {};
-					\node[unit,fit=(c4)(c5)] (n2) {};
+					\node[unit,fit=(x1)(x2)(x3)(z1)(z2)(z3),label={\mintinline{r}{x z}}] (xd1) {};
+					\node[unit,fit=(x4)(x5)(x6)(z4)(z5)(z6)] (xd2) {};
+					\node[unit,fit=(y1)(y2),label={\mintinline{r}{y}}] (yd1) {};
 				\end{pgfonlayer}
-
-				\path[mypath] (m1.east) edge[bend left] (c1m3.west);
-				%\path[mypath] (c5m2.west) edge[bend left] (c3m2.west);
-				\path[mypath] (c3m2.west) edge[bend right] (c5m2.west);
-
 			\end{tikzpicture}
 			}
 		\end{figure}
@@ -208,26 +287,24 @@
 			\item foreach - loop interface
 		\end{itemize}
 	\end{frame}
-\section{Project Direction}
-	\begin{frame}
-		\frametitle{There is a lot More in Store}
-		\begin{itemize}
-			\item Asynchrony, scheduling, \& resolution
-			\item Resilience \& further decentralisation
-			\item Memory management
-			\item Dashboard
-		\end{itemize}
-	\end{frame}
 \section{Summary and Questions}
 	\begin{frame}
 		\frametitle{Summary \& Questions}
 		\begin{itemize}
-			\item \url{https://github.com/jcai849/distObj.git}
-			\item User friendly and programmer friendly platform in
-				R for performing analyses with
-				larger-than-memory data
+			\item Highly extensible platform in R for performing
+				analyses with larger-than-memory data
 			\item Plenty more in store - watch this space!
+			\item \url{https://github.com/jcai849/distObj.git}
 			\item Questions?
+		\end{itemize}
+	\end{frame}
+\section{Project Direction}
+	\begin{frame}
+		\frametitle{There is a lot More in Store}
+		\begin{itemize}
+			\item Resilience \& further decentralisation
+			\item Memory management, GC
+			\item Dashboard
 		\end{itemize}
 	\end{frame}
 \end{document}
