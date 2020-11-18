@@ -1,7 +1,10 @@
 This week:
+. Make timeseries graphics
+. Create cue cards
+. Practice!!
+. Create recording
 . Continue names doc with aid of thesaurus
 . Make repository more attractive
-. benchmarks
 later:
 . Allow AsIs for distributed references, using 'ignore' mask in args
 . Create subsetting by distributed logical vectors, allow for missing args
