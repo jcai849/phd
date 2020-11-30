@@ -36,8 +36,6 @@ Goal 13::
 	providing information on scholarly activities and objectives to the
 	satisfaction of the main supervisor and a Department of Statistics PhD
 	Officer
-Goal 14::
-	Attendance at one of the Faculty of Science Doctoral Induction Workshops. 
 
 Complete
 --------
@@ -60,3 +58,5 @@ Goal 9::
 	screening. If a full assessment is advised, complete full diagnostic
 	test and participate in any language enrichment recommended by the
 	DELNA Language Advisor.
+Goal 14::
+	Attendance at one of the Faculty of Science Doctoral Induction Workshops. 
