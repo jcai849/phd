@@ -1,3 +1,11 @@
+. init
+.. Go through and check all changes are syntactically and architecturally correct
+.. test
+.. modify all references to chunkTable to read 'chunks'
+.. change chunkID etc. to 'name'
+.. change addChunk to store.default
+.. change semantics of 'chunk' function
+.. change localChunks to chunks
 . Continue names doc with aid of thesaurus
 . Allow AsIs for distributed references, using 'ignore' mask in args
 . Create subsetting by distributed logical vectors, allow for missing args
