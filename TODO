@@ -1,10 +1,6 @@
-. have initial root queue for everything sent to
-. rename node to something better
-. change chunkID to name; force key-based resolution signalling
-. Create mechanisms for management:
-.. Deletion
-.. Storage
-. Continue names doc with aid of thesaurus
+. Create initialiser (self and session)
+. Pass data to root queue
+. Take data from node queue
 . Allow AsIs for distributed references, using 'ignore' mask in args
 . Create subsetting by distributed logical vectors, allow for missing args
 . Provide means for rebalancing loads between nodes
