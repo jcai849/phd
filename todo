@@ -1,12 +1,16 @@
 . init
+.. Rename reference to 'stub'; 'ref2rec' etc. to demarshalling; and (maybe) server-side & client-side object/request. Maybe 'skeleton' for server
+.. Names for different states a chunk can be in; enqueued, processing, processed (?)
 .. get chunks working again (signalling etc.)
+... come up with better names for these concepts
+... have queue-server post attributes for each chunk upon processing, and for
+    chunk keys to be checked at client end (break msg class)
 .. fill in logic for external init
 .. test external init
-.. fill in logic for commProc init
-.. test commProc init
-. prepare reading in csv via root queue w.r.t. signalling change
-. test
+.. Create initial read.csv that sends chunks to the root queue
 . check that all standard tests are working again
+.. Merge with master
+. Enable dependency shecking when pulling from queue
 . Allow AsIs for distributed references, using 'ignore' mask in args
 . Create subsetting by distributed logical vectors, allow for missing args
 . Provide means for rebalancing loads between nodes
