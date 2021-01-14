@@ -1,4 +1,3 @@
-. change name in github (req password)
 . init
 .. get chunks working again (signalling etc.)
 .. fill in logic for external init
