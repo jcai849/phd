@@ -1,0 +1,137 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+
+\usepackage[english]{babel}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{pdflscape}
+
+\usepackage{biblatex}
+\addbibresource{../bib/bibliography.bib}
+\usepackage{glossaries}
+\makeglossaries
+\usepackage{pgfgantt}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+	\vskip1cm
+  \bfseries
+  \huge UNIVERSITY OF AUCKLAND
+  \vskip0.8cm
+  {\LARGE Faculty of Science}
+  \vskip0.5cm
+  \large Department of Statistics
+  \vskip1.5cm
+  \Large Research Proposal
+  \vskip4cm
+  \emph{\huge A Platform for Large-Scale Statistical Modelling Using R}
+\end{center}
+
+\vskip6cm
+
+\begin{minipage}{.4\textwidth}
+  \begin{flushleft}
+	  \bfseries\large Supervisors:\par \emph{Dr. Simon Urbanek (main)}\par \emph{Dr. Paul Murrell (co)}
+
+  \end{flushleft}
+\end{minipage}
+\hskip.3\textwidth
+\begin{minipage}{.3\textwidth}
+  \begin{flushleft}
+    \bfseries\large Student:\par \emph{Jason Cairns}
+  \end{flushleft}
+\end{minipage}
+
+\vskip2cm
+
+\centering
+\bfseries
+\Large 2021-XX-XX
+\end{titlepage}
+
+\tableofcontents
+
+\section{Background}
+Describe current state of the art. Why is this research needed? Outline previous work in this field
+(i.e. literature search). How would the results of the proposed research fill this need and be
+beneficial?
+
+\section{Objectives}
+ "The objective(s) of this research project are to?.."
+
+\section{Scope}
+Following tasks will be undertaken as a part of the proposed research
+\begin{itemize}
+	\item Task 1
+	\item Task 2
+	\item Task 3, etc.
+\end{itemize}
+
+\section{Methodology and Approach}
+This section needs to answer self-imposed questions and should reflect that the student has good
+understanding of the problem and of the barriers in the path. Some of the questions that should be
+answered include-
+\begin{itemize}
+	\item What are the constraints (if any)?
+	\item What are the technical challenges and uncertainties?
+	\item What are the different approaches to this problem?
+	\item What is your preferred approach and why?
+\end{itemize}
+Explain your methodology to conduct the research and to obtain the stated objectives.
+
+\section{Facilities to be Used}
+Explain the facilities to be used.
+\begin{itemize}
+	\item Is all the necessary hardware/software in place?
+	\item if not, how will it be acquired and how long will it take to put everything in place?
+	\item Does it have any resource implication? (This must be prepared in view of the Budget below.)
+\end{itemize}
+
+\section{Budget}
+\begin{itemize}
+	\item What is the total budget for the project?
+	\item Have the funds been already acquired?
+	\item If not, where is the money coming from?
+	\item How long will it delay the process?
+	\item Will it impact the thesis work and/or are there other remedies to the problem?
+\end{itemize}
+ 
+\section{Deliverables and Program Schedule}
+Itemize the list of deliverables with specific dates so that you can make concerted effort to achieve them.
+
+\begin{ganttchart}[
+		vgrid,
+		x unit=0.3cm,
+		time slot format=isodate-yearmonth,
+		time slot unit=month]{2020-05}{2023-05}
+	\gantttitlecalendar{year} \\
+	\ganttbar[name=pp]{Preliminary Project}{2020-05}{2021-05} \\
+
+	\ganttgroup{Objective 1}{2021-05}{2023-05} \\
+	\ganttbar[name=T1A]{Task A}{2021-05}{2022-09} \\
+	\ganttlinkedbar{Task B}{2022-09}{2023-05} \\
+
+	\ganttgroup{Objective 2}{2021-05}{2022-12} \\
+	\ganttbar[name=T2A]{Task A}{2021-05}{2021-12} \\
+	\ganttlinkedbar{Task B}{2021-12}{2022-12} \\
+
+	\ganttgroup{Objective 3}{2022-03}{2023-03} \\
+	\ganttbar{Task A}{2022-03}{2023-03}
+
+	\ganttlink[link mid=.4]{pp}{T1A}
+	\ganttlink[link mid=.159]{pp}{T2A}
+\end{ganttchart}
+
+\section{References}
+List of all the references here
+\printbibliography
+
+\end{document}
