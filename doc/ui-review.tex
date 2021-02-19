@@ -1,0 +1,54 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{doc/header}
+
+\begin{document}
+\title{Application Performance Management}
+\author{Jason Cairns}
+\year=2021 \month=2 \day=19
+\maketitle{}
+
+\section{Introduction}
+
+Upon attaining a level of complexity greater than trivial, a performance
+management system becomes essential for understanding and aiding in the runtime
+control as well as development of the platform.
+Most mainstream distributed computing systems come bundled with performance
+management utilities, and a case study of Hadoop and Spark is considered in
+section \ref{hscs}.
+The performance management system required for largeScaleR must be largely
+monitoring-focussed, with a simple architecture capable of adapting to changes
+in the architecture of the main platform.
+The user interface will necessarily differ in some respects and emphases from
+existing systems, in order to accomodate the unique architecture of
+largeScaleR, with considerations on the valid metrics, control, and access
+explored in sections \ref{metr}, \ref{conto}, and \ref{acces} respectively.
+
+\section{Case Study: Hadoop \& Spark}\label{hscs}
+
+Both Hadoop and Spark include extensive monitoring and control systems,
+centralised in a convenient user-friendly web interface.
+The origin of their monitoring systems is through the various Hadoop daemons
+and Spark executors.
+The Java Metrics framework is used by both for the generation of metrics,
+triggered by any event.
+The metrics are stored in event logs, which are then parsed and available for
+reporting.
+The web interface is decoupled from the information necessary for reporting,
+and it is common practice to use alternative user interfaces such as Ganglia or
+DataDog.
+
+% https://spark.apache.org/docs/latest/monitoring.html && https://hadoop.apache.org/docs/r3.2.2/hadoop-project-dist/hadoop-common/Metrics.html
+% uses Metrics (https://metrics.dropwizard.io/) framework
+% can use external interfaces such as ganglia (http://ganglia.sourceforge.net/) or datadog (http://ganglia.sourceforge.net/)
+
+\section{Metrics}\label{metr}
+
+\section{Control}\label{conto}
+
+\section{Access: UI \& API}\label{acces}
+
+REST API
+
+\printbibliography
+\end{document}
