@@ -27,28 +27,47 @@ explored in sections \ref{metr}, \ref{conto}, and \ref{acces} respectively.
 \section{Case Study: Hadoop \& Spark}\label{hscs}
 
 Both Hadoop and Spark include extensive monitoring and control systems,
-centralised in a convenient user-friendly web interface.
+centralised in a convenient user-friendly web interface \cite{spark2021monitoring}.
 The origin of their monitoring systems is through the various Hadoop daemons
 and Spark executors.
 The Java Metrics framework is used by both for the generation of metrics,
-triggered by any event.
+triggered by any event\cite{hadoop2021metrics}\cite{dropwizard2021metrics}.
 The metrics are stored in event logs, which are then parsed and available for
 reporting.
 The web interface is decoupled from the information necessary for reporting,
 and it is common practice to use alternative user interfaces such as Ganglia or
-DataDog.
+DataDog\cite{massie2012monitoring}\cite{datadog2021hdfs}\cite{datadog2021spark}.
 
-% https://spark.apache.org/docs/latest/monitoring.html && https://hadoop.apache.org/docs/r3.2.2/hadoop-project-dist/hadoop-common/Metrics.html
-% uses Metrics (https://metrics.dropwizard.io/) framework
-% can use external interfaces such as ganglia (http://ganglia.sourceforge.net/) or datadog (http://ganglia.sourceforge.net/)
+The metrics generated are extensive, including hardware statuses, RPC contexts,
+JVM, memory usage, as well as job and task completion, among others.
 
 \section{Metrics}\label{metr}
 
+The metrics necessary for collection in other platforms have a heavy gearing
+toward hardware monitoring, however the main use for users is in tracking
+progress of the application; this is something that can be focussed on in
+largeScaleR, at least initially.
+The metrics that would be of most interest are task and data tracking.
+For task metrics to be implemented, information around task events such as
+reception, progress, and completion, are necessary, as well as metadata such as
+dependencies.
+Data tracking would follow a similar path, in recording data transfer and
+alignment events, as well as location.
+
 \section{Control}\label{conto}
+
+A good monitoring system should be capable of controlling the platform - basic
+tasks may include initialisation, manual job/data removal, and cluster
+shutdown. These may be implemented client-side through language-agnostic
+signals, thereby enabling an arbitrary monitoring system to have control.
 
 \section{Access: UI \& API}\label{acces}
 
-REST API
+Spark includes a REST API for monitoring - the efficiency of such an approach
+is questionable in real-time monitoring, and the alternative of webSockets may
+be considered. However, if REST is acceptable, it may be easier to implement as
+an outward-facing interface of a headless finite-state machine capable of
+parsing event syslogs.
 
 \printbibliography
 \end{document}
