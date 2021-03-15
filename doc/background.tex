@@ -1,0 +1,131 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{doc/header}
+\begin{document}
+\title{Background}
+\author{Jason Cairns}
+\year=2021 \month=3 \day=12
+\maketitle
+
+\section{Introduction}
+Statistics has as a large concern the analysis of datasets.
+Datasets are continually growing bigger, at a faster rate; the global datasphere is expected to grow from 33 zettabytes in 2018 to 175 zettabytes by 2025\cite{rydning2018digitization}.
+As such, the field of statistics necessarily has the analysis of larger datasets as a growing concern.
+
+The scale of this growth is staggering, and continues to outpace attempts to engage meaningfully with such large datasets. By one measure, information storage capacity has grown at a compound annual rate of 23\% per capita over recent decades\cite{hilbert2011world}.
+In spite of such massive growths in storage capacity, they are far outstripped by computational capacityover time \cite{fontana2018moore}.
+Specifically, the number of components comprising an integrated circuit for computer processing have been exponentially increasing, with an additional exponential decrease in their cost\cite{moore1975progress}.
+This observation, known as Moore's Law, has been the root cause for much of computational advancement over the past half-century.
+The corresponding law for computer storage posits increase in bit density of storage media along with corresponding decreases in price, which has been found to track lower than expected  Moore's law metrics.
+Such differentials, between the generation of data; computational capacity for data processing; and constraints on data storage, have forced new techniques in computing for the analysis of large-scale data.
+
+The architecture of a computer further constrains the required approach for analysis of big data.
+Most general-purpose PC's are modelled by a random-access stored-program machine, wherein a program and data are stored in registers, and data must move in and out of registers to a processing element, most commonly a Central Processing Unit (CPU). 
+The movement takes at least one cycle of a computer's clock, thereby leading to larger processing time for larger data.
+Reality dictates many different forms of data storage, with a Memory Hierarchy ranking different forms of computer storage based on their response times\cite{toy1986computer}.
+The volatility of memory (whether or not it persists with no power) and the expense of faster storage forms dictates the design of commodity computers. An example of a standard build is given by the Dell Optiplex 5080, with 16Gb of Random Access Memory (RAM) for fast main memory, to be used as a program data store; and a 256Gb Solid State Drive (SSD) for slow long-term disk storage\cite{cornell2021standardcomp}.
+For reasonable speed when accessing data, a program would prioritise main memory over disk storage - something not always possible when dataset size exceeds memory capacity.
+A program that is primarily slowed by data movement is described as I/O-bound, or memory-bound.
+Much of the issue in modelling large data is the I/O-bound nature of much statistical computation.
+
+The complement to I/O-bound computation is compute-bound, wherein the speed (or lack thereof) is determined primarily through the performance of the processing unit. This is less significant in large-scale applications than memory-bound, but remains an important design consideration when the number of computations scale with the dataset size in any nontrivial algorithm with greater than \(\mathcal{O}(1)\) complexity.
+
+The solution to both memory- and compute-bound problems has largely been that of using more hardware; more memory, and more CPU cores. Even with this in place, more complex software is required to manage the more complex systems. As an example with additional CPU cores, constructs such as multithreading are used to perform processing across multiple CPU cores simultaneously (in parallel)
+
+The means for writing software for large-scale data is typically through the use of a structured, high-level programming language.
+Of the myriad programming languages, the most widespread language used for statistics is R.
+As of 2021 R increased in popularity to rank 9th in the TIOBE index, demonstrating it's massive usage.
+R also has a special place at the location of this proposal, having initial development at the University of Auckland by Ross Ihaka and Robert Gentleman in 1991\cite{ihaka1996r}.
+
+Major developments in contemporary statistical computing are standardly published alongside R code implementation, typically in the form of an R package, which is a mechanism for extending R and sharing functions.
+As of March 2021, the Comprehensive R Archive Network (CRAN) hosts over 17000 available packages\cite{team20:_r}.
+Several of these packages are oriented towards managing large datasets, and will be assessed in sections \ref{local} and \ref{dist}  below.
+
+\section{Parallelism as a strategy}
+\label{parallel}
+The central strategy for manipulating large datasets, from which most other patterns derive, is parallelisation. To parallelise is to engage in many computations simultaneously - this typically takes the form of either task parallelism, wherein tasks are distributed across different processors, data parallelism, where the same task operates on different pieces of data across different processors, or some mix of the two.
+Parallelisation of a computational process can potentially offer speedups proportional to the number of processors available to take on work, and with recent improvements in multiprocessor hardware, the number of processors available are increasing over time.
+\begin{itemize}
+	\item parallelism can afford major speedups - amdahls law, gustafsons's law
+	\item embarassingly parallel
+	\item flynns taxonomy
+	\item common uses for parallelism
+\end{itemize}
+\cite{amdahl1967law}
+$S_\textrm{latency}(s) = \frac{1}{(1-p)+\frac{p}{s}}$
+\begin{itemize}
+	\item \(S_\textrm{latency}\) total speedup of whole task
+	\item \(s\) speedup of part of task benefitting from parallelisation (improved resources)
+	\item \(p\) proportion of execution time given by the parallelisable part
+\end{itemize}
+\cite{gustafson1988law}
+$S_\textrm{latency}(s) = 1 - p + sp $
+\cite{flynn1972org}
+
+\section{Local solutions}
+\label{local}
+
+The first steps typically taken to manage larger-than-memory data is to shift
+part of the data into secondary storage, which generally possesses
+significantly more space than main memory.
+This is the approach taken by the disk.frame package, which has provides a dataframe replacement class called disk frame, which may represent a dataset far larger than RAM, constrained only by disk size\cite{zj20}.
+This is enabled through breaking a dataset into seperate pieces called chunks, and writing each piece to disk as an fst file, returning as an instance of the disk.frame class, a proxy object holding reference to the chunks.
+Methods for the object operate through reading in each chunk referenced by the disk frame instance, performing whichever operation indicated on the chunk, then writing the results back to disk. In this manner, a disk frame is able to serve as a surrogate dataframe, while holding data larger than memory, though never necessarily exceeding memory limitations, thus serving as a simple solution to the large-data problem.
+The strategy taken by the package has several inherent limitations, however.
+disk.frame allows only embarassingly parallel operations for custom operations as part of a split-apply-combine (MapReduce) pattern. In spite of this, there are some operations made available that involve complex parallelism, such as a glm function that uses the biglm and speedglm packages as a backend.
+While there may theoretically be future provision for non-embarrassingly parallel operations, a significant limitation to real-time operation is the massive slowdown brought by the data movement from disk to RAM and back.
+
+On a single machine, biglm, disk.frame, data.table, multicore
+While not specifically engaging with larger-than-memory data, a number of packages take advantage of various parallel strategies in order to process large datasets efficiently.
+multicore is one such package, now subsumed into the parallel package, that grants functions that can make direct use of multiprocessor systems, thereby reducing the processing time in proportionality to the number of processors available on the system.
+data.table also makes use of multi-processor systems, with many operations involving threading in order to rapidly perform operations on it's dataframe equivalent, the data.table.
+
+In spite of all of these potential solutions, a major constraint remains in that only a single machine is used.
+While there is only one machine available, bottlenecks form and no redundancy protection is offered in the event of a crash or power outage.
+
+\section{Distributed computing as a strategy}
+\label{dist}
+\begin{itemize}
+	\item \cite{boja2012distributed}
+	\item single commodity computer may be sufficient to send man to moon but remains incapable of large datasets purely from capacity
+	\item not every organisation or individual has capacity to purchase supercomputer <cray costs> - anecdote of making supercomputer with fflash mob
+	\item cloud computing not a universal solution
+	\item distributed systems combine multiple independent computers to form one cohesive computing system
+	\item makes possible large datasets
+	\item commodity hardware everywhere
+	\item further benefits including potential for fault tolerance
+	\item Emphasises lack of benefits for all assessed in prev. section
+\end{itemize}
+
+\section{distributed large scale computing}
+
+\begin{itemize}
+	\item parallel: snow
+	\item issue: not persistent data
+	\item pbdR (examples)
+	\item user friendly pbdDMAT, highly complex everything else, dependent on mpi
+	\item hmr \& sparklyr
+	\item barely extensible, not capable of running custom iterative models - canned models only
+\end{itemize}
+
+\section{other systems}
+
+\begin{itemize}
+	\item hadoop \& spark
+	\item dask
+	\item excellent at what they do, not geared specifically for statistical modelling use case, being more for web applications and databases
+\end{itemize}
+
+\section{redundancy}
+\section{scheduling}
+
+\section{conclusion}
+\begin{itemize}
+	\item what's missing
+	\item user friendly, extensible, R-based distributed system with persistent data and fault tolerance
+	\item more detail on R-based: takes into consideration R's unique array (vector) -based objects
+	\item overcoming i/o and compute -bound limitations
+\end{itemize}
+
+\printbibliography
+\end{document}
