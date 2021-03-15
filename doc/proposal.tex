@@ -10,12 +10,13 @@
 \usepackage{microtype}
 \usepackage{hyperref}
 \usepackage{geometry}
+\usepackage{csquotes}
 
 \usepackage{biblatex}
 \addbibresource{../bib/bibliography.bib}
 \usepackage{glossaries}
 \makeglossaries
-\usepackage{pgfgantt}
+%\usepackage{pgfgantt}
 
 \begin{document}
 
@@ -156,28 +157,28 @@ Small expenses are likely, such as AWS time, which will come from  \dots
 Itemize the list of deliverables with specific dates so that you can make
 concerted effort to achieve them.
 
-\begin{ganttchart}[
-		vgrid,
-		x unit=0.3cm,
-		time slot format=isodate-yearmonth,
-		time slot unit=month]{2020-05}{2023-05}
-	\gantttitlecalendar{year} \\
-	\ganttbar[name=pp]{Preliminary Project}{2020-05}{2021-05} \\
-
-	\ganttgroup{Objective 1}{2021-05}{2023-05} \\
-	\ganttbar[name=T1A]{Task A}{2021-05}{2022-09} \\
-	\ganttlinkedbar{Task B}{2022-09}{2023-05} \\
-
-	\ganttgroup{Objective 2}{2021-05}{2022-12} \\
-	\ganttbar[name=T2A]{Task A}{2021-05}{2021-12} \\
-	\ganttlinkedbar{Task B}{2021-12}{2022-12} \\
-
-	\ganttgroup{Objective 3}{2022-03}{2023-03} \\
-	\ganttbar{Task A}{2022-03}{2023-03}
-
-	\ganttlink[link mid=.4]{pp}{T1A}
-	\ganttlink[link mid=.159]{pp}{T2A}
-\end{ganttchart}
+%\begin{ganttchart}[
+%		vgrid,
+%		x unit=0.3cm,
+%		time slot format=isodate-yearmonth,
+%		time slot unit=month]{2020-05}{2023-05}
+%	\gantttitlecalendar{year} \\
+%	\ganttbar[name=pp]{Preliminary Project}{2020-05}{2021-05} \\
+%
+%	\ganttgroup{Objective 1}{2021-05}{2023-05} \\
+%	\ganttbar[name=T1A]{Task A}{2021-05}{2022-09} \\
+%	\ganttlinkedbar{Task B}{2022-09}{2023-05} \\
+%
+%	\ganttgroup{Objective 2}{2021-05}{2022-12} \\
+%	\ganttbar[name=T2A]{Task A}{2021-05}{2021-12} \\
+%	\ganttlinkedbar{Task B}{2021-12}{2022-12} \\
+%
+%	\ganttgroup{Objective 3}{2022-03}{2023-03} \\
+%	\ganttbar{Task A}{2022-03}{2023-03}
+%
+%	\ganttlink[link mid=.4]{pp}{T1A}
+%	\ganttlink[link mid=.159]{pp}{T2A}
+%\end{ganttchart}
 
 \section{References}
 List of all the references here
