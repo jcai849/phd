@@ -1,0 +1,22 @@
+A bug resulting from naive environment serialisation
+====================================================
+
+I had been struggling with painfully slow execution of program code for several
+weeks. This speed decrease followed a major architectural change, and there was
+no clear commit that introduced the speed decrease. Eventually I had it tracked
+down to a 'send' function I had defined, which serialised an object and sent it
+to a redis queue. Profiling demonstrated that 'send' was taking exceedingly
+long, but didn't show which function called by send was producing the slowdown
+- a result of profiling being limited to not sample .Internal functions. After
+step-through debugging I could see by eye that serialise was the culprit, but
+only for some objects. Examining the serialised output of a slower serialise,
+the result was ~80Mb. Here, something was off, as the object being serialised
+could be measured in mere bytes. With the aid of my supervisor, it became
+apparent that the problem stemmed from the object - it was an environment and,
+like all user-created environments in R, had a parent environment. I was using
+an environment for it's mutable properties, without much more concern to the
+nature of environments. The problem was that by default, 'new.env' sets the
+parent to 'parent.frame()', which at the creation of my objects, was the global
+environment. Serialise was thus serialising not just my objects but the global
+environment with them, causing the major slowdown. The solution was simple: set
+parent to emptyenv() in object creation.
