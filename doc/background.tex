@@ -42,13 +42,15 @@ This project aims to develop an R package that provides a means for writing soft
 
 \section{Parallelism as a strategy}
 \label{parallel}
-The central strategy for manipulating large datasets, from which most other patterns derive, is parallelisation. To parallelise is to engage in many computations simultaneously - this typically takes the form of either task parallelism, wherein tasks are distributed across different processors, data parallelism, where the same task operates on different pieces of data across different processors, or some mix of the two.
+The central strategy for manipulating large datasets, from which most other patterns derive, is parallelisation. To parallelise is to engage in many computations simultaneously - this typically takes the form of either task parallelism, wherein tasks are distributed across different processors; data parallelism, where the same task operates on different pieces of data across different processors; or some mix of the two.
 Parallelisation of a computational process can potentially offer speedups proportional to the number of processors available to take on work, and with recent improvements in multiprocessor hardware, the number of processors available is increasing over time.
+Most general-purpose personal computers produced in the past 5 years have multiple processor cores to enable parallel computation.
+
 Parallelism can afford major speedups, albeit with certain limitations.
-Amdahl's law, formulated in 1967, aims to capture the speedup limitations, with a model derived from the argument given below in formula \ref{amdahlsform}\cite{amdahl1967law}:
+Amdahl's law, formulated in 1967, aims to capture the speedup limitations, with a model derived from the argument given below in formula \ref{amdahlsform}\cite{amdahl1967law}\cite{gustafson1988law}:
 \begin{equation}
 	\label{amdahlsform}
-	\textrm{Speedup} = \frac{1}{s+\frac{p}{N}} \cite{gustafson1988law}
+	\textrm{Speedup} = \frac{1}{s+\frac{p}{N}}
 \end{equation}
 Where,
 \begin{itemize}
@@ -74,7 +76,7 @@ This law implies far higher potential parallel speedup, varying linearly with th
 
 An example of an ideal task for parallelisation is the category of embarassingly parallel workload.
 Such a problem is one where the separation into parallel tasks is trivial, such as performing the same operation over a dataset independently\cite{foster1995parallel}.
-Many problems in statistics fall into this category, such as tabulation and many matrix manipulation tasks.
+Many problems in statistics fall into this category, such as tabulation, monte-carlo simulation and many matrix manipulation tasks.
 
 \section{Local solutions}
 \label{local}
@@ -98,44 +100,64 @@ As long as there is only one machine available, bottlenecks form and no redundan
 
 \section{Distributed computing as a strategy}
 \label{dist}
-\begin{itemize}
-	\item \cite{boja2012distributed}
-	\item single commodity computer may be sufficient to send man to moon but remains incapable of large datasets purely from capacity
-	\item not every organisation or individual has capacity to purchase supercomputer <cray costs> - anecdote of making supercomputer with fflash mob
-	\item cloud computing not a universal solution
-	\item distributed systems combine multiple independent computers to form one cohesive computing system
-	\item makes possible large datasets
-	\item commodity hardware everywhere
-	\item further benefits including potential for fault tolerance
-	\item Emphasises lack of benefits for all assessed in prev. section
-\end{itemize}
+The specs of a single contemporary commodity computer are higher than those that were used in the Apollo lunar landing, yet the management of large datasets still creates major issues, driven by a simple lack of  capacity to hold them in memory.
+Supercomputers can surmount this by holding orders of magnitude higher memory, though only a few organisations or individuals can bear the financial costs of purchasing and maintaining a supercomputer. 
+In a similar form, cloud computing is not a universal solution, owing to expense, security issues, and data transportation problems.
+Despite this, systems rivalling supercomputers can be formed through combining many commodity computers.
+An amusing illustration of this was given in 2004, when a flash mob connected hundreds of laptops to attempt running the linpack benchmark, achieving 180 gigaflops in processing output\cite{perry2004flashcomp}.
+The combination of multiple independent computers to form one cohesive computing system forms part of what is known as distributed computing.
+More serious efforts to connect multiple commodity computers into a larger computational system is now standard, with software such as Hadoop and Spark being commonplace in large companies for the purpose of creating distributed systems.
+Distributed systems make possible the real-time manipulation of datasets larger than a single computer's RAM, by splitting up data and holding it in the RAM of multiple computers.
+A factor strongly serving in favour of distributed computing is that commodity hardware exists in large quantities in most offices, oftentimes completely unused.
+This means that many organisations already have the necessary base infrastructure to create a distributed system, likely only requiring some software and configuration to set it all up.
+Beyond the benefit of pre-existing infrastructure, a major feature commonly offered by distributed systems, and lacking in high-powered single computer systems, is that of fault tolerance - when one computer goes down, as does happen, another computer in the system had redundant copies of much of the information of the crashed computer, and computation can resume with very little inconvenience.
+A single computer, even very high-powered, doesn't usually offer fault-tolerance to this degree.
 
-\section{distributed large scale computing}
+All of the packages examined the above section \ref{local} have no immediate capability to be part of a distributed system, and have all of the ease-of-use benefits and all of the drawbacks as discussed.
 
-\begin{itemize}
-	\item parallel: snow
-	\item issue: not persistent data
-	\item pbdR (examples)
-	\item user friendly pbdDMAT, highly complex everything else, dependent on mpi
-	\item hmr \& sparklyr
-	\item barely extensible, not capable of running custom iterative models - canned models only
-\end{itemize}
+\section{distributed large-scale computing}
+
+R does have some well-established packages used for distributed large-scale computing.
+Of these, the \textbf{parallel} package is contained in the standard R image, and encapsulates \textbf{SNOW} (Simple Network Of Workstations), which provides support for distributed computing over a simple network of compputers.
+The general architecture of \textbf{SNOW} makes use of a master process that holds the data and launches the cluster, pushing the data to worker processes that operate upon it and return the results to the master. \textbf{SNOW} makes use of several different communications mechanisms, including sockets or the greater MPI distributed computing library.
+Some shortcomings of the described architecture is the difficulty of persisting data, meaning the expense of data transportation every time operations are requested by the master process.
+In addition, as the data must originate from the master (barring generated data etc.), the master's memory size serves as a bottleneck for the whole system.
+
+The \textbf{pbdR} (programming with big data in R) project provides persistent data, with the \textbf{pbdDMAT} (programming with big data Distributed MATrices) package offering a user-friendly distributed matrix class to program with over a distributed system.
+The standard use is to run batch jobs with MPI, so there is little interactivity, and extension of the package beyond using the provided distributed matrices is acknowledged by the package authors to be extremely complex, due to the underlying MPI methods.
+
+Yet more user-friendly is the \textbf{sparklyr} package, which meshes \textbf{dplyr} syntax with a \textbf{Spark} backend.
+Simple analyses are made very simple (assuming a well-configured and already running \textbf{Spark} instance), but custom iterative models are extremely difficult to create through the package in spite of \textbf{Spark's} support for it. 
+Canned models are the only option for most users, due to \textbf{sparklyr's} reliance on Spark SQL rather than the Spark core API made available through the official \textbf{SparkR} interface (which was remove from the CRAN repository at 2020-07-10 due to failing checks).
 
 \section{other systems}
 
-\begin{itemize}
-	\item hadoop \& spark
-	\item dask
-	\item excellent at what they do, not geared specifically for statistical modelling use case, being more for web applications and databases
-\end{itemize}
+In the search for a distributed system for statistics, the world outside of R is not entirely barren.
+The central issue with non-R distributed systems is that their focus is very obviously not statistics, and this shows in the level of support the platforms provide for statistical purposes.
+
+The classical distributed system for high-performance computing is MPI.
+R actually has a high-level interface to MPI through the \textbf{rmpi} package.
+This package is excellent, but extremely low-level, offering little more than wrappers around MPI functions.
+For the statistician who just wants to implement a model for a large dataset, such concern with minutiae is prohibitive.
+
+Hadoop and Spark are two closely related systems which were mentioned earlier.
+Hadoop was released before Spark, and has as it's central computing approach the MapReduce paradigm, wherein some function is mapped over a dataset, then reduced as a summary.
+It's a simple approach that can be taken advantage of, but fails to support a total statistical modelling procedure.
+Hadoop finds superior statistical use in the HDFS filesystem that can be used as a long term distributed store of datasets.
+
+Spark was developed with the shortcomings of Hadoop in mind, and offers RDD's (Resiliant Distributed Datasets), which are more compatible with complex iterative algorithms.
+
+In the python world, the closest match to a high-level distributed system that could have statistical application is given by the python library \textbf{dask}.
+\textbf{dask} offers dynamic task scheduling through a central task graph, as well as a set of classes that encapsulate standard data manipulation structures such as NumPy arrays and Pandas dataframes. 
+The main difference is that the \textbf{dask} classes take advantage of the task scheduling, including online persistence across multiple nodes.
+\textbf{dask} is a large and mature library, catering to many use-cases, and exists largely in the Pythonic Machine Learning world in comparison to the R Statistics world.
+Accordingly, the focus is more tuned to the Python software developer putting existing ML models into a large-scale capacity.
+Of all the distributed systems assessed so far, \textbf{dask} comes the closest to what an ideal platform would look like for a statistician, but it misses out on the statistical ecosystem of R, provides only a few select classes, and is tied entirely to the structure of the task graph.
 
 \section{conclusion}
-\begin{itemize}
-	\item what's missing
-	\item user friendly, extensible, R-based distributed system with persistent data and fault tolerance
-	\item more detail on R-based: takes into consideration R's unique array (vector) -based objects
-	\item overcoming i/o and compute -bound limitations
-\end{itemize}
+
+From this brief survey, it becomes clear that what is missing is a user-friendly, extensible, R-based distributed system with persistent online data and fault tolerance.
+To support such a system a number of attributes unique to R must be taken into account, such as R's array-based operation 
 
 \printbibliography
 \end{document}
