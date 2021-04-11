@@ -9,14 +9,54 @@
 \maketitle{}
 
 \section{Introduction}
+
+For meeting the problem of large scale statistical analysis in R, what is needed is a platform that is fast and robust, with a focus on a simple interface for fitting statistical models, and the flexibility for implementation of arbitrary new models within R.
+As of May 2021, a prototype distributed system holding many of the described desired characteristics, has been implemented in R as part of the research.
+This system is tentatively named ``LargeScaleR'', and takes the form of an R package, complete with minor documentation and a moderate proportion of tests.
+It has been used to successfully read and manipulate data over a cluster of 8 nodes, including 4 processes on each node, as well as non-trivial distributed manipulations such as tabling of dataframes, all operating at a very high speed of operation.
+
+\section{System Architecture}\label{sec:sys-imp}
+
+The system operates through a modified master-worker pattern.
+A master process runs as a regular R session, operated interactively by the user or by batch script.
+This master process can then initialise other processes to perform work, dubbed ``worker processes''.
+The worker processes are entirely independent of the master process, and none of these processes contain any information to identify other processes.
+The only mechanism these processes have to communicate is via a communication queue, which serves as theprimary mechanism behind the operation of the main conceptual pieces interacted with by a user: distributed objects.
+
+Distributed objects are a means of access to objects on a distributed system.
+They serve as a reference (\textit{stub}) that acts as a transparent handle to fragmented referents (\textit{chunks}) over a distributed system.
+They are effectively proxies, with generic methods passing on their standard form to the constituent chunks of the distributed object, returning another distributed object as reference to the return value of the methods acting on the chunks.
+The returned distributed object is given immediately, with worker processing occuring asynchronously, giving lazy, future-like, behaviour to distributed objects.
+
+Each chunk is a portion of data residing on some worker process.
+Each has a ``descriptor'' - some unique name that exclusively references that chunk.
+When they are not performing operations on a chunk, workers are monitoring all of the queues whose names correspond to the descriptors of the chunks which the respective worker holds.
+Actions to be performed on the chunks are transmitted through these queues.
+
+The master process enacts requests on these queues through methods on the distributed objects being intercepted and sent as possibly modified messages to their referent chunk queues, where they are then operated upon by the worker process.
+Key to the flexibility is that the queue serves as a level of indirection, so the requesting process doesn't need to know precisely where a chunk is stored, only that it can be reached via it's queue.
+This flexibility, mirroring the benefits of message-passing object-oriented programming, allows chunks to be held arbitrarily, including on multiple nodes simultaneously.
+The capacity for redundancy grants future potential for fault tolerance and resilience to nodes crashing.
+
+A major supporting component of the system's distributed architecture is the act of ``un''-stubbing, also known as ``emerging'', wherein a reference stub is converted into it's referent.
+This takes place through directly sending serialised chunks to the requester, where methods exist to combine them.
+
+Multivariate manipulations of the data make use of unstubbing on the worker end, where multiple distributed objects are referenced in one single function request on a queue, and the worker must determine the appropriate alignment of chunks, including the use of R's recycling rules, before unstubbing all distributed objects and performing the operation.
+
+Distributed objects stand-in for regular R objects, and can represent any class that has split and combine methods defined.
+These include all atomic vectors, lists, dataframes, matrices, and arbitrary user-created classes.
+
+Another key aspect to the architecture of the system is detailed logging, with all changes of state in a node recorded and the information dispatched to a central logger, which allows monitoring of the system in one location. The collection of logs is sufficient to build a complete picture of the system, with a Model-View-Controller pattern in an external program able to parse the logs, calculate system state, and display that in a simple interface.
+
 \section{System Interface}
 % init
 % in
 % move
 % generic
+The benefits of distributed objects grow commensurately with their degree of transparency, and LargeScaleR has transparency as a central goal.
 % request
 % log
-\section{System Architecture}\label{sec:sys-arch}
+\section{System Implementation}\label{sec:sys-imp}
 % depends: redis, osrv, ulog
 % init
 % msg
