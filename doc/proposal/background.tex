@@ -1,13 +1,4 @@
-\documentclass[a4paper,10pt]{article}
-
-\usepackage{doc/header}
-\begin{document}
-\title{Background}
-\author{Jason Cairns}
-\year=2021 \month=3 \day=12
-\maketitle
-
-\section{Introduction}
+\subsection{Introduction}
 Statistics is concerned with the analysis of datasets, which are continually growing bigger, and at a faster rate; the global datasphere is expected to grow from 33 zettabytes in 2018 to 175 zettabytes by 2025\cite{rydning2018digitization}.
 
 The scale of this growth is staggering, and continues to outpace attempts to engage meaningfully with such large datasets. By one measure, information storage capacity has grown at a compound annual rate of 23\% per capita over recent decades\cite{hilbert2011world}.
@@ -41,7 +32,7 @@ As of March 2021, the Comprehensive R Archive Network (CRAN) hosts over 17000 av
 Several of these packages are oriented towards managing large datasets, and will be assessed in sections \ref{local} and \ref{dist}  below.
 This project aims to develop an R package that provides a means for writing software to analyse very large data on clusters consisting of multiple general-purpose computers.
 
-\section{Parallelism as a Strategy}
+\subsection{Parallelism as a Strategy}
 \label{parallel}
 The central strategy for manipulating large datasets, from which most other patterns derive, is parallelisation. To parallelise is to engage in many computations simultaneously - this typically takes the form of either task parallelism, wherein tasks are distributed across different processors; data parallelism, where the same task operates on different pieces of data across different processors; or some mix of the two.
 
@@ -80,7 +71,7 @@ An example of an ideal task for parallelisation is the category of embarassingly
 Such a problem is one where the separation into parallel tasks is trivial, such as performing the same operation over a dataset independently\cite{foster1995parallel}.
 Many problems in statistics fall into this category, such as tabulation, monte-carlo simulation and many matrix manipulation tasks.
 
-\section{Local Solutions}
+\subsection{Local Solutions}
 \label{local}
 
 While not specifically engaging with larger-than-memory data, a number of packages take advantage of various parallel strategies in order to process large datasets efficiently.
@@ -293,7 +284,7 @@ Iteration, in the form of an iterated function, does not appear to be part of th
 Furthermore, all references to ``iteration'' in the primary sparklyr literature refer either to the iteration inherent in the inbuilt Spark ML functions, or the ``wrangle-visualise-model'' process popularised by Hadley Wickham\cite{luraschi2019mastering}\cite{wickham2016r}.
 None of such references connect with iterated functions.
 
-\section{Other Systems}
+\subsection{Other Systems}
 
 In the search for a distributed system for statistics, the world outside of R is not entirely barren.
 The central issue with non-R distributed systems is that their focus is very obviously not statistics, and this shows in the level of support the platforms provide for statistical purposes.
@@ -338,6 +329,3 @@ The main difference is that the \textbf{dask} classes take advantage of the task
 \textbf{dask} is a large and mature library, catering to many use-cases, and exists largely in the Pythonic ``Machine Learning'' culture in comparison to the R ``Statistics'' culture.
 Accordingly, the focus is more tuned to the Python software developer putting existing ML models into a large-scale capacity.
 Of all the distributed systems assessed so far, \textbf{dask} comes the closest to what an ideal platform would look like for a statistician, but it misses out on the statistical ecosystem of R, provides only a few select classes, and is tied entirely to the structure of the task graph.
-
-\printbibliography
-\end{document}

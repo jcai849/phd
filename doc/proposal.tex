@@ -1,22 +1,5 @@
 \documentclass[a4paper,10pt]{article}
-
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{xcolor}
-
-\usepackage[english]{babel}
-\usepackage{textcomp}
-\usepackage{lmodern}
-\usepackage{microtype}
-\usepackage{hyperref}
-\usepackage{geometry}
-\usepackage{csquotes}
-
-\usepackage{biblatex}
-\addbibresource{../bib/bibliography.bib}
-\usepackage{glossaries}
-\makeglossaries
-%\usepackage{pgfgantt}
+\usepackage{doc/header}
 
 \begin{document}
 
@@ -30,7 +13,7 @@
   \vskip0.5cm
   \large Department of Statistics
   \vskip1.5cm
-  \Large Research Proposal
+  \Large Doctoral Research Proposal
   \vskip4cm
   \emph{\huge A Platform for Large-Scale Statistical Modelling Using R}
 \end{center}
@@ -58,25 +41,12 @@
 \end{titlepage}
 
 \tableofcontents
-
+\newpage
 \section{Background}
-% Describe current state of the art. Why is this research needed? Outline
-% previous work in this field (i.e. literature search). How would the results of
-% the proposed research fill this need and be beneficial?
 
-With the size of data growing exponentially, a broad variety of distributed
-computational platforms and systems have emerged to operate on large datasets.
-Such platforms are made necessary for the fact that singular commodity hardware
-doesn't provide enough memory or computational power for real-time work on very
-large datasets.
-The vast majority of these platforms have very general or database-centric
-focuses, with only a few functioning for statistical use-cases specifically.
-In my attached literature review, I have outlined the most significant systems
-used for computing on large datasets, with particular focus on distributed
-systems commonly used for high-performance computing with R.
+\input{doc/proposal/background}
 
 \section{Objectives}
-% "The objective(s) of this research project are to?.."
 
  The objective of this research project is to create a platfom for large-scale
  statistical computing, utilising the versatility and power of R.
@@ -98,90 +68,37 @@ The following tasks will be undertaken as a part of the proposed research:
 \end{itemize}
 
 \section{Methodology and Approach}
-% This section needs to answer self-imposed questions and should reflect that the
-% student has good understanding of the problem and of the barriers in the path.
-% Some of the questions that should be answered include:
-% \begin{itemize}
-% 	\item What are the constraints (if any)?
-% 	\item What are the technical challenges and uncertainties?
-% 	\item What are the different approaches to this problem?
-% 	\item What is your preferred approach and why?
-% \end{itemize}
-% Explain your methodology to conduct the research and to obtain the stated objectives.
 
-The principal methodology is to utilise a research software development
-approach, informed by statistical ends.
-This includes experimental research and rapid prototyping, along with
-open-source practices for public feedback.
-Constraints of such an approach include the many software development practices
-being intended primarily for teams of software developers, which is not the
-case in this project, as well as the need to engage in marketing in order to
-have any broad feedback on an open-source project.
-An immediate technical challenge that exists is the staggering array of
-potential technologies that could be used, coupled with the myriad niche
-demands of end users sitting at varying stages of their respective
-technologies' hype cycles.
-This is typically overcome through experience but failing that, an emphasis on
-communication and high levels of background research can be used to manage such
-an uncertainty.
-The central use of R also presents it's own challenges, but these are often
-surmounted through a foreign language interface, such as C.
+The principal methodology is to utilise a research software development approach, informed by statistical ends.
+This includes experimental research and rapid prototyping, along with open-source practices for public feedback.
+Constraints of such an approach include the many software development practices being intended primarily for teams of software developers, which is not the case in this project, as well as the need to engage in marketing in order to have any broad feedback on an open-source project.
+An immediate technical challenge that exists is the staggering array of potential technologies that could be used, coupled with the myriad niche demands of end users sitting at varying stages of their respective technologies' hype cycles.
+This is typically overcome through experience but failing that, an emphasis on communication and high levels of background research can be used to manage such an uncertainty.
+The central use of R also presents it's own challenges, but these are often surmounted through a foreign language interface, such as C.
+
+Further work will continue from the existing prototype, described in section \ref{curr} below.
+
+\section{Current work}\label{curr}
+
+\input{doc/proposal/curr}
 
 \section{Facilities to be Used}
-% Explain the facilities to be used.
-% \begin{itemize}
-% 	\item Is all the necessary hardware/software in place?
-% 	\item if not, how will it be acquired and how long will it take to put
-% 		everything in place?
-% 	\item Does it have any resource implication? (This must be prepared in
-% 		view of the Budget below.)
-% \end{itemize}
 
 My own computer, usage of the statistics Ihaka cluster, AWS.
+A gpu that can also double for crypto mining??
 
 \section{Budget}
-% \begin{itemize}
-% 	\item What is the total budget for the project?
-% 	\item Have the funds been already acquired?
-% 	\item If not, where is the money coming from?
-% 	\item How long will it delay the process?
-% 	\item Will it impact the thesis work and/or are there other remedies to
-% 		the problem?
-% \end{itemize}
 
 The project, revolving around open-source software, does not come with a demanding budget.
-Small expenses are likely, such as AWS time, which will come from  \dots
+Small expenses are likely, such as AWS time, which will come from existing departmental availability.
+Conferences (?)
 
- 
 \section{Deliverables and Program Schedule}
-Itemize the list of deliverables with specific dates so that you can make
-concerted effort to achieve them.
 
-%\begin{ganttchart}[
-%		vgrid,
-%		x unit=0.3cm,
-%		time slot format=isodate-yearmonth,
-%		time slot unit=month]{2020-05}{2023-05}
-%	\gantttitlecalendar{year} \\
-%	\ganttbar[name=pp]{Preliminary Project}{2020-05}{2021-05} \\
-%
-%	\ganttgroup{Objective 1}{2021-05}{2023-05} \\
-%	\ganttbar[name=T1A]{Task A}{2021-05}{2022-09} \\
-%	\ganttlinkedbar{Task B}{2022-09}{2023-05} \\
-%
-%	\ganttgroup{Objective 2}{2021-05}{2022-12} \\
-%	\ganttbar[name=T2A]{Task A}{2021-05}{2021-12} \\
-%	\ganttlinkedbar{Task B}{2021-12}{2022-12} \\
-%
-%	\ganttgroup{Objective 3}{2022-03}{2023-03} \\
-%	\ganttbar{Task A}{2022-03}{2023-03}
-%
-%	\ganttlink[link mid=.4]{pp}{T1A}
-%	\ganttlink[link mid=.159]{pp}{T2A}
-%\end{ganttchart}
+?????
 
 \section{References}
-List of all the references here
+
 \printbibliography
 
 \end{document}

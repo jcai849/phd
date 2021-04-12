@@ -1,21 +1,11 @@
-\documentclass[a4paper,10pt]{article}
-
-\usepackage{doc/header}
-
-\begin{document}
-\title{PYR Current}
-\author{Jason Cairns}
-\year=2021 \month=4 \day=13
-\maketitle{}
-
-\section{Introduction}
+\subsection{Introduction}
 
 For meeting the problem of large scale statistical analysis in R, what is needed is a platform that is fast and robust, with a focus on a simple interface for fitting statistical models, and the flexibility for implementation of arbitrary new models within R.
 As of May 2021, a prototype distributed system holding many of the described desired characteristics, has been implemented in R as part of the research.
 This system is tentatively named ``LargeScaleR'', and takes the form of an R package, complete with minor documentation and a moderate proportion of tests.
 It has been used to successfully read and manipulate data over a cluster of 8 nodes, including 4 processes on each node, as well as non-trivial distributed manipulations such as tabling of dataframes, all operating at a very high speed of operation.
 
-\section{System Architecture}\label{sec:sys-imp}
+\subsection{System Architecture}\label{sec:sys-imp}
 
 The system operates through a modified master-worker pattern.
 A master process runs as a regular R session, operated interactively by the user or by batch script.
@@ -48,7 +38,7 @@ These include all atomic vectors, lists, dataframes, matrices, and arbitrary use
 
 Another key aspect to the architecture of the system is detailed logging, with all changes of state in a node recorded and the information dispatched to a central logger, which allows monitoring of the system in one location. The collection of logs is sufficient to build a complete picture of the system, with a Model-View-Controller pattern in an external program able to parse the logs, calculate system state, and display that in a simple interface.
 
-\section{System Interface}
+\subsection{System Interface}
 
 An exceedingly important consideration for the user is the manner in which the program is interfaced with.
 
@@ -96,7 +86,7 @@ A distributed object referring to the results is returned.
 This is actually how most of the transparent methods were implemented, with the distributed \texttt{do.call} serving as an intermediary.
 Such a technique is equivalent to a Map, with a reduce also possible through either reducing at the worker end, in parallel, or even followed by an \texttt{unstub} and local reduction.
 
-\section{System Implementation}\label{sec:sys-imp}
+\subsection{System Implementation}\label{sec:sys-imp}
 
 A more advanced user looking to extend or gain further understanding of the system would benefit from the knowledge of how the system is implemented.
 
@@ -139,6 +129,3 @@ Once all appropriate chunks are unstubbed, a regular \texttt{do.call} is run wit
 % metadata
 For alignment to take place, metadata associated with each chunk, such as it's corresponding beginning and end indices, as well as it's deduced size, must be associated with a distributed object before it is made use of.
 As there is purposefully no mechanism for responders to communicate with requesters, an alternative mechanism was devised; metadata requests operate just as any other distributed function call, using the standard distributed \texttt{do.call} interface, but the functions sent are unique to the chunk they are associated with, using metalinguistic evaluation to create a function that when evaluated on the worker end, sends the metadata information to a unique temporary queue, which is then listened to at the requester end, popped, and returned.
-
-\printbibliography
-\end{document}
