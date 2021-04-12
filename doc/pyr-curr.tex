@@ -35,7 +35,7 @@ Actions to be performed on the chunks are transmitted through these queues.
 
 The master process enacts requests on these queues through methods on the distributed objects being intercepted and sent as possibly modified messages to their referent chunk queues, where they are then operated upon by the worker process.
 Key to the flexibility is that the queue serves as a level of indirection, so the requesting process doesn't need to know precisely where a chunk is stored, only that it can be reached via it's queue.
-This flexibility, mirroring the benefits of message-passing object-oriented programming, allows chunks to be held arbitrarily, including on multiple nodes simultaneously.
+This flexibility, mirroring the benefits of information hiding encouraged by message-passing object-oriented programming, allows chunks to be held arbitrarily, including on multiple nodes simultaneously.
 The capacity for redundancy grants future potential for fault tolerance and resilience to nodes crashing.
 
 A major supporting component of the system's distributed architecture is the act of ``un''-stubbing, also known as ``emerging'', wherein a reference stub is converted into it's referent.
@@ -49,19 +49,96 @@ These include all atomic vectors, lists, dataframes, matrices, and arbitrary use
 Another key aspect to the architecture of the system is detailed logging, with all changes of state in a node recorded and the information dispatched to a central logger, which allows monitoring of the system in one location. The collection of logs is sufficient to build a complete picture of the system, with a Model-View-Controller pattern in an external program able to parse the logs, calculate system state, and display that in a simple interface.
 
 \section{System Interface}
+
+An exceedingly important consideration for the user is the manner in which the program is interfaced with.
+
+As mentioned above, the LargeScaleR program is distributed as an R package, and initial setup follows standard package protocols.
+
 % init
+The system starts through getting a cluster running.
+It is assumed that the hardware and network is already set up.
+If the largeScaleR cluster is already running, the master can just connect directly, with some descriptive functions entered by the user allowing it to connect.
+The cluster can be initialised entirely by the master session, through the use of functions taking a simple description of the intended cluster.
+For ease of use, this can be given through a programmable config file describing the nature of the network, including addresses and specialised services such as a communication server and log server, as well as descriptions of the master and all the worker processes.
+
+Upon successfully running the cluster, all processes involved will log any changes in state, including which chunks are held by which workers, and this can be viewed in an included interface.
+
 % in
+Data is initialised in the system through several different pathways.
+The most straightforward for the user is to take existing data in an R session, and run a package-provided method on the data to ``stub'' it.
+This serves to distribute the data as chunks across a number of worker processes, commonly referred to as ``scattering'' in MPI parlance.
+This is a similar interface to that of the \textbf{SNOW} package.
+While good for medium-sized data and demonstration purposes, it is unrealistic in that by definition, very large data is unable to fit in the memory of the master R session for it to be sent out.
+
+Therefore a more standard method of initialisation when data originates from local disk is to use a package-provided reading function that streams raw data from a \texttt{csv} file or similar from disk through a root communications queue and into all workers.
+This is acknowledged to be inefficient, but it currently works well under all tests when data is not already distributed.
+
+The better method of data initialisation follows the creation of a character vector listing either url's or files local to each of the workers.
+This is then distributed to the appropriate workers and an appropriate read operation is pushed to them via the distributed character vector.
+This is the only method mentioned enabling full parallelisation, and is general enough to be extended for access to distributed filesystems such as HDFS.
+
+Alongside distribution of the data, the user is returned a distributed object to use for referencing the distributed data.
+In the case of the third method described, this occurs near-instantly, with the data being read concurrently.
+
 % move
+The data referenced by distributed objects can be sent from workers more simply; once established, an \texttt{unstub} method is run over a distributed object, and the underlying chunks are sent directly from the worker, to be combined at the master end.
+Such movement is taken advantage of by workers as well, when they are faced with operations on multiple disparate distributed objects - this is hidden from the user, however.
+
 % generic
 The benefits of distributed objects grow commensurately with their degree of transparency, and LargeScaleR has transparency as a central goal.
+Many common functions have methods provided operating on distributed objects, including most \texttt{Group} methods such as \texttt{Ops}, \texttt{Math}, and \texttt{Summary}.
+More complex methods such as \texttt{table} and \texttt{rbind} are also given, and for very simple analyses, these are often enough to serve as the backbone of the analysis until the data is summarised sufficiently that it can be \texttt{unstub}b'ed and less simple analyses run locally.
+
 % request
-% log
+Alternatively, an extra layer of control is granted to the user looking for more than pre-formed functions:
+functionality inspired by the \texttt{do.call} function in R allows passing anonymous or existing functions, along with a list of distributed and potentially local data, and the provided functions are run over the referent data pointed to by the distributed objects.
+A distributed object referring to the results is returned.
+This is actually how most of the transparent methods were implemented, with the distributed \texttt{do.call} serving as an intermediary.
+Such a technique is equivalent to a Map, with a reduce also possible through either reducing at the worker end, in parallel, or even followed by an \texttt{unstub} and local reduction.
+
 \section{System Implementation}\label{sec:sys-imp}
-% depends: redis, osrv, ulog
+
+A more advanced user looking to extend or gain further understanding of the system would benefit from the knowledge of how the system is implemented.
+
+% depends: redis, osrv, ulog, iotools
+LargeScaleR is written with minimal dependencies, but takes strong advantage of the four packages it uses.
+For interprocess communication, \textbf{rediscc} is used to connect to a redis server to enable queueing.
+It operates extremely quickly and efficiently, with minimal overhead.
+The movement of objects directly, as in \texttt{unstub} calls, takes advantage of the \textbf{osrv} package, which is specialised for rapid movement of R objects.
+Logging takes advantage of \textbf{ulog}, which outputs log messages in the standard syslog format.
+The \textbf{ulog} package also provides a log listening daemon.
+\textbf{iotools} is used in the streaming and parsing of raw files in storage, as in the local file read mentioned above.
+The dependencies have been checked and found to have no licensing issues, all possessing very free open-source licenses.
+
 % init
+The cluster is initialised using \textbf{ssh}, controlled by a programmable (sourced) configuration file at the master process.
+
 % msg
-% request, respond
-% metadata
+Communication between processes uses Redis queues, with blocking pop operations to read from them.
+An S3 ``message'' class was defined in LargeScaleR to standardise communication between nodes and is the only accepted form of message to be placed and parsed from a queue.
+
+% request
+Distributed objects have type ``environment'' in R, and are given S3 classes.
+This is to take advantage of the mutability of environments, enabling local caching of distributed objects no matter where in the stack.
+When making a request for a function to be performed on the data underlying a distributed object, the requesting process (usually master) will run a distributed \texttt{do.call} analogue, which sends the function and distributed objects wrapped in a serialised message to the queues corresponding to the descriptors of the chunks constituent to the target distributed object - if there are multiple distributed objects, currently the largest of them is chosen, but this can be generalised to any target function, including more advanced distributed scheduling.
+If there are local objects included in the message, they can be sent as is through enclosing them in the \texttt{AsIs} class constructor, otherwise they are transparently stubbed with the optimisation of being sent to the same worker processes as the target distributed object.
+
+% respond
+The worker process in turn follows a simple loop of listening to queues corresponding to the chunk descriptors that it holds, as well as additional queues such as a root queue and host and process-specific queues. 
+Upon popping from a queue, it evaluates the message, then possibly stores the result and goes back to listening to queues, potentially now including the queue corresponding to the descriptor of the new chunk that is stored.
+
+The act of evaluation of a message has it's own complexities, with the following example given with two distributed objects.
 % move
+The distributed objects first go through a complex act of alignment.
+They are all compared with the target chunk, and aligned accordingly.
+If the beginning and end of the target chunk are completely outside those of the offered object, the indices of the object corresponding to those at the correct corresponding multiple are taken, and this object is then unstubbed.
+In this way, recycling is implemented in a distributed fashion, with each worker determining the appropriate recycle.
+
+Once all appropriate chunks are unstubbed, a regular \texttt{do.call} is run with the function and now-local objects
+
+% metadata
+For alignment to take place, metadata associated with each chunk, such as it's corresponding beginning and end indices, as well as it's deduced size, must be associated with a distributed object before it is made use of.
+As there is purposefully no mechanism for responders to communicate with requesters, an alternative mechanism was devised; metadata requests operate just as any other distributed function call, using the standard distributed \texttt{do.call} interface, but the functions sent are unique to the chunk they are associated with, using metalinguistic evaluation to create a function that when evaluated on the worker end, sends the metadata information to a unique temporary queue, which is then listened to at the requester end, popped, and returned.
+
 \printbibliography
 \end{document}
