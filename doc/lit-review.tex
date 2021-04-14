@@ -10,6 +10,341 @@
 
 \tableofcontents
 
+\section{Prose Form}
+
+
+\subsection{Introduction}
+Statistics is concerned with the analysis of datasets, which are continually growing bigger, and at a faster rate; the global datasphere is expected to grow from 33 zettabytes in 2018 to 175 zettabytes by 2025\cite{rydning2018digitization}.
+
+The scale of this growth is staggering, and continues to outpace attempts to engage meaningfully with such large datasets. By one measure, information storage capacity has grown at a compound annual rate of 23\% per capita over recent decades\cite{hilbert2011world}.
+In spite of such massive growths in storage capacity, they are far outstripped by computational capacity over time \cite{fontana2018moore}.
+Specifically, the number of components comprising an integrated circuit for computer processing have been exponentially increasing, with an additional exponential decrease in their cost\cite{moore1975progress}.
+This observation, known as Moore's Law, has been the root cause for much of computational advancement over the past half-century.
+The corresponding law for computer storage posits increase in bit density of storage media along with corresponding decreases in price, which has been found to track lower than expected by Moore's law metrics.
+Such differentials, between the generation of data, computational capacity for data processing, and constraints on data storage, have forced new techniques in computing for the analysis of large-scale data.\\
+
+The architecture of a computer further constrains the required approach for analysis of big data.
+Most general-purpose PC's are modelled by a random-access stored-program machine, wherein a program and data are stored in registers, and data must move in and out of registers to a processing element, most commonly a Central Processing Unit (CPU). 
+The movement takes at least one cycle of a computer's clock, thereby leading to larger processing time for larger data.\\
+
+Reality dictates many different forms of data storage, with a Memory Hierarchy ranking different forms of computer storage based on their response times\cite{toy1986computer}.
+The volatility of memory (whether or not it persists with no power) and the expense of faster storage forms dictates the design of commodity computers. An example of a standard build is given by the Dell Optiplex 5080, with 16Gb of Random Access Memory (RAM) for fast main memory, to be used as a program data store; and a 256Gb Solid State Drive (SSD) for slow long-term disk storage\cite{cornell2021standardcomp}.
+For reasonable speed when accessing data, a program would prioritise main memory over disk storage - something not always possible when dataset size exceeds memory capacity, larger-than-memory datasets being a central issue in big data.
+A program that is primarily slowed by data movement is described as I/O-bound, or memory-bound.
+Much of the issue in modelling large data is the I/O-bound nature of much statistical computation.
+
+The complement to I/O-bound computation is computation-bound, wherein the speed (or lack thereof) is determined primarily through the performance of the processing unit. This is less significant in large-scale applications than memory-bound, but remains an important design consideration when the number of computations scale with the dataset size in any nontrivial algorithm with greater than \(\mathcal{O}(1)\) complexity.
+
+The solution to both memory- and computation-bound problems has largely been that of using more hardware; more memory, and more CPU cores. Even with this in place, more complex software is required to manage the more complex systems. As an example, with additional CPU cores, constructs such as multithreading are used to perform processing across multiple CPU cores simultaneously (in parallel).\\
+
+The means for writing software for large-scale data is typically through the use of a structured, high-level programming language.
+Of the myriad programming languages, the most widespread language used for statistics is R.
+As of 2021, R increased in popularity to rank 9th in the TIOBE index.
+R also has a special relevance for this proposal, having been initially developed at the University of Auckland by Ross Ihaka and Robert Gentleman in 1991\cite{ihaka1996r}.
+
+Major developments in contemporary statistical computing are typically published alongside R code implementation, usually in the form of an R package, which is a mechanism for extending R and sharing functions.
+As of March 2021, the Comprehensive R Archive Network (CRAN) hosts over 17000 available packages\cite{team20:_r}.
+Several of these packages are oriented towards managing large datasets, and will be assessed in sections \ref{local} and \ref{dist}  below.
+This project aims to develop an R package that provides a means for writing software to analyse very large data on clusters consisting of multiple general-purpose computers.
+
+\subsection{Parallelism as a Strategy}
+\label{parallel}
+The central strategy for manipulating large datasets, from which most other patterns derive, is parallelisation. To parallelise is to engage in many computations simultaneously - this typically takes the form of either task parallelism, wherein tasks are distributed across different processors; data parallelism, where the same task operates on different pieces of data across different processors; or some mix of the two.
+
+Parallelisation of a computational process can potentially offer speedups proportional to the number of processors available to take on work, and with recent improvements in multiprocessor hardware, the number of processors available is increasing over time.
+Most general-purpose personal computers produced in the past 5 years have multiple processor cores to enable parallel computation.
+
+Parallelism can afford major speedups, albeit with certain limitations.
+Amdahl's law, formulated in 1967, aims to capture the speedup limitations, with a model derived from the argument given below in formula \ref{amdahlsform}\cite{amdahl1967law}\cite{gustafson1988law}:
+\begin{equation}
+	\label{amdahlsform}
+	\textrm{Speedup} = \frac{1}{s+\frac{p}{N}}
+\end{equation}
+Where,
+\begin{itemize}
+	\item \(Speedup\) total speedup of whole task
+	\item \(s\) time spend by serial processor on inherently serial part of program
+	\item \(p\) time spent by serial processor on parallelisable part of program
+	\item \(N\) number of processors
+\end{itemize}
+The implication is that speedup of an entire task when parallelised is granted only through the portion of the task that is otherwise constrained by singular system resources, at the proportion of execution time spent in that task.
+Thus a measure of skepticism is contained in Amdahl's argument, with many tasks predicted to show no benefit to parallelise - and in reality, some likely to slow down with increased overhead given in parallelisation. 
+The major response to the skepticism of Amdahl's law is given by Gustafson's law, generated from timing results in a highly parallelised system.
+Gustafson's law presents a scaled speedup as per equation \ref{gustafsonsform}
+\begin{equation}
+	\label{gustafsonsform}
+	\textrm{Scaled speedup} = s' + p'N = N + (1-N)s'
+\end{equation}
+Where,
+\begin{itemize}
+	\item \(s'\) serial time spent on the parallel system
+	\item \(p'\) parallel time spent on the parallel system
+\end{itemize}
+This law implies far higher potential parallel speedup, varying linearly with the number of processors.
+
+An example of an ideal task for parallelisation is the category of embarassingly parallel workload.
+Such a problem is one where the separation into parallel tasks is trivial, such as performing the same operation over a dataset independently\cite{foster1995parallel}.
+Many problems in statistics fall into this category, such as tabulation, monte-carlo simulation and many matrix manipulation tasks.
+
+\subsection{Local Solutions}
+\label{local}
+
+While not specifically engaging with larger-than-memory data, a number of packages take advantage of various parallel strategies in order to process large datasets efficiently.
+\textbf{multicore} is one such package, now subsumed into the \textbf{parallel} package, that grants functions that can make direct use of multiprocessor systems, thereby reducing the processing time in proportionality to the number of processors available on the system.
+
+\textbf{data.table} also makes use of multi-processor systems, with many operations involving threading in order to rapidly perform operations on it's dataframe equivalent, the data.table.
+
+In spite of all of these potential solutions, a major constraint remains in that only a single machine is used.
+As long as there is only one machine available, bottlenecks form and no redundancy protection is offered in real-time in the event of a crash or power outage.\\
+
+The first steps typically taken to manage larger-than-memory data is to shift part of the data into secondary storage, which generally possesses significantly more space than main memory.
+
+This is the approach taken by the \textbf{disk.frame} package, developed by Dai ZJ.
+\textbf{disk.frame} provides an eponymously named dataframe replacement class, which is able to represent a dataset far larger than RAM, constrained now only by disk size\cite{zj20}.
+
+The mechanism of disk.frame is introduced on it's homepage with the
+following explanation:
+
+\begin{displaycquote}{zj20:_larger_ram_disk_based_data}
+        {disk.frame} works by breaking large datasets into smaller
+        individual chunks and storing the chunks in fst files inside a
+        folder. Each chunk is a fst file containing a data.frame/data.table.
+        One can construct the original large dataset by loading all the
+        chunks into RAM and row-bind all the chunks into one large
+        data.frame. Of course, in practice this isn't always possible; hence
+        why we store them as smaller individual chunks.
+
+                {disk.frame} makes it easy to manipulate the underlying chunks by
+        implementing dplyr functions/verbs and other convenient functions
+        (e.g. the (\texttt{cmap(a.disk.frame, fn, lazy = F)} function which
+        applies the function fn to each chunk of a.disk.frame in parallel).
+        So that {disk.frame} can be manipulated in a similar fashion to
+        in-memory data.frames.
+\end{displaycquote}
+
+It works through two main principles: chunking, and an array of methods taking advantage of data.frame generics, including \textbf{dplyr} and \textbf{data.table} functions. 
+Another component that isn't mentioned in the explanation, but is crucial to performance, is the parallelisation offered transparently by the package.
+
+disk.frames are actually references to numbered \texttt{fst} files in a folder, with each file serving as a chunk. 
+This is made use of through manipulation of each chunk separately, sparing RAM from dealing with a single monolithic file\cite{zj19:_inges_data}.
+
+Fst is a means of serialising dataframes, as an alternative to RDS files\cite{klik19}. 
+It makes use of an extremely fast compression algorithm developed at facebook.
+
+Functions are usually mapped over chunks using some functional, but more complex functions such as those implementing a glm require custom solutions; as an example the direct modelling function of \texttt{dfglm()} is implemented to allow for fitting glms to the data. 
+From inspection of the source code, the function is a utility wrapper for streaming disk.frame data by default into bigglm, a biglm derivative.
+
+For grouped or aggregated functions, there is more complexity involved, due to the chunked nature of disk.frame. 
+When functions are applied, they are by default applied to each chunk. 
+If groups don't correspond injectively to chunks, then the syntactic chunk-wise summaries and their derivatives may not correspond to the semantic group-wise summaries expected. 
+For example, summarising the median is performed by using a median-of-medians method; finding the overall median of all chunks' respective medians. 
+Therefore, computing grouped medians in disk.frame result in estimates only --- this is also true of other software, such as spark, as noted in \textcite{zj19:_group_by}.
+
+For parallelisation, future is used as the backend package, with most function mappings on chunks making use of \texttt{future::future\_lapply()} to have each chunk mapped with the intended function in parallel. 
+
+future is initialised with access to cores through the wrapper function, \texttt{setup\_disk.frame()}\cite{zj19:_key}. 
+This sets up the correct number of workers, with the minimum of workers and chunks being processed in parallel.
+
+An important aspect to parallelisation through future is that, for purposes of cross-platform compatibility, new R processes are started for each worker\cite{zj19:_using}. 
+Each process will possess it's own environment, and disk.frame makes use of future's detection capabilities to capture external variables referred to in calls, and send them to each worker.
+
+The strategy taken by \textbf{disk.frame} has several inherent limitations, however.
+\textbf{disk.frame} allows only embarassingly parallel operations for custom operations as part of a split-apply-combine (MapReduce) pattern. 
+While there may theoretically be future provision for non-embarrassingly parallel operations, a significant limitation to real-time operation is the massive slowdown brought by the data movement from disk to RAM and back.
+
+\section{Distributed Computing as a Strategy}
+\label{dist}
+The specs of a single contemporary commodity computer are higher than those that were used in the Apollo lunar landing, yet the management of large datasets still creates major issues, driven by a simple lack of  capacity to hold them in memory.
+Supercomputers can surmount this by holding orders of magnitude higher memory, though only a few organisations or individuals can bear the financial costs of purchasing and maintaining a supercomputer. 
+In a similar form, cloud computing is not a universal solution, owing to expense, security issues, and data transportation problems.
+Despite this, systems rivalling supercomputers can be formed through combining many commodity computers.
+An amusing illustration of this was given in 2004, when a flash mob connected hundreds of laptops to attempt running the linpack benchmark, achieving 180 gigaflops in processing output\cite{perry2004flashcomp}.
+
+The combination of multiple independent computers to form one cohesive computing system forms part of what is known as distributed computing.
+More serious efforts to connect multiple commodity computers into a larger computational system is now standard, with software such as Hadoop and Spark being commonplace in large companies for the purpose of creating distributed systems.
+
+Distributed systems make possible the real-time manipulation of datasets larger than a single computer's RAM, by splitting up data and holding it in the RAM of multiple computers.
+A factor strongly serving in favour of distributed computing is that commodity hardware exists in large quantities in most offices, oftentimes completely unused.
+This means that many organisations already have the necessary base infrastructure to create a distributed system, likely only requiring some software and configuration to set it all up.
+Beyond the benefit of pre-existing infrastructure, a major feature commonly offered by distributed systems, and lacking in high-powered single computer systems, is that of fault tolerance - when one computer goes down, as does happen, another computer in the system had redundant copies of much of the information of the crashed computer, and computation can resume with very little inconvenience.
+A single computer, even very high-powered, doesn't usually offer fault-tolerance to this degree.
+
+All of the packages examined the above section \ref{local} have no immediate capability to create a distributed system, and have all of the ease-of-use benefits and all of the drawbacks as discussed.
+
+\section{Distributed Large-Scale Computing}
+
+R does have some well-established packages used for distributed large-scale computing.
+Of these, the \textbf{parallel} package is contained in the standard R image, and encapsulates \textbf{SNOW} (Simple Network Of Workstations), which provides support for distributed computing over a simple network of compputers.
+The general architecture of \textbf{SNOW} makes use of a master process that holds the data and launches the cluster, pushing the data to worker processes that operate upon it and return the results to the master. \textbf{SNOW} makes use of several different communications mechanisms, including sockets or the greater MPI distributed computing library.
+Some shortcomings of the described architecture is the difficulty of persisting data, meaning the expense of data transportation every time operations are requested by the master process.
+In addition, as the data must originate from the master (barring generated data etc.), the master's memory size serves as a bottleneck for the whole system.\\
+
+The \textbf{pbdR} (programming with big data in R) project provides persistent data, with the \textbf{pbdDMAT} (programming with big data Distributed MATrices) package offering a user-friendly distributed matrix class to program with over a distributed system.
+It is introduced on it's main page with the
+following description:
+\begin{quote}
+        The ``Programming with Big Data in R'' project (pbdR) is a set of highly scalable
+        R packages for distributed computing and profiling in data science.
+
+        Our packages include high performance, high-level interfaces to MPI, ZeroMQ,
+        ScaLAPACK, NetCDF4, PAPI, and more. While these libraries shine brightest on
+        large distributed systems, they also work rather well on small clusters and
+        usually, surprisingly, even on a laptop with only two cores.
+
+        Winner of the Oak Ridge National Laboratory 2016 Significant Event Award for
+        ``Harnessing HPC Capability at OLCF with the R Language for Deep Data Science.''
+        OLCF is the Oak Ridge Leadership Computing Facility, which currently includes
+        Summit, the most powerful computer system in the world.\cite{pbdR2012}
+\end{quote}
+The project seeks especially to serve minimal wrappers around the BLAS and LAPACK
+libraries along with their distributed derivatives, with the intention of
+introducing as little overhead as possible.  Standard R also uses routines from
+the library for most matrix operations, but suffers from numerous
+inefficiencies relating to the structure of the language; for example, copies
+of all objects being manipulated will be typically be created, often having
+devastating performance aspects unless specific functions are used for linear
+algebra operations, as discussed in \citeauthor{schmidt2017programming} (e.g.,
+\texttt{crossprod(X)} instead of \texttt{t(X) \%*\% X})
+
+Distributed linear algebra operations in pbdR depend further on the ScaLAPACK
+library, which can be provided through the pbdSLAP package \cite{Chen2012pbdSLAPpackage}.
+The principal interface for direct distributed computations is the pbdMPI
+package, which presents a simplified API to MPI through R
+\cite{Chen2012pbdMPIpackage}.  All major MPI libraries are supported, but the
+project tends to make use of openMPI in explanatory documentation. A very
+important consideration that isn't immediately clear  is that pbdMPI can only
+be used in batch mode through MPI, rather than any interactive option as in
+Rmpi \cite{yu02:_rmpi}.
+
+The actual manipulation of distributed matrices is enabled through the pbdDMAT
+package, which offers S4 classes encapsulating distributed matrices
+\cite{pbdDMATpackage}. These are specialised for dense matrices through the
+\texttt{ddmatrix} class, though the project offers some support for other
+matrices. The \texttt{ddmatrix} class has nearly all of the standard matrix
+generics implemented for it, with nearly identical syntax for all.
+
+The package is geared heavily towards matrix operations in a statistical
+programming language, so a test of it's capabilities would quite reasonably
+involve statistical linear algebra. An example non-trivial routine is that of
+generating data, to test randomisation capability, then fitting a generalised
+linear model to the data through iteratively reweighted least squares. In this
+way, not only are the basic algebraic qualities considered, but communication
+over iteration on distributed objects is tested.
+
+To work comparatively, a simple working local-only version of the algorithm is
+produced in listing \ref{src:local-rwls}.
+
+\begin{listing}
+\inputminted{r}{R/review-rwls.R}
+        \caption{Local GLM with RWLS}
+        \label{src:local-rwls}
+\end{listing}
+
+It outputs a \(\hat{\beta}\) matrix after several seconds of computation.
+
+Were pbdDMAT matrices to function perfectly transparently as regular matrices, , then all that would be required to convert a local algorithm to
+distributed would be to prefix a \texttt{dd} to every \texttt{matrix} call, and
+bracket the program with a template as per listing \ref{src:bracket}.
+
+\begin{listing}
+\begin{minted}{r}
+suppressMessages(library(pbdDMAT))
+init.grid()
+
+# program code with `dd` prefixed to every `matrix` call
+
+finalize()
+\end{minted}
+\caption{Idealised Common Wrap for Local to Distributed Matrices}\label{src:bracket}
+\end{listing}
+
+The program halts however, as forms of matrix creation other than through explicit \texttt{matrix()} calls are not necessarily picked up by that process; \texttt{cbind} requires a second formation of a \texttt{ddmatrix}. 
+The first issue comes when performing conditional evaluation; predicates involving distributed matrices are themselves distributed matrices, and can't be mixed in logical evaluation with local predicates.
+
+Turning local predicates to distributed matrices, then converting them all back to a local matrix for the loop to understand, finally results in a program run, however the results are still not accurate.  
+This is due to \texttt{diag()<-} assignment not having been implemented, so several further changes are necessary, including specifying return type of the diag matrix as a replacement.
+
+This serves to outline the difficulty of complete distributed transparency. 
+The final working code of pbdDMAT GLM through RWLS is given in listing \ref{src:dmat}
+
+\begin{listing}
+\inputminted{r}{R/review-pbdr.R}
+        \caption{pbdDMAT GLM with RWLS}
+        \label{src:dmat}
+\end{listing}
+
+Decidedly more user-friendly is the \textbf{sparklyr} package, which meshes \textbf{dplyr} syntax with a \textbf{Spark} backend.
+Simple analyses are made very simple (assuming a well-configured and already running \textbf{Spark} instance), but custom iterative models are extremely difficult to create through the package in spite of \textbf{Spark's} support for it. 
+
+Given that iteration is cited by a principal author of Spark as a motivating factor in it's development when compared to Hadoop, it is reasonable to consider whether the most popular R interface to Spark, sparklyr, has support for iteration\cite{zaharia2010spark}\cite{luraschi20}.
+One immediate hesitation to the suitability of sparklyr to iteration is the syntactic rooting in dplyr; dplyr is a ``Grammar of Data Manipulation'' and part of the tidyverse, which in turn is an ecosystem of packages with a shared philosophy\cite{wickham2019welcome}\cite{wickham2016r}.
+The promoted paradigm is functional in nature, with iteration using for loops in R being described as ``not as important'' as in other languages; map functions from the tidyverse purrr package are instead promoted as providing greater abstraction and taking much less time to solve iteration problems.
+Maps do provide a simple abstraction for function application over elements in a collection, similar to internal iterators, however they offer no control over the form of traversal, and most importantly, lack mutable state between iterations that standard loops or generators allow\cite{cousineau1998functional}.
+
+A common functional strategy for handling a changing state is to make use of recursion, with tail-recursive functions specifically referred to as a form of iteration in \citeauthor{abelson1996structure}.
+Reliance on recursion for iteration is naively non-optimal in R however, as it lacks tail-call elimination and call stack optimisations\cite{rcore2020lang}; at present the elements for efficient, idiomatic functional iteration are not present in R, given that it is not as functional a language as the tidyverse philosophy considers it to be, and sparklyr's attachment to the the ecosystem prevents a cohesive model of iteration until said elements are in place.
+
+Iteration takes place in Spark through caching results in memory, allowing faster access speed and decreased data movement than MapReduce\cite{zaharia2010spark}.
+sparklyr can use this functionality through the \texttt{tbl\_cache()} function to cache Spark dataframes in memory, as well as caching upon import with \texttt{memory=TRUE} as a formal parameter to \texttt{sdf\_copy\_to()}.
+Iteration can also make use of persisting Spark Dataframes to memory, forcing evaluation then caching; performed in sparklyr through \texttt{sdf\_persist()}.
+
+An important aspect of consideration is that sparklyr methods for dplyr generics execute through a translation of the formal parameters to Spark SQL.
+This is particularly relevant in that separate Spark Data Frames can't be accessed together as in a multivariable function.
+In addition, very R-specific functions such as those from the \textbf{stats} and \textbf{matrix} core libraries are not able to be evaluated, as there is no Spark SQL cognate for them.
+
+Canned models are the only option for most users, due to \textbf{sparklyr's} reliance on Spark SQL rather than the Spark core API made available through the official \textbf{SparkR} interface.
+
+sparklyr is excellent when used for what it is designed for.
+Iteration, in the form of an iterated function, does not appear to be part of this design. 
+Furthermore, all references to ``iteration'' in the primary sparklyr literature refer either to the iteration inherent in the inbuilt Spark ML functions, or the ``wrangle-visualise-model'' process popularised by Hadley Wickham\cite{luraschi2019mastering}\cite{wickham2016r}.
+None of such references connect with iterated functions.
+
+\subsection{Other Systems}
+
+In the search for a distributed system for statistics, the world outside of R is not entirely barren.
+The central issue with non-R distributed systems is that their focus is very obviously not statistics, and this shows in the level of support the platforms provide for statistical purposes.
+
+The classical distributed system for high-performance computing is MPI.
+R actually has a high-level interface to MPI through the \textbf{rmpi} package.
+This package is excellent, but extremely low-level, offering little more than wrappers around MPI functions.
+For the statistician who just wants to implement a model for a large dataset, such concern with minutiae is prohibitive.\\
+
+Hadoop and Spark are two closely related systems which were mentioned earlier.
+
+Apache Hadoop is a collection of utilities that facilitates cluster computing. 
+Jobs can be sent for parallel processing on the cluster directly to the utilities using .jar files, ``streamed'' using any executable file, or accessed through language-specific APIs.
+
+The project began in 2006, by Doug Cutting, a Yahoo employee, and Mike Cafarella. 
+The inspiration for the project was a paper from Google describing the Google File System (described in \textcite{ghemawat2003google}), which was followed by another Google paper detailing the MapReduce programming model, \textcite{dean2004mapreduce}.
+
+Hadoop consists of a file-store component, known as Hadoop Distributed File System (HDFS), and a processing component, known as MapReduce.
+
+In operation, Hadoop splits files into blocks, then distributes them across nodes in a cluster (HDFS), where they are then processed by the node in parallel (MapReduce).
+This creates the advantage of data locality, wherein data is processed by the node they exist in.
+
+Hadoop has seen extensive industrial use as the premier big data platform upon it's release. 
+In recent years it has been overshadowed by Spark, due to the greater speed gains offered by Spark for many problem sets.\\
+
+Spark was developed with the shortcomings of Hadoop in mind;  Much of it's definition is in relation to Hadoop, which it intended to improve upon in terms of speed and usability for certain tasks\cite{zaharia2010spark}.
+
+It's fundamental operating concept is the Resiliant Distributed Dataset (RDD), which is immutable, and generated through external data, as well as actions and transformations on prior RDD's. 
+The RDD interface is exposed through an API in various languages, including R, however it appears to be abandoned to some degree, having removed from the CRAN repository at 2020-07-10 due to failing checks.
+
+Spark requires a distributed storage system, as well as a cluster manager; both can be provided by Hadoop, among others.
+
+Spark is known for possessing a fairly user-friendly API, intended to improve upon the MapReduce interface. 
+Another major selling point for Spark is the libraries available that have pre-made functions for RDD's, including many iterative algorithms. 
+The availability of broadcast variables and accumulators allow for custom iterative programming.
+
+Spark has seen major use since it's introduction, with effectively all major big data companies having some use of Spark.\\
+
+In the python world, the closest match to a high-level distributed system that could have statistical application is given by the python library \textbf{dask}\cite{rocklin2015dask}.
+\textbf{dask} offers dynamic task scheduling through a central task graph, as well as a set of classes that encapsulate standard data manipulation structures such as NumPy arrays and Pandas dataframes. 
+The main difference is that the \textbf{dask} classes take advantage of the task scheduling, including online persistence across multiple nodes.
+\textbf{dask} is a large and mature library, catering to many use-cases, and exists largely in the Pythonic ``Machine Learning'' culture in comparison to the R ``Statistics'' culture.
+Accordingly, the focus is more tuned to the Python software developer putting existing ML models into a large-scale capacity.
+Of all the distributed systems assessed so far, \textbf{dask} comes the closest to what an ideal platform would look like for a statistician, but it misses out on the statistical ecosystem of R, provides only a few select classes, and is tied entirely to the structure of the task graph.
+
 \section{Introduction}
 
 \(\dots\)
