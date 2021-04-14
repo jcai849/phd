@@ -44,10 +44,60 @@
 \newpage
 \section{TODO Introduction}
 
+Statistics is concerned with the analysis of datasets, which are continually growing bigger, and at a faster rate;
+the global datasphere is expected to grow from 33 zettabytes in 2018 to 175 zettabytes by 2025\cite{rydning2018digitization}.
+The scale of this growth is staggering, and continues to outpace attempts to engage meaningfully with such large datasets. 
+
+By one measure, information storage capacity has grown at a compound annual rate of 23\% per capita over recent decades\cite{hilbert2011world}.
+In spite of such massive growths in storage capacity, they are far outstripped by computational capacity over time \cite{fontana2018moore}.
+Specifically, the number of components comprising an integrated circuit for computer processing have been exponentially increasing, with an additional exponential decrease in their cost\cite{moore1975progress}.
+This observation, known as Moore's Law, has been the root cause for much of computational advancement over the past half-century.
+The corresponding law for computer storage posits increase in bit density of storage media along with corresponding decreases in price, which has been found to track lower than expected by Moore's law metrics.
+Such differentials between the generation of data, computational capacity for data processing, and constraints on data storage, have forced new techniques in computing for the analysis of large-scale data.\\
+
+The statistician working with large datasets is constrained by the forces of increased memory and processing power, along the more overwhelming force of increased dataset size.
+To take a concrete example of the problem, consider how a statistician may attempt to fit a novel model for a dataset consisting of roughly 165 million flight datapoints\cite{bot2009flights}, using methods and computational facilities typical to a small dataset.
+This is actually a small dataset compared to many other large datasets, yet it is still not possible to perform an analysis in the same manner as would usually be conducted on small-scale datasets.
+\texttt{R}, or any other common statistical computing system, simply won't be able to read in the data in the same fashion, as it is too big to fit in memory.
+The reason for this failure lies in the memory hierarchy of computers, wherein the different forms of data storage utilised by computers have varying response times and volatility.
+Using the Dell Optiplex 5080 as a typical desktop PC build, the statistician has 16Gb of Random Access Memory (RAM) for fast main memory, to be used as a program data store; and a 256Gb Solid State Drive (SSD) for slow long-term disk storage\cite{cornell2021standardcomp}.
+The problem can be summed up in the need for handling datasets that are too large to fit in memory.
+
+As a major and growing issue, there have been a plethora of responses over decades, and will be described in further detail in section \ref{background} below.  
+None of the responses are entirely satisfactory for the working statistician, who may be reasonably posited to possess the following demands:
+
+\begin{itemize}
+	\item A platform that can enable the creation of novel models and apply them to larger-than-memory datasets.
+	\item This platform must allow interactivity.
+	\item It must be simple to use and easy to set up.
+		Ideally, as close to existing systems as possible.
+	\item It must be fast.
+	\item It must take advantage of existing large ecosystems of statistical software.
+	\item It must be robust.
+	\item It must be flexible and extensible.
+		A computational statistician may create custom classes and reasonably expect them to work well with the platform.
+\end{itemize}
+
+To this end, the use of the \texttt{R} programming language is a natural starting point.
+The means for writing software is typically through the use of a structured, high-level programming language.
+Of the myriad programming languages available, the most widespread language used for statistics is R.
+In August 2020, \textt{R} reached it's highest rank yet of 8th in the TIOBE index, a ranking of most popular programming languages, up from ranking 73rd in December 2008\cite{tiobe2021r}.
+R also has a special relevance for this proposal, having been initially developed at the University of Auckland by Ross Ihaka and Robert Gentleman in 1991\cite{ihaka1996r}.
+
+Major developments in contemporary statistical computing are typically published alongside R code implementation, usually in the form of an R package, which is a mechanism for extending R and sharing functions.
+As of March 2021, the Comprehensive R Archive Network (CRAN) hosts over 17000 available packages\cite{team20:_r}.
+
+% copy intro from background
+% mmotivate
+% some terminology
+% describe precisely what is needed
+% explain that this doesn't yet exist
+% segue into background detail
+
 \section{Background}
 
+% Completely redo - structure by different approaches, and what packages/systems do these
 \input{doc/proposal/background}
-
 
 \section{Methodology and Approach}
 
@@ -58,36 +108,23 @@ An immediate technical challenge that exists is the staggering array of potentia
 This is typically overcome through experience but failing that, an emphasis on communication and high levels of background research can be used to manage such an uncertainty.
 The central use of R also presents it's own challenges, but these are often surmounted through a foreign language interface, such as C.
 
-Further work will continue from the existing prototype, described in section \ref{curr} below.
+Further work will continue from the existing prototype, which is described in turn in section \ref{curr} below.
 
-\section{Current Work}\label{curr}
+\section{Preliminary Results}\label{curr}
 
+% change master-worker, and stub terminology
+% diagrams useful
 \input{doc/proposal/curr}
 
 \section{Future Work}
 
-\section{TODO Facilities to be Used}
+%\input future work
 
-My own computer, usage of the statistics Ihaka cluster, AWS.
-A gpu that can also double for crypto mining??
-Data to be used - source, why, confidentiality etc.
+\section{TODO Objectives \& Goals}
 
-\section{TODO Budget}
-
-The project, revolving around open-source software, does not come with a demanding budget.
-Small expenses are likely, such as AWS time, which will come from existing departmental availability.
-Conferences (?)
-
-\section{TODO Objectives \& Scope}
-
- The objective of this research project is to create a platfom for large-scale
- statistical computing, utilising the versatility and power of R.
- Such a platform will allow statisticians to easily define and run complex
- distributed algorithms from within the R environment, rather than having to
- rely on external tools that never had statistical computation as a goal.
- This platform will be demonstrated through the implementation of iterative
- models in R, and applying these models to real-world tasks on large-scale
- problems.
+The objective of this research project is to create a platfom for large-scale statistical computing, utilising the versatility and power of R.
+Such a platform will allow statisticians to easily define and run complex distributed algorithms from within the R environment, rather than having to rely on external tools that never had statistical computation as a goal.
+This platform will be demonstrated through the implementation of iterative models in R, and applying these models to real-world tasks on large-scale problems.
 
 The following tasks will be undertaken as a part of the proposed research:
 
@@ -100,8 +137,17 @@ The following tasks will be undertaken as a part of the proposed research:
 
 \section{TODO Deliverables and Program Schedule}
 
-?????
-First year goals met, incl. table of seminars attended
+%Timeline
+%First year goals list, incl. table of seminars attended
+% Publication, conference
+% Timeline
+
+\section{Budget}
+
+The project itself, revolving around open-source software, does not come with any budgeting demands.
+However, the field of research is rapidly moving, and requires conference attendance and presentations in order to maintain relevance.
+This has been budgeted at \$1000.00 per annum, with the funds to be derived from the Postgraduate Research Student Support (PReSS) account, on an as-needed basis.
+This is referenced in the Doctoral Provisional Year Review document, and is less than the budget cap of \$1200.00 for the statistics department
 
 \printbibliography
 
