@@ -42,7 +42,7 @@
 
 \tableofcontents
 \newpage
-\section{TODO Introduction}
+\section{Introduction}
 
 Statistics is concerned with the analysis of datasets, which are continually growing bigger, and at a faster rate;
 the global datasphere is expected to grow from 33 zettabytes in 2018 to 175 zettabytes by 2025\cite{rydning2018digitization}.
@@ -87,12 +87,9 @@ R also has a special relevance for this proposal, having been initially develope
 Major developments in contemporary statistical computing are typically published alongside R code implementation, usually in the form of an R package, which is a mechanism for extending R and sharing functions.
 As of March 2021, the Comprehensive R Archive Network (CRAN) hosts over 17000 available packages\cite{team20:_r}.
 
-% copy intro from background
-% mmotivate
-% some terminology
-% describe precisely what is needed
-% explain that this doesn't yet exist
-% segue into background detail
+This project seeks to build and document the statistician's large-scale modelling platform in \texttt{R}.
+Preliminary results have been extremely encouraging to this endeavour, and are described in more detail in section \ref{curr} below.
+There remains plenty of future work, and this is described in section \ref{future}, with tangible goals outlined in section \ref{goals}.
 
 \section{Background}\label{background}
 
@@ -116,11 +113,11 @@ Further work will continue from the existing prototype, which is described in tu
 % diagrams useful
 \input{doc/proposal/curr}
 
-\section{Future Work}
+\section{Future Work}\label{future}
 
 %\input future work
 
-\section{TODO Objectives \& Goals}
+\section{Objectives \& Goals}\ref{goals}
 
 The objective of this research project is to create a platfom for large-scale statistical computing, utilising the versatility and power of R.
 Such a platform will allow statisticians to easily define and run complex distributed algorithms from within the R environment, rather than having to rely on external tools that never had statistical computation as a goal.
@@ -128,12 +125,24 @@ This platform will be demonstrated through the implementation of iterative model
 
 The following tasks will be undertaken as a part of the proposed research:
 
-\begin{itemize}
-	\item The creation of a distributed platform in R capable of
-		interactively running complex models on large datasets.
-	\item The demonstration of such a platform through implementing
-		iterative models on larger-than-memory datasets
-\end{itemize}
+\begin{enumerate}
+	\item Development of further proposed platform features, including:
+		\begin{enumerate}
+			\item Efficient memory usage through transient data and command chaining
+			\item Fault Tolerance
+			\item Interfaces with external systems
+		\end{enumerate}
+	\item The demonstration of such a platform through implementing complex iterative statistical models on larger-than-memory datasets
+	\item Publishing the LargeScaleR package on CRAN. This requires additional development including:
+		\begin{enumerate}
+			\item Stability as may be expected from 90+\% test coverage
+			\item Full documentation for all base functions
+			\item A package vignette
+			\item Passing CRAN checks
+		\end{enumerate}
+	\item Publishing a technical report on XXX
+	\item Presenting on the platform at XXX
+\end{enumerate}
 
 \section{TODO Deliverables and Program Schedule}
 
@@ -141,10 +150,21 @@ The following tasks will be undertaken as a part of the proposed research:
 %First year goals list, incl. table of seminars attended
 % Publication, conference
 % Timeline
+A timeline of relevant talks attended is given in table \ref{talks}
+\begin{table}
+	\begin{tabular}{lll}
+		\toprule
+		Date & Speaker & Title\\
+		\midrule
+		Date & Speaker & Title\\
+		\bottomrule
+	\end{tabular}
+	\caption{\label{talks}Talks attended as part of first year goals}
+\end{table}
 
 \section{Budget}
 
-The project itself, revolving around open-source software, does not come with any budgeting demands.
+The development of the project itself, revolving around open-source software, does not come with any budgeting demands.
 However, the field of research is rapidly moving, and requires conference attendance and presentations in order to maintain relevance.
 This has been budgeted at \$1000.00 per annum, with the funds to be derived from the Postgraduate Research Student Support (PReSS) account, on an as-needed basis.
 This is referenced in the Doctoral Provisional Year Review document, and is less than the budget cap of \$1200.00 for the statistics department
