@@ -7,20 +7,13 @@ Incomplete
 Goal 1::
 	Approval of the full thesis proposal by the appropriate
 	departmental/faculty postgraduate committee.
-Goal 2::
-	A substantial piece of written work, such as a literature review,
-	completed to the satisfaction of the main supervisor.
-Goal 13::
-	Participate in the Department of Statistics PhD Talks Day and/or give a
-	departmental seminar, to the satisfaction of the main supervisor. Also,
-	maintain a personal profile page (www.directory.auckland.ac.nz),
-	providing information on scholarly activities and objectives to the
-	satisfaction of the main supervisor and a Department of Statistics PhD
-	Officer
 
 Complete
 --------
 
+Goal 2::
+	A substantial piece of written work, such as a literature review,
+	completed to the satisfaction of the main supervisor.
 Goal 3::
 	Presentation of the proposal and/or work in progress to an appropriate
 	forum e.g. seminar, research group, conference, to the satisfaction of
@@ -58,5 +51,12 @@ Goal 12::
 	needs to verify participation by filling out and handing in the
 	departmental attendance form for each presentation to the Statistics
 	Department office) (2/10)
+Goal 13::
+	Participate in the Department of Statistics PhD Talks Day and/or give a
+	departmental seminar, to the satisfaction of the main supervisor. Also,
+	maintain a personal profile page (www.directory.auckland.ac.nz),
+	providing information on scholarly activities and objectives to the
+	satisfaction of the main supervisor and a Department of Statistics PhD
+	Officer
 Goal 14::
 	Attendance at one of the Faculty of Science Doctoral Induction Workshops. 

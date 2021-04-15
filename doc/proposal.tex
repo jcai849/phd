@@ -37,7 +37,7 @@
 
 \centering
 \bfseries
-\Large 2021-XX-XX
+\Large 2021-05-04
 \end{titlepage}
 
 \tableofcontents
@@ -110,7 +110,6 @@ Progress on written PhD work and experimentation is freely accessible from the \
 
 \section{Preliminary Results}\label{curr}
 
-% change master-worker, and stub terminology
 % diagrams useful
 \input{doc/proposal/curr}
 
@@ -118,7 +117,7 @@ Progress on written PhD work and experimentation is freely accessible from the \
 
 %\input future work
 
-\section{Objectives \& Goals}\ref{goals}
+\section{Objectives \& Goals}\label{goals}
 
 The objective of this research project is to create a platfom for large-scale statistical computing, utilising the versatility and power of R.
 Such a platform will allow statisticians to easily define and run complex distributed algorithms from within the R environment, rather than having to rely on external tools that never had statistical computation as a goal.
@@ -146,7 +145,7 @@ The following tasks will be undertaken as a part of the proposed research:
 	\item Benchmarking the platform on real-world data at a scale of 64+ nodes and 100Gb+ data source size
 \end{enumerate}
 
-\section{TODO Deliverables and Program Schedule}
+\section{Deliverables and Program Schedule}
 
 All provisional goals have been completed, with the goal of proposal approval being contingent on the committee.
 A description of the goals and statements on their completion follows:
@@ -183,8 +182,9 @@ A description of the goals and statements on their completion follows:
 		This was completed  on 2020-09-16.
 \end{enumerate}
 
-\begin{table}
-	\begin{tabular}{lll}
+\begin{table}[h]
+	\centering
+	\begin{tabularx}{\textwidth}{llX}
 		\toprule
 		Date & Speaker & Title\\
 		\midrule
@@ -199,14 +199,30 @@ A description of the goals and statements on their completion follows:
 		2021-03-31 & Yehua Zang & Branching with Decision Detection\\
 		Date & Speaker & Title\\
 		\bottomrule
-	\end{tabular}
+	\end{tabularx}
 	\caption{\label{talks}Talks attended as part of first year goals}
 \end{table}
 
-%Timeline
-%First year goals list, incl. table of seminars attended
-% Publication, conference
-% Timeline
+An approximate timeline of projected future work completion is given in table \ref{future-timeline}
+
+\begin{table}[h]
+	\centering
+	\begin{tabularx}{\textwidth}{lX}
+		\toprule
+		Date & Event\\
+		\midrule
+		2021-06 & Submitting a technical report for publication in XXX\\
+		2021-07 & Presenting on the platform at XXX\\
+		2021-12 & Platform feature development\\
+		2022-02 & Publishing package on CRAN\\
+		2022-05 & Development of complex statistical model demonstration for package\\
+		2022-09 & Benchmarking at scale\\
+		2023-05 & Thesis submission\\
+		\bottomrule
+	\end{tabularx}
+	\caption{\label{future-timeline}A timeline of future work}
+\end{table}
+
 \section{Budget}
 
 The development of the project itself, revolving around open-source software, does not come with any budgeting demands.
