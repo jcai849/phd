@@ -1,0 +1,47 @@
+Statistics is concerned with the analysis of datasets, which are continually growing bigger, and at a faster rate;
+the global datasphere is expected to grow from 33 zettabytes in 2018 to 175 zettabytes by 2025\cite{rydning2018digitization}.
+The scale of this growth is staggering, and continues to outpace attempts to engage meaningfully with such large datasets.
+
+By one measure, information storage capacity has grown at a compound annual rate of 23\% per capita over recent decades\cite{hilbert2011world}.
+In spite of such massive growths in storage capacity, they are far outstripped by computational capacity over time \cite{fontana2018moore}.
+Specifically, the number of components comprising an integrated circuit for computer processing have been exponentially increasing, with an additional exponential decrease in their cost\cite{moore1975progress}.
+This observation, known as Moore's Law, has been the root cause for much of computational advancement over the past half-century.
+The corresponding law for computer storage posits increase in bit density of storage media along with corresponding decreases in price, which has been found to track lower than expected by Moore's law metrics.
+Such differentials between the generation of data, computational capacity for data processing, and constraints on data storage, have forced new techniques in computing for the analysis of large-scale data.\\
+
+The statistician working with large datasets is constrained by the forces of increased memory and processing power, along the more overwhelming force of increased dataset size.
+To take a concrete example of the problem, consider how a statistician may attempt to fit a novel model for a dataset consisting of roughly 165 million flight datapoints\cite{bot2009flights}, using methods and computational facilities typical to a small dataset.
+This is actually a small dataset compared to many other large datasets, yet it is still not possible to perform an analysis in the same manner as would usually be conducted on small-scale datasets.
+\texttt{R}, or any other common statistical computing system, simply won't be able to read in the data in the same fashion, as it is too big to fit in memory.
+The reason for this failure lies in the memory hierarchy of computers, wherein the different forms of data storage utilised by computers have varying response times and volatility.
+Using the Dell Optiplex 5080 as a typical desktop PC build, the statistician has 16Gb of Random Access Memory (RAM) for fast main memory, to be used as a program data store; and a 256Gb Solid State Drive (SSD) for slow long-term disk  storage\cite{cornell2021standardcomp}.
+The problem can be summed up in the need for handling datasets that are too large to fit in memory.
+
+As a major and growing issue, there have been a plethora of responses over decades, and will be described in further detail in section \ref{background} below.
+None of the responses are entirely satisfactory for the working statistician, who may be reasonably posited to possess the following demands:
+
+\begin{itemize}
+        \item A platform that can enable the creation of novel models and apply them to larger-than-memory datasets.
+        \item This platform must allow interactivity.
+        \item It must be simple to use and easy to set up.
+                Ideally, as close to existing systems as possible.
+        \item It must be fast.
+        \item It must take advantage of existing large ecosystems of statistical software.
+        \item It must be robust.
+        \item It must be flexible and extensible.
+                A computational statistician may create custom classes and reasonably expect them to work well with the platform.
+\end{itemize}
+
+To this end, the use of the \texttt{R} programming language is a natural starting point.
+The means for writing software is typically through the use of a structured, high-level programming language.
+Of the myriad programming languages available, the most widespread language used for statistics is R.
+In August 2020, \texttt{R} reached it's highest rank yet of 8th in the TIOBE index, a ranking of most popular programming languages, up from ranking 73rd in December 2008\cite{tiobe2021r}.
+R also has a special relevance for this proposal, having been initially developed at the University of Auckland by Ross Ihaka and Robert Gentleman in 1991\cite{ihaka1996r}.
+
+Major developments in contemporary statistical computing are typically published alongside R code implementation, usually in the form of an R package, which is a mechanism for extending R and sharing functions.
+As of March 2021, the Comprehensive R Archive Network (CRAN) hosts over 17000 available packages\cite{team20:_r}.
+
+This project seeks to build and document the statistician's large-scale modelling platform in \texttt{R}.
+Preliminary results have been extremely encouraging to this endeavour, and are described in more detail in section \ref{curr} below, having led to the creation of the \textbf{largeScaleR} package.
+There remains plenty of future work, and this is described in section \ref{future}, with tangible goals outlined in section \ref{goals}.
+
