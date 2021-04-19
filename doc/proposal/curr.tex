@@ -29,7 +29,7 @@ Key to the flexibility is that the queue serves as a level of indirection, so th
 This flexibility, mirroring the benefits of information hiding encouraged by message-passing object-oriented programming, allows chunks to be held arbitrarily, including on multiple nodes simultaneously.
 The capacity for redundancy grants future potential for fault tolerance and resilience to nodes crashing.
 
-A major supporting component of the system's distributed architecture is the act of ``un''-referencing, also known as ``emerging'', wherein a reference is converted into it's referent.
+A major supporting component of the system's distributed architecture is the act of ``emerging'', wherein a reference is converted into it's referent.
 This takes place through directly sending serialised chunks to the requester, where methods exist to combine them.
 
 Multivariate manipulations of the data make use of emerging on the worker end, where multiple distributed objects are referenced in one single function request on a queue, and the worker must determine the appropriate alignment of chunks, including the use of R's recycling rules, before emerging all distributed objects and performing the operation.
@@ -69,7 +69,7 @@ This is then distributed to the appropriate workers and an appropriate read oper
 This is the only method mentioned enabling full parallelisation, and is general enough to be extended for access to distributed filesystems such as HDFS.
 
 Alongside distribution of the data, the user is returned a distributed object to use for referencing the distributed data.
-In the case of the third method described, this occurs near-instantly, with the data being read concurrently.
+In the case of the third method described, this occurs near-instantaneously, with the data being read concurrently.
 
 % move
 The data referenced by distributed objects can be sent from workers more simply; once established, an \texttt{emerge} method is run over a distributed object, and the underlying chunks are sent directly from the worker, to be combined at the master end.

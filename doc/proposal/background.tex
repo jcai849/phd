@@ -1,12 +1,7 @@
 So there is more data, more data storage, far more powerful processing ability, and all are on an exponential path of growth, with standardly available RAM remaining far from capable of servicing the deluge of data made possible by all of this growth\cite{sutter2005free}.
-The problem of larger-than-memory datasets is certainly not going away.
+The problem of larger-than-memory datasets is certainly not diminishing.
 
-To put the growth of data storage capacity in perspective, by one measure information storage capacity has grown at a compound annual rate of 23\% per capita over recent decades\cite{hilbert2011world}.
-In spite of such massive growths in storage capacity, they are far outstripped by computational capacity over time \cite{fontana2018moore}.
-Specifically, the number of components comprising an integrated circuit for computer processing have been exponentially increasing, with an additional exponential decrease in their cost\cite{moore1975progress}.
-This observation, known as Moore's Law, has been the root cause for much of computational advancement over the past half-century.
-The corresponding law for computer storage posits increase in bit density of storage media along with corresponding decreases in price, which has been found to track lower than expected by Moore's law metrics\cite{hilbert2011world}.
-In more recent years, the use of these additional transistors in the CPU has been focussed not so much on increased clock speed as was the case pre-2003, but the focus has shifted to multicore processing, for speed has met it's limiting factors in the heat produced and power consumed\cite{sutter2005free}.
+In recent years, the use of the additional transistors in the CPU has been focussed not so much on increased clock speed as was the case pre-2003, instead with a greater emphasis on multicore processing, for speed has met it's limiting factors in the heat produced and power consumed\cite{sutter2005free}.
 
 Software techniques are the best solution to the problem that hardware enables, as there is no alternative shy of investing in supercomputers, something far out of reach of most individuals and organisations.
 The software solution includes the programming in the little, to take advantage of greater hardware support for concurrency, as well as the design of systems that are architected in such a fashion as to surmount constraints in hardware capacity.
@@ -15,7 +10,7 @@ This project puts greater focus on the latter.
 The study of systems capable of handling larger-than-memory data extends back decades, and spans a very broad literature.
 Of utmost relevance to this project are modern systems with statistical capabilities.
 The approaches can be roughly divided into two main categories: local, and distributed.
-Local systems make of a single computer for data processing, taking advantage of the larger data storage capacity of disk, and often making use of parallel processing.
+Local systems make use of a single computer for data processing, taking advantage of the larger data storage capacity of disk, and often making use of parallel processing.
 
 Distributed systems spread the data load across multiple computers.
 Though more complex, they tend to be faster and more capable when working with larger data, due to the greater parallelism afforded, as well as the larger pool of main memory available.
@@ -75,18 +70,18 @@ With this in place, some of the main approaches to handling large-scale data can
 
 \subsection{Local Systems}
 
-In the space of local solutions, offloading additional data to disk is the central solution.
+In the space of local solutions, offloading additional data to disk is a common solution.
 This is best illustrated through the \textbf{disk.frame} package, developed by Dai ZJ.
 \textbf{disk.frame} provides an eponymously named dataframe replacement class, which is able to represent a data  set far larger than RAM, constrained now only by disk size\cite{zj20}.
 It's mechanism of action is to use chunks of data on disk, and provide a variety of methods taking advantage of data.frame generics, including \textbf{dplyr} and \textbf{data.table} functions.
 disk.frames are actually references to compressed files in a filesystem directory on disk, with each file serving as a chunk.
-Operation is given through manipulation of each chunk separately, loading a constrained number of chunks into RAM at a time, sparing the computer from dealing with a single monolithic file\cite{zj19:_inges_data}.
+Operations ae performed through manipulation of each chunk separately, loading a constrained number of chunks into RAM at a time, sparing the computer from dealing with a single monolithic file\cite{zj19:_inges_data}.
 As mentioned above, this breaks down at scale, with the transfer of data from disk to RAM and back being far too slow for anything particularly big.
 
 The chunking and loading strategy also finds it's way into statistical models.
 \textbf{disk.frame} also offers an aspect of this, with linear modelling and generalised linear modelling functions calling the \textbf{biglm} package, which builds models a chunk at a time.
 
-It is also worth bearing in mind that parallelism manifests itself within the single computer and works well for chunk processing.
+It is also worth noting that parallelism may be manifested within a single computer and works well for chunk processing.
 A number of \textbf{R} packages, \textbf{disk.frame} included, take advantage of various parallel strategies in order to process large datasets efficiently.
 \textbf{multicore} is one such package, now subsumed into the \textbf{parallel} package, that grants functions that can make direct use of multiprocessor systems, thereby reducing the processing time in proportionality to the number of processors available on the system.
 
