@@ -1,0 +1,22 @@
+To improve upon the preliminary results and other systems, there have been several problem-areas that are planned to be worked upon.
+
+The \textbf{largeScaleR} package will benefit from additional features.
+
+For it to function as well as any other distributed system, it must exhibit fault tolerance.
+This is needed in every large system, as each machine that comprises it may fail with some probability \(p\).
+A system with \(n\) machines will fail with probability \(1-(1-p)^n\), and the system will almost certainly fail as \(n \to \infty\), for any \(0 < p \leq 1\) as may be expected in reality.
+Thus redundancy and toleration of machine faults is essential at scale.
+This is possible to implement in \textbf{largeScaleR} without any major rewrite, as it has been architected with fault tolerance in mind.
+
+More efficient memory usage will serve to improve the efficiency of the system.
+With memory being the motivating constraint, improvements on software usage of it translate to a more efficient system in the large.
+As the system currently stands, there is some intelligent caching being performed, but it can stand to have at least half of the current memory footprint, particularly through further work on supporting packages, which this project can contribute to.
+Such external contributions serve to aid not only the \textbf{largeScaleR} package, but the state of computational statistics and the open source community in general.
+
+Interfacing with other systems is another important feature that will require more work.
+HDFS is one example among many filesystems, such as EFS, which are already widely used in the sphere of big data, and present a useful opportunity to provide a native interface.
+Hadoop may also be interfaced with in MapReduce jobs, whether for populating data or serving as a portion of processing - this remains to be explored in detail, and is certain to offer a far higher ease-of-use to those with data already within these systems.
+
+All of these features are meaningless if they are not demonstrated and published, and to that end, the goal of publishing the \textbf{largeScaleR} package on CRAN has been set.
+This will be co-ordinated with articles relating to testing the package at large scale.
+Such an article or technical report may include benchmarking a novel analysis on the platform with real-world data at a scale of 64+ nodes and 100Gb+ data source size.

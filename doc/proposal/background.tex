@@ -93,6 +93,46 @@ A number of \textbf{R} packages, \textbf{disk.frame} included, take advantage of
 \subsection{Distributed Systems}
 
 At some stage however, the data gets too big for one computer.
-When this is the case, a variety of distributed systems approaches have been put forward.
+When this is the case, a variety of distributed system approaches have been put forward.
+
+This section of the field is heavily dominated by major existing systems outside of R, so most current approaches serve as basic interfaces to the external system, complete with all of the expected abstraction leaks\cite{spolsky2002abstraction}.
+
+Of the few systems which are unique to \textbf{R}, the \textbf{SNOW} (Simple Network Of Workstations) package stands out composing part of the \textbf{parallel} package, which is contained in the standard \textbf{R} image.
+\textbf{SNOW} provides support for distributed computing over a simple network of compputers.
+The general architecture of \textbf{SNOW} makes use of a master process that holds the data and launches the cluster, pushing the data to worker processes that operate upon it and return the results to the master.
+\textbf{SNOW} makes use of several different communications mechanisms, including ssh and user-given sockets.
+It's greatest shortcoming is the lack of persistent data, and it is not geared to very large datasets.
+
+The two dominant external-based packages in \textbf{R} revolve around the \textbf{MPI} system, and \textbf{Spark}.
+
+\textbf{pbdR} is a package making use of \textbf{MPI}.
+The \textbf{pbdR} (programming with big data in R) project provides persistent data, with the \textbf{pbdDMAT} (programming with big data Distributed MATrices) package offering a user-friendly distributed matrix class to program with over a distributed system.
+This abstraction breaks down with complexity, and a deep understanding of the powerful \textbf{MPI} system is eventually required, a task out of the league of most practicing statisticians.
+
+\textbf{Spark} sees it's central interface in \textbf{R} through the \textbf{Sparklyr} package, which combines common \textbf{dplyr} methods with objects representing \textbf{Spark} dataframes.
+Simple analyses are made very simple (assuming a well-configured and already running \textbf{Spark} instance), but custom iterative models are extremely difficult to create through the package in spite of \textbf{Spark's} support for it.
+
+In the search for a distributed system for statistics, the world outside of R is not entirely barren.
+The central issue with non-R distributed systems is that their focus is very obviously not statistics, and this shows in the level of support the platforms provide for statistical purposes.
+
+\textbf{Hadoop} is a system predating and influencing \textbf{Spark}.
+The project is a collection of utilities that facilitates cluster computing.
+Jobs can be sent for parallel processing on the cluster directly to the utilities using .jar files, ``streamed'' using any executable file, or accessed through language-specific APIs.
+Hadoop consists of a file-store component, known as Hadoop Distributed File System (HDFS), and a processing component, known as MapReduce.
+The processing model is powerful, though incapable of the rapid iteration required in complex models.
+However, the filesystem is widely used and provides an effective interface to large datasets.
+
+In \textbf{Python}, the closest match to a high-level distributed system that could have statistical application is given by the python library \textbf{dask}\cite{rocklin2015dask}.
+\textbf{dask} offers dynamic task scheduling through a central task graph, as well as a set of classes that encapsulate standard data manipulation structures such as NumPy arrays and Pandas dataframes.
+The main difference is that the \textbf{dask} classes take advantage of the task scheduling, including online persistence across multiple nodes.
+\textbf{dask} is a large and mature library, catering to many use-cases, and exists largely in the Pythonic ``Machine Learning'' culture in comparison to the R ``Statistics'' culture.
+Accordingly, the focus is more tuned to the Python software developer putting existing ML models into a large-scale capacity.
+Of all the distributed systems assessed so far, \textbf{dask} comes the closest to what an ideal platform would look like for a statistician, but it misses out on the statistical ecosystem of R, provides only a few select classes, and is tied entirely to the structure of the task graph.
 
 \subsection{Evaluation}
+
+The task of modelling over larger-than-memory data has a rich history of attempts to provide a solution.
+For the requirements listed in section \ref{intro}, none of these come close to providing a satisfactory solution, though ironically the python library \textbf{dask} may come the closest.
+The approaches put forward often do solve problems as defined otherwise, but all are either too cumbersome, incapable of handling large datasets, non-persistent, non-interactive, outside of the statistical ecosystem, excessively tied to their architecture, or all of the above.
+The \textbf{largeScaleR} package is already performing better than some of the surveyed approaches, and section \ref{curr} will outline what has already been demonstrated in the prototype.
+
