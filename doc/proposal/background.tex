@@ -13,14 +13,14 @@ The approaches can be roughly divided into two main categories: local, and distr
 Local systems make use of a single computer for data processing, taking advantage of the larger data storage capacity of disk, and often making use of parallel processing.
 
 Distributed systems spread the data load across multiple computers.
-Though more complex, they tend to be faster and more capable when working with larger data, due to the greater parallelism afforded, as well as the larger pool of main memory available.
+Though more complex, they tend to be faster and more capable when working with larger data, due to the greater parallelism afforded, as well as the larger pool of main memory available\cite{foster1995parallel}.
 
 A common local solution is to just treat disk memory as an extension of RAM, as working memory.
-Some systems do make use of this approach, and will be examined below, but this is a non-starter for truly large data, as it is orders of magnitude slower than if the dataset were being held in RAM.
+Some systems do make use of this approach, and will be examined below, but this is a non-starter for truly large data, as it is orders of magnitude slower than if the dataset were being held in RAM\cite{alpern1994memhierarchy}.
 The key to a distributed approach, as well as some aspects of local approaches, is taking advantage of parallelisation, for both processing and memory advantages.
 
 Parallelisation is a well-trod field, despite the multicore offering in consumer computers being a relatively recent trend.
-To parallelise is to engage in many computations simultaneously - this typically takes the form of either task parallelism, wherein tasks are distributed across different processors; data parallelism, where the same task operates on different pieces of data across different processors; or some mix of the two.
+To parallelise is to engage in many computations simultaneously - this typically takes the form of either task parallelism, wherein tasks are distributed across different processors; data parallelism, where the same task operates on different pieces of data across different processors; or some mix of the two\cite{subhlok1993exploiting}.
 Parallelism can afford major speedups, albeit with certain limitations.
 Amdahl's law, formulated in 1967, aims to capture the speedup limitations, with a model derived from the argument given below in formula \ref{amdahlsform}\cite{amdahl1967law}\cite{gustafson1988law}:
 
@@ -40,7 +40,7 @@ Where,
 
 The implication is that speedup of an entire task when parallelised is granted only through the portion of the task that is otherwise constrained by singular system resources, at the proportion of execution time spent in that task.
 Thus a measure of skepticism is contained in Amdahl's argument, with many tasks predicted to show no benefit to parallelise - and in reality, some likely to slow down with increased overhead given in parallelisation.
-The major response to the skepticism of Amdahl's law is given by Gustafson's law, generated from timing results in a highly parallelised system.
+The major response to the skepticism of Amdahl's law is given by Gustafson's law, generated from timing results in a highly parallelised system\cite{gustafson1988law}.
 Gustafson's law presents a scaled speedup as per equation \ref{gustafsonsform}
 
 \begin{equation}
@@ -62,9 +62,9 @@ Such a problem is one where the separation into parallel tasks is trivial, such 
 Many problems in statistics fall into this category, such as tabulation, monte-carlo simulation and many matrix manipulation tasks.
 
 When applied to the distributed world, some additional terminology is made use of.
-In networks, individual computers are referred to as \textit{nodes}, and a distributed system will be said to take advantage of some number of nodes.
+In networks, individual computers are referred to as \textit{nodes}, and a distributed system will be said to take advantage of some number of nodes\cite{kleppmann2017dataintensive}.
 The pieces of data that are split up and distributed over the nodes are referred to as \textit{chunks} or \textit{shards}, among a variety of other names, though \textit{chunks} are the term made use of in this and successive documents.
-Finally, a programming reference to these chunks can take the form of a \textit{distributed object}, which serves as an object-oriented interface to enable data manipulation via chunk manipulation at varying degrees of transparency.
+Finally, a programming reference to these chunks can take the form of a \textit{distributed object}, which serves as an object-oriented interface to enable data manipulation via chunk manipulation at varying degrees of transparency\cite{emmerich2000engineering}.
 
 With this in place, some of the main approaches to handling large-scale data can be explored in detail.
 
@@ -79,11 +79,11 @@ Operations ae performed through manipulation of each chunk separately, loading a
 As mentioned above, this breaks down at scale, with the transfer of data from disk to RAM and back being far too slow for anything particularly big.
 
 The chunking and loading strategy also finds it's way into statistical models.
-\textbf{disk.frame} also offers an aspect of this, with linear modelling and generalised linear modelling functions calling the \textbf{biglm} package, which builds models a chunk at a time.
+\textbf{disk.frame} also offers an aspect of this, with linear modelling and generalised linear modelling functions calling the \textbf{biglm} package, which builds models a chunk at a time\cite{lumley13}.
 
 It is also worth noting that parallelism may be manifested within a single computer and works well for chunk processing.
 A number of \textbf{R} packages, \textbf{disk.frame} included, take advantage of various parallel strategies in order to process large datasets efficiently.
-\textbf{multicore} is one such package, now subsumed into the \textbf{parallel} package, that grants functions that can make direct use of multiprocessor systems, thereby reducing the processing time in proportionality to the number of processors available on the system.
+\textbf{multicore} is one such package, now subsumed into the \textbf{parallel} package, that grants functions that can make direct use of multiprocessor systems, thereby reducing the processing time in proportionality to the number of processors available on the system\cite{team20:_r}.
 
 \subsection{Distributed Systems}
 
@@ -92,7 +92,7 @@ When this is the case, a variety of distributed system approaches have been put 
 
 This section of the field is heavily dominated by major existing systems outside of R, so most current approaches serve as basic interfaces to the external system, complete with all of the expected abstraction leaks\cite{spolsky2002abstraction}.
 
-Of the few systems which are unique to \textbf{R}, the \textbf{SNOW} (Simple Network Of Workstations) package stands out composing part of the \textbf{parallel} package, which is contained in the standard \textbf{R} image.
+Of the few systems which are unique to \textbf{R}, the \textbf{SNOW} (Simple Network Of Workstations) package stands out composing part of the \textbf{parallel} package, which is contained in the standard \textbf{R} image\cite{tierney18}.
 \textbf{SNOW} provides support for distributed computing over a simple network of compputers.
 The general architecture of \textbf{SNOW} makes use of a master process that holds the data and launches the cluster, pushing the data to worker processes that operate upon it and return the results to the master.
 \textbf{SNOW} makes use of several different communications mechanisms, including ssh and user-given sockets.
@@ -100,17 +100,17 @@ It's greatest shortcoming is the lack of persistent data, and it is not geared t
 
 The two dominant external-based packages in \textbf{R} revolve around the \textbf{MPI} system, and \textbf{Spark}.
 
-\textbf{pbdR} is a package making use of \textbf{MPI}.
-The \textbf{pbdR} (programming with big data in R) project provides persistent data, with the \textbf{pbdDMAT} (programming with big data Distributed MATrices) package offering a user-friendly distributed matrix class to program with over a distributed system.
+\textbf{pbdR} is a package making heavy use of \textbf{MPI}\cite{pbdR2012}.
+The \textbf{pbdR} (programming with big data in R) project provides persistent data, with the \textbf{pbdDMAT} (programming with big data Distributed MATrices) package offering a user-friendly distributed matrix class to program with over a distributed system\cite{pbdDMATpackage}.
 This abstraction breaks down with complexity, and a deep understanding of the powerful \textbf{MPI} system is eventually required, a task out of the league of most practicing statisticians.
 
-\textbf{Spark} sees it's central interface in \textbf{R} through the \textbf{Sparklyr} package, which combines common \textbf{dplyr} methods with objects representing \textbf{Spark} dataframes.
+\textbf{Spark} sees it's central interface in \textbf{R} through the \textbf{Sparklyr} package, which combines common \textbf{dplyr} methods with objects representing \textbf{Spark} dataframes\cite{luraschi20}.
 Simple analyses are made very simple (assuming a well-configured and already running \textbf{Spark} instance), but custom iterative models are extremely difficult to create through the package in spite of \textbf{Spark's} support for it.
 
 In the search for a distributed system for statistics, the world outside of R is not entirely barren.
 The central issue with non-R distributed systems is that their focus is very obviously not statistics, and this shows in the level of support the platforms provide for statistical purposes.
 
-\textbf{Hadoop} is a system predating and influencing \textbf{Spark}.
+\textbf{Hadoop} is a system predating and influencing \textbf{Spark}\cite{shvachko2010hadoop}.
 The project is a collection of utilities that facilitates cluster computing.
 Jobs can be sent for parallel processing on the cluster directly to the utilities using .jar files, ``streamed'' using any executable file, or accessed through language-specific APIs.
 Hadoop consists of a file-store component, known as Hadoop Distributed File System (HDFS), and a processing component, known as MapReduce.

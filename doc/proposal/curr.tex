@@ -14,10 +14,10 @@ This master process can then initialise other processes to perform work, dubbed 
 The worker processes are entirely independent of the master process, and none of these processes contain any information to identify other processes.
 The only mechanism these processes have to communicate is via a communication queue, which serves as theprimary mechanism behind the operation of the main conceptual pieces interacted with by a user: distributed objects.
 
-Distributed objects are a means of access to objects on a distributed system.
+Distributed objects are a means of access to objects on a distributed system\cite{emmerich2000engineering}.
 They serve as a reference that acts as a transparent handle to fragmented referents (\textit{chunks}) over a distributed system.
 They are effectively proxies, with generic methods passing on their standard form to the constituent chunks of the distributed object, returning another distributed object as reference to the return value of the methods acting on the chunks.
-The returned distributed object is given immediately, with worker processing occuring asynchronously, giving lazy, future-like, behaviour to distributed objects.
+The returned distributed object is given immediately, with worker processing occuring asynchronously, giving lazy, future-like, behaviour to distributed objects\cite{baker1977incremental}.
 
 Each chunk is a portion of data residing on some worker process.
 Each has a ``descriptor'' - some unique name that exclusively references that chunk.
@@ -29,7 +29,7 @@ Key to the flexibility is that the queue serves as a level of indirection, so th
 This flexibility, mirroring the benefits of information hiding encouraged by message-passing object-oriented programming, allows chunks to be held arbitrarily, including on multiple nodes simultaneously.
 The capacity for redundancy grants future potential for fault tolerance and resilience to nodes crashing.
 
-A major supporting component of the system's distributed architecture is the act of ``emerging'', wherein a reference is converted into it's referent.
+A major supporting component of the system's distributed architecture is the act of ``emerging'', wherein a reference is used to pull all it's referent locally\cite{emmerich2000engineering}.
 This takes place through directly sending serialised chunks to the requester, where methods exist to combine them.
 
 Multivariate manipulations of the data make use of emerging on the worker end, where multiple distributed objects are referenced in one single function request on a queue, and the worker must determine the appropriate alignment of chunks, including the use of R's recycling rules, before emerging all distributed objects and performing the operation.
@@ -37,7 +37,7 @@ Multivariate manipulations of the data make use of emerging on the worker end, w
 Distributed objects stand-in for regular R objects, and can represent any class that has split and combine methods defined.
 These include all atomic vectors, lists, dataframes, matrices, and arbitrary user-created classes.
 
-Another key aspect to the architecture of the system is detailed logging, with all changes of state in a node recorded and the information dispatched to a central logger, which allows monitoring of the system in one location. The collection of logs is sufficient to build a complete picture of the system, with a Model-View-Controller pattern in an external program able to parse the logs, calculate system state, and display that in a simple interface.
+Another key aspect to the architecture of the system is detailed logging, with all changes of state in a node recorded and the information dispatched to a central logger, which allows monitoring of the system in one location. The collection of logs is sufficient to build a complete picture of the system, with a Model-View-Controller pattern in an external program able to parse the logs, calculate system state, and display that in a simple interface\cite{gamma1995design}.
 
 \subsection{System Interface}
 
@@ -57,8 +57,8 @@ Upon successfully running the cluster, all processes involved will log any chang
 % in
 Data is initialised in the system through several different pathways.
 The most straightforward for the user is to take existing data in an R session, and run a package-provided method on the data to distribute and form a reference to it.
-This serves to distribute the data as chunks across a number of worker processes, commonly referred to as ``scattering'' in MPI parlance.
-This is a similar interface to that of the \textbf{SNOW} package.
+This serves to distribute the data as chunks across a number of worker processes, commonly referred to as ``scattering'' in MPI parlance\cite{walker1996mpi}.
+This is a similar interface to that of the \textbf{SNOW} package\cite{tierney18}.
 While good for medium-sized data and demonstration purposes, it is unrealistic in that by definition, very large data is unable to fit in the memory of the master R session for it to be sent out.
 
 Therefore a more standard method of initialisation when data originates from local disk is to use a package-provided reading function that streams raw data from a \texttt{csv} file or similar from disk through a root communications queue and into all workers.
@@ -85,30 +85,26 @@ Alternatively, an extra layer of control is granted to the user looking for more
 functionality inspired by the \texttt{do.call} function in R allows passing anonymous or existing functions, along with a list of distributed and potentially local data, and the provided functions are run over the referent data pointed to by the distributed objects.
 A distributed object referring to the results is returned.
 This is actually how most of the transparent methods were implemented, with the distributed \texttt{do.call} serving as an intermediary.
-Such a technique is equivalent to a Map, with a reduce also possible through either reducing at the worker end, in parallel, or even followed by an \texttt{emerge} and local reduction.
+Such a technique is equivalent to a Map, with a reduce also possible through either reducing at the worker end, in parallel, or even followed by an \texttt{emerge} and local reduction\cite{mccool2012structured}.
 
 \subsection{System Implementation}\label{sec:sys-imp}
 
 A more advanced user looking to extend or gain further understanding of the system would benefit from the knowledge of how the system is implemented.
 
-% depends: redis, osrv, ulog, iotools
 LargeScaleR is written with minimal dependencies, but takes strong advantage of the four packages it uses.
-For interprocess communication, \textbf{rediscc} is used to connect to a redis server to enable queueing.
+For interprocess communication, \textbf{rediscc} is used to connect to a redis server to enable queueing\cite{rediscc}.
 It operates extremely quickly and efficiently, with minimal overhead.
-The movement of objects directly, as in \texttt{emerge} calls, takes advantage of the \textbf{osrv} package, which is specialised for rapid movement of R objects.
-Logging takes advantage of \textbf{ulog}, which outputs log messages in the standard syslog format.
+The movement of objects directly, as in \texttt{emerge} calls, takes advantage of the \textbf{osrv} package, which is specialised for rapid movement of R objects\cite{osrv}.
+Logging takes advantage of \textbf{ulog}, which outputs log messages in the standard syslog format\cite{ulog}.
 The \textbf{ulog} package also provides a log listening daemon.
-\textbf{iotools} is used in the streaming and parsing of raw files in storage, as in the local file read mentioned above.
+\textbf{iotools} is used in the streaming and parsing of raw files in storage, as in the local file read mentioned above\cite{iotools}.
 The dependencies have been checked and found to have no licensing issues, all possessing very free open-source licenses.
 
-% init
-The cluster is initialised using \textbf{ssh}, controlled by a programmable (sourced) configuration file at the master process.
+The cluster is initialised using \textbf{ssh}, controlled by a programmable (sourced) configuration file at the master process\cite{ylonen2006secure}.
 
-% msg
 Communication between processes uses Redis queues, with blocking pop operations to read from them.
 An S3 ``message'' class was defined in LargeScaleR to standardise communication between nodes and is the only accepted form of message to be placed and parsed from a queue.
 
-% request
 Distributed objects have type ``environment'' in R, and are given S3 classes.
 This is to take advantage of the mutability of environments, enabling local caching of distributed objects no matter where in the stack.
 When making a request for a function to be performed on the data underlying a distributed object, the requesting process (usually master) will run a distributed \texttt{do.call} analogue, which sends the function and distributed objects wrapped in a serialised message to the queues corresponding to the descriptors of the chunks constituent to the target distributed object - if there are multiple distributed objects, currently the largest of them is chosen, but this can be generalised to any target function, including more advanced distributed scheduling.
