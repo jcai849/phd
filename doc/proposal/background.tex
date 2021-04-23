@@ -9,64 +9,43 @@ This project puts greater focus on the latter.
 
 The study of systems capable of handling larger-than-memory data extends back decades, and spans a very broad literature.
 Of utmost relevance to this project are modern systems with statistical capabilities.
-The approaches can be roughly divided into two main categories: local, and distributed.
-Local systems make use of a single computer for data processing, taking advantage of the larger data storage capacity of disk, and often making use of parallel processing.
+The approaches can be roughly divided into two main categories: distributed, and local.
 
 Distributed systems spread the data load across multiple computers.
-Though more complex, they tend to be faster and more capable when working with larger data, due to the greater parallelism afforded, as well as the larger pool of main memory available\cite{foster1995parallel}.
+Though more complex than keeping everything on one computer, they can to be faster and more capable when working with larger data, due to the greater parallelism afforded, as well as the larger pool of main memory available\cite{foster1995parallel}.
 
-A common local solution is to just treat disk memory as an extension of RAM, as working memory.
-Some systems do make use of this approach, and will be examined below, but this is a non-starter for truly large data, as it is orders of magnitude slower than if the dataset were being held in RAM\cite{alpern1994memhierarchy}.
-The key to a distributed approach, as well as some aspects of local approaches, is taking advantage of parallelisation, for both processing and memory advantages.
-
-Parallelisation is a well-trod field, despite the multicore offering in consumer computers being a relatively recent trend.
-To parallelise is to engage in many computations simultaneously - this typically takes the form of either task parallelism, wherein tasks are distributed across different processors; data parallelism, where the same task operates on different pieces of data across different processors; or some mix of the two\cite{subhlok1993exploiting}.
-Parallelism can afford major speedups, albeit with certain limitations.
-Amdahl's law, formulated in 1967, aims to capture the speedup limitations, with a model derived from the argument given below in formula \ref{amdahlsform}\cite{amdahl1967law}\cite{gustafson1988law}:
-
-\begin{equation}
-        \label{amdahlsform}
-        \textrm{Speedup} = \frac{1}{s+\frac{p}{N}}
-\end{equation}
-
-Where,
-
-\begin{itemize}
-        \item \(Speedup\) total speedup of whole task
-        \item \(s\) time spend by serial processor on inherently serial part of program
-        \item \(p\) time spent by serial processor on parallelisable part of program
-        \item \(N\) number of processors
-\end{itemize}
-
-The implication is that speedup of an entire task when parallelised is granted only through the portion of the task that is otherwise constrained by singular system resources, at the proportion of execution time spent in that task.
-Thus a measure of skepticism is contained in Amdahl's argument, with many tasks predicted to show no benefit to parallelise - and in reality, some likely to slow down with increased overhead given in parallelisation.
-The major response to the skepticism of Amdahl's law is given by Gustafson's law, generated from timing results in a highly parallelised system\cite{gustafson1988law}.
-Gustafson's law presents a scaled speedup as per equation \ref{gustafsonsform}
-
-\begin{equation}
-        \label{gustafsonsform}
-        \textrm{Scaled speedup} = s' + p'N = N + (1-N)s'
-\end{equation}
-
-Where,
-
-\begin{itemize}
-        \item \(s'\) serial time spent on the parallel system
-        \item \(p'\) parallel time spent on the parallel system
-\end{itemize}
-
-This law implies far higher potential parallel speedup, varying linearly with the number of processors.
-
-An example of an ideal task for parallelisation is the category of embarassingly parallel workload.
-Such a problem is one where the separation into parallel tasks is trivial, such as performing the same operation over a dataset independently\cite{foster1995parallel}.
-Many problems in statistics fall into this category, such as tabulation, monte-carlo simulation and many matrix manipulation tasks.
-
-When applied to the distributed world, some additional terminology is made use of.
+Some additional terminology is made use of in distributed systems.
 In networks, individual computers are referred to as \textit{nodes}, and a distributed system will be said to take advantage of some number of nodes\cite{kleppmann2017dataintensive}.
 The pieces of data that are split up and distributed over the nodes are referred to as \textit{chunks} or \textit{shards}, among a variety of other names, though \textit{chunks} are the term made use of in this and successive documents.
 Finally, a programming reference to these chunks can take the form of a \textit{distributed object}, which serves as an object-oriented interface to enable data manipulation via chunk manipulation at varying degrees of transparency\cite{emmerich2000engineering}.
 
-With this in place, some of the main approaches to handling large-scale data can be explored in detail.
+Local systems make use of a single computer for data processing, taking advantage of the larger data storage capacity of disk, and often making use of parallel processing.
+
+A common local solution is to just treat disk memory as an extension of RAM, as working memory.
+Some systems do make use of this approach, and will be examined below, but this is a non-starter for complex analyses on truly large data, as it is orders of magnitude slower than if the dataset were being held in RAM\cite{alpern1994memhierarchy}.
+The key to a distributed approach, as well as some aspects of local approaches, is taking advantage of parallelisation, for both processing and memory advantages.
+
+To parallelise is to engage in many computations simultaneously - this typically takes the form of either task parallelism, wherein tasks are distributed across different processors; data parallelism, where the same task operates on different pieces of data across different processors; or some mix of the two\cite{subhlok1993exploiting}.
+Parallelism can afford major speedups, albeit with certain limitations.
+Amdahl's law and Gustafson's law are two relevent attempts to capture the limitations of such a form of computing, with both pointing to the limitations imposed by inherently serial (non-parallel) portions of a program, as well as the diminishing returns offered by additional CPU's made available to the system \cite{amdahl1967law}\cite{gustafson1988law}.
+
+An example of an ideal task for parallelisation is the category of embarassingly parallel workload.
+Such a problem is one where the separation into parallel tasks is trivial, such as performing the same operation over a dataset independently\cite{foster1995parallel}.
+Many problems in statistics fall into this category, such as tabulation, monte-carlo simulation and many matrix manipulation tasks.
+With 16 processors, the 160 million rows of the aforementioned flights dataset may have each processor simultaneously working on 10 million rows each, giving a potential order-of-magnitude speedup.
+
+The tension between choosing local systems for large-scale data, versus distributed systems typically lies in the slowdowns and opportunities introduced by complexity.
+In favour of local systems for large data, the complexity is significantly lower.
+Everything is already in one location, with possibly shared memory, as well as the advantages of coscheduling allowing parallel streams to be automated.
+One famous demonstration of standard UNIX tools on a single machine found a 235-fold speedup in attaining simple summary statistics on a 3.5 Gb dataset, over using a Hadoop cluster to perform the same\cite{drake2014cltvscluster}.
+The parallel stream approach common to a local system typically has a very minimal memory footprint, with all components of the system close enough together that data movement between RAM and disk is still fast enough.
+However, such an approach falls down when greater flexibility is required.
+For one-pass data manipulation it remains valid and indeed a preferable approach, but for complex analyses involving iteration and very large datasets that demand real-time interactivity, the data is far better-off in RAM, with RAM speed sitting orders of magnitude above that of even the fastest available SSD's\cite{kim201923}\cite{samsung2020SSD}.
+
+This leads to the benefits offered by a distributed system.
+Among them, the fact that all working data can potentially be held in RAM across disparate computers can lead to major speedups, with the caveat being that data movement between machines should ideally be minimised in order to maintain high speed.
+For long-running processes, the slowdown from initial data movement may be rendered minor in comparison with the greater speeds gained through keeping and manipulating in-memory (``online'') data\cite{emmerich2000engineering}.
+The risk of a total-system crash is also mitigated to a greater extent with distributed systems, as the additional computers may be used for redundancy, allowing one computer to go down but the system to keep running - even with backups, this is not possible in a single-computer system.
 
 \subsection{Local Systems}
 
@@ -76,7 +55,7 @@ This is best illustrated through the \textbf{disk.frame} package, developed by D
 It's mechanism of action is to use chunks of data on disk, and provide a variety of methods taking advantage of data.frame generics, including \textbf{dplyr} and \textbf{data.table} functions.
 disk.frames are actually references to compressed files in a filesystem directory on disk, with each file serving as a chunk.
 Operations ae performed through manipulation of each chunk separately, loading a constrained number of chunks into RAM at a time, sparing the computer from dealing with a single monolithic file\cite{zj19:_inges_data}.
-As mentioned above, this breaks down at scale, with the transfer of data from disk to RAM and back being far too slow for anything particularly big.
+As mentioned above, this breaks down at scale, with the transfer of data from disk to RAM and back being far too slow for anything particularly big if used for anything more complex than single-pass statistics.
 
 The chunking and loading strategy also finds it's way into statistical models.
 \textbf{disk.frame} also offers an aspect of this, with linear modelling and generalised linear modelling functions calling the \textbf{biglm} package, which builds models a chunk at a time\cite{lumley13}.

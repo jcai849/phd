@@ -10,12 +10,14 @@ The corresponding law for computer storage posits increase in bit density of sto
 Such differentials between the generation of data, computational capacity for data processing, and constraints on data storage, have forced new techniques in computing for the analysis of large-scale data.\\
 
 The statistician working with large datasets is particularly constrained by the forces of increased memory and processing power, along the more overwhelming aspect of increased dataset size.
-To take a concrete example of the problem, consider how a statistician may attempt to fit a novel model for a dataset consisting of roughly 165 million flight datapoints\cite{bot2009flights}, using methods and computational facilities typical to a small dataset.
+To take a concrete example of the problem, consider how a statistician may attempt to fit a novel model for a dataset consisting of roughly 160 million flight datapoints\cite{bot2009flights}, using methods and computational facilities typical to a small dataset.
 This is actually a small dataset compared to many other large datasets, yet it is still not possible to perform an analysis in the same manner as would usually be conducted on small-scale datasets.
 \texttt{R}, or any other common statistical computing system, simply won't be able to read in the data in the same fashion, as it is too big to fit in memory.
 The reason for this failure lies in the memory hierarchy of computers, wherein different forms of data storage utilised by computers have varying response times and volatility.
-Using the Dell Optiplex 5080 as a typical desktop PC build, the statistician has 16Gb of Random Access Memory (RAM) for fast main memory, to be used as a program data store; and a 256Gb Solid State Drive (SSD) for slow long-term disk  storage\cite{cornell2021standardcomp}.
-The problem can be summed up in the need for handling datasets that are too large to fit in memory.
+Using the Dell Optiplex 5080 as a typical desktop PC build, the statistician has 16Gb of Random Access Memory (RAM) for fast main memory, to be used as a program data store; and a 256Gb Solid State Drive (SSD) for slower long-term disk  storage\cite{cornell2021standardcomp}.
+The referenced dataset takes up roughly 12 Gb on disk, increasing to 16 Gb when read into \texttt{R} - simultaneously competing for space with the operating system, which may be 8 Gb in the case of Windows 10, there just isn't enough space on standard RAM to fit everything, and will either crash \texttt{R} or leach out into swap space on disk as on a UNIX system, which is extremely slow and unstable (a situation known as ``thrashing'')\cite{denning1968thrashing}.
+Furthermore, even if the dataset was halved in size and able to be read into \texttt{R} or whichever other program used for modelling, operations on the dataset will necessarily use more memory, with modelling potentially creating complete copies of data, the memory available would quickly be exceeded.
+The problem can be summed up in the need for real-time handling of datasets that are too large to fit in memory.
 
 As a major and growing issue, there have been a plethora of responses over decades, and will be described in further detail in section \ref{background} below.
 None of the responses are entirely satisfactory for the statistician working with large datasets, who may be reasonably posited to possess the following demands:
