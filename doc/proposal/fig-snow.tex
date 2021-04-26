@@ -1,0 +1,26 @@
+\begin{figure}[h!]
+        \centering
+        \begin{tikzpicture}
+                \node[object] (c) {object split and distributed};
+
+		\node[proc,right=of c] (ci) {chunk 1};
+                \node[proc,below=of ci] (cii) {chunk 2};
+                \node[proc,below=of cii] (ciii) {chunk 3};
+                \node[proc,below=of ciii] (civ) {chunk 4};
+
+                \begin{pgfonlayer}{units}
+			\node[unit,fit=(c),label={Master process}] (p) {};
+			\node[unit,fit=(ci),label={Worker process 1}] (p1) {};
+			\node[unit,fit=(cii),label={Worker process 2}] (p2) {};
+			\node[unit,fit=(ciii),label={Worker process 3}] (p3) {};
+			\node[unit,fit=(civ),label={Worker process 4}] (p4) {};
+                \end{pgfonlayer}
+
+                \draw[mypath] (p.east) -- (p1.west);
+                \draw[mypath] (p.south) -- (p2.west);
+                \draw[mypath] (p.south) -- (p3.west);
+                \draw[mypath] (p.south) -- (p4.west);
+        \end{tikzpicture}
+	\caption{\label{fig:snow} \textbf{SNOW} architecture with four chunks}
+\end{figure}
+

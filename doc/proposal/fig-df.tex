@@ -1,0 +1,31 @@
+\begin{figure}[h!]
+        \centering
+        \begin{tikzpicture}
+                \node[object] (cri) {chunk 1};
+                \node[object,below=of cri] (crii) {chunk 2};
+                \node[object,below=of crii] (criii) {chunk 3};
+                \node[object,below=of criii] (criv) {chunk 4};
+
+		\node[proc,right=of cri] (ci) {\texttt{fst} file 1};
+                \node[proc,below=of ci] (cii) {\texttt{fst} file 2};
+                \node[proc,below=of cii] (ciii) {\texttt{fst} file 3};
+                \node[proc,below=of ciii] (civ) {\texttt{fst} file 4};
+
+                \node[above=of ci] (vv) {};
+
+                \begin{pgfonlayer}{categories}
+			\node[category,fit=(cri)(crii)(criii)(criv),label={[name=distobjref]\texttt{disk.frame}}] (df) {};
+			\node[category,fit=(ci)(cii)(ciii)(civ),label={[name=distobjref]disk directory}] (dir) {};
+                \end{pgfonlayer}
+                \begin{pgfonlayer}{units}
+			\node[unit,fit=(df)(dir)(vv),label={Single Machine}] (p1) {};
+                \end{pgfonlayer}
+
+                \draw[mypath] (cri) -- (ci);
+                \draw[mypath] (crii) -- (cii);
+                \draw[mypath] (criii) -- (ciii);
+                \draw[mypath] (criv) -- (civ);
+        \end{tikzpicture}
+	\caption{\label{fig:df} \textbf{disk.frame} architecture with four chunks}
+\end{figure}
+

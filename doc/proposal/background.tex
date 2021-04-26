@@ -55,7 +55,11 @@ This is best illustrated through the \textbf{disk.frame} package, developed by D
 \textbf{disk.frame} provides an eponymously named dataframe replacement class, which is able to represent a data  set far larger than RAM, constrained only by disk size\cite{zj20}.
 It's mechanism of action is to use chunks of data on disk, and provide a variety of methods taking advantage of data.frame generics, including \textbf{dplyr} and \textbf{data.table} functions.
 disk.frames are actually references to compressed files in a filesystem directory on disk, with each file serving as a chunk.
-Operations ae performed through manipulation of each chunk separately, loading a constrained number of chunks into RAM at a time, sparing the computer from dealing with a single monolithic file\cite{zj19:_inges_data}.
+Such an architecture is represented in figure \ref{fig:df}
+
+\input{doc/proposal/fig-df}
+
+Operations are performed through manipulation of each chunk separately, loading a constrained number of chunks into RAM at a time, sparing the computer from dealing with a single monolithic file\cite{zj19:_inges_data}.
 As mentioned above, this breaks down at scale, with the transfer of data from disk to RAM and back being far too slow for anything particularly big if used for anything more complex than single-pass statistics.
 
 The chunking and loading strategy also finds it's way into statistical models.
@@ -76,6 +80,10 @@ Of the few systems which are unique to \texttt{R}, the \textbf{SNOW} (Simple Net
 It composes part of the \textbf{parallel} package, which is contained in the standard \texttt{R} image\cite{tierney18}.
 \textbf{SNOW} provides support for distributed computing over a simple network of computers.
 The general architecture of \textbf{SNOW} makes use of a master process that holds the data and launches the cluster, pushing the data to worker processes that operate upon it and return the results to the master.
+This is represented in figure \ref{fig:snow}
+
+\input{doc/proposal/fig-snow}
+
 \textbf{SNOW} makes use of several different communications mechanisms, including \texttt{ssh} and user-created sockets.
 It's greatest shortcoming is the lack of persistent data, and the mechanism of distribution employed disallows the usage of very large datasets.
 
