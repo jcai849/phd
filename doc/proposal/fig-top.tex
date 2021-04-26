@@ -1,0 +1,30 @@
+\begin{figure}[h!]
+        \centering
+        \begin{tikzpicture}
+                \node[object] (cri) {chunk reference 1};
+                \node[object,below=of cri] (crii) {chunk reference 2};
+                \node[object,below=of crii] (criii) {chunk reference 3};
+                \node[object,below=of criii] (criv) {chunk reference 4};
+
+                \node[proc,right=of cri] (ci) {chunk 1};
+                \node[proc,below=of ci] (cii) {chunk 2};
+                \node[proc,below=of cii] (ciii) {chunk 3};
+                \node[proc,right=of ciii] (civ) {chunk 4};
+
+                \begin{pgfonlayer}{categories}
+                        \node[category,fit=(cri)(crii)(criii)(criv),label={[name=distobjref]distributed object reference}] (dobj) {};
+                \end{pgfonlayer}
+                \begin{pgfonlayer}{units}
+                        \node[unit,fit=(ci),label={process 1}] (p1) {};
+                        \node[unit,fit=(cii),label={process 2}] (p2) {};
+                        \node[unit,fit=(ciii)(civ),label={process 3}] (p3) {};
+                \end{pgfonlayer}
+
+                \draw[mypath] (cri) -- (ci);
+                \draw[mypath] (crii) -- (cii);
+                \draw[mypath] (criii) -- (ciii);
+                \draw[mypath] (criv.east) -- (civ.south);
+        \end{tikzpicture}
+        \caption{\label{fig:top} Example distributed object topology}
+\end{figure}
+

@@ -1,0 +1,42 @@
+\begin{figure}[h!]
+        \centering
+        \begin{tikzpicture}
+                \node[object] (cri) {chunk reference 1}; 
+                \node[object,below=of cri] (crii) {chunk reference 2};
+                \node[object,below=of crii] (criii) {chunk reference 3};
+                \node[object,below=of criii] (criv) {chunk reference 4};
+                
+                \node[queue,right=of cri] (qi) {Queue 1};
+                \node[queue,below=of qi] (qii) {Queue 2};
+                \node[queue,below=of qii] (qiii) {Queue 3};
+                \node[queue,below=of qiii] (qiv) {Queue 4};
+                
+                \node[proc,right=of qi] (cia) {chunk 1};
+                \node[proc,below=of cia] (cib) {chunk 1};
+                \node[proc,below=of cib] (cii) {chunk 2};
+                \node[proc,below=of cii] (ciii) {chunk 3};
+                \node[proc,right=of ciii] (civ) {chunk 4};
+                
+                \begin{pgfonlayer}{categories}
+                        \node[category,fit=(cri)(crii)(criii)(criv),label={[name=distobjref]distributed object reference}] (dobj) {};
+                \end{pgfonlayer}
+                \begin{pgfonlayer}{units}
+                        \node[unit,fit=(cia),label={process 1}] (p1) {};
+                        \node[unit,fit=(cib),label={process 2}] (p2) {};
+                        \node[unit,fit=(cii),label={process 3}] (p3) {};
+                        \node[unit,fit=(ciii)(civ),label={process 4}] (p4) {};
+                \end{pgfonlayer}
+                
+                \draw[mypath] (cri) -- (qi);
+                \draw[mypath] (crii) -- (qii);
+                \draw[mypath] (criii) -- (qiii);
+                \draw[mypath] (criv) -- (qiv);
+
+                \draw[mypath] (qi.east) -- (p1.west);
+                \draw[mypath] (qi.east) -- (p2.west);
+		\draw[mypath] (qii.east) -- (p3.west);
+		\draw[mypath] (qiii.east) -- (p4.west);
+                \draw[mypath] (qiv.east) -- (p4.west);
+        \end{tikzpicture}
+        \caption{\label{fig:qtop} Example distributed object queue and redundancy topology}
+\end{figure}

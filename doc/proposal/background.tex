@@ -1,29 +1,29 @@
-So there is more data, more data storage, far more powerful processing ability, and all are on an exponential path of growth, with standardly available RAM remaining far from capable of servicing the deluge of data made possible by all of this growth\cite{sutter2005free}.
+There is more data, more data storage, far more powerful processing ability, and all are on an exponential path of growth, with standardly available RAM remaining far from capable of servicing the deluge of data made possible by all of this growth\cite{sutter2005free}.
 The problem of larger-than-memory datasets is certainly not diminishing.
 
-In recent years, the use of the additional transistors in the CPU has been focussed not so much on increased clock speed as was the case pre-2003, instead with a greater emphasis on multicore processing, for speed has met it's limiting factors in the heat produced and power consumed\cite{sutter2005free}.
+In recent years, the use of the additional transistors in the CPU has been focussed not so much on increased clock speed as was the case pre-2003, instead granting a greater emphasis on multicore processing, for speed has met it's limiting factors in the excessive heat produced and power consumed\cite{sutter2005free}.
 
 Software techniques are the best solution to the problem that hardware enables, as there is no alternative shy of investing in supercomputers, something far out of reach of most individuals and organisations.
-The software solution includes the programming in the little, to take advantage of greater hardware support for concurrency, as well as the design of systems that are architected in such a fashion as to surmount constraints in hardware capacity.
-This project puts greater focus on the latter.
+The software solution includes the programming in the little, to take advantage of greater hardware support for concurrency, as well as the design of systems that are architected in such a fashion so as to surmount constraints in hardware capacity.
+This project puts greater focus on the latter, as intelligent programming techniques can always be added to a well-designed system, but seldom \textit{vice versa}.
 
 The study of systems capable of handling larger-than-memory data extends back decades, and spans a very broad literature.
 Of utmost relevance to this project are modern systems with statistical capabilities.
 The approaches can be roughly divided into two main categories: distributed, and local.
 
-Distributed systems spread the data load across multiple computers.
-Though more complex than keeping everything on one computer, they can to be faster and more capable when working with larger data, due to the greater parallelism afforded, as well as the larger pool of main memory available\cite{foster1995parallel}.
+Distributed systems spread the data and processing load across multiple computers.
+Though more complex than keeping everything on one computer, they can be faster and more capable when working with larger data, due to the greater parallelism afforded, as well as the larger pool of main memory available\cite{foster1995parallel}.
 
 Some additional terminology is made use of in distributed systems.
 In networks, individual computers are referred to as \textit{nodes}, and a distributed system will be said to take advantage of some number of nodes\cite{kleppmann2017dataintensive}.
-The pieces of data that are split up and distributed over the nodes are referred to as \textit{chunks} or \textit{shards}, among a variety of other names, though \textit{chunks} are the term made use of in this and successive documents.
-Finally, a programming reference to these chunks can take the form of a \textit{distributed object}, which serves as an object-oriented interface to enable data manipulation via chunk manipulation at varying degrees of transparency\cite{emmerich2000engineering}.
+The pieces of data that are split up and distributed over the nodes are referred to as \textit{chunks} or \textit{shards}, among a variety of other names.
+A program reference to these chunks can take the form of a \textit{distributed object}, which serves as an object-oriented interface to enable data manipulation at varying degrees of transparency\cite{emmerich2000engineering}.\\
 
-Local systems make use of a single computer for data processing, taking advantage of the larger data storage capacity of disk, and often making use of parallel processing.
+Conversely, local systems, seeking to solve the problem of larger-than-memory data, make use of a single computer for data processing, taking advantage of the larger data storage capacity of disk, and often making use of parallel processing.
 
 A common local solution is to just treat disk memory as an extension of RAM, as working memory.
 Some systems do make use of this approach, and will be examined below, but this is a non-starter for complex analyses on truly large data, as it is orders of magnitude slower than if the dataset were being held in RAM\cite{alpern1994memhierarchy}.
-The key to a distributed approach, as well as some aspects of local approaches, is taking advantage of parallelisation, for both processing and memory advantages.
+The key to a fast and efficient approach is to take advantage of parallelisation, for both processing and memory advantages.
 
 To parallelise is to engage in many computations simultaneously - this typically takes the form of either task parallelism, wherein tasks are distributed across different processors; data parallelism, where the same task operates on different pieces of data across different processors; or some mix of the two\cite{subhlok1993exploiting}.
 Parallelism can afford major speedups, albeit with certain limitations.
@@ -35,9 +35,10 @@ Many problems in statistics fall into this category, such as tabulation, monte-c
 With 16 processors, the 160 million rows of the aforementioned flights dataset may have each processor simultaneously working on 10 million rows each, giving a potential order-of-magnitude speedup.
 
 The tension between choosing local systems for large-scale data, versus distributed systems typically lies in the slowdowns and opportunities introduced by complexity.
+
 In favour of local systems for large data, the complexity is significantly lower.
 Everything is already in one location, with possibly shared memory, as well as the advantages of coscheduling allowing parallel streams to be automated.
-One famous demonstration of standard UNIX tools on a single machine found a 235-fold speedup in attaining simple summary statistics on a 3.5 Gb dataset, over using a Hadoop cluster to perform the same\cite{drake2014cltvscluster}.
+One famous demonstration of standard \texttt{UNIX} tools on a single machine found a 235-fold speedup in attaining simple summary statistics on a 3.5 Gb dataset, over using a Hadoop cluster to perform the same\cite{drake2014cltvscluster}.
 The parallel stream approach common to a local system typically has a very minimal memory footprint, with all components of the system close enough together that data movement between RAM and disk is still fast enough.
 However, such an approach falls down when greater flexibility is required.
 For one-pass data manipulation it remains valid and indeed a preferable approach, but for complex analyses involving iteration and very large datasets that demand real-time interactivity, the data is far better-off in RAM, with RAM speed sitting orders of magnitude above that of even the fastest available SSD's\cite{kim201923}\cite{samsung2020SSD}.
@@ -51,7 +52,7 @@ The risk of a total-system crash is also mitigated to a greater extent with dist
 
 In the space of local solutions, offloading additional data to disk is a common solution.
 This is best illustrated through the \textbf{disk.frame} package, developed by Dai ZJ.
-\textbf{disk.frame} provides an eponymously named dataframe replacement class, which is able to represent a data  set far larger than RAM, constrained now only by disk size\cite{zj20}.
+\textbf{disk.frame} provides an eponymously named dataframe replacement class, which is able to represent a data  set far larger than RAM, constrained only by disk size\cite{zj20}.
 It's mechanism of action is to use chunks of data on disk, and provide a variety of methods taking advantage of data.frame generics, including \textbf{dplyr} and \textbf{data.table} functions.
 disk.frames are actually references to compressed files in a filesystem directory on disk, with each file serving as a chunk.
 Operations ae performed through manipulation of each chunk separately, loading a constrained number of chunks into RAM at a time, sparing the computer from dealing with a single monolithic file\cite{zj19:_inges_data}.
@@ -61,52 +62,52 @@ The chunking and loading strategy also finds it's way into statistical models.
 \textbf{disk.frame} also offers an aspect of this, with linear modelling and generalised linear modelling functions calling the \textbf{biglm} package, which builds models a chunk at a time\cite{lumley13}.
 
 It is also worth noting that parallelism may be manifested within a single computer and works well for chunk processing.
-A number of \textbf{R} packages, \textbf{disk.frame} included, take advantage of various parallel strategies in order to process large datasets efficiently.
+A number of \texttt{R} packages, \textbf{disk.frame} included, take advantage of various parallel strategies in order to process large datasets efficiently.
 \textbf{multicore} is one such package, now subsumed into the \textbf{parallel} package, that grants functions that can make direct use of multiprocessor systems, thereby reducing the processing time in proportionality to the number of processors available on the system\cite{team20:_r}.
 
 \subsection{Distributed Systems}
 
-At some stage however, the data gets too big for one computer.
+At some stage however, the data gets too big, or analyses too complex, for one single computer.
 When this is the case, a variety of distributed system approaches have been put forward.
 
-This section of the field is heavily dominated by major existing systems outside of R, so most current approaches serve as basic interfaces to the external system, complete with all of the expected abstraction leaks\cite{spolsky2002abstraction}.
+This section of the field is heavily dominated by major existing systems outside of R, so most current approaches serve as basic interfaces to the external system, complete with all of the expected abstraction leaks\cite{spolsky2002abstraction}.\\
 
-Of the few systems which are unique to \textbf{R}, the \textbf{SNOW} (Simple Network Of Workstations) package stands out composing part of the \textbf{parallel} package, which is contained in the standard \textbf{R} image\cite{tierney18}.
-\textbf{SNOW} provides support for distributed computing over a simple network of compputers.
+Of the few systems which are unique to \texttt{R}, the \textbf{SNOW} (Simple Network Of Workstations) package stands out.
+It composes part of the \textbf{parallel} package, which is contained in the standard \texttt{R} image\cite{tierney18}.
+\textbf{SNOW} provides support for distributed computing over a simple network of computers.
 The general architecture of \textbf{SNOW} makes use of a master process that holds the data and launches the cluster, pushing the data to worker processes that operate upon it and return the results to the master.
-\textbf{SNOW} makes use of several different communications mechanisms, including ssh and user-given sockets.
-It's greatest shortcoming is the lack of persistent data, and it is not geared to very large datasets.
+\textbf{SNOW} makes use of several different communications mechanisms, including \texttt{ssh} and user-created sockets.
+It's greatest shortcoming is the lack of persistent data, and the mechanism of distribution employed disallows the usage of very large datasets.
 
-The two dominant external-based packages in \textbf{R} revolve around the \textbf{MPI} system, and \textbf{Spark}.
+The two dominant external-based packages in \texttt{R} revolve around the \texttt{MPI} system, and \texttt{Spark}.\\
 
-\textbf{pbdR} is a package making heavy use of \textbf{MPI}\cite{pbdR2012}.
-The \textbf{pbdR} (programming with big data in R) project provides persistent data, with the \textbf{pbdDMAT} (programming with big data Distributed MATrices) package offering a user-friendly distributed matrix class to program with over a distributed system\cite{pbdDMATpackage}.
-This abstraction breaks down with complexity, and a deep understanding of the powerful \textbf{MPI} system is eventually required, a task out of the league of most practicing statisticians.
+\textbf{pbdR} is one such package making heavy use of \texttt{MPI}\cite{pbdR2012}.
+The \textbf{pbdR} (programming with big data in \texttt{R}) project provides persistent data, with the \textbf{pbdDMAT} (programming with big data Distributed MATrices) package offering a user-friendly distributed matrix class to program with over a distributed system\cite{pbdDMATpackage}.
+This abstraction breaks down at a certain level of complexity, and a deep understanding of the powerful \texttt{MPI} system is eventually required; a task out of the league of most practicing statisticians.
 
-\textbf{Spark} sees it's central interface in \textbf{R} through the \textbf{Sparklyr} package, which combines common \textbf{dplyr} methods with objects representing \textbf{Spark} dataframes\cite{luraschi20}.
-Simple analyses are made very simple (assuming a well-configured and already running \textbf{Spark} instance), but custom iterative models are extremely difficult to create through the package in spite of \textbf{Spark's} support for it.
+\texttt{Spark} sees it's central interface in \texttt{R} through the \textbf{Sparklyr} package, which combines common \textbf{dplyr} methods with objects representing \texttt{Spark} dataframes\cite{luraschi20}.
+Simple analyses are made very simple (assuming a well-configured and already running \texttt{Spark} instance), but custom iterative models are extremely difficult to create through the package in spite of \textbf{Spark's} support for it.\\
 
-In the search for a distributed system for statistics, the world outside of R is not entirely barren.
+In the search for a distributed system for statistics, the world outside of \texttt{R} is not entirely barren.
 The central issue with non-R distributed systems is that their focus is very obviously not statistics, and this shows in the level of support the platforms provide for statistical purposes.
 
-\textbf{Hadoop} is a system predating and influencing \textbf{Spark}\cite{shvachko2010hadoop}.
+\texttt{Hadoop} is a system predating and influencing \texttt{Spark}\cite{shvachko2010hadoop}.
 The project is a collection of utilities that facilitates cluster computing.
-Jobs can be sent for parallel processing on the cluster directly to the utilities using .jar files, ``streamed'' using any executable file, or accessed through language-specific APIs.
-Hadoop consists of a file-store component, known as Hadoop Distributed File System (HDFS), and a processing component, known as MapReduce.
-The processing model is powerful, though incapable of the rapid iteration required in complex models.
+Jobs can be sent for parallel processing on the cluster directly using \texttt{.jar} files, ``streamed'' using any executable file, or accessed through language-specific APIs.
+\texttt{Hadoop} consists of a file-store component, known as Hadoop Distributed File System (HDFS), and a processing component, known as MapReduce.
+The processing model is powerful, though incapable of the rapid iteration required in complex models\cite{zaharia2010spark}.
 However, the filesystem is widely used and provides an effective interface to large datasets.
 
-In \textbf{Python}, the closest match to a high-level distributed system that could have statistical application is given by the python library \textbf{dask}\cite{rocklin2015dask}.
+In \texttt{Python}, the closest match to a high-level distributed system that could have statistical application is given by the python library \textbf{dask}\cite{rocklin2015dask}.
 \textbf{dask} offers dynamic task scheduling through a central task graph, as well as a set of classes that encapsulate standard data manipulation structures such as NumPy arrays and Pandas dataframes.
-The main difference is that the \textbf{dask} classes take advantage of the task scheduling, including online persistence across multiple nodes.
-\textbf{dask} is a large and mature library, catering to many use-cases, and exists largely in the Pythonic ``Machine Learning'' culture in comparison to the R ``Statistics'' culture.
-Accordingly, the focus is more tuned to the Python software developer putting existing ML models into a large-scale capacity.
-Of all the distributed systems assessed so far, \textbf{dask} comes the closest to what an ideal platform would look like for a statistician, but it misses out on the statistical ecosystem of R, provides only a few select classes, and is tied entirely to the structure of the task graph.
+The main difference from the standard structures is that the \textbf{dask} classes take advantage of the task scheduling, including online persistence across multiple nodes.
+\textbf{dask} is a large and mature library, catering to many use-cases, and exists largely in the Pythonic ``Machine Learning'' culture in comparison to the \texttt{R} ``Statistics'' culture.
+Accordingly, the focus is more tuned to the \texttt{Python} software developer putting existing ML models into a large-scale capacity.
+Of all the distributed systems assessed so far, \textbf{dask} comes the closest to what an ideal platform would look like for a statistician, but it misses out on the statistical ecosystem of \texttt{R}, provides only a few select classes, and is tightly bound to the concept of the task graph.
 
 \subsection{Evaluation}
 
 The task of modelling over larger-than-memory data has a rich history of attempts to provide a solution.
-For the requirements listed in section \ref{intro}, none of these come close to providing a satisfactory solution, though ironically the python library \textbf{dask} may come the closest.
+For the requirements listed in section \ref{intro}, none of these come close to providing a satisfactory solution, though the python library \texttt{dask} may come the closest.
 The approaches put forward often do solve problems as defined otherwise, but all are either too cumbersome, incapable of handling large datasets, non-persistent, non-interactive, outside of the statistical ecosystem, excessively tied to their architecture, or all of the above.
-The \textbf{largeScaleR} package is already performing better than some of the surveyed approaches, and section \ref{curr} will outline what has already been demonstrated in the prototype.
-
+The \textbf{largeScaleR} package is already performing better than some of the surveyed approaches, and section \ref{curr} will outline what has been demonstrated in the prototype.

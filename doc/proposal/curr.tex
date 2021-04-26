@@ -1,24 +1,32 @@
-For meeting the problem of large scale statistical analysis in R, what is needed is a platform that is fast and robust, with a focus on a simple interface for fitting statistical models, and the flexibility for implementation of arbitrary new models within R.
-As of May 2021, a prototype distributed system holding many of the described desired characteristics, has been implemented in R as part of the research.
-This system is tentatively named ``LargeScaleR'', and takes the form of an R package, complete with minor documentation and a moderate proportion of tests.
+To overcome the problem of large-scale statistical analysis in \texttt{R}, what is needed is a platform that is fast and robust, with a focus on a simple interface for fitting statistical models, and the flexibility for implementation of arbitrary new models within R.
+As of May 2021, a prototype distributed system holding many of the described desired characteristics, has been implemented in \texttt{R} as part of this research.
+This system is tentatively named \textbf{LargeScaleR}, and takes the form of an \texttt{R} package, complete with minor documentation and a moderate proportion of tests.
 It has been used to successfully read and manipulate data over a cluster of 8 nodes, including 4 processes on each node, as well as non-trivial distributed manipulations such as tabling of dataframes, all operating at a very high speed of operation.
 
 \subsection{Overview of \textbf{largeScaleR}}\label{sec:sys-imp}
 
-The system operates in a very loosely coupled manner between nodes, each able to send requests indirectly to any other, equally functional as a peer-to-peer network as a master-worker setup.
+The system operates in a very loosely coupled manner between processes, each able to send requests indirectly to any other, equally functional as a peer-to-peer network as a master-worker setup.
 A user process, treated as something akin to a master process, is the typical initator in requests. 
-A master process runs as a regular R session, operated interactively by the user or by batch script.
-This master process can then initialise other processes to perform work, dubbed ``worker processes''.
-The worker processes are entirely independent of the master process, and none of these processes contain any information to identify other processes.
-The only mechanism these processes have to communicate is via a communication queue, which serves as the primary mechanism behind the operation of the main conceptual pieces interacted with by a user: distributed objects.
+A master process runs as a regular \texttt{R} session, operated interactively by the user or by batch script.
+This master process can then initialise other processes, sitting on any node, to perform work.
+These secondary processes are dubbed ``worker processes''.
 
-Distributed objects are a means of access to objects on a distributed system\cite{emmerich2000engineering}.
-They serve as a reference that acts as a transparent handle to fragmented referents (\textit{chunks}) over a distributed system.
-They are effectively proxies, with generic methods passing on their standard form to the constituent chunks of the distributed object, returning another distributed object as reference to the return value of the methods acting on the chunks.
+The worker processes are entirely independent of the master process, and none of these processes contain any information to identify other processes.
+The only mechanism these processes have to communicate is via a communication queue, which serves as the primary mechanism behind the operation of the main conceptual pieces interacted with by a user: distributed objects.\\
+
+Distributed objects are a means of access to chunks of objects on a distributed system\cite{emmerich2000engineering}.
+They serve as a reference that acts as a transparent handle to fragmented referents (\textit{chunks}) over a distributed system, with each chunk being a portion of data residing on some worker process.\\
+
+To take a concrete example, consider the flights dataset as described above.
+Assume that the dataset is split into four pieces row-wise, with the first two pieces residing on two separate processes, and the last two on a single process.
+Such a topology is capable of being represented in the \textbf{largeScaleR} system, with diagrammatic representation as in figure \ref{fig:top}.
+
+\input{doc/proposal/fig-top}
+
+Distributed object references are effectively proxies, with generic methods passing on their standard form to the constituent chunks of the distributed object, returning another distributed object as reference to the return value of the methods acting on the chunks.
 The returned distributed object is given immediately, with worker processing occuring asynchronously, giving lazy, future-like, behaviour to distributed objects\cite{baker1977incremental}.
 
-Each chunk is a portion of data residing on some worker process.
-Each has a ``descriptor'' - some unique name that exclusively references that chunk.
+Each chunk has a ``descriptor'' - some unique name that exclusively references that chunk.
 When they are not performing operations on a chunk, workers are monitoring all of the queues whose names correspond to the descriptors of the chunks which the respective worker holds.
 Actions to be performed on the chunks are transmitted through these queues.
 
@@ -26,45 +34,48 @@ The master process enacts requests on these queues through methods on the distri
 Key to the flexibility of \textbf{largeScaleR} is that the queue serves as a level of indirection, so the requesting process doesn't need to know precisely where a chunk is stored, only that it can be reached via it's queue.
 This flexibility, mirroring the benefits of information hiding encouraged by message-passing object-oriented programming, allows chunks to be held arbitrarily, including on multiple nodes simultaneously.
 The capacity for redundancy grants future potential for fault tolerance and resilience to nodes crashing.
+Figure \ref{fig:qtop} depicts this additional detail, continuing from the example of the flights dataset, with an additional process holding a redundant first chunk.
 
-A major supporting component of the system's distributed architecture is the act of ``emerging'', wherein a reference is used to pull all it's referent locally\cite{emmerich2000engineering}.
-This takes place through directly sending serialised chunks to the requester, where methods exist to combine them.
+\input{doc/proposal/fig-qtop}
 
-Multivariate manipulations of the data make use of emerging on the worker end, where multiple distributed objects are referenced in one single function request on a queue, and the worker must determine the appropriate alignment of chunks, including the use of R's recycling rules, before emerging all distributed objects and performing the operation.
+A major supporting component of the system's distributed architecture is the act of ``emerging'', wherein a reference is used to pull all of it's referents locally\cite{emmerich2000engineering}.
+This takes place through directly sending serialised chunks to the requester, where methods exist to combine them.\\
 
-Distributed objects stand-in for regular R objects, and can represent any class that has split and combine methods defined.
-These include all atomic vectors, lists, dataframes, matrices, and arbitrary user-created classes.
+Multivariate manipulations of the data make use of emerging on the worker end, where multiple distributed objects are referenced in one single function request on a queue, and the worker must determine the appropriate alignment of chunks, including the use of \texttt{R}'s recycling rules, before emerging all distributed objects and performing the operation.
+
+Distributed objects stand-in for regular \texttt{R} objects, and can represent any class that has split and combine methods defined.
+These include all atomic vectors, lists, dataframes, matrices, and arbitrary user-created classes.\\
 
 Another key aspect to the architecture of the system is detailed logging, with all changes of state in a node recorded and the information dispatched to a central logger, which allows monitoring of the system in one location. The collection of logs is sufficient to build a complete picture of the system, with a Model-View-Controller pattern in an external program able to parse the logs, calculate system state, and display that in a simple interface\cite{gamma1995design}.
 
-\subsection{\textbf{largeScaleR} User Interface and Conceptual Model}
+\subsection{\textbf{largeScaleR} System Usage Patterns}
 
 An exceedingly important consideration for the user is the manner in which the program is interfaced with.
 
-As mentioned above, the LargeScaleR program is distributed as an R package, and initial setup follows standard package protocols.
+As mentioned above, the \textbf{largeScaleR} program is distributed as an \texttt{R} package, and initial setup follows standard package protocols.
 
 The system starts through getting a cluster running.
 It is assumed that the hardware and network is already set up.
-If the largeScaleR cluster is already running, the master can just connect directly, with some descriptive functions entered by the user allowing it to connect.
+If the \textbf{largeScaleR} cluster is already running, the master can just connect directly, with some descriptive functions entered by the user allowing it to connect.
 The cluster can be initialised entirely by the master session, through the use of functions taking a simple description of the intended cluster.
-For ease of use, this can be given through a programmable config file describing the nature of the network, including addresses and specialised services such as a communication server and log server, as well as descriptions of the master and all the worker processes.
+For ease of use, this can be given through a programmable configuration file describing the nature of the network, including addresses and specialised services such as a communication server and log server, as well as descriptions of the master and all the worker processes.
 
 Upon successfully running the cluster, all processes involved will log any changes in state, including which chunks are held by which workers, and this can be viewed in an included interface.
 
 Data is initialised in the system through several different pathways.
-The most straightforward for the user is to take existing data in an R session, and run a package-provided method on the data to distribute and form a reference to it.
-This serves to distribute the data as chunks across a number of worker processes, commonly referred to as ``scattering'' in MPI parlance\cite{walker1996mpi}.
+The most straightforward for the user is to take existing data in an \texttt{R} session, and run a package-provided method on the data to distribute and form a reference to it.
+This serves to distribute the data as chunks across a number of worker processes, commonly referred to as ``scattering'' in \texttt{MPI} parlance\cite{walker1996mpi}.
 This is a similar interface to that of the \textbf{SNOW} package\cite{tierney18}.
-While good for medium-sized data and demonstration purposes, it is unrealistic in that by definition, very large data is unable to fit in the memory of the master R session for it to be sent out.
+While good for medium-sized data and demonstration purposes, it is unrealistic in that by definition, very large data is unable to fit in the memory of the master \texttt{R} session for it to be sent out in the first place.
 
 Therefore a more standard method of initialisation when data originates from local disk is to use a package-provided reading function that streams raw data from a \texttt{csv} file or similar from disk through a root communications queue and into all workers.
 This is acknowledged to be inefficient, but it currently works well under all tests when data is not already distributed.
 Using the flights dataset as an example, this method reads in the dataset a limited number of rows at a time, and propogates each read as a chunk to some node via the queue system.
 Each chunk may be limited by size as well, so that the 160 million rows may be scattered into 100 pieces of 1.6 million rows each, distributed across some arbitrary number of machines.
 
-The better method of data initialisation follows the creation of a character vector listing either url's or files local to each of the workers.
-This is then distributed to the appropriate workers and an appropriate read operation is pushed to them via the distributed character vector.
-This is the only method mentioned enabling full parallelisation, and is general enough to be extended for access to distributed filesystems such as HDFS.
+The fastest method of data initialisation follows the creation of a character vector listing either \texttt{URL}'s or files local to each of the workers.
+This is then distributed to the workers and an appropriate read operation is pushed to them via the distributed character vector.
+This is the only method enabling full parallelisation, and it is general enough to be extended for access to distributed filesystems such as \texttt{HDFS}.
 
 Alongside distribution of the data, the user is returned a distributed object to use for referencing the distributed data.
 In the case of the third method described, this occurs near-instantaneously, with the data being read concurrently.
@@ -72,15 +83,14 @@ In the case of the third method described, this occurs near-instantaneously, wit
 The data referenced by distributed objects can be sent from workers more simply; once established, an \texttt{emerge} method is run over a distributed object, and the underlying chunks are sent directly from the worker, to be combined at the master end.
 Such movement is taken advantage of by workers as well, when they are faced with operations on multiple disparate distributed objects - this is hidden from the user, however.
 
-The benefits of distributed objects grow commensurately with their degree of transparency, and LargeScaleR has transparency as a central goal.
+The benefits of distributed objects grow commensurately with their degree of transparency, and \textbf{largeScaleR} has transparency as a central goal.
 Many common functions have methods provided operating on distributed objects, including most \texttt{Group} methods such as \texttt{Ops}, \texttt{Math}, and \texttt{Summary}.
-More complex methods such as \texttt{table} and \texttt{rbind} are also given, and for very simple analyses, these are often enough to serve as the backbone of the analysis until the data is summarised sufficiently that it can be \texttt{emerge}ed and less simple analyses run locally.
+More complex methods such as \texttt{table} and \texttt{rbind} are also given, and for very simple analyses, these are often enough to serve as the backbone of the analysis until the data is summarised sufficiently that it can be \texttt{emerge}'ed and less simple analyses run locally.
 
-% request
 Alternatively, an extra layer of control is granted to the user looking for more than pre-formed functions:
-functionality inspired by the \texttt{do.call} function in R allows passing anonymous or existing functions, along with a list of distributed and potentially local data, and the provided functions are run over the referent data pointed to by the distributed objects.
+functionality inspired by the \texttt{do.call} function in \texttt{R} allows passing anonymous or existing functions, along with a list of distributed and potentially local data, and the provided functions are run over the referent data pointed to by the distributed objects.
 A distributed object referring to the results is returned.
-This is actually how most of the transparent methods were implemented, with the distributed \texttt{do.call} serving as an intermediary.
+This is actually how most of the transparent methods were implemented, with the distributed \texttt{do.call} serving as a wrapped intermediary.
 Such a technique is equivalent to a Map, with a reduce also possible through either reducing at the worker end, in parallel, or even followed by an \texttt{emerge} and local reduction\cite{mccool2012structured}.
 
 \subsection{Issues Encountered}\label{sec:sys-imp}
@@ -89,23 +99,25 @@ The initial development of \textbf{largeScaleR} has been highly experimental, wi
 While the development process has been flexible enough to accomodate this, persistent issues inherent in the field have been repeatedly appearing.
 
 Communication is one such issue.
-Communication between processes in \textbf{largeScaleR} uses Redis queues, with blocking pop operations to read from them.
-An S3 ``message'' class was defined in LargeScaleR to standardise communication between nodes and is the only accepted form of message to be placed and parsed from a queue.
-This has proven to be a complex model, with the iternal handling of queues having major effects on the manner of communication taking place in the system.
-Alternative communication protocols have the same associated issue, and there has not been one single obvious communications system that grants great implementation-independence, though \textbf{Redis} surely comes the closest\cite{sanfilippo2009redis}.
+Communication between processes in \textbf{largeScaleR} uses \texttt{redis} queues, with blocking pop operations to read from them.
+An \texttt{S3} ``message'' class was defined in \textbf{largeScaleR} to standardise communication between nodes and is the only accepted form of message to be placed and parsed from a queue.
+This has proven to be a complex model, with the internal handling of queues having major effects on the manner of communication taking place in the system.
+Alternative communication protocols have the same associated issue, and there has not been one single obvious communications system that grants great implementation-independence, though \texttt{redis} surely comes the closest\cite{sanfilippo2009redis}.
 
-Following communicating acts, the evaluation of a message has it's own complexities, with the following example given as the current implementation with two distributed objects.
-The distributed objects first go through a complex act of alignment.
-They are all compared with the target chunk, and aligned accordingly.
-If the beginning and end of the target chunk are completely outside those of the offered object, the indices of the object corresponding to those at the correct corresponding multiple are taken, and this object is then emerged.
-In this way, recycling is implemented in a distributed fashion, with each worker determining the appropriate recycle.
-Once all appropriate chunks are emerged, a regular \texttt{do.call} is run with the function and now-local objects
+Following acts of communication, the evaluation of a message has it's own complexities, with the following example given as the current implementation with two distributed objects:\\
+\begin{enumerate}
+	\item The distributed objects first go through a complex act of alignment.
+	\item They are all compared with the target chunk, and aligned accordingly.
+	\item If the beginning and end of the target chunk are completely outside those of the offered object, the indices of the object corresponding to those at the correct corresponding multiple are taken, and this object is then emerged.
+		In this way, recycling is implemented in a distributed fashion, with each worker determining the appropriate recycle.
+	\item Once all appropriate chunks are emerged, a regular \texttt{do.call} is run with the function and now-local objects
+\end{enumerate}
 For alignment to take place, metadata associated with each chunk, such as it's corresponding beginning and end indices, as well as it's deduced size, must be associated with a distributed object before it is made use of.
 As there is purposefully no mechanism for responders to communicate with requesters, an alternative mechanism was devised; metadata requests operate just as any other distributed function call, using the standard distributed \texttt{do.call} interface, but the functions sent are unique to the chunk they are associated with, using metalinguistic evaluation to create a function that when evaluated on the worker end, sends the metadata information to a unique temporary queue, which is then listened to at the requester end, popped, and returned.
 The infinite possible forms of this implementation, each with their own unique efficiencies and drawbacks, has been a source of continuous research, with data structure alignment being a research project in it's own right\cite{bryant2015computer}\cite{li1991data}.
 
-Other issues include the difficulty of debugging and testing a parallel/distributed system, as existing \texttt{R} tools are set up for serial code evaluation, without aking into consideration of complexities such as the non-deterministic nature of communication between computers of varying speeds and loads.
-Race conditions, that is, behaviour dependent on timing, also becomes a problem where for example, a computer blocks and awaits results from another computer, which in turn only returns results based on some future input from the original, which would never arrive.
-Such conditions are very difficult to determine even in languages that specifically provide a framework for testing race conditions, as in most threaded langauages, and are even harder to debug, test for, and eliminate in the open-ended system being created\cite{serebryany2009threadsanitizer}.
+Other issues include the difficulty of debugging and testing a parallel/distributed system, as existing \texttt{R} tools are set up for serial code evaluation, without taking into consideration complexities such as the non-deterministic nature of communication between computers of varying speeds and loads.
+Race conditions, that is, behaviour dependent on timing, also become a problem where for example, a computer blocks and awaits results from another computer, which in turn only returns results based on some future input from the original, which would never arrive.
+Such conditions are very difficult to determine even in languages that specifically provide a framework for testing race conditions, as in most langauages with threading support, and are even harder to debug, test for, and eliminate in the open-ended system being created\cite{serebryany2009threadsanitizer}.
 Synchronisation of the system is another related problem cropping up, again serving as a research project in itself.
 So far, the best results gained have been to deny the possibility of synchronisation, and engineer the processes comprising the system to be independent of each other as much as practicable.
