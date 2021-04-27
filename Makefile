@@ -3,10 +3,15 @@ OUTDIR	:= out
 BIBDIR  := bib
 TEX	:= $(wildcard $(DOCDIR)/*.tex)
 TEXOUT  := $(addprefix $(OUTDIR)/, $(notdir $(TEX:.tex=.pdf)))
+MD	:= $(wildcard $(DOCDIR)/*.md)
+MDOUT	:= $(addprefix $(OUTDIR)/, $(notdir $(MD:.md=.html)))
 
 .PHONY: all clean
 
-all: $(TEXOUT)
+all: $(TEXOUT) $(MDOUT)
+
+$(OUTDIR)/%.html: $(DOCDIR)/%.md
+	pandoc -s -t revealjs $< >$@
 
 $(OUTDIR)/%.pdf: $(DOCDIR)/%.tex
 	mkdir -p $(OUTDIR)
@@ -16,6 +21,7 @@ $(OUTDIR)/%.pdf: $(DOCDIR)/%.tex
 	lualatex -shell-escape -output-directory $(OUTDIR) $<
 
 print-%  : ; @echo $* = $($*)
+
 
 clean:
 	rm -f $(OUTDIR)/*.aux
