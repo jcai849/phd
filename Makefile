@@ -11,7 +11,7 @@ MDOUT	:= $(addprefix $(OUTDIR)/, $(notdir $(MD:.md=.html)))
 all: $(TEXOUT) $(MDOUT)
 
 $(OUTDIR)/%.html: $(DOCDIR)/%.md
-	pandoc -s -t revealjs $< >$@
+	pandoc -s -V theme=solarized -t revealjs $< >$@
 
 $(OUTDIR)/%.pdf: $(DOCDIR)/%.tex
 	mkdir -p $(OUTDIR)
