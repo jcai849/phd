@@ -1,0 +1,54 @@
+% compile with lualatex --shell-escape $<
+\documentclass[tikz,convert={outfile=test.svg}]{standalone}
+\usetikzlibrary{quotes,graphs,graphdrawing,fit,positioning,backgrounds,shapes,arrows.meta}
+\usegdlibrary{trees,layered}
+
+\pgfdeclarelayer{units}
+\pgfdeclarelayer{categories}
+\pgfsetlayers{units,categories,main}
+
+\tikzstyle{object}=[rectangle,fill=white,draw=black]
+\tikzstyle{node}=[circle,fill=white,draw=black]
+\tikzstyle{proc}=[rectangle,fill=white,draw=black]
+\tikzstyle{queue}=[rectangle,fill=white,draw=black]
+\tikzstyle{counter}=[rectangle,fill=white,draw=black]
+\tikzstyle{unit}=[fill=blue!10,rounded corners,draw=black]
+\tikzstyle{category}=[fill=green!10,rounded corners,draw=black]
+\tikzstyle{table}=[fill=yellow!10,rounded corners,draw=black]
+
+\tikzstyle{mypath}=[-{stealth[scale=2]}]
+\tikzstyle{mydoublepath}=[{stealth[scale=2]}-{stealth[scale=2]}]
+
+\def\commdist{1.5}
+\def\blockdist{0.1}
+
+\begin{document}
+
+\begin{tikzpicture}
+	\node[object] (cri) {chunk 1};
+	\node[object,below=of cri] (crii) {chunk 2};
+	\node[object,below=of crii] (criii) {chunk 3};
+	\node[object,below=of criii] (criv) {chunk 4};
+
+	\node[proc,right=of cri] (ci) {\texttt{fst} file 1};
+	\node[proc,below=of ci] (cii) {\texttt{fst} file 2};
+	\node[proc,below=of cii] (ciii) {\texttt{fst} file 3};
+	\node[proc,below=of ciii] (civ) {\texttt{fst} file 4};
+
+	\node[above=of ci] (vv) {};
+
+	\begin{pgfonlayer}{categories}
+		\node[category,fit=(cri)(crii)(criii)(criv),label={[name=distobjref]\texttt{disk.frame}}] (df) {};
+		\node[category,fit=(ci)(cii)(ciii)(civ),label={[name=distobjref]disk directory}] (dir) {};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{units}
+		\node[unit,fit=(df)(dir)(vv),label={Single Machine}] (p1) {};
+	\end{pgfonlayer}
+
+	\draw[mypath] (cri) -- (ci);
+	\draw[mypath] (crii) -- (cii);
+	\draw[mypath] (criii) -- (ciii);
+	\draw[mypath] (criv) -- (civ);
+\end{tikzpicture}
+
+\end{document}
