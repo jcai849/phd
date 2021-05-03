@@ -93,6 +93,128 @@ A distributed object referring to the results is returned.
 This is actually how most of the transparent methods were implemented, with the distributed \texttt{do.call} serving as a wrapped intermediary.
 Such a technique is equivalent to a Map, with a reduce also possible through either reducing at the worker end, in parallel, or even followed by an \texttt{emerge} and local reduction\cite{mccool2012structured}.
 
+\subsection{Example Session}
+
+For the purposes of demonstration, the following is an example session with the prototype \textbf{largeScaleR} package.
+The data is a subset of the flights dataset, including the latter months of the 1987 flights.
+The object of investigation in this simple analysis is the variation in cancellation of Monday flights along different months.
+
+The cluster is started as in listing \ref{src:input}, with an \mintinline{r}{init()} function, which reads a configuration file describing the cluster.
+The flights data is then read and distributed, along with column type descriptions, at a small size for the purpose of demonstrating a large amount of chunk references.
+\begin{listing}[H]
+\begin{minted}{rconsole}
+> init("config")
+
+> cols <- c("Year"="integer","Month"="integer","DayofMonth"="integer",
++ 	  "DayOfWeek"="integer","DepTime"="integer","CRSDepTime"="integer",
++ 	  "Ar ..." ... [TRUNCATED]
+
+> flights <- read(localCSV("/tmp/1987flights.csv", header=TRUE, colTypes = cols),
+		  max.size=1024^2)
+\end{minted}
+\caption{Initial input to the distributed system}\label{src:input}
+\end{listing}
+
+Upon successful reading, this dataset now exists as a distributed object reference locally, serving as a proxy object pointing to the many chunks distributed across processes and hosts.
+Printing the \mintinline{r}{flights} object reveals the number of references as 122, as shown in listing \ref{src:flights-structure}.
+A \mintinline{r}{preview()} of the distributed object can be taken, which pulls a portion of the first chunk for viewing.
+Standard functions such as \mintinline{r}{nrow()} behave as expected on the distributed object.
+``Meta'' functions that give information on the distribution of the object can be run as well, including information on descriptors with \mintinline{r}{desc()} and the hostnames of where each chunk is stored with \mintinline{r}{host()}.
+
+\begin{listing}[H]
+\begin{minted}{rconsole}
+> print(flights)
+Distributed Object Reference with 122 chunk references.
+First chunk reference:
+Chunk Reference with Descriptor 1
+> preview(flights)
+  Year Month DayofMonth DayOfWeek DepTime CRSDepTime ArrTime CRSArrTime
+1 1987    10         14         3     741        730     912        849
+2 1987    10         15         4     729        730     903        849
+3 1987    10         17         6     741        730     918        849
+4 1987    10         18         7     729        730     847        849
+5 1987    10         19         1     749        730     922        849
+6 1987    10         21         3     728        730     848        849
+  UniqueCarrier FlightNum TailNum ActualElapsedTime CRSElapsedTime AirTime
+1            PS      1451      NA                91             79      NA
+2            PS      1451      NA                94             79      NA
+3            PS      1451      NA                97             79      NA
+4            PS      1451      NA                78             79      NA
+5            PS      1451      NA                93             79      NA
+6            PS      1451      NA                80             79      NA
+  ArrDelay DepDelay Origin Dest Distance TaxiIn TaxiOut Cancelled
+1       23       11    SAN  SFO      447     NA      NA         0
+2       14       -1    SAN  SFO      447     NA      NA         0
+3       29       11    SAN  SFO      447     NA      NA         0
+4       -2       -1    SAN  SFO      447     NA      NA         0
+5       33       19    SAN  SFO      447     NA      NA         0
+6       -1       -2    SAN  SFO      447     NA      NA         0
+  CancellationCode Diverted CarrierDelay WeatherDelay NASDelay SecurityDelay
+1               NA        0           NA           NA       NA            NA
+2               NA        0           NA           NA       NA            NA
+3               NA        0           NA           NA       NA            NA
+4               NA        0           NA           NA       NA            NA
+5               NA        0           NA           NA       NA            NA
+6               NA        0           NA           NA       NA            NA
+  LateAircraftDelay
+1                NA
+2                NA
+3                NA
+4                NA
+5                NA
+6                NA
+> nrow(flights)
+[1] 1311826
+> desc(flights)
+  [1]   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18
+ [19]  19   ...
+> host(flights)
+  [1] "127.0.0.2" "127.0.0.2" "127.0.0.2" "127.0.0.2" "127.0.0.2" "127.0.0.2"
+  [7] "127.0.0.3" ...
+\end{minted}
+\caption{Exploration of the structure of the flights dataset}\label{src:flights-structure}
+\end{listing}
+
+To attain a table Monday flights, standard \texttt{R} methods of data manipulation can be used, shown in listing \ref{src:manipulation}.
+Creating a logical vector and using that as a subset, a mechanism known as a Boolean mask, is commonly performed, and enabled entirely transparently in \textbf{largeScaleR}.
+The creation of such a vector involves plenty of work behind the scenes, including the distribution of the comparative operator (\mintinline{r}{1L} in this case), and the appropriate alignment for recycling (trivial in this case, being of length 1).
+To demonstrate functionality, the \mintinline{r}{sum()} of a logical vector is the same as the \mintinline{r}{length()} of the subset resulting from the logical.
+These vectors, like all distributed objects, can be previewed, regardless of underlying class.
+Finally, a \mintinline{r}{table()} method exists to tabulate the chunks of the distributed vectors in parallel, and combine them locally.
+This can then be used for further analysis, such as in a \(\chi^2\)-test or similar.
+
+\begin{listing}[H]
+\begin{minted}{rconsole}
+> isMondayFlights <- flights$DayOfWeek == 1L
+
+> print(isMondayFlights)
+Distributed Object Reference with 122 chunk references.
+First chunk reference:
+Chunk Reference with Descriptor 246
+
+> preview(isMondayFlights)
+[1] FALSE FALSE FALSE FALSE  TRUE FALSE
+
+> sum(isMondayFlights)
+[1] 190711
+
+> mondayFlights <- subset(flights, isMondayFlights)
+
+> length(mondayFlights)
+[1] 190711
+
+> cancelledMondays <- table(mondayFlights$Month, mondayFlights$Cancelled)
+
+> print(cancelledMondays)
+
+         0     1
+  10 58573   670
+  11 72283   774
+  12 55320  3091
+\end{minted}
+\caption{Dataset manipulation to attain final table}\label{src:manipulation}
+\end{listing}
+
 \subsection{Issues Encountered}\label{sec:sys-imp}
 
 The initial development of \textbf{largeScaleR} has been highly experimental, with the current offering being the third total rewrite.

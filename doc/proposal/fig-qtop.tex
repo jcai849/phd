@@ -12,8 +12,8 @@
                 \node[queue,below=of qiii] (qiv) {Queue 4};
                 
                 \node[proc,right=of qi] (cia) {chunk 1};
-                \node[proc,below=of cia] (cib) {chunk 1};
-                \node[proc,below=of cib] (cii) {chunk 2};
+                \node[proc,below=of cia] (cii) {chunk 2};
+                \node[proc,right=of cii] (cib) {chunk 1};
                 \node[proc,below=of cii] (ciii) {chunk 3};
                 \node[proc,right=of ciii] (civ) {chunk 4};
                 
@@ -21,10 +21,9 @@
                         \node[category,fit=(cri)(crii)(criii)(criv),label={[name=distobjref]distributed object reference}] (dobj) {};
                 \end{pgfonlayer}
                 \begin{pgfonlayer}{units}
-                        \node[unit,fit=(cia),label={process 1}] (p1) {};
-                        \node[unit,fit=(cib),label={process 2}] (p2) {};
-                        \node[unit,fit=(cii),label={process 3}] (p3) {};
-                        \node[unit,fit=(ciii)(civ),label={process 4}] (p4) {};
+			\node[unit,fit=(cia),label={process 1}] (p1) {};
+			\node[unit,fit=(cii)(cib),label={process 2}] (p2) {};
+                        \node[unit,fit=(ciii)(civ),label={process 3}] (p3) {};
                 \end{pgfonlayer}
                 
                 \draw[mypath] (cri) -- (qi);
@@ -34,9 +33,9 @@
 
                 \draw[mypath] (qi.east) -- (p1.west);
                 \draw[mypath] (qi.east) -- (p2.west);
-		\draw[mypath] (qii.east) -- (p3.west);
-		\draw[mypath] (qiii.east) -- (p4.west);
-                \draw[mypath] (qiv.east) -- (p4.west);
+		\draw[mypath] (qii.east) -- (p2.west);
+		\draw[mypath] (qiii.east) -- (p3.west);
+                \draw[mypath] (qiv.east) -- (p3.west);
         \end{tikzpicture}
-        \caption{\label{fig:qtop} Example distributed object queue and redundancy topology}
+        \caption{\label{fig:qtop} Example distributed object communication relations with redundancy example in chunk 1}
 \end{figure}

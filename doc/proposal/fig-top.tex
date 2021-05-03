@@ -9,7 +9,7 @@
                 \node[proc,right=of cri] (ci) {chunk 1};
                 \node[proc,below=of ci] (cii) {chunk 2};
                 \node[proc,below=of cii] (ciii) {chunk 3};
-                \node[proc,right=of ciii] (civ) {chunk 4};
+                \node[proc,below=of ciii] (civ) {chunk 4};
 
                 \begin{pgfonlayer}{categories}
                         \node[category,fit=(cri)(crii)(criii)(criv),label={[name=distobjref]distributed object reference}] (dobj) {};
@@ -23,8 +23,8 @@
                 \draw[mypath] (cri) -- (ci);
                 \draw[mypath] (crii) -- (cii);
                 \draw[mypath] (criii) -- (ciii);
-                \draw[mypath] (criv.east) -- (civ.south);
+                \draw[mypath] (criv) -- (civ);
         \end{tikzpicture}
-        \caption{\label{fig:top} Example distributed object topology}
+        \caption{\label{fig:top} Example distributed object reference relations}
 \end{figure}
 

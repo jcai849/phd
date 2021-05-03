@@ -1,0 +1,2 @@
+#!/bin/sh
+seq 8 | xargs -P0 -i ssh hadoop{} "$@"

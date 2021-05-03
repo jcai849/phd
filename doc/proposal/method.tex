@@ -1,9 +1,22 @@
-The principal methodology to be utilised in this research is to adopt a research software development approach, informed by statistical ends\cite{bezroukov1999open}.
-This includes experimental research and rapid prototyping, along with open-source practices for public feedback.
-Constraints of such an approach include the many software development practices being intended primarily for teams of software developers, which is not the case in this project, as well as the need to engage in marketing in order to have any broad feedback on an open-source project.
-An immediate technical challenge that exists is the staggering array of potential technologies that could be made use of, coupled with the myriad niche demands of end users sitting at varying stages of their respective technologies' hype cycles.
-This is typically overcome through experience but failing that, an emphasis on communication and high levels of background research can be used to manage such an uncertainty.
-The central use of \texttt{R} also presents it's own challenges, but these are often surmounted through a foreign language interface, such as \texttt{C}\cite{wickham2019advancedr}.
+This project centres around the creation of a distributed system in \texttt{R}, serving as a platform for the implementation and execution of large-scale, multi-node statistical models.
+It will meet the statistician's demands given in section \ref{intro}, with further details given in section \ref{deliverables}.
+Several measures for the success of the project are proposed.
 
-Further work will continue from the existing prototype, which is described in turn in section \ref{curr} below.
+Principally, a test-driven development methodology is utilised, where unit and regression tests are created for the \textbf{largeScaleR} system, with the package continually run against these tests and developed in the direction of passing all tests.
+A code coverage of these tests nearing 100\% is aimed at, as measured by the \textbf{covr} package.
+Memory usage and processing times are also profiled with every release, with the aim for every release of the system to run faster than the previous release on standard tests.
+
+Real-world datasets are made use of and modelled in development, including the flights dataset referenced above, as well as the very large New York ``taxicab'' dataset\cite{tlc2021trips}.
+
+Planned major features outlined in section \ref{future} have specific expected completion times, as laid out in section \ref{deliverables}, with their success being judged by a combination of automated tests and real-world usage, and summarised in feature-specific reports including in-depth comparisons to existing software projects with such features.
+
+As the project matures and becomes feature-wise comparable to existing systems, benchmarking will take place on existing hardware, such as the Statistics department's \textit{Ihaka} cluster. 
+The principal systems for comparison are \texttt{Hadoop} and it's \texttt{R} frontends, \texttt{Spark} through \textbf{Sparklyr}, and \texttt{dask}, among others.
+Real datasets, such as flights or taxicab, as well as realistic and complex models, such as Random Forest, or a Generalised Linear Model, will be used to test the systems in detail.
+
+All referenced milestones and features are accompanied by formal reports, with the more significant to be submitted for publishing in \textit{arXiv}, \textit{the R Journal}, \textit{JSS}, or similar.
+
+Further work will continue from the existing prototype, as described in section \ref{curr}.
+
+The project is fully open-source.
 Progress on written PhD work and experimentation is freely accessible from the \href{https://github.com/jcai849/phd}{\texttt{jcai849/phd}} GitHub repository, and work on the LargeScaleR package is available from the \href{https://github.com/jcai849/phd}{\texttt{jcai849/largeScaleR}} GitHub repository\cite{cairns2020largescaler}.
