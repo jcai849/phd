@@ -17,7 +17,7 @@ Though more complex than keeping everything on one computer, they can be faster 
 Some additional terminology is made use of in distributed systems.
 In networks, individual computers are referred to as \textit{nodes}, and a distributed system will be said to take advantage of some number of nodes\cite{kleppmann2017dataintensive}.
 The pieces of data that are split up and distributed over the nodes are referred to as \textit{chunks} or \textit{shards}, among a variety of other names.
-A program reference to these chunks can take the form of a \textit{distributed object}, which serves as an object-oriented interface to enable data manipulation at varying degrees of transparency\cite{emmerich2000engineering}.\\
+A program reference to these chunks can take the form of a \textit{distributed object}, which serves as an object-oriented interface to enable data manipulation at varying degrees of transparency\cite{emmerich2000engineering}.
 
 Conversely, local systems, seeking to solve the problem of larger-than-memory data, make use of a single computer for data processing, taking advantage of the larger data storage capacity of disk, and often making use of parallel processing.
 
@@ -74,7 +74,7 @@ A number of \texttt{R} packages, \textbf{disk.frame} included, take advantage of
 At some stage however, the data gets too big, or analyses too complex, for one single computer.
 When this is the case, a variety of distributed system approaches have been put forward.
 
-This section of the field is heavily dominated by major existing systems outside of R, so most current approaches serve as basic interfaces to the external system, complete with all of the expected abstraction leaks\cite{spolsky2002abstraction}.\\
+This section of the field is heavily dominated by major existing systems outside of R, so most current approaches serve as basic interfaces to the external system, complete with all of the expected abstraction leaks\cite{spolsky2002abstraction}.
 
 Of the few systems which are unique to \texttt{R}, the \textbf{SNOW} (Simple Network Of Workstations) package stands out.
 It composes part of the \textbf{parallel} package, which is contained in the standard \texttt{R} image\cite{tierney18}.
@@ -87,14 +87,14 @@ This is represented in figure \ref{fig:snow}
 \textbf{SNOW} makes use of several different communications mechanisms, including \texttt{ssh} and user-created sockets.
 It's greatest shortcoming is the lack of persistent data, and the mechanism of distribution employed disallows the usage of very large datasets.
 
-The two dominant external-based packages in \texttt{R} revolve around the \texttt{MPI} system, and \texttt{Spark}.\\
+The two dominant external-based packages in \texttt{R} revolve around the \texttt{MPI} system, and \texttt{Spark}.
 
 \textbf{pbdR} is one such package making heavy use of \texttt{MPI}\cite{pbdR2012}.
 The \textbf{pbdR} (programming with big data in \texttt{R}) project provides persistent data, with the \textbf{pbdDMAT} (programming with big data Distributed MATrices) package offering a user-friendly distributed matrix class to program with over a distributed system\cite{pbdDMATpackage}.
 This abstraction breaks down at a certain level of complexity, and a deep understanding of the powerful \texttt{MPI} system is eventually required; a task out of the league of most practicing statisticians.
 
 \texttt{Spark} sees it's central interface in \texttt{R} through the \textbf{Sparklyr} package, which combines common \textbf{dplyr} methods with objects representing \texttt{Spark} dataframes\cite{luraschi20}.
-Simple analyses are made very simple (assuming a well-configured and already running \texttt{Spark} instance), but custom iterative models are extremely difficult to create through the package in spite of \textbf{Spark's} support for it.\\
+Simple analyses are made very simple (assuming a well-configured and already running \texttt{Spark} instance), but custom iterative models are extremely difficult to create through the package in spite of \textbf{Spark's} support for it.
 
 In the search for a distributed system for statistics, the world outside of \texttt{R} is not entirely barren.
 The central issue with non-R distributed systems is that their focus is very obviously not statistics, and this shows in the level of support the platforms provide for statistical purposes.

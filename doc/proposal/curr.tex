@@ -1,7 +1,8 @@
-To overcome the problem of large-scale statistical analysis in \texttt{R}, what is needed is a platform that is fast and robust, with a focus on a simple interface for fitting statistical models, and the flexibility for implementation of arbitrary new models within R.
+To overcome the problem of large-scale statistical analysis in \texttt{R}, what is needed is a platform that is fast and robust, with a focus on a simple interface for fitting statistical models, and the flexibility for implementation of arbitrary new models within \texttt{R}.
 As of May 2021, a prototype distributed system holding many of the described desired characteristics, has been implemented in \texttt{R} as part of this research.
 This system is tentatively named \textbf{LargeScaleR}, and takes the form of an \texttt{R} package, complete with minor documentation and a moderate proportion of tests.
-It has been used to successfully read and manipulate data over a cluster of 8 nodes, including 4 processes on each node, as well as non-trivial distributed manipulations such as tabling of dataframes, all operating at a very high speed of operation.
+It has been used to successfully read and manipulate data over a cluster of multiple nodes, including multiple processes on each node, as well as non-trivial distributed manipulations such as tabling of dataframes, all operating at a very high speed of operation.
+As it currently stands, the package comprises around 230 individual functions.
 
 \subsection{Overview of \textbf{largeScaleR}}\label{sec:sys-imp}
 
@@ -12,10 +13,10 @@ This master process can then initialise other processes, sitting on any node, to
 These secondary processes are dubbed ``worker processes''.
 
 The worker processes are entirely independent of the master process, and none of these processes contain any information to identify other processes.
-The only mechanism these processes have to communicate is via a communication queue, which serves as the primary mechanism behind the operation of the main conceptual pieces interacted with by a user: distributed objects.\\
+The only mechanism these processes have to communicate is via a communication queue, which serves as the primary mechanism behind the operation of the main conceptual pieces interacted with by a user: distributed objects.
 
 Distributed objects are a means of access to chunks of objects on a distributed system\cite{emmerich2000engineering}.
-They serve as a reference that acts as a transparent handle to fragmented referents (\textit{chunks}) over a distributed system, with each chunk being a portion of data residing on some worker process.\\
+They serve as a reference that acts as a transparent handle to fragmented referents (\textit{chunks}) over a distributed system, with each chunk being a portion of data residing on some worker process.
 
 To take a concrete example, consider the flights dataset as described above.
 Assume that the dataset is split into four pieces row-wise, with the first two pieces residing on two separate processes, and the last two on a single process.
@@ -39,12 +40,12 @@ Figure \ref{fig:qtop} depicts this additional detail, continuing from the exampl
 \input{doc/proposal/fig-qtop}
 
 A major supporting component of the system's distributed architecture is the act of ``emerging'', wherein a reference is used to pull all of it's referents locally\cite{emmerich2000engineering}.
-This takes place through directly sending serialised chunks to the requester, where methods exist to combine them.\\
+This takes place through directly sending serialised chunks to the requester, where methods exist to combine them.
 
 Multivariate manipulations of the data make use of emerging on the worker end, where multiple distributed objects are referenced in one single function request on a queue, and the worker must determine the appropriate alignment of chunks, including the use of \texttt{R}'s recycling rules, before emerging all distributed objects and performing the operation.
 
 Distributed objects stand-in for regular \texttt{R} objects, and can represent any class that has split and combine methods defined.
-These include all atomic vectors, lists, dataframes, matrices, and arbitrary user-created classes.\\
+These include all atomic vectors, lists, dataframes, matrices, and arbitrary user-created classes.
 
 Another key aspect to the architecture of the system is detailed logging, with all changes of state in a node recorded and the information dispatched to a central logger, which allows monitoring of the system in one location. The collection of logs is sufficient to build a complete picture of the system, with a Model-View-Controller pattern in an external program able to parse the logs, calculate system state, and display that in a simple interface\cite{gamma1995design}.
 
@@ -80,28 +81,28 @@ This is the only method enabling full parallelisation, and it is general enough 
 Alongside distribution of the data, the user is returned a distributed object to use for referencing the distributed data.
 In the case of the third method described, this occurs near-instantaneously, with the data being read concurrently.
 
-The data referenced by distributed objects can be sent from workers more simply; once established, an \texttt{emerge} method is run over a distributed object, and the underlying chunks are sent directly from the worker, to be combined at the master end.
+The data referenced by distributed objects can be sent from workers more simply; once established, an \mintinline{r}{emerge()} method is run over a distributed object, and the underlying chunks are sent directly from the worker, to be combined at the master end.
 Such movement is taken advantage of by workers as well, when they are faced with operations on multiple disparate distributed objects - this is hidden from the user, however.
 
 The benefits of distributed objects grow commensurately with their degree of transparency, and \textbf{largeScaleR} has transparency as a central goal.
-Many common functions have methods provided operating on distributed objects, including most \texttt{Group} methods such as \texttt{Ops}, \texttt{Math}, and \texttt{Summary}.
-More complex methods such as \texttt{table} and \texttt{rbind} are also given, and for very simple analyses, these are often enough to serve as the backbone of the analysis until the data is summarised sufficiently that it can be \texttt{emerge}'ed and less simple analyses run locally.
+Many common functions have methods provided operating on distributed objects, including most \mintinline{r}{Group} methods such as \mintinline{r}{Ops}, \mintinline{r}{Math}, and \mintinline{r}{Summary}.
+More complex methods such as \mintinline{r}{table()} and \mintinline{r}{rbind()} are also given, and for very simple analyses, these are often enough to serve as the backbone of the analysis until the data is summarised sufficiently that an \mintinline{r}{emerge()} can be performed and more complex analyses run locally.
 
 Alternatively, an extra layer of control is granted to the user looking for more than pre-formed functions:
-functionality inspired by the \texttt{do.call} function in \texttt{R} allows passing anonymous or existing functions, along with a list of distributed and potentially local data, and the provided functions are run over the referent data pointed to by the distributed objects.
+functionality inspired by the \mintinline{r}{do.call()} function in \texttt{R} allows passing anonymous or existing functions, along with a list of distributed and potentially local data, and the provided functions are run over the referent data pointed to by the distributed objects.
 A distributed object referring to the results is returned.
-This is actually how most of the transparent methods were implemented, with the distributed \texttt{do.call} serving as a wrapped intermediary.
-Such a technique is equivalent to a Map, with a reduce also possible through either reducing at the worker end, in parallel, or even followed by an \texttt{emerge} and local reduction\cite{mccool2012structured}.
+This is actually how most of the transparent methods were implemented, with the distributed \mintinline{r}{do.call()} serving as a wrapped intermediary.
+Such a technique is equivalent to a Map, with a reduce also possible through either reducing at the worker end, in parallel, or even followed by an \mintinline{r}{emerge()} and local reduction\cite{mccool2012structured}.
 
 \subsection{Example Session}
 
-For the purposes of demonstration, the following is an example session with the prototype \textbf{largeScaleR} package.
+For the purposes of demonstration, an example session with the prototype \textbf{largeScaleR} package is given.
 The data is a subset of the flights dataset, including the latter months of the 1987 flights.
 The object of investigation in this simple analysis is the variation in cancellation of Monday flights along different months.
 
 The cluster is started as in listing \ref{src:input}, with an \mintinline{r}{init()} function, which reads a configuration file describing the cluster.
-The flights data is then read and distributed, along with column type descriptions, at a small size for the purpose of demonstrating a large amount of chunk references.
-\begin{listing}[H]
+The flights data is then read and distributed with column type descriptions, at a small chunk size for the purpose of demonstrating a large number of chunk references.
+\begin{listing}%[H]
 \begin{minted}{rconsole}
 > init("config")
 
@@ -115,13 +116,13 @@ The flights data is then read and distributed, along with column type descriptio
 \caption{Initial input to the distributed system}\label{src:input}
 \end{listing}
 
-Upon successful reading, this dataset now exists as a distributed object reference locally, serving as a proxy object pointing to the many chunks distributed across processes and hosts.
+Upon successful reading, this dataset exists as a distributed object reference in the user session, serving as a proxy object pointing to the many chunks distributed across processes and hosts.
 Printing the \mintinline{r}{flights} object reveals the number of references as 122, as shown in listing \ref{src:flights-structure}.
 A \mintinline{r}{preview()} of the distributed object can be taken, which pulls a portion of the first chunk for viewing.
 Standard functions such as \mintinline{r}{nrow()} behave as expected on the distributed object.
 ``Meta'' functions that give information on the distribution of the object can be run as well, including information on descriptors with \mintinline{r}{desc()} and the hostnames of where each chunk is stored with \mintinline{r}{host()}.
 
-\begin{listing}[H]
+\begin{listing}%[H]
 \begin{minted}{rconsole}
 > print(flights)
 Distributed Object Reference with 122 chunk references.
@@ -175,15 +176,15 @@ Chunk Reference with Descriptor 1
 \caption{Exploration of the structure of the flights dataset}\label{src:flights-structure}
 \end{listing}
 
-To attain a table Monday flights, standard \texttt{R} methods of data manipulation can be used, shown in listing \ref{src:manipulation}.
-Creating a logical vector and using that as a subset, a mechanism known as a Boolean mask, is commonly performed, and enabled entirely transparently in \textbf{largeScaleR}.
-The creation of such a vector involves plenty of work behind the scenes, including the distribution of the comparative operator (\mintinline{r}{1L} in this case), and the appropriate alignment for recycling (trivial in this case, being of length 1).
-To demonstrate functionality, the \mintinline{r}{sum()} of a logical vector is the same as the \mintinline{r}{length()} of the subset resulting from the logical.
+To attain a table of Monday flights, standard \texttt{R} methods of data manipulation can be used, shown in listing \ref{src:manipulation}.
+Creating a logical vector and using it to subset the originating data, a mechanism known as a Boolean mask, is commonly performed in \texttt{R}, and enabled entirely transparently in \textbf{largeScaleR}.
+The creation of such a vector in distributed fashion involves a significant amount of work behind the scenes, including the distribution of the comparative operator (\mintinline{r}{1L} in this case), communications regarding the intended function to be performed, and achieving the appropriate alignment of the comparative operator for recycling.
+To demonstrate functionality, the \mintinline{r}{sum()} of the distributed logical vector is taken and should be found to be the same as the \mintinline{r}{length()} of the subset resulting from the distributed logical vector.
 These vectors, like all distributed objects, can be previewed, regardless of underlying class.
 Finally, a \mintinline{r}{table()} method exists to tabulate the chunks of the distributed vectors in parallel, and combine them locally.
 This can then be used for further analysis, such as in a \(\chi^2\)-test or similar.
 
-\begin{listing}[H]
+\begin{listing}%[H]
 \begin{minted}{rconsole}
 > isMondayFlights <- flights$DayOfWeek == 1L
 
@@ -226,7 +227,7 @@ An \texttt{S3} ``message'' class was defined in \textbf{largeScaleR} to standard
 This has proven to be a complex model, with the internal handling of queues having major effects on the manner of communication taking place in the system.
 Alternative communication protocols have the same associated issue, and there has not been one single obvious communications system that grants great implementation-independence, though \texttt{redis} surely comes the closest\cite{sanfilippo2009redis}.
 
-Following acts of communication, the evaluation of a message has it's own complexities, with the following example given as the current implementation with two distributed objects:\\
+Following acts of communication, the evaluation of a message has it's own complexities, with the following example given as the current implementation with two distributed objects:
 \begin{enumerate}
 	\item The distributed objects first go through a complex act of alignment.
 	\item They are all compared with the target chunk, and aligned accordingly.

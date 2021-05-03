@@ -42,3 +42,6 @@ clean:
 	rm -f $(OUTDIR)/*.ist
 	rm -f $(OUTDIR)/*.nav
 	rm -f $(OUTDIR)/*.snm
+	rm -f $(OUTDIR)/*.lof
+	rm -f $(OUTDIR)/*.lol
+	rm -f $(OUTDIR)/*.lot
