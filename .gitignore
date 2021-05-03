@@ -31,3 +31,6 @@ tags
 *.rdb
 *.nav
 *.snm
+*.lof
+*.lol
+*.lot
