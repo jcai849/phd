@@ -1,0 +1,310 @@
+\documentclass[handout]{beamer}
+\usetheme{Rochester}
+\usecolortheme{seahorse}
+\usepackage{doc/header}
+%\usepackage{pgfpages}
+%\pgfpagesuselayout{4 on 1}[a4paper,border shrink=5mm,landscape]
+\title{A Platform for Large-Scale Statistical Modelling Using R}
+\subtitle{Preliminary Results}
+\author{Jason Cairns}
+\institute{University of Auckland}
+\date{NZSA Unconference 2020}
+\begin{document}
+\frame{\titlepage}
+
+\section{Introduction}
+	\begin{frame}
+		\frametitle{Introducing a Platform for Large-Scale Analysis in R}
+		\framesubtitle{Introduction \& Motivation}
+		\begin{itemize}
+			\item User friendly and programmer friendly distributed
+				system in R for performing analyses with
+				larger-than-memory data
+			\item More computers \(\to\) more memory
+			\item More computers \(\to\) more processing power
+			\item Simply get multiple computers and run package
+		\end{itemize}
+	\end{frame}
+	\begin{frame}
+		\frametitle{A Brief Background}
+		\framesubtitle{Split data into chunks}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+				\begin{tikzpicture}
+				\node (rect) [draw,minimum width=10,minimum height=30] {};
+
+				\node (midc) [object,right=of rect] {};
+				\node (topc) [object,above=of midc] {};
+				\node (botc) [object,below=of midc] {};
+
+				\draw[mypath] (rect) -- (midc);
+				\draw[mypath] (rect) -- (topc);
+				\draw[mypath] (rect) -- (botc);
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+	\begin{frame}
+		\frametitle{A Brief Background}
+		\framesubtitle{Scatter chunks across nodes}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (midc) [object] {};
+				\node (topc) [object,above=of midc] {};
+				\node (botc) [object,below=of midc] {};
+				
+				\node (rmidc) [object,right=of midc] {};
+				\node (rtopc) [object,above=of rmidc] {};
+				\node (rbotc) [object,below=of rmidc] {};
+
+
+				\begin{pgfonlayer}{units}
+					\node[unit,fit=(rtopc)] (rtopnode) {};
+					\node[unit,fit=(rmidc)] (rmidnode) {};
+					\node[unit,fit=(rbotc)] (rbotnode) {};
+				\end{pgfonlayer}
+
+				\draw[mypath] (midc) -- (rmidnode);
+				\draw[mypath] (topc) -- (rtopnode);
+				\draw[mypath] (botc) -- (rbotnode);
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+	\begin{frame}
+		\frametitle{A Brief Background}
+		\framesubtitle{Use platform to coordinate chunks/nodes through reference objects}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (master) [object,opacity=0] {};
+
+				\node (mc) [object,above=of master] {};
+				\node (rc) [object,right=of mc] {};
+				\node (lc) [object,left=of mc] {};
+
+				\begin{pgfonlayer}{units}
+					\node[unit,fit=(master)] (msn) {};
+					\node[unit,fit=(mc)] (mn) {};
+					\node[unit,fit=(rc)] (rn) {};
+					\node[unit,fit=(lc)] (ln) {};
+				\end{pgfonlayer}
+
+				\draw[mydoublepath] (mn) -- (rn);
+				\draw[mydoublepath] (mn) -- (ln);
+				\draw[mydoublepath] (msn) -- (mn);
+				\draw[mydoublepath] (ln.north) to[bend left] (rn.north);
+				\draw[mydoublepath] (msn) -- (rn);
+				\draw[mydoublepath] (msn) -- (ln);
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+\section{Demo}
+	\begin{frame}
+		\frametitle{Demo}
+		\framesubtitle{Simple Analysis of flights data}
+		\begin{itemize}
+			\item 118M observations of commercial flights in US
+			\item 16Gb dataset; 32 processes on 8 low--mid-tier machines
+		\end{itemize}
+	\end{frame}
+\section{Interface}
+	\begin{frame}
+		\frametitle{A User- and Programmer-friendly Interface}
+		\framesubtitle{User Layer}
+		\begin{itemize}
+			\item For general usage
+			\item Regular R (objects are just references behind the scenes)
+			\item All group methods already functioning
+		\end{itemize}
+	\end{frame}
+	\begin{frame}
+		\frametitle{A User- and Programmer-friendly Interface}
+		\framesubtitle{Programmer Layer}
+		\begin{itemize}
+			\item For extensibility and arbitrary parallel programming
+			\item Asynchronous references to chunks (futures)
+			\item \mintinline{r}{do.call()} derivatives;
+				\mintinline{r}{do.call.distObjRef(what, args)}
+			\item \mintinline{r}{emerge(ref)}
+		\end{itemize}
+	\end{frame}
+\section{Architecture}
+	\begin{frame}
+		\frametitle{Architecture, by Way of Example}
+		\framesubtitle{Recycling}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (x1) [object,label=\mintinline{r}{x}] {};
+				\node (x2) [object,below=0 of x1] {};
+				\node (x3) [object,below=0 of x2] {};
+				\node (x4) [object,below=0 of x3] {};
+				\node (x5) [object,below=0 of x4] {};
+				\node (x6) [object,below=0 of x5] {};
+
+				\node (y1) [object,label=\mintinline{r}{y},right={0.5*\commdist} of x1] {};
+				\node (y2) [object,below=0 of y1] {};
+
+				\node (y3) [object,draw=dark2-3,below=0 of y2] {};
+				\node (y4) [object,draw=dark2-3,below=0 of y3] {};
+
+				\node (y5) [object,draw=dark2-1,below=0 of y4] {};
+				\node (y6) [object,draw=dark2-1,below=0 of y5] {};
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+	\begin{frame}
+		\frametitle{Architecture, by Way of Example}
+		\framesubtitle{A need for Communication and Movement}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (master) [object,opacity=0] {};
+
+				\node (x3) [object,right=\commdist of master] {};
+				\node (x2) [object,above=0 of x3] {};
+				\node (x1) [object,above=0 of x2] {};
+
+				\node (x4) [object,below={3*\blockdist} of x3] {};
+				\node (x5) [object,below=0 of x4] {};
+				\node (x6) [object,below=0 of x5] {};
+
+				\node (y1) [object,right={0.5*\commdist} of x1] {};
+				\node (y2) [object,below=0 of y1] {};
+
+				\begin{pgfonlayer}{units}
+					\node[unit,fit=(master),label={\mintinline{r}{z <-}}] (msn) {};
+					\node[unit,fit=(x1)(x2)(x3),label={\mintinline{r}{x}}] (xd1) {};
+					\node[unit,fit=(x4)(x5)(x6)] (xd2) {};
+					\node[unit,fit=(y1)(y2),label={\mintinline{r}{y}}] (yd1) {};
+				\end{pgfonlayer}
+
+				\path (xd1) -- (yd1) node[midway,anchor=south] {\mintinline{r}{+}};
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+	\begin{frame}
+		\frametitle{Architecture, by Way of Example}
+		\framesubtitle{A means for Communication and Movement}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (master) [object,opacity=0] {};
+
+				\node (x3) [object,right=\commdist of master] {};
+				\node (x2) [object,above=0 of x3] {};
+				\node (x1) [object,above=0 of x2] {};
+
+				\node (x4) [object,below={3*\blockdist} of x3] {};
+				\node (x5) [object,below=0 of x4] {};
+				\node (x6) [object,below=0 of x5] {};
+
+				\node (y1) [object,right={0.5*\commdist} of x1] {};
+				\node (y2) [object,below=0 of y1] {};
+
+				\node (m1) [node,right=\blockdist of master,scale=0.5] {};
+				\node (m2) [node,left=\blockdist of x2,scale=0.5] {};
+				\node (m3) [node,left=\blockdist of x5,scale=0.5] {};
+
+				\begin{pgfonlayer}{units}
+					\node[unit,fit=(master),label={\mintinline{r}{z <-}}] (msn) {};
+					\node[unit,fit=(x1)(x2)(x3),label={\mintinline{r}{x}}] (xd1) {};
+					\node[unit,fit=(x4)(x5)(x6)] (xd2) {};
+					\node[unit,fit=(y1)(y2),label={\mintinline{r}{y}}] (yd1) {};
+				\end{pgfonlayer}
+
+				\draw[mypath] (m1) -- (m2);
+				\draw[mypath] (m1) -- (m3);
+				\draw[mydoublepath] (xd1) -- (yd1);
+				\draw[mydoublepath] (xd2) -- (yd1);
+				\path (xd1) -- (yd1) node[midway,anchor=south] {\mintinline{r}{+}};
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+	\begin{frame}
+		\frametitle{Architecture, by Way of Example}
+		\framesubtitle{Ready for the next instruction}
+		\begin{figure}
+			\centering
+			\scalebox{2}{
+			\begin{tikzpicture}
+				\node (master) [object,opacity=0] {};
+
+				\node (x3) [object,right=\commdist of master] {};
+				\node (x2) [object,above=0 of x3] {};
+				\node (x1) [object,above=0 of x2] {};
+
+				\node (x4) [object,below={3*\blockdist} of x3] {};
+				\node (x5) [object,below=0 of x4] {};
+				\node (x6) [object,below=0 of x5] {};
+
+				\node (z1) [object,right=\blockdist of x1] {};
+				\node (z2) [object,right=\blockdist of x2] {};
+				\node (z3) [object,right=\blockdist of x3] {};
+				\node (z4) [object,right=\blockdist of x4] {};
+				\node (z5) [object,right=\blockdist of x5] {};
+				\node (z6) [object,right=\blockdist of x6] {};
+
+				\node (y1) [object,right={0.5*\commdist} of z1] {};
+				\node (y2) [object,below=0 of y1] {};
+
+				\node (m1) [node,left=\blockdist of x2,scale=0.5] {};
+				\node (m2) [node,left=\blockdist of x3,scale=0.5] {};
+				\node (m3) [node,left=\blockdist of m2,scale=0.5] {};
+				\node (m4) [node,left=\blockdist of x5,scale=0.5] {};
+				\node (m5) [node,left=\blockdist of x6,scale=0.5] {};
+				\node (m6) [node,left=\blockdist of m5,scale=0.5] {};
+
+				\begin{pgfonlayer}{units}
+					\node[unit,fit=(master)] (msn) {};
+					\node[unit,fit=(x1)(x2)(x3)(z1)(z2)(z3),label={\mintinline{r}{x z}}] (xd1) {};
+					\node[unit,fit=(x4)(x5)(x6)(z4)(z5)(z6)] (xd2) {};
+					\node[unit,fit=(y1)(y2),label={\mintinline{r}{y}}] (yd1) {};
+				\end{pgfonlayer}
+			\end{tikzpicture}
+			}
+		\end{figure}
+	\end{frame}
+\section{Similar Packages}
+	\begin{frame}
+		\frametitle{Similar Packages have Different Focuses}
+		\begin{itemize}
+			\item Sparklyr - Spark + dplyr
+			\item pbdDMAT - Interface to HPC platforms
+			\item SNOW - Distributed processing
+			\item foreach - loop interface
+		\end{itemize}
+	\end{frame}
+\section{Summary and Questions}
+	\begin{frame}
+		\frametitle{Summary \& Questions}
+		\begin{itemize}
+			\item Highly extensible platform in R for performing
+				analyses with larger-than-memory data
+			\item Plenty more in store - watch this space!
+			\item \url{https://github.com/jcai849/distObj.git}
+			\item Questions?
+		\end{itemize}
+	\end{frame}
+\section{Project Direction}
+	\begin{frame}
+		\frametitle{There is a lot More in Store}
+		\begin{itemize}
+			\item Resilience \& further decentralisation
+			\item Memory management, GC
+			\item Dashboard
+		\end{itemize}
+	\end{frame}
+\end{document}

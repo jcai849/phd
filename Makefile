@@ -5,13 +5,18 @@ TEX	:= $(wildcard $(DOCDIR)/*.tex)
 TEXOUT  := $(addprefix $(OUTDIR)/, $(notdir $(TEX:.tex=.pdf)))
 MD	:= $(wildcard $(DOCDIR)/*.md)
 MDOUT	:= $(addprefix $(OUTDIR)/, $(notdir $(MD:.md=.html)))
+DOT	:= $(wildcard $(DOCDIR)/*.dot)
+DOTOUT  := $(addprefix $(DOCDIR)/, $(notdir $(DOT:.dot=.svg)))
 
 .PHONY: all clean
 
-all: $(TEXOUT) $(MDOUT)
+all: $(TEXOUT) $(MDOUT) $(DOTOUT)
 
 $(OUTDIR)/%.html: $(DOCDIR)/%.md
-	pandoc -s -V theme=solarized -t revealjs $< >$@
+	pandoc -V theme=white --self-contained -t revealjs $< -o $@
+
+$(DOCDIR)/%.svg: $(DOCDIR)/%.dot
+	dot -Tsvg $< >$@
 
 $(OUTDIR)/%.pdf: $(DOCDIR)/%.tex
 	mkdir -p $(OUTDIR)
@@ -22,11 +27,10 @@ $(OUTDIR)/%.pdf: $(DOCDIR)/%.tex
 
 print-%  : ; @echo $* = $($*)
 
-
 clean:
 	rm -f $(OUTDIR)/*.aux
 	rm -rf $(OUTDIR)/_minted*
-	rm -f $(OUTDIR)/*.svg
+	rm -f $(OUTDIR)/*.eps
 	rm -f $(OUTDIR)/*.bbl
 	rm -f $(OUTDIR)/*.blg
 	rm -f $(OUTDIR)/*.bcf

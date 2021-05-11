@@ -34,3 +34,7 @@ tags
 *.lof
 *.lol
 *.lot
+*.svg
+*.eps
+*.png
+*.html

@@ -5,8 +5,9 @@ Depends:
 - MiKTeX
 - biber
 - R 		(3.6.0+)
-- Python 	(2.6+)
 - Pygments 	(2.0+; pip install Pygments)
+- pandoc
+- graphviz
 
 Navigation:
 .

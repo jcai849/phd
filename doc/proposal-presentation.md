@@ -30,28 +30,40 @@ Version:            0.4
 
 # Local Approaches
 - disk.frame: File-backed dataframes
-![disk.frame architecture with four chunks](diskframe.svg)
 - parallelism, multicore
+
+--------
+
+![](doc/diskframe.svg)
 
 # Approaches Outside of R
 - Hadoop (HDFS, _MapReduce_)
-![MapReduce operation](mapreduce.svg)
 - Spark (RDS): Scala; response to Hadoop; RDD, Dataset API
 - MPI: C, C++, Fortran; de-facto standard for HPC; explicit point-to-point communications
 - Dask: Python; Task scheduling, distributed data structures
 
+--------
+
+![](doc/mapreduce.svg)
+
 # Distributed Approaches Within R
 - SNOW: Split list and map over multiple processes
-![SNOW architecture with four chunks](snow.svg)
 - pbdR, pbdDMAT: R frontend to MPI
 - SparklyR: R frontend to Spark
+
+--------
+
+![](doc/snow.svg)
 
 # Preliminary Results
 - Initial package development
 - Cluster initialisation
 - Object distribution
-![Distributed object reference relations](distobjref.svg)
 - Demonstration
+
+--------
+
+![](doc/distobjref.svg)
 
 # Preliminary Results in Detail
 - Queue communication
@@ -60,8 +72,13 @@ Version:            0.4
 - `do.dcall(what, args)`
 - Generics
 - `emerge()`; `combine()`
-![Distributed object communication relations](distobjcomm.svg)
 - Demonstration
+
+--------
+
+![](doc/distobjcomm.svg)
+
+
 
 # Issues
 - Communication: Queues, responses
