@@ -75,9 +75,9 @@ Version:            0.4
 - Interfacing with other systems
 - Benchmarking
 
-# Demonstration
+# Demonstration & Questions
 - Taxicab dataset
-- Objective: Determine tips by passenger number
+- Objective: Determine tips by passenger number for CMT taxis
 - 32 processes over 8 nodes
 
 # Contact
