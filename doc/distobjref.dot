@@ -1,0 +1,37 @@
+digraph distobjref {
+	colorscheme="pastel13"
+	rankdir="LR";
+	node [style="filled", fillcolor=white];
+	style="filled";
+
+	subgraph cluster_distobjref {
+		label="Distributed Object Reference";
+		fillcolor=1;
+		cr1[label="Chunk Reference 1"];
+		cr2[label="Chunk Reference 2"];
+		cr3[label="Chunk Reference 3"];
+		cr4[label="Chunk Reference 4"];
+	}
+
+	subgraph cluster_process1 {
+		label="process 1";
+		fillcolor=2;
+		c1[label="chunk 1"];
+	}
+	subgraph cluster_process2 {
+		label="process 2";
+		fillcolor=2;
+		c2[label="chunk 2"];
+	}
+	subgraph cluster_process3 {
+		label="process 3";
+		fillcolor=2;
+		c3[label="chunk 3"];
+		c4[label="chunk 4"];
+	}
+
+	cr1 -> c1;
+	cr2 -> c2;
+	cr3 -> c3;
+	cr4 -> c4;
+}
