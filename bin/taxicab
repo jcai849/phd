@@ -18,4 +18,4 @@ awk -v N=$NHOST 'BEGIN { for(i=1;i<=N;i++) print i }' |
 	xargs -P0 -I %i sh -c "awk -v N=$CHUNKSPERHOST 'BEGIN { for(j=0;j<N;j++) printf \"taxicab-%02d\n\0\", j+ ((%i - 1) * N) }'|
 		xargs -P0 -I %j scp %j hadoop%i:%j.csv"
 
-#./doall find -name taxicab\\* -maxdepth 1
+#./doall find -name taxicab\\* -maxdepth 1 -delete

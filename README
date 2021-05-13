@@ -19,11 +19,10 @@ Navigation:
 │   ├── glossary.tex		Glossary file
 │   └── header.sty		Header for all tex notes, used as package
 ├── img				Output images and diagrams
-├── LOG				Daily log file
 ├── Makefile			Build pdfs from latex files in doc/
 ├── meta			Documents relating to enrolment
 ├── out				Built pdf directory
 ├── R				R scripts
 ├── README			self
-├── scripts			Miscellaneous scripts
+├── bin			Miscellaneous scripts
 └── TODO			Stack of next requirements
