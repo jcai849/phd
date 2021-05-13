@@ -1,0 +1,5 @@
+mkdir -p /space/taxicab
+cd /space/taxicab
+seq 7 | xargs -I% -P0 curl -s "https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2010-0%.csv" -o "yellow_tripdata_2010-%.csv"
+len=wc *.csv
+find -name '*.csv' -exec sed '2d' {} \; | split --numeric-suffixes=1 -l `expr 99001551 / 32` -a 2 --additional-suffix=.csv - taxicab-
