@@ -6,16 +6,22 @@ MAXLINE=2500000
 CHUNKMAX=32
 mkdir -p /space/taxicab
 cd /space/taxicab
-awk -v N=$NCSV 'BEGIN { for(i=1;i<=N;i++) printf "%02d\n\0", i }' | 
-	xargs -I % -P 0 sh -c "
-		curl -s \"https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2010-%.csv\" |
-		sed '1,2d'" |
-	csplit -k -f 'taxicab-' - $MAXLINE '{'`expr $CHUNKMAX-2`'}'
-NCHUNK=`find -name 'taxicab*' -printf '.' | wc -c`
+curl "https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2010-[01-07].csv" -o "taxicab-#1.csv"
+find -name 'taxicab-*' -exec sed '1,2d' {} \; |
+	split -l $MAXLINE
+NCHUNK=`find -name '*' -printf '.' | wc -c`
 CHUNKS=`test $NCHUNK \< $CHUNKMAX && printf '%d'  $NCHUNK || printf '%d' $CHUNKMAX`
 CHUNKSPERHOST=`expr $CHUNKS / $NHOST`
-awk -v N=$NHOST 'BEGIN { for(i=1;i<=N;i++) print i }' |
-	xargs -P0 -I %i sh -c "awk -v N=$CHUNKSPERHOST 'BEGIN { for(j=0;j<N;j++) printf \"taxicab-%02d\n\0\", j+ ((%i - 1) * N) }'|
-		xargs -P0 -I %j scp %j hadoop%i:%j.csv"
+awk "BEGIN { for(i=0;i<$NHOST;i++) {
+			for(j=0;j<$CHUNKSPERHOST;j++) {
+				printf \"scp x%c%c hadoop%d:taxicab-%02d.csv\n\0\",
+				97+((j+(i*$CHUNKSPERHOST))/26),
+				97+((j+(i*$CHUNKSPERHOST))%26), 
+				i+1,
+				j+(i*$CHUNKSPERHOST)
+			}
+		}
+	}" |
+	xargs -P0 -I % sh -c {}
 
-#./doall find -name taxicab\\* -maxdepth 1 -delete
+#doall find -name taxicab\\* -maxdepth 1 -delete
