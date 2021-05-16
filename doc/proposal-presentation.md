@@ -6,52 +6,60 @@ date: 2020-05-18
 
 # Introduction
 
-- _Real-time_ _flexible_ platform for _modelling_ with _larger-than-memory_ datasets
+- **Real-time** **flexible** and **extensible** platform for **modelling** with **larger-than-memory** datasets in **R**
 ```
 Package:            largeScaleR
 Type:               Package
-Title:              Provides a Distributed Framework for Statistical
-                    Modelling
+Title:              Provides a Distributed Framework 
+                    for Statistical Modelling
 Version:            0.4
 ```
 
 # Motivation
 - Larger-than-Memory datasets
 - _e.g._ taxicab: Monthly updated dataset of Taxi trips from TLC
+- ~2.5Gb/month since 2009 (~1/3Tb)
 - Naive result: crash/thrash. Why?
 
 # Specifications
 - A platform enabling creation of novel models for larger-than-memory datasets
-- Interactive
+- **Interactive**
 - Simple to use and setup; minimal difference to using existing system
 - Fast
 - Robust
-- Extensible
+- **Extensible**
 
 # Local Approaches
-- disk.frame: File-backed dataframes
-- parallelism, multicore
+## Using R
+- disk.frame
+- multicore
 
---------
+# disk.frame
+
+File-backed dataframes
 
 ![](doc/diskframe.svg)
 
-# Approaches Outside of R
+# Distributed Approaches
+## Outside of R
+- MPI: C, C++, Fortran; de-facto standard for HPC; explicit point-to-point communications
 - Hadoop (HDFS, _MapReduce_)
 - Spark (RDS): Scala; response to Hadoop; RDD, Dataset API
-- MPI: C, C++, Fortran; de-facto standard for HPC; explicit point-to-point communications
 - Dask: Python; Task scheduling, distributed data structures
 
---------
+# MapReduce with Hadoop
 
 ![](doc/mapreduce.svg)
 
-# Distributed Approaches Within R
-- SNOW: Split list and map over multiple processes
+# Distributed Approaches
+## Using R
+- SNOW
 - pbdR, pbdDMAT: R frontend to MPI
 - SparklyR: R frontend to Spark
 
---------
+# SNOW
+
+Split list and map over multiple processes
 
 ![](doc/snow.svg)
 
@@ -59,7 +67,7 @@ Version:            0.4
 - Initial package development
 - Cluster initialisation
 - Object distribution
-- Demonstration
+- Distributed Object interaction
 
 --------
 
@@ -68,20 +76,24 @@ Version:            0.4
 # Preliminary Results in Detail
 - Queue communication
 - Worker evaluation
-- `distribute()`; `split()`
-- `do.dcall(what, args)`
-- Generics
-- `emerge()`; `combine()`
-- Demonstration
 
 --------
 
 ![](doc/distobjcomm.svg)
 
+# Preliminary Results in Detail
+- `distribute()`
+- `do.dcall(what, args)`
+- Generics
+- `emerge()`
+- Demonstration
 
+# Demonstration
+- First 3 months 2011 Taxicab dataset (SIZE?)
+- Create plot of pickup locations, determine total tips
+- 32 processes over 8 nodes
 
-# Issues
-- Communication: Queues, responses
+# Challenges 
 - Evaluation & Alignment: Recycling over distributed arrays
 - Asynchrony: Race conditions, dependencies
 - Debugging: Distributed errors
@@ -92,11 +104,9 @@ Version:            0.4
 - Interfacing with other systems
 - Benchmarking
 
-# Demonstration & Questions
-- Taxicab dataset
-- Objective: Determine tips by passenger number for CMT taxis
-- 32 processes over 8 nodes
-
 # Contact
+
+GitHub
+
 - [jcai849/phd](github.com/jcai849/phd)
 - [jcai849/largeScaleR](github.com/jcai849/largeScaleR)
