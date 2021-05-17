@@ -1,5 +1,5 @@
 digraph G {
-	colorscheme=pastel13;
+	colorscheme=Blues9;
 	style=filled;
 	rankdir="LR"
 	node [style=filled,fillcolor=white];

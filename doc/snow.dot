@@ -1,5 +1,6 @@
 digraph snow {
-	colorscheme="pastel13"
+	colorscheme="Blues9"
+	rankdir="LR";
 	node [style="filled", fillcolor=white];
 	style="filled";
 

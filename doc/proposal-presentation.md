@@ -84,13 +84,13 @@ Split list and map over multiple processes
 # Preliminary Results in Detail
 - `distribute()`
 - `do.dcall(what, args)`
-- Generics
 - `emerge()`
-- Demonstration
+- Generics
 
-# Demonstration
-- First 3 months 2011 Taxicab dataset (SIZE?)
-- Create plot of pickup locations, determine total tips
+# Main Demonstration
+- First 3 months 2011 Taxicab dataset (32M rows)
+- Determine total tips
+- Create plots of pickup & dropoff locations
 - 32 processes over 8 nodes
 
 # Challenges 

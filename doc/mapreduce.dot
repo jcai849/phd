@@ -1,5 +1,5 @@
 digraph mapreduce {
-	colorscheme="pastel13"
+	colorscheme="Blues9"
 	node [style="filled", fillcolor=white];
 	style="filled";
 	rankdir="LR";
