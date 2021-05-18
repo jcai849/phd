@@ -1,7 +1,7 @@
 ---
 title: A Platform for Large-scale Statistical Modelling using R
 author: Jason Cairns
-date: 2020-05-18
+date: 2021-05-18
 ---
 
 # Introduction
@@ -108,5 +108,5 @@ Split list and map over multiple processes
 
 GitHub
 
-- [jcai849/phd](github.com/jcai849/phd)
-- [jcai849/largeScaleR](github.com/jcai849/largeScaleR)
+- [jcai849/phd](https://github.com/jcai849/phd)
+- [jcai849/largeScaleR](https://github.com/jcai849/largeScaleR)
