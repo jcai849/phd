@@ -10,14 +10,14 @@ To take a concrete example of the problem, consider how a statistician may attem
 This is actually a small dataset compared to many other large datasets, yet it is still not possible to perform an analysis in the same manner as would usually be conducted on small-scale datasets.
 \texttt{R}, or any other common statistical computing system, simply won't be able to read in the data in the same fashion, as it is too big to fit in memory.
 The reason for this failure lies in the memory hierarchy of computers, wherein different forms of data storage utilised by computers have varying response times and volatility.
-Using the Dell Optiplex 5080 as a typical desktop PC build, the statistician has 16Gb of Random Access Memory (RAM) for fast main memory, to be used as a program data store; and a 256Gb Solid State Drive (SSD) for slower long-term disk  storage\cite{cornell2021standardcomp}.
-The referenced dataset takes up roughly 12 Gb on disk, increasing to 16 Gb when read into \texttt{R} - simultaneously competing for space with the operating system, which may be 8 Gb in the case of Windows 10.
+Using the Dell Optiplex 5080 as a typical desktop PC build, the statistician has 16GB of Random Access Memory (RAM) for fast main memory, to be used as a program data store; and a 256GB Solid State Drive (SSD) for slower long-term disk  storage\cite{cornell2021standardcomp}.
+The referenced dataset takes up roughly 12 GB on disk, increasing to 16 GB when read into \texttt{R}---simultaneously competing for space with the operating system, which may be 8 GB in the case of Windows 10.
 There just isn't enough space on standard RAM to fit everything, and the modelling process will either crash \texttt{R} or leach out into swap space on disk as on a \texttt{UNIX} system, which is extremely slow and unstable (a situation known as ``thrashing'')\cite{denning1968thrashing}.
 Furthermore, even if the dataset was halved in size and able to be read into \texttt{R} or whichever other program used for modelling, operations on the dataset will necessarily use more memory.
 The program may potentially create entire copies of data, and the memory available would quickly be exceeded.
 The problem can be summed up in the need for real-time handling and modelling of datasets that are too large to fit in memory.
 
-As a major and growing issue, there have been a plethora of responses over decades, which will be described in further detail in section \ref{background} below.
+As a major and growing issue, there have been a plethora of responses over decades, which will be described in further detail in Section~\ref{background} below.
 None of the responses are entirely satisfactory for the statistician working with large datasets, who may reasonably be posited to possess the following demands:
 
 \begin{itemize}
@@ -35,12 +35,12 @@ None of the responses are entirely satisfactory for the statistician working wit
 To this end, the use of the \texttt{R} programming language is a natural starting point.
 The means for writing software is typically through the use of a structured, high-level programming language.
 Of the myriad programming languages available, the most widespread language used for statistics is \texttt{R}.
-In August 2020, \texttt{R} reached it's highest rank yet of 8\textsuperscript{th} in the TIOBE index, a ranking of most popular programming languages, up from ranking 73\textsuperscript{rd} in December 2008\cite{tiobe2021r}.
+In August 2020, \texttt{R} reached its highest rank yet of 8\textsuperscript{th} in the TIOBE index, a ranking of most popular programming languages, up from ranking 73\textsuperscript{rd} in December 2008\cite{tiobe2021r}.
 \texttt{R} also has a special relevance for this proposal, having been initially developed at the University of Auckland by Ross Ihaka and Robert Gentleman in 1991\cite{ihaka1996r}.
 
 Major developments in contemporary statistical computing are typically published alongside an \texttt{R} code implementation, usually in the form of an \texttt{R} package, which is a mechanism for extending \texttt{R} and sharing functions.
 As of March 2021, the Comprehensive \texttt{R} Archive Network (CRAN) hosts over 17,000 available packages\cite{team20:_r}.
 
 This project seeks to build and document the statistician's large-scale modelling platform in \texttt{R}.
-Preliminary results have been extremely encouraging to this endeavour, and are described in more detail in section \ref{curr} below, having led to the creation of the \textbf{largeScaleR} package\cite{cairns2020largescaler}.
-There remains plenty of future work, and this is described in section \ref{future}, with tangible goals outlined in section \ref{goals}.
+Preliminary results have been extremely encouraging to this endeavour, and are described in more detail in Section~\ref{curr} below, having led to the creation of the \textbf{largeScaleR} package\cite{cairns2020largescaler}.
+There remains plenty of future work, and this is described in Section~\ref{future}, with tangible goals outlined in Section~\ref{goals}.

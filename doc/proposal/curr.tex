@@ -20,26 +20,26 @@ They serve as a reference that acts as a transparent handle to fragmented refere
 
 To take a concrete example, consider the flights dataset as described above.
 Assume that the dataset is split into four pieces row-wise, with the first two pieces residing on two separate processes, and the last two on a single process.
-Such a topology is capable of being represented in the \textbf{largeScaleR} system, with diagrammatic representation as in figure \ref{fig:top}.
+Such a topology is capable of being represented in the \textbf{largeScaleR} system, with diagrammatic representation as in Figure~\ref{fig:top}.
 
 \input{doc/proposal/fig-top}
 
 Distributed object references are effectively proxies, with generic methods passing on their standard form to the constituent chunks of the distributed object, returning another distributed object as reference to the return value of the methods acting on the chunks.
 The returned distributed object is given immediately, with worker processing occuring asynchronously, giving lazy, future-like, behaviour to distributed objects\cite{baker1977incremental}.
 
-Each chunk has a ``descriptor'' - some unique name that exclusively references that chunk.
+Each chunk has a ``descriptor''---some unique name that exclusively references that chunk.
 When they are not performing operations on a chunk, workers are monitoring all of the queues whose names correspond to the descriptors of the chunks which the respective worker holds.
 Actions to be performed on the chunks are transmitted through these queues.
 
 The master process enacts requests on these queues through methods on the distributed objects being intercepted and sent as possibly modified messages to their referent chunk queues, where they are then operated upon by the worker process.
-Key to the flexibility of \textbf{largeScaleR} is that the queue serves as a level of indirection, so the requesting process doesn't need to know precisely where a chunk is stored, only that it can be reached via it's queue.
+Key to the flexibility of \textbf{largeScaleR} is that the queue serves as a level of indirection, so the requesting process doesn't need to know precisely where a chunk is stored, only that it can be reached via its queue.
 This flexibility, mirroring the benefits of information hiding encouraged by message-passing object-oriented programming, allows chunks to be held arbitrarily, including on multiple nodes simultaneously.
 The capacity for redundancy grants future potential for fault tolerance and resilience to nodes crashing.
 Figure \ref{fig:qtop} depicts this additional detail, continuing from the example of the flights dataset, with an additional process holding a redundant first chunk.
 
 \input{doc/proposal/fig-qtop}
 
-A major supporting component of the system's distributed architecture is the act of ``emerging'', wherein a reference is used to pull all of it's referents locally\cite{emmerich2000engineering}.
+A major supporting component of the system's distributed architecture is the act of ``emerging'', wherein a reference is used to pull all of its referents locally\cite{emmerich2000engineering}.
 This takes place through directly sending serialised chunks to the requester, where methods exist to combine them.
 
 Multivariate manipulations of the data make use of emerging on the worker end, where multiple distributed objects are referenced in one single function request on a queue, and the worker must determine the appropriate alignment of chunks, including the use of \texttt{R}'s recycling rules, before emerging all distributed objects and performing the operation.
@@ -74,7 +74,7 @@ This is acknowledged to be inefficient, but it currently works well under all te
 Using the flights dataset as an example, this method reads in the dataset a limited number of rows at a time, and propogates each read as a chunk to some node via the queue system.
 Each chunk may be limited by size as well, so that the 160 million rows may be scattered into 100 pieces of 1.6 million rows each, distributed across some arbitrary number of machines.
 
-The fastest method of data initialisation follows the creation of a character vector listing either \texttt{URL}'s or files local to each of the workers.
+The fastest method of data initialisation follows the creation of a character vector Listing~either \texttt{URL}'s or files local to each of the workers.
 This is then distributed to the workers and an appropriate read operation is pushed to them via the distributed character vector.
 This is the only method enabling full parallelisation, and it is general enough to be extended for access to distributed filesystems such as \texttt{HDFS}.
 
@@ -82,7 +82,7 @@ Alongside distribution of the data, the user is returned a distributed object to
 In the case of the third method described, this occurs near-instantaneously, with the data being read concurrently.
 
 The data referenced by distributed objects can be sent from workers more simply; once established, an \mintinline{r}{emerge()} method is run over a distributed object, and the underlying chunks are sent directly from the worker, to be combined at the master end.
-Such movement is taken advantage of by workers as well, when they are faced with operations on multiple disparate distributed objects - this is hidden from the user, however.
+Such movement is taken advantage of by workers as well, when they are faced with operations on multiple disparate distributed objects---this is hidden from the user, however.
 
 The benefits of distributed objects grow commensurately with their degree of transparency, and \textbf{largeScaleR} has transparency as a central goal.
 Many common functions have methods provided operating on distributed objects, including most \mintinline{r}{Group} methods such as \mintinline{r}{Ops}, \mintinline{r}{Math}, and \mintinline{r}{Summary}.
@@ -100,7 +100,7 @@ For the purposes of demonstration, an example session with the prototype \textbf
 The data is a subset of the flights dataset, including the latter months of the 1987 flights.
 The object of investigation in this simple analysis is the variation in cancellation of Monday flights along different months.
 
-The cluster is started as in listing \ref{src:input}, with an \mintinline{r}{init()} function, which reads a configuration file describing the cluster.
+The cluster is started as in Listing~\ref{src:input}, with an \mintinline{r}{init()} function, which reads a configuration file describing the cluster.
 The flights data is then read and distributed with column type descriptions, at a small chunk size for the purpose of demonstrating a large number of chunk references.
 \begin{listing}%[H]
 \begin{minted}{rconsole}
@@ -117,7 +117,7 @@ The flights data is then read and distributed with column type descriptions, at 
 \end{listing}
 
 Upon successful reading, this dataset exists as a distributed object reference in the user session, serving as a proxy object pointing to the many chunks distributed across processes and hosts.
-Printing the \mintinline{r}{flights} object reveals the number of references as 122, as shown in listing \ref{src:flights-structure}.
+Printing the \mintinline{r}{flights} object reveals the number of references as 122, as shown in Listing~\ref{src:flights-structure}.
 A \mintinline{r}{preview()} of the distributed object can be taken, which pulls a portion of the first chunk for viewing.
 Standard functions such as \mintinline{r}{nrow()} behave as expected on the distributed object.
 ``Meta'' functions that give information on the distribution of the object can be run as well, including information on descriptors with \mintinline{r}{desc()} and the hostnames of where each chunk is stored with \mintinline{r}{host()}.
@@ -176,7 +176,7 @@ Chunk Reference with Descriptor 1
 \caption{Exploration of the structure of the flights dataset}\label{src:flights-structure}
 \end{listing}
 
-To attain a table of Monday flights, standard \texttt{R} methods of data manipulation can be used, shown in listing \ref{src:manipulation}.
+To attain a table of Monday flights, standard \texttt{R} methods of data manipulation can be used, shown in Listing~\ref{src:manipulation}.
 Creating a logical vector and using it to subset the originating data, a mechanism known as a Boolean mask, is commonly performed in \texttt{R}, and enabled entirely transparently in \textbf{largeScaleR}.
 The creation of such a vector in distributed fashion involves a significant amount of work behind the scenes, including the distribution of the comparative operator (\mintinline{r}{1L} in this case), communications regarding the intended function to be performed, and achieving the appropriate alignment of the comparative operator for recycling.
 To demonstrate functionality, the \mintinline{r}{sum()} of the distributed logical vector is taken and should be found to be the same as the \mintinline{r}{length()} of the subset resulting from the distributed logical vector.
@@ -227,7 +227,7 @@ An \texttt{S3} ``message'' class was defined in \textbf{largeScaleR} to standard
 This has proven to be a complex model, with the internal handling of queues having major effects on the manner of communication taking place in the system.
 Alternative communication protocols have the same associated issue, and there has not been one single obvious communications system that grants great implementation-independence, though \texttt{redis} surely comes the closest\cite{sanfilippo2009redis}.
 
-Following acts of communication, the evaluation of a message has it's own complexities, with the following example given as the current implementation with two distributed objects:
+Following acts of communication, the evaluation of a message has its own complexities, with the following example given as the current implementation with two distributed objects:
 \begin{enumerate}
 	\item The distributed objects first go through a complex act of alignment.
 	\item They are all compared with the target chunk, and aligned accordingly.
@@ -235,9 +235,9 @@ Following acts of communication, the evaluation of a message has it's own comple
 		In this way, recycling is implemented in a distributed fashion, with each worker determining the appropriate recycle.
 	\item Once all appropriate chunks are emerged, a regular \texttt{do.call} is run with the function and now-local objects
 \end{enumerate}
-For alignment to take place, metadata associated with each chunk, such as it's corresponding beginning and end indices, as well as it's deduced size, must be associated with a distributed object before it is made use of.
+For alignment to take place, metadata associated with each chunk, such as its corresponding beginning and end indices, as well as its deduced size, must be associated with a distributed object before it is made use of.
 As there is purposefully no mechanism for responders to communicate with requesters, an alternative mechanism was devised; metadata requests operate just as any other distributed function call, using the standard distributed \texttt{do.call} interface, but the functions sent are unique to the chunk they are associated with, using metalinguistic evaluation to create a function that when evaluated on the worker end, sends the metadata information to a unique temporary queue, which is then listened to at the requester end, popped, and returned.
-The infinite possible forms of this implementation, each with their own unique efficiencies and drawbacks, has been a source of continuous research, with data structure alignment being a research project in it's own right\cite{bryant2015computer}\cite{li1991data}.
+The infinite possible forms of this implementation, each with their own unique efficiencies and drawbacks, has been a source of continuous research, with data structure alignment being a research project in its own right\cite{bryant2015computer}\cite{li1991data}.
 
 Other issues include the difficulty of debugging and testing a parallel/distributed system, as existing \texttt{R} tools are set up for serial code evaluation, without taking into consideration complexities such as the non-deterministic nature of communication between computers of varying speeds and loads.
 Race conditions, that is, behaviour dependent on timing, also become a problem where for example, a computer blocks and awaits results from another computer, which in turn only returns results based on some future input from the original, which would never arrive.
