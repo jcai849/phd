@@ -1,8 +1,30 @@
 To overcome the problem of large-scale statistical analysis in \texttt{R}, what is needed is a platform that is fast and robust, with a focus on a simple interface for fitting statistical models, and the flexibility for implementation of arbitrary new models within \texttt{R}.
 As of May 2021, a prototype distributed system holding many of the described desired characteristics, has been implemented in \texttt{R} as part of this research.
-This system is tentatively named \textbf{LargeScaleR}, and takes the form of an \texttt{R} package, complete with minor documentation and a moderate proportion of tests.
+This system is tentatively named \textbf{largeScaleR}, and takes the form of an \texttt{R} package, complete with minor documentation and a moderate proportion of tests.
 It has been used to successfully read and manipulate data over a cluster of multiple nodes, including multiple processes on each node, as well as non-trivial distributed manipulations such as tabling of dataframes, all operating at a very high speed of operation.
 As it currently stands, the package comprises around 230 individual functions.
+A table of the 10 most important functions, and their descriptions, is given in Table~\ref{tab:functions}.
+
+\begin{table}
+	\centering
+	\begin{tabular}{lp{0.65\textwidth}}
+		\toprule
+		Function & Description\\
+		\midrule
+		\mintinline{r}{start()} & Start the cluster, given some vector of hostnames. \\
+		\mintinline{r}{do.dcall()} & Perform some given function on a distributed object. \\
+		\mintinline{r}{read.dcsv()} & Read the appropriate pieces of a \texttt{csv} file that has been scattered along the cluster prior and return the distributed object reference. \\
+		\mintinline{r}{distribute()} & Split up and scatter the chunks of some local object across the cluster, returning the distributed object reference to the chunks. \\
+		\mintinline{r}{emerge()} & Copy a remote chunk or distributed object to the local user, and re-combine if needed. \\
+		\mintinline{r}{preview()} & Print a small snapshot of the distributed object, including potential errors. \\
+		\mintinline{r}{split()} and  \mintinline{r}{combine()} & Methods that when defined, grant a class access to automatic \mintinline{r}{distribute()} and \mintinline{r}{emerge()} functionality.\\
+		\mintinline{r}{worker()} & Used by the \mintinline{r}{start()} function to initialise a worker. \\
+		\mintinline{r}{final()} & Automatically run at the end of an \texttt{R} session to shut down the cluster. \\
+		\mintinline{r}{alignment()} & Used in the worker evaluation process to align distributed objects of disparate sizes in order to implement recycling \\
+		\bottomrule
+	\end{tabular}
+	\caption{\label{tab:functions}Top 10 most important functions in the \textbf{largeScaleR} package}
+\end{table}
 
 \subsection{Overview of \textbf{largeScaleR}}\label{sec:sys-imp}
 
@@ -35,7 +57,7 @@ The master process enacts requests on these queues through methods on the distri
 Key to the flexibility of \textbf{largeScaleR} is that the queue serves as a level of indirection, so the requesting process doesn't need to know precisely where a chunk is stored, only that it can be reached via its queue.
 This flexibility, mirroring the benefits of information hiding encouraged by message-passing object-oriented programming, allows chunks to be held arbitrarily, including on multiple nodes simultaneously.
 The capacity for redundancy grants future potential for fault tolerance and resilience to nodes crashing.
-Figure \ref{fig:qtop} depicts this additional detail, continuing from the example of the flights dataset, with an additional process holding a redundant first chunk.
+Figure~\ref{fig:qtop} depicts this additional detail, continuing from the example of the flights dataset, with an additional process holding a redundant first chunk.
 
 \input{doc/proposal/fig-qtop}
 
@@ -225,7 +247,7 @@ Communication is one such issue.
 Communication between processes in \textbf{largeScaleR} uses \texttt{redis} queues, with blocking pop operations to read from them.
 An \texttt{S3} ``message'' class was defined in \textbf{largeScaleR} to standardise communication between nodes and is the only accepted form of message to be placed and parsed from a queue.
 This has proven to be a complex model, with the internal handling of queues having major effects on the manner of communication taking place in the system.
-Alternative communication protocols have the same associated issue, and there has not been one single obvious communications system that grants great implementation-independence, though \texttt{redis} surely comes the closest\cite{sanfilippo2009redis}.
+Alternative communication protocols have the same associated issue, and there has not been one single obvious communications system that grants great implementation-independence, though \texttt{redis} surely comes the closest\cite{da2015redis}.
 
 Following acts of communication, the evaluation of a message has its own complexities, with the following example given as the current implementation with two distributed objects:
 \begin{enumerate}

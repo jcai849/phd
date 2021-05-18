@@ -3,7 +3,7 @@ To improve upon the preliminary results and other systems, there are several pro
 For it to function as well as any other distributed system, \textbf{largeScaleR} must exhibit fault tolerance.
 This is needed in every large distributed system, as each machine that comprises it may fail with some probability \(p\).
 A system with \(n\) machines will fail with probability \(1-(1-p)^n\), and the system will almost certainly fail as \(n \to \infty\), for any \(0 < p \leq 1\) as may be expected in reality.
-Thus redundancy and tolarance of machine faults is essential at scale.
+Thus redundancy and tolerance of machine faults is essential at scale.
 This is possible to implement in \textbf{largeScaleR} without any major rewrite, as it has been architected with fault tolerance in mind.
 
 More efficient memory usage will serve to improve the efficiency of the system.
@@ -15,8 +15,11 @@ Interfacing with other systems is another important feature that will require mo
 \texttt{HDFS} is one example among many filesystems, such as \texttt{EFS}, which are already widely used in the sphere of big data, and present a useful opportunity to provide a native interface.
 Hadoop may also be interfaced with in MapReduce jobs, whether for populating data or serving as a portion of processing---this remains to be explored in detail, and is certain to offer a far higher ease-of-use to those with data already within these systems.
 
-The creation of a more user-friendly and informative monitoring system will also serve as a great boon to the usability of thie package.
+The creation of a more user-friendly and informative monitoring system will also serve as a great boon to the usability of the package.
+
+The implementation of a variety of models, serving equally as proof-of-concept and for providing direction to the project, will be a major priority.
+Existing modelling systems that have flexibility for parallelisation or streaming can be taken advantage of, with examples being the \textbf{biglm} package as well as more experimental work such as that produced by sampling and one-step polishing\cite{lumley13}\cite{lumley2019glm}.
 
 All of these features are meaningless if they are not demonstrated and published, and to that end, the goal of publishing the \textbf{largeScaleR} package on CRAN has been set.
 This will be co-ordinated with articles relating to testing the package at a large scale.
-Such an article or technical report may include benchmarking a novel analysis on the platform with real-world data at a scale of 64+ nodes and 100GB+ data source size.
+Such an article or technical report may include benchmarking a novel analysis on the platform with real-world data at a scale of 64+ nodes and 100+ GB data source size.
