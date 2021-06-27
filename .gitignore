@@ -38,3 +38,4 @@ tags
 *.eps
 *.png
 *.html
+bin/mktexdep
