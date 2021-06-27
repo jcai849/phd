@@ -17,7 +17,8 @@ all: src #doc/consideration-dist-obj.pdf #${PDFOUT}
 src: ${BINDIR}/${PROGS}
 
 .for PROG in ${PROGS}
-${BINDIR}/${PROG}:
+PROGSRC	!= find ${SRCDIR} -name "${PROG}.*"
+${BINDIR}/${PROG}: ${PROGSRC}
 	${MAKE} ${PROG} && mv ${PROG} ${BINDIR}
 .endfor
 
