@@ -3,23 +3,33 @@ BIBDIR  = bib
 IMGDIR  = img
 SRCDIR  = src
 BINDIR  = bin
-TEX    != find ${DOCDIR} -name '*.tex'
-PDF	= ${TEX:S/.tex/.pdf/g}
-BINPROGS= mktexdep
+REPDIR	= out
+VPATH	= ${SRCDIR} ${DOCDIR}
+
+DOCS   != find ${DOCDIR} -name '*.tex' -exec basename {} \;
+REPORTS	= ${DOCS:S/.tex/.pdf/g}
 PROGS	= mktexdep
-VPATH	= ${SRCDIR}
 
 .PHONY: all depend papers clean
-.SUFFIXES: .tex .pdf .dot .svg
+.SUFFIXES: .dot .svg
 
-all: src #doc/consideration-dist-obj.pdf #${PDFOUT}
+all: ${REPDIR}/test.pdf #programs reports
 
-src: ${BINDIR}/${PROGS}
+programs: ${BINDIR}/${PROGS}
+
+reports: ${REPDIR}/${REPORTS}
+
+.for REPORT in ${REPORTS}
+REPSRC	= ${REPORT:S/.pdf/.tex/g}
+${REPDIR}/${REPORT}: ${DOCDIR}/${REPSRC}
+	cd ${DOCDIR} && ${MAKE} ${REPORT} && mv ${REPORT} ../${REPDIR}
+.endfor
 
 .for PROG in ${PROGS}
 PROGSRC	!= find ${SRCDIR} -name "${PROG}.*"
+SRCS	+= PROGSRC
 ${BINDIR}/${PROG}: ${PROGSRC}
-	${MAKE} ${PROG} && mv ${PROG} ${BINDIR}
+	cd ${SRCDIR} && ${MAKE} ${PROG} && mv ${PROG} ../${BINDIR}
 .endfor
 
 .dot.svg:
@@ -35,7 +45,8 @@ fetch-papers:
 	./bin/dl-papers
 
 depend:
-	./bin/mktexdep ${TEX}
+	./bin/mktexdep ${DOCS}
+	mkdep -ap ${SRCS}
 
 .depend: depend
 
