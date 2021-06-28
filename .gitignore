@@ -40,3 +40,4 @@ tags
 *.html
 bin/mktexdep
 *.pdf
+.depend
