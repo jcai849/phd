@@ -1,7 +1,10 @@
+LATEX	= pdflatex
+
 .SUFFIXES:
 .SUFFIXES: .tex .pdf
+
 .tex.pdf:
-	latex ${.IMPSRC}
+	${LATEX} ${.IMPSRC}
 	bibtex ${.PREFIX}
-	latex ${.IMPSRC}
-	latex ${.IMPSRC}
+	${LATEX} ${.IMPSRC}
+	${LATEX} ${.IMPSRC}

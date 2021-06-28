@@ -4,16 +4,17 @@ IMGDIR  = img
 SRCDIR  = src
 BINDIR  = bin
 REPDIR	= out
-VPATH	= ${SRCDIR} ${DOCDIR}
+.PATH	= ${SRCDIR} #VPATH (try .PATH.suffix)
 
-DOCS   != find ${DOCDIR} -name '*.tex' -exec basename {} \;
+DOCS   != find ${DOCDIR} -maxdepth 1 -name '*.tex' -exec basename {} \;
 REPORTS	= ${DOCS:S/.tex/.pdf/g}
 PROGS	= mktexdep
 
 .PHONY: all depend papers clean
-.SUFFIXES: .dot .svg
+.SUFFIXES: .dot .pdf
 
 all: ${REPDIR}/test.pdf #programs reports
+${REPDIR}/test.pdf: ${IMGDIR}/test.pdf
 
 programs: ${BINDIR}/${PROGS}
 
@@ -32,17 +33,14 @@ ${BINDIR}/${PROG}: ${PROGSRC}
 	cd ${SRCDIR} && ${MAKE} ${PROG} && mv ${PROG} ../${BINDIR}
 .endfor
 
-.dot.svg:
-	dot -Tsvg ${.IMPSRC} >${.TARGET}
+.dot.pdf:
+	dot -Tpdf ${.IMPSRC} >${.TARGET}
 
 .tex.pdf:
 	latex ${.IMPSRC}
 	bibtex ${.PREFIX}
 	latex ${.IMPSRC}
 	latex ${.IMPSRC}
-
-fetch-papers:
-	./bin/dl-papers
 
 depend:
 	./bin/mktexdep ${DOCS}
@@ -51,7 +49,8 @@ depend:
 .depend: depend
 
 clean:
-	rm *.log
+	rm ${DOCDIR}/*.log
+	rm ${DOCDIR}/*.aux
 
 fullclean: clean
 	rm ${DOCDIR}/*.pdf
