@@ -15,6 +15,7 @@
 \usepackage{multicol}
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{listingsutf8}
 \usepackage{hyperref}
 
 \usepackage{xcolor}
@@ -24,16 +25,45 @@
 \definecolor{GnBu-4}{cmyk}{75,12,0,0}
 \definecolor{GnBu-5}{cmyk}{100,35,0,0}
 
-\newcommand{\img}[1]{
-	{#1}
-}
-\newcommand{\tab}[2]{
-	{#1}
-}
-\newcommand{\src}[2]{
-	{#1}
-}
-\newcommand{\doc}[2]{
-	{#1}
-}
+%	\img{file}{caption}
+%	\tab[spec]{file}{caption}
+%	\src[lang]{file}{caption}
+%	\doc{file}
+%	\bib{file}
+%	\lsrc[R]{expr}
 
+%%%%%%%%%%%%%%%%%%%%
+\newcommand{\img}[2]{
+\begin{figure}
+	\centering
+	\includegraphics{../img/#1}
+	\caption{{#2}\label{fig:#1}}
+\end{figure}
+}
+\newcommand{\tab}[3][l]{
+\begin{table}
+	\begin{tabularx}{\textwidth}{#1}
+		\toprule
+		\input{../db/#2.tex}
+		\bottomrule
+	\end{tabularx}
+	\caption{{#3}\label{tab:#2}}
+\end{table}
+}
+\newcommand{\src}[3][R]{
+	\lstinputlisting[float,language=#1,caption={#3},label={lst:#2},captionpos=b,frame=single]{../src/#2}
+}
+\newcommand{\doc}[1]{
+	\input{#1}
+}
+\newcommand{\bib}[1]{
+	\nocite{cairns2020largescaler}
+	\bibliographystyle{plain}
+	\bibliography{../db/#1.bib}
+}
+\newcommand{\hsrc}[2][R]{
+	\lstinline[language=#1]{#2}
+}
+%%%%%%%%%%%%%%%%%%%%
+
+\endinput
