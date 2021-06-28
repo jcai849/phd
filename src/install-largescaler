@@ -1,0 +1,6 @@
+#!/bin/sh
+
+git -C ~/largeScaleR pull &&
+	R CMD INSTALL ~/largeScaleR &&
+	doall git -C ~/largeScaleR pull &&
+	doall R CMD INSTALL ~/largeScaleR

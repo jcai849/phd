@@ -1,0 +1,2 @@
+#!/bin/sh
+awk -v N=8 'BEGIN { for(i=1;i<=N;i++) printf "hadoop%d\n\0", i }' | xargs -P0 -I% ssh % "$@"

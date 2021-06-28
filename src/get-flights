@@ -1,0 +1,31 @@
+#!/bin/bash
+
+SOURCE="https://dataverse.harvard.edu/api/access/datafiles/1375005,1375004,1375003,1375002,1375001,1375000,1374999,1374998,1374997,1374996,1374995,1374994,1374993,1374929,1374928,1374927,1374926,1374925,1374923,1374922,1374918,1374917,1374930,1374931,1374932,1374933?gbrecs=true"
+
+# cols <<- c("Year"="integer","Month"="integer","DayofMonth"="integer",
+#          "DayOfWeek"="integer","DepTime"="integer","CRSDepTime"="integer",
+#          "ArrTime"="integer","CRSArrTime"="integer",
+#          "UniqueCarrier"="character","FlightNum"="integer","TailNum"="character",
+#          "ActualElapsedTime"="integer","CRSElapsedTime"="integer",
+#          "AirTime"="integer","ArrDelay"="integer", "DepDelay"="integer",
+#          "Origin"="character","Dest"="character","Distance"="integer",
+#          "TaxiIn"="integer","TaxiOut"="integer", "Cancelled"="integer",
+#          "CancellationCode"="character","Diverted"="integer",
+#          "CarrierDelay"="integer","WeatherDelay"="integer","NASDelay"="integer",
+#          "SecurityDelay"="integer","LateAircraftDelay"="integer")
+
+
+mkdir -p flights; cd flights
+
+curl $SOURCE -o flights.zip
+unzip flights.zip
+rm flights.zip
+bunzip2 *.bz2
+sed '1p;q' 1987.csv > header.csv
+ls [0-9]*.csv | xargs -iFILE sed '1d' FILE > flights-all.csv
+split --numeric-suffixes=1 -n l/8 -a 1 --additional-suffix=.csv flights-all.csv flights-chunk-
+for i in {1..8}; do
+	scp flights-chunk-${i}.csv hadoop${i}:~/flights-chunk.csv
+done
+
+cd ..; rm -r flights

@@ -1,5 +1,1 @@
-#!/bin/sh
-
-pkill R
-doall pkill R
-redis-cli flushall
+../src/kill-cluster
