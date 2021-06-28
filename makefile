@@ -4,16 +4,16 @@ IMGDIR  = img
 SRCDIR  = src
 BINDIR  = bin
 REPDIR	= out
+RM	= rm -f
 .PATH	= ${SRCDIR} #VPATH (try .PATH.suffix)
-
 DOCS   != find ${DOCDIR} -maxdepth 1 -name '*.tex' -exec basename {} \;
 REPORTS	= ${DOCS:S/.tex/.pdf/g}
 PROGS	= mktexdep
 
-.PHONY: all depend papers clean
+.PHONY: all depend clean
 .SUFFIXES: .dot .pdf
 
-all: ${REPDIR}/test.pdf #programs reports
+all: programs ${REPDIR}/test.pdf #programs reports
 ${REPDIR}/test.pdf: ${IMGDIR}/test.pdf
 
 programs: ${BINDIR}/${PROGS}
@@ -36,22 +36,19 @@ ${BINDIR}/${PROG}: ${PROGSRC}
 .dot.pdf:
 	dot -Tpdf ${.IMPSRC} >${.TARGET}
 
-.tex.pdf:
-	latex ${.IMPSRC}
-	bibtex ${.PREFIX}
-	latex ${.IMPSRC}
-	latex ${.IMPSRC}
-
 depend:
-	./bin/mktexdep ${DOCS}
-	mkdep -ap ${SRCS}
+	./bin/mktexdep ${DOCS:S/^/doc\//g} >.depend
 
 .depend: depend
 
 clean:
-	rm ${DOCDIR}/*.log
-	rm ${DOCDIR}/*.aux
+	${RM} ${DOCDIR}/*.aux
+	${RM} ${DOCDIR}/*.bbl
+	${RM} ${DOCDIR}/*.blg
+	${RM} ${DOCDIR}/*.log
+	${RM} ${DOCDIR}/*.out
 
 fullclean: clean
-	rm ${DOCDIR}/*.pdf
-	rm ${IMGDIR}/*.svg
+	${RM} ${DOCDIR}/*.pdf
+	${RM} ${IMGDIR}/*.svg
+	${RM} ${PROGS:S/^/bin\//g}
