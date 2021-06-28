@@ -1,45 +1,60 @@
 %{
+#include <stdio.h>
 #include <string.h>
-#define BUFSIZ	100
-#define SUFLEN	4
+#include <sys/types.h>
+#include <regex.h>
 
-int printdep(char *type, char *file);
-char *substr(char *x, int start, int stop);
+typedef struct dep { char *dir; char *suf; } dep;
+struct deps { dep img; dep tab; dep src; dep doc; dep bib; }
+d = {
+	{ "img/", ".pdf" },
+	{ "db/",  ".tex" },
+	{ "src/", ""     },
+	{ "doc/", ".tex" },
+	{ "db/",  ".bib" }
+};
 
-int printdep(char *type, char *file) 
+int printdep(dep deptype, char *filename) 
 {
 	char buf[BUFSIZ];
-	char suffix[SUFLEN];
-	suffix[0] = '\0';
 
-	(void) strncpy(buf, type, sizeof(buf) - 1);
-	buf[sizeof(buf) - 1] = '\0';
-	(void) strncat(buf, "/", sizeof(buf) - 1 - strlen(buf));
-	(void) strncat(buf, file, sizeof(buf) - 1 - strlen(buf));
-	if (!strncmp(type, "img", SUFLEN - 1))
-		strncpy(suffix, ".svg");
+	(void) strncpy(buf, deptype.dir, sizeof(buf) - 1);
+	(void) strncat(buf, filename, sizeof(buf) - 1 - strlen(buf));
+	(void) strncat(buf, deptype.suf, sizeof(buf) - 1 - strlen(buf));
 	return printf(" %s", buf);
 }
 
-char *substr(char *x, int start, int stop) 
-{
-	char buf[BUFSIZ];
-	int  lastpos;
-
-	lastpos = (stop < sizeof(buf) - 1) ? stop : sizeof(buf) - 1;
-	strncpy(buf, x[start], lastpos);
-	return buf;
-}
 %}
 
+SP	("[".+"]")?"{"
+IP	[^"}"]+
+CP	"}"
+%s IMG TAB SRC DOC BIB
+
 %%
-\\img\{[^\}]*\} printdep("img", substr(yylex, 3, strlen(yylex) - 1));
+\\img{SP}		BEGIN(IMG);
+\\tab{SP}		BEGIN(TAB);
+\\src{SP}		BEGIN(SRC);
+\\doc{SP}		BEGIN(DOC);
+\\bib{SP}		BEGIN(BIB);
+<IMG>{IP}		printdep(d.img, yytext);
+<TAB>{IP}		printdep(d.tab, yytext);
+<SRC>{IP}		printdep(d.src, yytext);
+<DOC>{IP}		printdep(d.doc, yytext);
+<BIB>{IP}		printdep(d.bib, yytext);
+<*>{CP}			BEGIN(INITIAL);
 .|\n			;
 
 %%
+
 int main(int argc, char *argv[])
 {
-	printf("%s:" argv[1])
-	yylex();
-	printf("\n\n")
+	while (--argc > 0) {
+		++argv;
+		yyrestart(fopen(*argv, "r"));
+		printf("%s:", *argv);
+		yylex();
+		printf("\n\n");
+	}
+	exit(0);
 }
