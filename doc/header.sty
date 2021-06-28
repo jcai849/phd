@@ -2,280 +2,38 @@
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{xcolor}
-
-% misc
 \usepackage[english]{babel}
 \usepackage{textcomp}
 \usepackage{lmodern}
 \usepackage{microtype}
+\usepackage{graphicx}
 \usepackage{float}
-\usepackage{tikz}
-\usepackage{drawstack}
 \usepackage{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{csquotes}
 \usepackage{multicol}
-\usepackage{ctable}
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{hyperref}
 
-% Theorems
-\usepackage{amsthm}
-\newtheorem{defn}{}
-
-% Bibliography
-\usepackage{biblatex}
-\addbibresource{../bib/bibliography.bib}
-
-% Colours
 \usepackage{color}
-
-\definecolor{mygreen}{HTML}{099A07}
-\definecolor{mymauve}{HTML}{98079A}
-\definecolor{myorange}{HTML}{F1A340}
-\definecolor{mybrown}{HTML}{9A4E07}
-\definecolor{mynavy}{HTML}{07539A}
-\definecolor{mypurple}{HTML}{998EC3}
-\definecolor{mygray}{gray}{0.5}
-
-\definecolor{Base3}{HTML}{FDF6E3}
-
-\definecolor{diffstart}{named}{mygray}
-\definecolor{diffincl}{named}{mygreen}
-\definecolor{diffrem}{named}{myorange}
-
-\definecolor{set2-1}{HTML}{66C2A5}
-\definecolor{set2-2}{HTML}{FC8D62}
-\definecolor{set2-3}{HTML}{8DA0CB}
-\definecolor{set2-4}{HTML}{E78AC3}
-\definecolor{set2-5}{HTML}{A6D854}
-
-\definecolor{dark2-1}{HTML}{1B9E77}
 \definecolor{dark2-2}{HTML}{D95F02}
 \definecolor{dark2-3}{HTML}{7570B3}
 \definecolor{dark2-4}{HTML}{E7298A}
 \definecolor{dark2-5}{HTML}{66A61E}
 \definecolor{dark2-6}{HTML}{E6AB02}
 
-% minted
-\usepackage[outputdir=out]{minted}
-\setminted{obeytabs=true}
-\usemintedstyle{bw}
-%\setminted{bgcolor=Base3}
-%\setmintinline{bgcolor={}}
-
-% Tikz
-\usetikzlibrary{quotes,graphs,graphdrawing,fit,positioning,backgrounds,shapes,arrows.meta}
-\usegdlibrary{trees,layered}
-
-\pgfdeclarelayer{units}
-\pgfdeclarelayer{categories}
-\pgfsetlayers{units,categories,main}
-
-\tikzstyle{object}=[rectangle,fill=white,draw=black]
-\tikzstyle{node}=[circle,fill=white,draw=black]
-\tikzstyle{proc}=[rectangle,fill=white,draw=black]
-\tikzstyle{queue}=[rectangle,fill=white,draw=black]
-\tikzstyle{counter}=[rectangle,fill=white,draw=black]
-\tikzstyle{unit}=[fill=blue!10,rounded corners,draw=black]
-\tikzstyle{category}=[fill=green!10,rounded corners,draw=black]
-\tikzstyle{table}=[fill=yellow!10,rounded corners,draw=black]
-
-\tikzstyle{mypath}=[-{stealth[scale=2]}]
-\tikzstyle{mydoublepath}=[{stealth[scale=2]}-{stealth[scale=2]}]
-
-\def\commdist{1.5}
-\def\blockdist{0.1}
-
-% clrscode3e
-\usepackage{clrscode3e}
-\newfloat{srcclrs}{thpb}{lol}
-\floatname{srcclrs}{Listing}
-
-% Glossary
-\usepackage{glossaries}
-\makeglossaries
-
-\newglossaryentry{chunk}
-{
-	name={Chunk},
-	description={A distinct component piece of a larger object, possibly
-	located at a separate node to other chunks belonging to the object}
+\newcommand{\img}[1]{
+	{#1}
+}
+\newcommand{\tab}[2]{
+	{#1}
+}
+\newcommand{\src}[2]{
+	{#1}
+}
+\newcommand{\doc}[2]{
+	{#1}
 }
 
-\newglossaryentry{chunkid}
-{
-	name={Chunk ID},
-	description={A unique reference for some particular chunk, serving as
-	the name of the chunk's associated queue}
-}
-
-\newglossaryentry{chunkref}
-{
-	name={Chunk Reference},
-	description={A reference to a chunk, the chunk possibly existing on a
-	separate node}
-}
-
-\newglossaryentry{clusttable}
-{
-	name={Cluster Table},
-	description={A central table storing mappings between nodes, chunks,
-	distributed object references, with lower level details such as handles
-	on connections to the nodes, along with additional metadata}
-}
-
-\newglossaryentry{connection}
-{
-	name={Connection},
-	description={A communication channel from one computer to another as
-	part of a network}
-}
-
-\newglossaryentry{distobj}
-{
-	name={Distributed Object},
-	description={An object that is composed of a totally
-	ordered set of chunks dispersed across separate nodes}
-}
-
-\newglossaryentry{distsys}
-{
-	name={Distributed System},
-	description={A system whose constituent parts are located on different
-	computers which are networked together}
-}
-
-\newglossaryentry{host}
-{
-	name={Host},
-	description={A singular machine in a network, which may hold multiple
-	communication nodes}
-}
-
-\newglossaryentry{id}
-{
-	name={ID},
-	description={A unique integer used in the distobj system to uniquely
-	identify nodes, chunks, and distributed object references within the
-	system}
-}
-
-\newglossaryentry{initiator}
-{
-	name={Initiator},
-	description={The node that initialises and serves to boot the
-	distributed system}
-}
-
-\newglossaryentry{jobid}
-{
-	name={Job ID},
-	description={A unique reference for a particular request, serving as
-	the name of a queue for any response}
-}
-
-\newglossaryentry{logicaltime}
-{
-	name={Logical Time},
-	description={A partial ordering of events in time based on the
-	knowledge of which events necessarily happen before others}
-}
-
-\newglossaryentry{master}
-{
-	name={Master},
-	description={The controlling process over other running processes. In a
-	distributed system, typically the initiator process}
-}
-
-\newglossaryentry{node}
-{
-	name={Node},
-	description={A member of a distributed system in a computational
-	capacity}
-}
-
-\newglossaryentry{object}
-{
-	name={Object},
-	description={A particular instance of a class}
-}
-
-\newglossaryentry{objref}
-{
-	name={Object Reference},
-	description={A reference to all of the chunks of a distributed object,
-	symbolising the object and encapsulating the necessary information with
-	which to access the distributed object}
-}
-
-\newglossaryentry{requester}
-{
-	name={Requester},
-	description={A node that sends a message requesting some action of
-	another node.Not a fixed role, and can change based on a state
-	description}
-}
-
-\newglossaryentry{responder}
-{
-	name={Responder},
-	description={A node that responds to a message from some responder
-	node. Not a fixed role, and can change based on a state description}
-}
-
-\newglossaryentry{rprocess}
-{
-	name={R Process},
-	description={A live process running an implementation of the
-	programming language R. In comparison with \textbf{R Session}, a
-	greater emphasis is placed on the process from the perspective of the
-	operating system}
-}
-
-\newglossaryentry{rsession}
-{
-	name={R Session},
-	description={An interactive run with an R process. In comparison with
-	\textbf{R Process}, a greater emphasis is placed on the session from
-	the user perspective}
-}
-
-\newglossaryentry{worker}
-{
-	name={Worker},
-	description={A process under direction of the master
-	process}
-}
-
-\newglossaryentry{distobjsys}
-{
-	name={\texttt{distObj} System},
-	description={The platform being developed herein to enable large scale
-	statistical modelling through the creation of a distributed system in
-	R}
-}
-
-% Commands
-\newcommand{\yes}{\textcolor{green}{yes}}
-\newcommand{\simple}{\textcolor{green}{simple}}
-\newcommand{\mostly}{\textcolor{yellow}{mostly}}
-\newcommand{\acceptable}{\textcolor{yellow}{acceptable}}
-\newcommand{\some}{\textcolor{yellow}{some}}
-\newcommand{\mediocre}{\textcolor{red}{mediocre}}
-\newcommand{\no}{\textcolor{red}{no}}
-\newcommand{\NA}{\textcolor{mygray}{NA}}
-\newcommand{\unclear}{\textcolor{mygray}{unclear}}
-
-\newcounter{assumption}[section]
-
-\newcommand{\assume}[1]{\begin{quote}
-	\centering
-	\stepcounter{assumption}
-	\arabic{assumption}. {#1}
-\end{quote}}
-
-\usepackage{hyperref}
