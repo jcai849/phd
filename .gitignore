@@ -39,3 +39,4 @@ tags
 *.png
 *.html
 bin/mktexdep
+*.pdf
