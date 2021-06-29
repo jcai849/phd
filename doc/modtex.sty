@@ -1,0 +1,90 @@
+\ProvidesPackage{modtex}
+\usepackage{pgfkeys}
+\usepackage{xstring}
+
+%	\img[caption=false]{file}
+%	\tab[spec=,caption=false,x=false,xwidth=\textwidth]{file}
+%	\src[lang=R,caption=false]{file}
+%	\doc[...]{file}
+%	\bib[style=plain]{file}
+%	\hsrc[lang=R]{expr}
+
+\pgfkeys{
+ /img/.is family, /img,
+ default/.style = {caption = false},
+ caption/.estore in = \imgcaption
+}
+\newcommand\img[2][]{
+\pgfkeys{/img, default, #1}
+\begin{figure}
+	\centering
+	\includegraphics{../img/#2}
+	\IfStrEq{\imgcaption}{false}{}{\caption{\imgcaption\label{fig:#2}}}
+\end{figure}
+}
+
+\pgfkeys{
+ /tab/.is family, /tab,
+ default/.style = {xwidth = \textwidth, caption = false, x = false},
+ caption/.estore in = \tabcaption,
+ spec/.estore in = \tabspec,
+ xwidth/.store in = \tabwidth,
+ x/.store in = \tabx
+}
+\newcommand{\tab}[2][]{
+\pgfkeys{/tab, default, #1}
+\begin{table}
+	\IfStrEq{\tabx}{false}{
+		\edef\next{ \noexpand\begin{tabular}{\tabspec} }\next
+		\toprule
+		\input{../db/#2.tex}
+		\bottomrule
+		\end{tabular}
+	}{
+		\edef\next{ \noexpand\begin{tabularx}{\tabwidth}{\tabspec} }\next
+		\toprule
+		\input{../db/#2.tex}
+		\bottomrule
+		\end{tabularx}
+	}
+	\IfStrEq{\tabcaption}{false}{}{\caption{\tabcaption\label{tab:#2}}}
+\end{table}
+}
+
+\pgfkeys{
+ /src/.is family, /src,
+ default/.style = {lang=R,caption=false},
+ caption/.estore in = \srccaption,
+ lang/.estore in = \srclang
+}
+\newcommand{\src}[2][]{
+\pgfkeys{/src, default, #1}
+\IfStrEq{\srccaption}{false}{\edef\next{\noexpand\lstinputlisting[float,language=\srclang,frame=single]{../src/\noexpand#2}}\next
+}{\edef\next{\noexpand\lstinputlisting[float,language=\srclang,caption=\srccaption,label={lst:\noexpand#2},captionpos=b,frame=single]{../src/\noexpand#2}}\next}}
+\newcommand{\doc}[1]{
+	\input{#1}
+}
+
+\pgfkeys{
+ /bib/.is family, /bib,
+ default/.style = {style=plain},
+ style/.estore in = \bibstyle
+}
+\newcommand{\bib}[2][]{
+	\pgfkeys{/bib, default, #1}
+	\nocite{cairns2020largescaler}
+	\bibliographystyle{\bibstyle}
+	\bibliography{../db/#2.bib}
+}
+
+\pgfkeys{
+ /hsrc/.is family, /hsrc,
+ default/.style = {lang=R},
+ lang/.estore in = \hsrclang
+}
+\newcommand{\hsrc}[2][]{
+	\pgfkeys{/hsrc, default, #1}
+	\edef\next{\noexpand\lstinline[language=\hsrclang]{\noexpand#2}}\next
+}
+
+\endinput

@@ -2,13 +2,18 @@
 \usepackage{header}
 \begin{document}
 \doc{test/testin}
-\hsrc[R]{x <- 1 + 1}
-\src[R]{test.R}{caption caption}{test}
-owjf\\
+\hsrc[lang=R]{x <- 1 + 1}
+\hsrc{x <- 1 + 1}
+\src{test.R}
+\src[lang=R,caption={test test}]{test.R}
+\tab[spec=llr]{test}
+\tab[spec=llr,caption={hello world}]{test}
+\tab[x=true,spec=lXr]{test}
+\tab[x=true,spec=lXr,caption={hello world}]{test}
+\img{test}
+\img[caption={hello world}]{test}
 srcref: \ref{lst:test.R}
-\tab[llr]{test}{caption caption}
 tabref: \ref{tab:test}
-\img{test}{caption caption}
 imgref: \ref{fig:test}
-\bib{bibliography}
+\bib[style=plain]{bibliography}
 \end{document}

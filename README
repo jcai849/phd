@@ -20,6 +20,7 @@ Navigation:
 │   ├── *.bib			Bibtex database
 │   └── *.tex			Latex tables
 ├── doc				Document source directory
+│   ├── *.sty			Latex package files
 │   ├── *.tex			Latex source files
 │   ├── * (directory)		Modular document subdirectories
 │   │   └── *.tex		Latex source files for inclusion in other latex
