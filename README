@@ -1,28 +1,36 @@
 PhD research Repository
 
+Relevant reports are located in the 'out' directory.
+To build, ensure dependencies are met and run 'make' (if on BSD) or
+'bmake' (if not).
+
 Depends:
-- luatex
-- MiKTeX
-- biber
-- R 		(3.6.0+)
-- Pygments 	(2.0+; pip install Pygments)
-- pandoc
+- bmake
+- latex (pdftex)
 - graphviz
 
 Navigation:
 .
-├── bib				Bibliographic information
-│   ├── bibliography.bib	Biblatex database file
-│   └── cites.R			Generate citations from R packages
-├── doc				Research notes
-│   ├── *.tex			Specific research notes
-│   ├── glossary.tex		Glossary file
-│   └── header.sty		Header for all tex notes, used as package
-├── img				Output images and diagrams
-├── Makefile			Build pdfs from latex files in doc/
-├── meta			Documents relating to enrolment
-├── out				Built pdf directory
-├── R				R scripts
-├── README			self
-├── bin			Miscellaneous scripts
-└── TODO			Stack of next requirements
+├── README			Information document
+├── makefile			bmake build specifications
+├── bin				Binary directory
+│   ├── *			Executable files
+│   └── *.* -> ../src/*.*	Interpreted symlink to src directory
+├── db				Database files
+│   ├── *.bib			Bibtex database
+│   └── *.tex			Latex tables
+├── doc				Document source directory
+│   ├── *.tex			Latex source files
+│   ├── * (directory)		Modular document subdirectories
+│   │   └── *.tex		Latex source files for inclusion in other latex
+│   │					source files
+│   ├── *.md			Markdown document source files
+│   └── *.txt			Asciidoc document source files
+├── img				Image directory
+│   ├── *.dot			Graphviz graph layout specification
+│   └── *.pdf			Processed graph output
+├── out				Report output directory
+│   └── *.pdf			Output report 
+└── src				Source code for execution or 
+    │					inclusion in documents
+    └── *.*			Source code
