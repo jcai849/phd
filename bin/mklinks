@@ -1,0 +1,32 @@
+#!/bin/sh
+
+cat <<EOF
+<!DOCTYPE html>
+<html lang=enm id=jason-cairns>
+	<head>
+		<meta name="author" content="Jason Cairns">
+		<meta charset=utf-8>
+		<title>Jason Cairns</title>
+		<meta name="description" content="Jason Cairns Website">
+	</head>
+	<body>
+		<h1>Jason Cairns Homepage</h1>
+		<h2>Ph.D. Report Links</h2>
+		<p>The following links direct to reports documenting my
+		research.</p>
+		<ul>
+EOF
+for TARGET in $* 
+do
+CONTENT=`echo "${TARGET}" |
+	sed 's/-/ /g;s/.pdf$//g;' |
+	awk '{for(j=1;j<=NF;j++){ $j=toupper(substr($j,1,1)) substr($j,2) }}1'`
+	printf \
+'			<li><a href="%s">%s</a></li>\n' "${TARGET}" "${CONTENT}"
+done
+cat <<EOF
+
+		</ul>
+	</body>
+</html>
+EOF
