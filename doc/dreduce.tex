@@ -1,0 +1,28 @@
+\documentclass[10pt, a4paper]{article}
+\usepackage{header}
+\begin{document}
+\title{Distributed Reduce in largescaler}
+\year=2021 \month=6 \day=30
+\maketitle
+\section{Introduction} % what is a reduce
+
+A \hsrc{Reduce()}, commonly known as a \textit{fold}, is a computational operation evaluating a binary operation sequentially along a container of objects\cite{bird2010pearls}.
+For example, in the case of a \hsrc{+} operation over a list of values drawn from \tbb, it is equivalent to a cumulative sum.
+The \hsrc{Reduce()} is provided in the base \R{} distribution as part of the \textit{funprog} group of common higher-order functions.
+It serves as a standard means of performing a rolling operation over some container without resorting to explicit looping, and as such is made heavy use of in the functional programming paradigm for the succinct encapsulation of the concept.
+The \texttt{Reduce} referred to in the \texttt{MapReduce} paradigm is a similar, though distinct, operation, serving closer to a grouped summary\cite{dean2004mapreduce}.
+The \texttt{MapReduce} is thus able to stay largely embarrassingly parallel, while a \hsrc{Reduce()} is necessarily serial.
+
+\section{Distributed Reduce}
+
+To create a distributed reduce using the \lsr{} system is actually mostly solved by the design of distributed objects, which can be passed to the existing \hsrc{Reduce()} function as provided in base \R{}, with no further modification.
+The only additional effort is to ensure that the operant binary function is capable of operating on distributed objects.
+This can be guaranteed by making use of a \hsrc{dreducable()} wrapper functional around a regular function, which returns the original function modified to operate in distributed fashion. 
+The source code demonstrating this is given in Listing \ref{lst:dreduce.R}.
+\src[caption={The wrapper functional providing a distributed reduce showing the very little effort required to generate a distributed reduce from the framework}]{dreduce.R}
+The \hsrc{dreducable()} function is itself a simple wrapper around the \hsrc{do.ccall()} function that serves to power all of the \lsr{} distributed object operation requests.
+
+\section{Applications and Challenges}
+
+\bib{bibliography}
+\end{document}
