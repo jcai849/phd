@@ -59,8 +59,16 @@
 }
 \newcommand{\src}[2][]{
 \pgfkeys{/src, default, #1}
-\IfStrEq{\srccaption}{false}{\edef\next{\noexpand\lstinputlisting[float,language=\srclang,frame=single]{../src/\noexpand#2}}\next
-}{\edef\next{\noexpand\lstinputlisting[float,language=\srclang,caption=\srccaption,label={lst:\noexpand#2},captionpos=b,frame=single]{../src/\noexpand#2}}\next}}
+\edef\next{\noexpand\lstset{float,
+language=\srclang,
+frame=single,
+keepspaces=true,
+basicstyle=\noexpand\footnotesize,
+breakatwhitespace=false,
+captionpos=b}
+}\next
+\IfStrEq{\srccaption}{false}{\lstinputlisting{../src/#2}
+}{\edef\next{\noexpand\lstinputlisting[caption=\srccaption,label={lst:\noexpand#2}]{../src/\noexpand#2}}\next}}
 \newcommand{\doc}[1]{
 	\input{#1}
 }

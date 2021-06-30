@@ -15,7 +15,7 @@ PROGS	= mktexdep
 .PHONY: all depend clean
 .SUFFIXES: .dot .pdf
 
-all: programs depend ${REPDIR}/test.pdf #programs reports
+all: programs depend ${REPDIR}/test.pdf ${REPDIR}/dreduce.pdf #programs reports
 ${REPDIR}/test.pdf: ${IMGDIR}/test.pdf
 
 programs: ${BINDIR}/${PROGS}
