@@ -13,7 +13,7 @@ REPORTS	= ${DOCS:S/.tex/.pdf/g}
 PROGS	= mktexdep
 
 .PHONY: all depend clean
-.SUFFIXES: .dot .pdf
+.SUFFIXES: .gv .pdf
 
 all: programs depend ${REPDIR}/test.pdf ${REPDIR}/dreduce.pdf #programs reports
 ${REPDIR}/test.pdf: ${IMGDIR}/test.pdf
@@ -35,7 +35,7 @@ ${BINDIR}/${PROG}: ${PROGSRC}
 	cd ${SRCDIR} && ${MAKE} ${PROG} && mv ${PROG} ../${BINDIR}
 .endfor
 
-.dot.pdf:
+.gv.pdf:
 	dot -Tpdf ${.IMPSRC} >${.TARGET}
 
 depend: bin/mktexdep
