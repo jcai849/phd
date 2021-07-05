@@ -1,0 +1,60 @@
+digraph mapreduce {
+	colorscheme="Blues9"
+	node [style="filled", fillcolor=white];
+	style="filled";
+	rankdir="LR";
+
+	subgraph cluster_input {
+	label="input"
+	fillcolor=1;
+	i1[label="a b c\nb b a\nb c a\na c"];
+	}
+
+	subgraph cluster_split {
+	label="split";
+	fillcolor=1;
+	s1[label="a b c"];
+	s2[label="b b a"];
+	s3[label="b c a"];
+	}
+
+	subgraph cluster_map {
+	label="map, e.g. tabulate";
+	fillcolor=2;
+	m1[label="a: 1\nb: 1\nc: 1"];
+	m2[label="b: 2\na: 1"];
+	m3[label="a: 1\nc: 1"];
+	}
+
+	subgraph cluster_shuffle {
+	label="shuffle";
+	fillcolor=1;
+	sh1[label="a:1\na: 1\na: 1"];
+	sh2[label="b:1\nb: 2"];
+	sh3[label="c:1\nc: 1"];
+	}
+
+	subgraph cluster_reduce {
+	label="reduce";
+	fillcolor=2;
+	r1[label="a: 3"];
+	r2[label="b: 3"];
+	r3[label="c: 2"];
+	}
+
+	subgraph cluster_output {
+	label="output";
+	fillcolor=1;
+	o1[label="a: 3\nb: 3\nc: 2"];
+	}
+
+	i1 -> s1 -> m1;
+	i1 -> s2 -> m2;
+	i1 -> s3 -> m3;
+
+	{m1 m2 m3} -> sh1 -> r1;
+	{m1 m2} -> sh2 -> r2;
+	{m1 m3} -> sh3 -> r3;
+
+	{r1 r2 r3} -> o1
+}
