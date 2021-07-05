@@ -1,10 +1,11 @@
 LATEX	= pdflatex
+LFLAGS	= -interaction=batchmode
 
 .SUFFIXES:
 .SUFFIXES: .tex .pdf
 
 .tex.pdf:
-	${LATEX} ${.IMPSRC}
+	${LATEX} ${LFLAGS} ${.IMPSRC}
 	bibtex ${.PREFIX}
-	${LATEX} ${.IMPSRC}
-	${LATEX} ${.IMPSRC}
+	${LATEX} ${LFLAGS} ${.IMPSRC}
+	${LATEX} ${LFLAGS} ${.IMPSRC}
