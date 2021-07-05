@@ -1,0 +1,11 @@
+digraph G {
+	m[label="Master"];
+	q1[label="Queue 1"];
+	q2[label="Queue 2"];
+	w[label="Worker"];
+
+	m -> { q1 q2 };
+	q1 -> w [label="2nd"];
+	q2 -> w [label="1st"];
+
+}

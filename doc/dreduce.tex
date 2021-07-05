@@ -1,7 +1,7 @@
 \documentclass[10pt, a4paper]{article}
 \usepackage{header}
 \begin{document}
-\title{Distributed Reduce in largescaler}
+\title{Distributed Reduce in \lsr{}}
 \year=2021 \month=6 \day=30
 \maketitle
 \section{Introduction} % what is a reduce
@@ -22,7 +22,37 @@ The source code demonstrating this is given in Listing \ref{lst:dreduce.R}.
 \src[caption={The wrapper functional providing a distributed reduce showing the very little effort required to generate a distributed reduce from the framework}]{dreduce.R}
 The \hsrc{dreducable()} function is itself a simple wrapper around the \hsrc{do.ccall()} function that serves to power all of the \lsr{} distributed object operation requests.
 
+\section{Description of Program Flow}
+
+The program flow of a standard distributed reduce is depicted in Figure \ref{img:dreduce}.
+\img[caption={Distributed reduce procedure flow}]{dreduce}
+Assuming a distributed object split consecutively over processes 1, 2, and 3, with a single master node containing the reference to this object, a distributed reduce takes place as follows:
+\begin{enumerate}
+	\item Upon invocation of the distributed reduce, the master sends requests to all queues associated with the chunks composing the distributed object. These requests contain (unresolved) references to the chunks resulting from the distributed reduce, alongside the function to be performed over them. As these chunk references are not yet resolved, the processes popping the requests from the queues will block, except for the initial queue, which should be only referencing resolved chunks. The master process continues processing asynchronously, only blocking when the result of the distributed reduce operation is requested.
+	\item The process containing the initial chunk operates over it and stores the output. It then continues reading queues and processing as before, with it's role in distributed reduce being complete.
+	\item The second process is now able to access the previously unresolved chunk reference, and emerges it directly from the first process. It operates on the chunks, storing the output.
+	\item This repeats until all processes have completed the requests initially given by the master process.
+	\item When needed, the master may emerge the resulting object, with either cumulative steps given by all processes, or only the end result, depending on the options provided. The distributed reduce is complete.
+\end{enumerate}
+
 \section{Applications and Challenges}
 
+The applications for a distributed reduce correspond closely to those of a regular reduce.
+Any ``rolling'' or windowed function that bases it's state on some form of previous elements in a list is able to take clear representation through a distributed reduce.
+
+Of particular interest are updating modelling functions.
+Representative of this class of statistical algorithm is \pkg{biglm}, with an eponymously named package available in \R{}.
+A prototype distributed linear model making use of both the \pkg{biglm} and \lsr{} packages is described in detail in the distributed linear model document.
+
+Though serving as a powerful high-level construct, it is hindered at present by the current state of the \lsr{} mechanism of managing unresolved references.
+As it currently stands, when a process receives a request from a queue involving a reference that has not yet been computed (unresolved), it sits and blocks until that the chunk has been resolved.
+A very simple race condition emerges when the process has two requests simultaneously, one dependent on another, and pops the request with dependency.
+This request can never be serviced, as it will block, thereby never allowing the request providing the dependency to run.
+Such a race condition manifests in a distributed reduce if a process holds two or more chunks to be reduced over -- there is a single line of dependence between them and their resultant chunks.
+Furthermore, as the nature of popping from multiple queues is for all intents random, such a race condition is non-deterministic and difficult to reproduce.
+Listing \ref{lst:dreduce-race.R} gives a setup where roughly half the time a race condition as described occurs, and the program hangs until forced termination, with illustration provided in Figure \ref{img:dreduce-rc}.\src[caption={Example potential for a race condition in the distributed reduce}]{dreduce-race.R}
+\img[caption={Diagram of non-terminating race condition where a worker containing consecutive chunks 1 and 2 reads in dreduce requests in the incorrect order, as indicated ordinally}]{dreduce-rc}
+
+Solutions to such a problem are forthcoming, with the chosen solution likely serving as a key architectural component.
 \bib{bibliography}
 \end{document}
