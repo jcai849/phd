@@ -24,7 +24,7 @@ The \hsrc{dreducable()} function is itself a simple wrapper around the \hsrc{do.
 
 \section{Description of Program Flow}
 
-The program flow of a standard distributed reduce is depicted in Figure \ref{img:dreduce}.
+The program flow of a standard distributed reduce is depicted in Figure \ref{fig:dreduce}.
 \img[caption={Distributed reduce procedure flow}]{dreduce}
 Assuming a distributed object split consecutively over processes 1, 2, and 3, with a single master node containing the reference to this object, a distributed reduce takes place as follows:
 \begin{enumerate}
@@ -50,7 +50,7 @@ A very simple race condition emerges when the process has two requests simultane
 This request can never be serviced, as it will block, thereby never allowing the request providing the dependency to run.
 Such a race condition manifests in a distributed reduce if a process holds two or more chunks to be reduced over -- there is a single line of dependence between them and their resultant chunks.
 Furthermore, as the nature of popping from multiple queues is for all intents random, such a race condition is non-deterministic and difficult to reproduce.
-Listing \ref{lst:dreduce-race.R} gives a setup where roughly half the time a race condition as described occurs, and the program hangs until forced termination, with illustration provided in Figure \ref{img:dreduce-rc}.\src[caption={Example potential for a race condition in the distributed reduce}]{dreduce-race.R}
+Listing \ref{lst:dreduce-race.R} gives a setup where roughly half the time a race condition as described occurs, and the program hangs until forced termination, with illustration provided in Figure \ref{fig:dreduce-rc}.\src[caption={Example potential for a race condition in the distributed reduce}]{dreduce-race.R}
 \img[caption={Diagram of non-terminating race condition where a worker containing consecutive chunks 1 and 2 reads in dreduce requests in the incorrect order, as indicated ordinally}]{dreduce-rc}
 
 Solutions to such a problem are forthcoming, with the chosen solution likely serving as a key architectural component.
