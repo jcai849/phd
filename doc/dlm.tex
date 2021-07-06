@@ -5,7 +5,46 @@
 \day=5 \month=7 \year=2021
 \maketitle
 
-\section{}
+\section{Overview}
+
+To serve as a demonstration and test of modelling using the \lsr{} system, the canonical statistical model, the linear model, was chosen for implementation.
+While simple to derive the mathematics detailing a linear model, the naive method doesn't map straightforwardly to a distributed system.
+This is due to matrix inversion and multiplication operations requiring more than isolated chunkwise information.
+Conveniently, the common method of decomposing a matrix, typically for computationally simplified inversion, is given in a chunked form as part of Algorithm AS274\cite{miller1992as274}.
+This algorithm is in turn implemented and wrapped through the \pkg{biglm} package in \R{} with several additional features such as such as sandwiching\cite{lumley2013biglm}.
+The \pkg{biglm} package creates a linear model object from some initial row-wise chunk of data with a space complexity of \bigO{p^2} for $p$ variables.
+The linear model object is then updated sequentially with further chunks of the data, until all of the data has been read, yielding a final linear model object with methods available for standard linear model object inspection, including summaries and predictions.
+This sequential rolling update over chunked data is able to be captured succinctly in a \hsrc{Reduce()} pattern typical of the functional programming paradigm.
+Using the \textit{iris} dataset as an example, a linear model of the form, 
+$$ Petal.Length_i = Sepal.Width_i + Sepal.Length_i + Sepal.Width \times Sepal.Length + \epsilon_i$$
+is fitted using \pkg{biglm} as part of a demonstrative \hsrc{Reduce()} in listing \ref{lst:lm-reduce.R}.\src[caption={Splitting the iris dataframe into 15 chunks stored as elements of a list and reducing over the list with the biglm update function.}]{lm-reduce.R}
+With a distributed reduce provided by \lsr{}, as discussed in the dreduce document, distributed linear models should then be relatively straightforward to implement.
+
+\section{Implementation Details}
+
+The implementation of the distributed linear model is succinct enough to be given in it's entireity in listing \ref{lst:dlm.R}.\src[caption={Full listing of distributed linear model implementation.}]{dlm.R}
+This implementation includes several important aspects.
+Mapping to the list of chunks, an existing distributed object must be transformed to a list of chunks for the reduce function.
+The reduce function itself is accessed through a light wrapper \hsrc{dreduce()}, with all of the internal code operating transparently on chunks without concern for the type of object.
+A major divergence is given in the generation of the initial reduction object.
+This uses a \hsrc{do.ccall} function to create the initial biglm linear model object, which is then passed to the \hsrc{dreduce()} function.
+A more significant divergence, with severe performance implications, is shown through the intercept and insertion of the function call.
+This is made necessary by the fact that \pkg{biglm} captures the call it was called with, and stores it as part of the model object -- this is not unique to \pkg{biglm}, and this behaviour is common to most modelling functions in \R{}.
+Due to actually enacting the call to construct the inital \pkg{biglm} linear model object on the worker process, rather than the master process, with worker processes evaluating requests through construction with the \hsrc{do.call()} function, rather than exact replication of the initial call, the call as seen by the function is not necessarily the same as that issued on the master process.
+This presents two problems: inaccuracy, and unbounded call sizes.
+Inaccuracy is not an enormous problem, as the call isn't typically used for anything other than rendering a portion of the string representation of the model object.
+The greater issue is that as calls are constructed on the worker, all arguments are evaluated, and the captured call will include fully expanded objects in a \hsrc{dump()}-like form.
+This object may very well have a larger memory footprint than all of the arguments to the call combined, and will lead to memory limitations and slowdowns, particularly when transferring the model object from process to process.
+
+The solution to this is twofold: allow new insertion environments to be inserted to the requested function on the worker for the purpose of non-destructive masking; and capture the call on the master end, wrapped into a function returning the call, and insert into the new insertion environment to take the place of the previous call capture function.
+
+An insertion environment follows the simple concept of being placed between some function and the function's original enclosing environment for the purpose of having it's objects first on the search path, for masking or perhaps making previously global variables available.
+Its form is given in the diagram at Figure \ref{fig:ins-env}.\img[caption={Newly inserted environment mimicking the isertion procedure of a linked list with the old pointer in dashed line.}]{ins-env}
+
+The call is captured on the master end, with a function constructed to return this call, given by the \lsr{}-provided \hsrc{currCallFun()}, and this is then sent to the worker to be inserted as \hsrc{sys.call()} in the insertion environment, thus effectively masking the call capture function at the top level of the requested \pkg{biglm} function.
+Depending on perspective, the fact that this only works at the top level can be a feature, as it doesn't messily mask further along the call stack, however it has the associated limitation.
+
+Worth noting is that call capture is notoriously messy, with \pkg{biglm} itself featuring source code directly manipulating the call as part of some functions.
 
 \bib{bibliography}
 \end{document}

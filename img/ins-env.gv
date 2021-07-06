@@ -1,0 +1,8 @@
+digraph G {
+	f [label="function"];
+	e [label="original enclosure"];
+	n [label="new enclosing environment"];
+
+	f -> e [style=dashed];
+	f -> n -> e;
+}
