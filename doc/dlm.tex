@@ -39,7 +39,7 @@ This object may very well have a larger memory footprint than all of the argumen
 The solution to this is twofold: allow new insertion environments to be inserted to the requested function on the worker for the purpose of non-destructive masking; and capture the call on the master end, wrapped into a function returning the call, and insert into the new insertion environment to take the place of the previous call capture function.
 
 An insertion environment follows the simple concept of being placed between some function and the function's original enclosing environment for the purpose of having it's objects first on the search path, for masking or perhaps making previously global variables available.
-Its form is given in the diagram at Figure \ref{fig:ins-env}.\img[caption={Newly inserted environment mimicking the isertion procedure of a linked list with the old pointer in dashed line.}]{ins-env}
+Its form is given in the diagram at Figure \ref{fig:ins-env}.\img[caption={Newly inserted environment mimicking the insertion procedure of a linked list, with pointers given by arrows, and the old pointer in dashed line.}]{ins-env}
 
 The call is captured on the master end, with a function constructed to return this call, given by the \lsr{}-provided \hsrc{currCallFun()}, and this is then sent to the worker to be inserted as \hsrc{sys.call()} in the insertion environment, thus effectively masking the call capture function at the top level of the requested \pkg{biglm} function.
 Depending on perspective, the fact that this only works at the top level can be a feature, as it doesn't messily mask further along the call stack, however it has the associated limitation.
