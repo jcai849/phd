@@ -59,7 +59,7 @@
 }
 \newcommand{\src}[2][]{
 \pgfkeys{/src, default, #1}
-\edef\next{\noexpand\lstset{float,
+\edef\next{\noexpand\lstset{
 language=\srclang,
 frame=single,
 keepspaces=true,
@@ -67,8 +67,8 @@ basicstyle=\noexpand\footnotesize,
 breakatwhitespace=false,
 captionpos=b}
 }\next
-\IfStrEq{\srccaption}{false}{\lstinputlisting{../src/#2}
-}{\edef\next{\noexpand\lstinputlisting[caption=\srccaption,label={lst:\noexpand#2}]{../src/\noexpand#2}}\next}}
+\IfStrEq{\srccaption}{false}{\lstinputlisting[float]{../src/#2}
+}{\edef\next{\noexpand\lstinputlisting[float,caption=\srccaption,label={lst:\noexpand#2}]{../src/\noexpand#2}}\next}}
 \newcommand{\doc}[1]{
 	\input{#1}
 }
@@ -90,9 +90,7 @@ captionpos=b}
  default/.style = {lang=R},
  lang/.estore in = \hsrclang
 }
-\newcommand{\hsrc}[2][]{
-	\pgfkeys{/hsrc, default, #1}
-	\edef\next{\noexpand\lstinline[language=\hsrclang]{\noexpand#2}}\next
+\newcommand{\hsrc}[2][]{\pgfkeys{/hsrc, default, #1}\edef\next{\noexpand\lstinline[language=\hsrclang]{\noexpand#2}}\next
 }
 
 \endinput
