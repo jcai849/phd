@@ -18,8 +18,7 @@ The \texttt{MapReduce} is thus able to stay largely embarrassingly parallel, whi
 To create a distributed reduce using the \lsr{} system is actually mostly solved by the design of distributed objects, which can be passed to the existing \hsrc{Reduce()} function as provided in base \R{}, with no further modification.
 The only additional effort is to ensure that the operant binary function is capable of operating on distributed objects.
 This can be guaranteed by making use of a \hsrc{dreducable()} wrapper functional around a regular function, which returns the original function modified to operate in distributed fashion. 
-The source code demonstrating this is given in Listing \ref{lst:dreduce.R}.
-\src[caption={The wrapper functional providing a distributed reduce showing the very little effort required to generate a distributed reduce from the framework}]{dreduce.R}
+The source code demonstrating this is given in Listing \ref{lst:dreduce.R}.\src[caption={The wrapper functional providing a distributed reduce showing the very little effort required to generate a distributed reduce from the framework}]{dreduce.R}
 The \hsrc{dreducable()} function is itself a simple wrapper around the \hsrc{do.ccall()} function that serves to power all of the \lsr{} distributed object operation requests.
 
 \section{Description of Program Flow}
