@@ -9,7 +9,8 @@
 A \hsrc{Reduce()}, commonly known as a \textit{fold}, is a computational operation evaluating a binary operation sequentially along a container of objects\cite{bird2010pearls}.
 For example, in the case of a \hsrc{+} operation over a list of values drawn from \tbb, it is equivalent to a cumulative sum.
 The \hsrc{Reduce()} is provided in the base \R{} distribution as part of the \textit{funprog} group of common higher-order functions.
-It serves as a standard means of performing a rolling operation over some container without resorting to explicit looping, and as such is made heavy use of in the functional programming paradigm for the succinct encapsulation of the concept.
+It serves as a standard means of performing a rolling operation over some container without resorting to explicit looping.
+The functional programming paradigm in turn makes heavy use of \hsrc{Reduce()} for the succinct encapsulation of the concept.
 The \texttt{Reduce} referred to in the \texttt{MapReduce} paradigm is a similar, though distinct, operation, serving closer to a grouped summary\cite{dean2004mapreduce}.
 The \texttt{MapReduce} is thus able to stay largely embarrassingly parallel, while a \hsrc{Reduce()} is necessarily serial.
 

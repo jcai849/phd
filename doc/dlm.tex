@@ -17,8 +17,9 @@ The linear model object is then updated sequentially with further chunks of the 
 This sequential rolling update over chunked data is able to be captured succinctly in a \hsrc{Reduce()} pattern typical of the functional programming paradigm.
 Using the \textit{iris} dataset as an example, a linear model of the form, 
 $$ Petal.Length_i = Sepal.Width_i + Sepal.Length_i + Sepal.Width \times Sepal.Length + \epsilon_i$$
-is fitted using \pkg{biglm} as part of a demonstrative \hsrc{Reduce()} in listing \ref{lst:lm-reduce.R}.\src[caption={Splitting the iris dataframe into 15 chunks stored as elements of a list and reducing over the list with the biglm update function.}]{lm-reduce.R}
-With a distributed reduce provided by \lsr{}, as discussed in the dreduce document, distributed linear models should then be relatively straightforward to implement.
+is fitted using \pkg{biglm} as part of a demonstrative non-distributed \hsrc{Reduce()} in listing \ref{lst:lm-reduce.R}.\src[caption={Splitting the iris dataframe into 15 chunks stored as elements of a list and reducing over the list with the biglm update function.}]{lm-reduce.R}
+The \lsr{} package provides the distributed Reduce, \hsrc{dreduce}, as discussed in the dreduce document.
+The \hsrc{dreduce} is therefore to be used as an equivalent structural backbone for the implementation of a distributed linear model.
 
 \section{Implementation Details}
 
@@ -28,7 +29,9 @@ Mapping to the list of chunks, an existing distributed object must be transforme
 The reduce function itself is accessed through a light wrapper \hsrc{dreduce()}, with all of the internal code operating transparently on chunks without concern for the type of object.
 A major divergence is given in the generation of the initial reduction object.
 This uses a \hsrc{do.ccall} function to create the initial biglm linear model object, which is then passed to the \hsrc{dreduce()} function.
-A more significant divergence, with severe performance implications, is shown through the intercept and insertion of the function call.
+
+\subsection{The Special Case of Call Capturing}
+A more significant divergence than different initialisation, with severe performance implications, is shown through the intercept and insertion of the function call.
 This is made necessary by the fact that \pkg{biglm} captures the call it was called with, and stores it as part of the model object -- this is not unique to \pkg{biglm}, and this behaviour is common to most modelling functions in \R{}.
 Due to actually enacting the call to construct the inital \pkg{biglm} linear model object on the worker process, rather than the master process, with worker processes evaluating requests through construction with the \hsrc{do.call()} function, rather than exact replication of the initial call, the call as seen by the function is not necessarily the same as that issued on the master process.
 This presents two problems: inaccuracy, and unbounded call sizes.

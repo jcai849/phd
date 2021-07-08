@@ -7,5 +7,4 @@ digraph G {
 	m -> { q1 q2 };
 	q1 -> w [label="2nd"];
 	q2 -> w [label="1st"];
-
 }
