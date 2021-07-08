@@ -54,7 +54,7 @@
  caption/.estore in = \srccaption,
  lang/.estore in = \srclang
 }
-\newcommand{\src}[2][]{\pgfkeys{/src, default, #1}\IfStrEq{\srccaption}{false}{\edef\next{\noexpand\lstinputlisting[language=\srclang,float,basicstyle=\noexpand\footnotesize]{../src/\noexpand#2}}}{\edef\next{\noexpand\lstinputlisting[language=\srclang,float,caption=\srccaption,label={lst:\noexpand#2},basicstyle=\noexpand\footnotesize]{../src/\noexpand#2}}}\next{}}
+\newcommand{\src}[2][]{\pgfkeys{/src, default, #1}\IfStrEq{\srccaption}{false}{\edef\next{\noexpand\lstinputlisting[language=\srclang,float,basicstyle=\noexpand\ttfamily\noexpand\footnotesize]{../src/\noexpand#2}}}{\edef\next{\noexpand\lstinputlisting[language=\srclang,float,caption=\srccaption,label={lst:\noexpand#2},basicstyle=\noexpand\ttfamily\noexpand\footnotesize]{../src/\noexpand#2}}}\next{}}
 
 \newcommand{\doc}[1]{
 	\input{#1}
