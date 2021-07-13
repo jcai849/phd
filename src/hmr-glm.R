@@ -1,18 +1,23 @@
-if (!require(iotools)) install.packages('iotools',,'http://www.rforge.net/')
-if (!require(hmr)) install.packages('hmr',,'http://www.rforge.net/')
+if (!require(iotools)) {
+	install.packages('iotools',,'http://www.rforge.net/')
+	library(iotools)
+}
+if (!require(hmr)) {
+	install.packages('hmr',,'http://www.rforge.net/')
+	library(hmr)
+}
 if (!require(roctopus)) {
 	system2("git", c("clone", "https://github.com/s-u/roctopus.git",
 			 "~/roctopus"))
 	install.packages("roctopus", repos=NULL)
+	system2("rm", c("-rf", "~/roctopus"))
+	library(roctopus)
 }
-## ------------------------------------------------------------------------
-Sys.setenv(HADOOP_PREFIX="/usr/hdp/current/hadoop-client")
 
-# was having intermittent permissions issues on hdp2 again,
-# so made copies of these:
-data_file <- "/user/taylor/AirlineDataSmall.csv"
-data_file <- "/user/taylor/AirlineDataReallySmall.csv"
-data_file <- "/user/kane/1987.csv"
+## ------------------------------------------------------------------------
+#Sys.setenv(HADOOP_PREFIX="/usr/hdp/current/hadoop-client")
+
+data_file <- "/user/hadoop/1987.csv"
 
 header <- c('Year', 'Month', 'DayofMonth', 'DayOfWeek', 'DepTime',
             'CRSDepTime', 'ArrTime', 'CRSArrTime', 'UniqueCarrier',
@@ -95,13 +100,13 @@ a = hmr(hinput(data_file,
 )
 
 x = readLines(open(a))
-w = lapply(x, worker)
+
+## ------------------------------------------------------------------------
+# Cluster implementation:
 
 epsilon = 1e-08
 maxit = 8
 
-## ------------------------------------------------------------------------
-# Cluster implementation:
 dev = wqapply(w, sum(fam$dev.resids(y, mu, WEIGHTS)), fold=`+`)
 
 for (iter in 1L:maxit) {
@@ -144,5 +149,3 @@ gout$coefficients
 # Check against distributed version
 max(abs(gout$coefficients - drop(beta)))
 gout$deviance - dev
-
-
