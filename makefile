@@ -7,7 +7,7 @@ REPDIR	= out
 RM	= rm -f
 RSYNC	= rsync -a --delete
 REMOTE	= japeca:/var/www/htdocs/japeca.com
-.PATH	= ${SRCDIR} #VPATH (try .PATH.suffix)
+.PATH	= ${SRCDIR}
 DOCS   != find ${DOCDIR} -maxdepth 1 -name '*.tex' -exec basename {} \;
 REPORTS	= ${DOCS:S/.tex/.pdf/g}
 PROGS	= mktexdep
@@ -15,12 +15,11 @@ PROGS	= mktexdep
 .PHONY: all depend clean
 .SUFFIXES: .gv .pdf
 
-all: programs depend ${REPDIR}/test.pdf ${REPDIR}/dreduce.pdf ${REPDIR}/dlm.pdf #programs reports
-${REPDIR}/test.pdf: ${IMGDIR}/test.pdf
+all: depend programs reports
 
-programs: ${BINDIR}/${PROGS}
+programs: ${PROGS:S/^/bin\//g}
 
-reports: ${REPDIR}/${REPORTS}
+reports: ${REPORTS:S/^/out\//g}
 
 .for REPORT in ${REPORTS}
 REPSRC	= ${REPORT:S/.pdf/.tex/g}
@@ -36,7 +35,7 @@ ${BINDIR}/${PROG}: ${PROGSRC}
 .endfor
 
 .gv.pdf:
-	dot -Tpdf ${.IMPSRC} >${.TARGET}
+	dot -Tpdf -Gsize=4,6\! -Gdpi=100 ${.IMPSRC} >${.TARGET}
 
 depend: bin/mktexdep
 	@./bin/mktexdep ${DOCS:S/^/doc\//g} >.depend

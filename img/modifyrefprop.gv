@@ -1,0 +1,34 @@
+digraph modref {
+	colorscheme="prgn9";
+	node [colorscheme="prgn9", style="filled"];
+	style="filled";
+
+	subgraph cluster_dobjref {
+		label="Distributed Object Reference\n(immutable)";
+		fillcolor=6;
+
+		subgraph cluster_chunkref {
+			label="Chunk Reference\n(immutable)";
+			fillcolor=6;
+
+			x[fillcolor=4,label="chunk descriptor\n(mutable)"];
+			xd[fillcolor=4,label="chunk descriptor\n(mutable)"];
+
+		}
+	}
+
+	subgraph cluster_worker {
+		label="worker";
+		fillcolor=5;
+
+		xc[fillcolor=6,label="original chunk data\n(immutable)"];
+		xdc[fillcolor=6,label="modified copy\n(immutable)"];
+
+	}
+
+	x -> xc [label="refers to"];
+	xd -> xdc [label="refers to"];
+	x -> xd [label="replaced with"];
+	xc-> xdc [label="copied to"];
+
+}
