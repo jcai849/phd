@@ -1,0 +1,51 @@
+digraph dref {
+	colorscheme="prgn9";
+	node [colorscheme="prgn9", style="filled", fillcolor=6];
+	style="filled";
+	subgraph cluster_dobjref {
+		label="dref (immutable)";
+		fillcolor=3;
+
+		subgraph cluster_dcache {
+			label="dcache (mutable)";
+			fillcolor=7;
+			m1[label="metadata (immutable)"];
+		}
+
+		subgraph cluster_cref1 {
+			label="cref (immutable)";
+			fillcolor=4;
+			subgraph cluster_ccache1 {
+				label="ccache (mutable)";
+				fillcolor=7;
+				d1[label="cdesc (immutable)"];
+				m1[label="metadata (immutable)"];
+			}
+
+		}
+
+		subgraph cluster_cref2 {
+			label="cref (immutable)";
+			fillcolor=4;
+			subgraph cluster_ccache2 {
+				label="ccache (mutable)";
+				fillcolor=7;
+				d2[label="cdesc (immutable)"];
+				m2[label="metadata (immutable)"];
+			}
+
+		}
+
+		subgraph cluster_cref3 {
+			label="cref (immutable)";
+			fillcolor=4;
+			subgraph cluster_ccache3 {
+				label="ccache (mutable)";
+				fillcolor=7;
+				d3[label="cdesc (immutable)"];
+				m3[label="metadata (immutable)"];
+			}
+
+		}
+	}
+}
