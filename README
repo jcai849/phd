@@ -8,6 +8,7 @@ Depends:
 - bmake
 - latex (pdftex)
 - graphviz
+- plantuml
 
 Navigation:
 .
