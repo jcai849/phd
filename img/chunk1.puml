@@ -1,0 +1,19 @@
+@startuml
+abstract chunk {
+	{abstract} +data() : <data>
+	{abstract} +do(function, ...chunk) : chunk
+}
+
+class fixedChunk {
+	+data() : <data>
+	+do(function, ...chunk) : chunk
+}
+
+class computedChunk {
+	+data() : <data>
+	+do(function, ...chunk) : chunk
+}
+
+chunk <|-- fixedChunk
+chunk <|-- computedChunk
+@enduml

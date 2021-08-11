@@ -31,6 +31,7 @@
 \newcommand{\tab}[2][]{
 \pgfkeys{/tab, default, #1}
 \begin{table}
+	\centering
 	\IfStrEq{\tabx}{false}{
 		\edef\next{ \noexpand\begin{tabular}{\tabspec}}\next
 		\toprule

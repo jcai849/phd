@@ -13,7 +13,7 @@ REPORTS	= ${DOCS:S/.tex/.pdf/g}
 PROGS	= mktexdep
 
 .PHONY: all depend clean
-.SUFFIXES: .gv .pdf
+.SUFFIXES: .gv .puml .pdf
 
 all: depend programs reports
 
@@ -36,6 +36,9 @@ ${BINDIR}/${PROG}: ${PROGSRC}
 
 .gv.pdf:
 	dot -Tpdf -Gsize=4,6\! -Gdpi=100 ${.IMPSRC} >${.TARGET}
+
+.puml.pdf:
+	cat ${.IMPSRC} | plantuml -tpdf >${.TARGET}
 
 depend: bin/mktexdep
 	@./bin/mktexdep ${DOCS:S/^/doc\//g} >.depend

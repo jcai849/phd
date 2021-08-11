@@ -7,11 +7,33 @@
 
 \section{Introduction} % why use this?; datacentric etc
 
-Over the course of prolonged prototyping, testing, and research in the construction of an \R{}-based 
+Over the course of prolonged prototyping, testing, and research in the construction of an \R{}-based distributed system for large-scale statistical modelling, the ``chunk'' concept has been imperative to intuitive and clean usage of the system.
+This document will outline the ``chunk'', including both theory and implementation suggestions.
 
-\section{Interface}
+The term ``chunk'' is used here to refer to discrete portions of data that may be distributed across computing nodes.
+It has it's concrete realisation in object-oriented terms as some instance implementing the interface of a ``chunk'' type, the description thereof expanded upon in Section \ref{int}
+
+The provenance of the concept can be found in most distributed databases operating with distributed partitioning schemes, including MySQL Cluster and the Hadoop Distributed File System, though with a more object based approach as reflected in fragmented objects\cite{shvachko2010hadoop}\cite{kruckenberg2005mysql}.
+
+\section{Interface}\label{int}
+
+The chunk as a type has at a minimum two operations for it's interface: \hsrc{data()}, and \hsrc{do()}, as shown in Table \ref{tab:chunk}\tab[spec=ll,caption=Interface for the chunk type]{chunk}.
+These correspond to access and execution on an abstract chunk, where \hsrc{data()} returns the underlying data encapsulated by the chunk, and \hsrc{do()} takes a function and a variable number of chunk arguments, returning a chunk representing the result.
+\hsrc{do()} and \hsrc{data()} are intimately cohered, in that the \hsrc{data()} function must be called to access the underlying data for the actual calling of whatever function is given to the \hsrc{do()} function, and the result of the \hsrc{do()} operation can be accessed only through \hsrc{data()}.
+
 \section{Suggestions for Implementation}
+
+The implementation of such an interface strongly depends on the fact that the data underlying a chunk may be in one of several different states. 
+
+Most notably, an instance of a \hsrc{chunk} may be returned by \hsrc{do()}, whose underlying data may still be computed either concurrently, or at some point in the future; the limitation of present data availability has purposely not been placed, in order that concurrent operation scheduling may be dynamic.
+With this in mind, the chunk will adopt different behaviours internally depending on the status of the data; for example, data that is still being computed will not allow immediate access via \hsrc{data()}, and may require communications setup in order to be transferred, while fixed and pre-computed data may be immediately accessible or even cached locally.
+
+\img{chunk1}
+
 \section{Layering over the Chunk: An Interface for Chunk Aggregation}
+\cite{guo2012parallel}
+why flexibility?
+matrix multiplication; search; parallel statistical
 
 \bib{bibliography}
 \end{document}
