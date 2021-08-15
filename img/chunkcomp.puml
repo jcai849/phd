@@ -1,0 +1,43 @@
+@startuml
+
+class chunk {
+    -dataState
+    -doState
+    {abstract} +data() : <data>
+    {abstract} +do(function, ...chunk) : chunk
+}
+
+class compositeChunk {
+children : list
++data() : <data>
++do(function, ...chunk) : chunk
++getChildren()
++addChild()
++removeChild()
+}
+
+class atomicChunk {
++data() : <data>
++do(function, ...chunk) : chunk
+}
+
+
+chunk o-- compositeChunk
+chunk <|-- compositeChunk
+chunk <|-- atomicChunk
+
+compositeChunk <|-- colBlockMat
+atomicChunk <|-- col
+colBlockMat o-- col
+
+compositeChunk <|-- rowBlockMat
+atomicChunk <|-- row
+rowBlockMat o-- row
+
+compositeChunk <|-- olist
+compositeChunk <|-- set
+
+olist o-- atomicChunk
+set o-- atomicChunk
+
+@enduml

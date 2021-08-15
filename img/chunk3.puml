@@ -1,0 +1,52 @@
+@startuml
+
+class chunk {
+    -dataState
+    -doState
+    {abstract} +data() : <data>
+    {abstract} +do(function, ...chunk) : chunk
+}
+
+abstract class dataState {
+        +data()
+}
+
+class dataRequested {
+    +data() : <data>
+}
+
+class dataFixed {
+    -dataAddr
+    +data() : <data>
+}
+
+
+abstract class doState {
+    -requestList
+    +do()
+}
+
+class reqBackup {
+    -requestList
+    +do()
+}
+
+class reqRestore {
+    -requestList
+    +do()
+}
+
+class noReqs {
+    -requestList
+    +do()
+}
+
+chunk o-- dataState
+chunk o-- doState
+doState <|-- reqBackup
+doState <|-- noReqs
+doState <|-- reqRestore
+dataState <|-- dataFixed
+dataState <|-- dataRequested
+
+@enduml

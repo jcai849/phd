@@ -8,7 +8,7 @@ Depends:
 - bmake
 - latex (pdftex)
 - graphviz
-- plantuml
+- plantuml (w/ pdf capabilities)
 
 Navigation:
 .
@@ -30,6 +30,7 @@ Navigation:
 │   └── *.txt			Asciidoc document source files
 ├── img				Image directory
 │   ├── *.dot			Graphviz graph layout specification
+│   ├── *.puml			PlantUML layout specification
 │   └── *.pdf			Processed graph output
 ├── out				Report output directory
 │   └── *.pdf			Output report 
