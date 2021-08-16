@@ -7,26 +7,26 @@
 
 \section{Introduction} % why use this?; datacentric etc
 
-Over the course of prolonged prototyping, testing, and research in the construction of an \R{}-based distributed system for large-scale statistical modelling, the ``chunk'' concept has been imperative to intuitive and clean usage of the system.
-This document will outline the ``chunk'', including both theory and implementation suggestions.
+Over the course of extensive prototyping, testing, and research towards the construction of an \R{}-based distributed system for large-scale statistical modelling, the ``chunk'' concept has been imperative to intuitive and clean usage of the system.
+This document outlines the ``chunk'', including underlying theory and implementation suggestions.
 
 The term ``chunk'' is used here to refer to discrete portions of data that may be distributed across computing nodes.
-It has it's concrete realisation in object-oriented terms as some instance implementing the interface of a ``chunk'' type, the description thereof expanded upon in Section \ref{int}
+It has its concrete realisation in object-oriented terms as some instance implementing the interface of a ``chunk'' type, with further details in Section \ref{int}
 
-The provenance of the concept can be found in most distributed databases operating with distributed partitioning schemes, including MySQL Cluster and the Hadoop Distributed File System, though with a more object based approach as reflected in fragmented objects\cite{shvachko2010hadoop}\cite{kruckenberg2005mysql}.
+The provenance of the concept can be found in many programs operating with distributed partitioning schemes, including MySQL Cluster and the Hadoop Distributed File System\cite{shvachko2010hadoop}\cite{kruckenberg2005mysql}.
 
 \section{Interface}\label{int}
 
-The chunk as a type has at a minimum two operations for it's interface: \hsrc{data()}, and \hsrc{do()}, as shown in Table \ref{tab:chunk}\tab[spec=ll,caption=Interface for the chunk type]{chunk}.
+The chunk as a type has at minimum two operations for its interface: \hsrc{data()}, and \hsrc{do()}, as shown in Table \ref{tab:chunk}\tab[spec=ll,caption=Interface for the chunk type]{chunk}.
 These correspond to access and execution on an abstract chunk, where \hsrc{data()} returns the underlying data encapsulated by the chunk, and \hsrc{do()} takes a function and a variable number of chunk arguments, returning a chunk representing the result.
-\hsrc{do()} and \hsrc{data()} are intimately cohered, in that the \hsrc{data()} function must be called to access the underlying data for the actual calling of whatever function is given to the \hsrc{do()} function, and the result of the \hsrc{do()} operation can be accessed only through \hsrc{data()}.
+\hsrc{do()} and \hsrc{data()} are intimately cohered, in that the \hsrc{data()} function must be called at some point to access the underlying data for the actual calling of whatever function is given to the \hsrc{do()} function, and the result of the \hsrc{do()} operation can be accessed only through \hsrc{data()}.
 
 \section{Suggestions for Implementation}
 
 The implementation of such an interface strongly depends on the fact that the data underlying a chunk may be in one of several different states. 
 
 Most notably, an instance of a \hsrc{chunk} may be returned by \hsrc{do()}, whose underlying data may still be computed either concurrently, or at some point in the future; the limitation of present data availability has purposely not been placed, in order that concurrent operation scheduling may be dynamic.
-With this in mind, the chunk will adopt different behaviours internally depending on the status of the data; for example, data that is still being computed will not allow immediate access via \hsrc{data()}, and may require communications setup in order to be transferred, while fixed and pre-computed data may be immediately accessible or even cached locally.
+With this in mind, the chunk will adopt different behaviours internally depending on the status of the data; for example, data that is still being computed will not allow immediate access via \hsrc{data()}, and may require communications set up in order to be transferred, while fixed and pre-computed data may be immediately accessible or even cached locally.
 
 A simple subclassed form of this particular implementation is given in Figure \ref{fig:chunk1}.
 
@@ -34,7 +34,8 @@ A simple subclassed form of this particular implementation is given in Figure \r
 
 This meets the Liskov substitution principle\cite{liskov1988lsp}, however doesn't retain flexibility for other forms of state; here the whole of the chunk object's state is not satisfactorily captured entirely by the chunk -- there may be other aspects of state, such as a command history, last cache, or others, that would demand subclasses for consistency, yet lead to a multiplicative proliferation of subclasses if implemented.
 
-Therefore, an alternative is presented, wherein the data state is delegated and thereby encapsulated, as given in Figure \ref{fig:chunk2}. This allows for $n*m$ many variations on total chunk state without forcing the creation of $n*m!$ subclasses, only $n$ state classes of $m$-many states each.
+Therefore, an alternative is presented, wherein the data state is delegated and thereby encapsulated, as given in Figure \ref{fig:chunk2}. 
+Assuming there is some set of mutually exclusive state spaces $S$, each containing some set of states $N_S$, the growth of required subclasses to capture interacting state is given by \bigO{(\sum_S N_S)!}, whereas delegation leads to  growth proportional only to the number of state spaces, at \bigO{S}.
 
 \img[caption={Delegated implementation of the chunk interface}]{chunk2}
 
@@ -49,29 +50,29 @@ This is depicted in Figure \ref{fig:chunk3}
 
 \img[caption={Motivation for delegation in the implementation of chunk interface with chunk history being saved as a state}]{chunk3}
 
-With all of this in mind, this is still only a general description of the architecture; non class-based approaches that still follow a similar pattern of delegation may very well be preferable, especially given that the language of choice for implementation is \R{}, which possesses many dynamic features that can substitute for these state object compositions, such as closures as part of higher-order functions.
+With respect to all of the class descriptions, this remains only a general description of the architecture; non class-based approaches that still follow a similar pattern of delegation may very well be preferable, especially given that the language of choice for implementation is \R{}, which possesses many dynamic features that can substitute for these state object compositions, such as closures as part of higher-order functions.
 
 \section{Layering over the Chunk: An Interface for Chunk Aggregation}
 
-The value of distributing objects across machines finds greater value when an object larger than the limits of any remote machine can be split up into multiple chunks that each hold some constituent portion of the underlying data, where the chunks upon combination would form the base object.
+The value of distributing objects across machines finds greater value when an object larger than the memory limits of any remote machine can be split up into multiple chunks that each hold some constituent portion of the underlying data.
 The notion of a \textit{composite chunk} is therefore introduced, in order to capture the idea of an object being composed of multiple chunks.
 This is equivalent in many respects to the \textit{distributed object} as used in earlier prototypes, but serves a far more general role.
 
-A composite chunk is a special type of chunk that possesses an ordered list of children, and can be therefore recursively composed in a tree structure.
-Methods for combination of children, which either overrides the \href{data()} method or is delegated thereto, would be required.
-It is conceivable that the same could be required of the \href{do()} method, where different representations of chunk composition would alter standard requested functions.
+A composite chunk is a special type of chunk that possesses an ordered list of children, and can therefore be recursively composed in a tree structure.
+Methods for combination of children, which either overrides the \hsrc{data()} method or is delegated thereto, would be required.
+It is conceivable that the same could be required of the \hsrc{do()} method, where different representations of chunk composition would alter standard requested functions.
 Example variations of composite chunks include row-block matrices, column-block matrices, ordered lists, unordered lists (sets), etc.
 The implementation of a new composite chunk can involve the creation of a new subclass of composite chunk, and perhaps some subclass variation of an atomic chunk.
 
 The flexibility granted by such variations in composition allow for greater matching of data structures to parallel statistical procedures.
 The simplest example is given by blockwise parallel matrix multiplication, but more advanced statistical procedures possess various parallel data structure mappings.
 For instance, it has been shown that least squares can be made very efficiently parallel by decomposing the $X^TX$ matrix by columns into disjoint blocks\cite{renaut1998parallel}.
-This can be contrasted with the row-wise splitting that has found success in GLMs and GAMS as special cases of non-linear optionisation\cite{suri2002parallel}.
-Multi-chain MCMC methods can also benefit from parallelisation, with each chain being run in parallel, though no special ordering defined on each chain\cite{strid2010parmcmc}.
-A variety of other parallel and distributed statistical procedures with mappings to composite chunk structures have further derivations\cite{guo2012parallel}.
+This can be contrasted with the row-wise splitting that has found success in GLMs and GAMS as special cases of non-linear optimisation\cite{suri2002parallel}.
+Multi-chain MCMC methods can also benefit from parallelisation, with each chain being run in parallel, though no special ordering need be defined on each chain\cite{strid2010parmcmc}.
+A variety of other parallel and distributed statistical procedures with mappings to composite chunk structures have further derivations, most being well-served by variations on the composite chunk\cite{guo2012parallel}.
 
-Chunk aggregation through composite chunks is a layer above raw chunk manipulation.
-Type safety is added through additional child manipulation methods, though this is exists in tension with the aim of a uniform interface - whether the child manipulation methods exist in the \hsrc{compositeChunk} class or the abstract \hsrc{chunk} class determines the balance of favour.
+Chunk aggregation through composite chunks exists as an interaction layer above raw singular chunk manipulation.
+Type safety is added through supplemental child manipulation methods, though this is exists in tension with the aim of a uniform interface, and whether the child manipulation methods exist in the \hsrc{compositeChunk} class or the abstract \hsrc{chunk} class determines the balance of favour.
 An example implementation of a simple family of composite chunks is given in Figure \ref{fig:chunkcomp}.
 Conceivably, further layers may be added to hide details such as the blocking format of matrices, allowing clients to only be concerned with matrices \textit{qua} matrices.
 
