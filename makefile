@@ -58,6 +58,7 @@ clean:
 
 fullclean: clean
 	${RM} ${IMGDIR}/*.svg
+	${RM} ${IMGDIR}/*.pdf
 	${RM} ${PROGS:S/^/bin\//g}
 	${RM} ${REPDIR}/*.html
 	${RM} ${REPDIR}/*.pdf
