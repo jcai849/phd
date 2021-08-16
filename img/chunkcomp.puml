@@ -1,13 +1,13 @@
 @startuml
 
-class chunk {
-    -dataState
+class dobj {
+    -data
     -doState
     {abstract} +data() : <data>
     {abstract} +do(function, ...chunk) : chunk
 }
 
-class compositeChunk {
+class compositedobj {
 children : list
 +data() : <data>
 +do(function, ...chunk) : chunk
@@ -16,28 +16,30 @@ children : list
 +removeChild()
 }
 
-class atomicChunk {
+class chunk {
 +data() : <data>
 +do(function, ...chunk) : chunk
 }
 
 
-chunk o-- compositeChunk
-chunk <|-- compositeChunk
-chunk <|-- atomicChunk
+dobj o-- compositedobj
+dobj <|-- compositedobj
+dobj <|-- chunk
 
-compositeChunk <|-- colBlockMat
-atomicChunk <|-- col
-colBlockMat o-- col
+compositedobj <|-- colBlockMat
+chunk <|-- colChunk
+colBlockMat o-- colChunk
 
-compositeChunk <|-- rowBlockMat
-atomicChunk <|-- row
-rowBlockMat o-- row
+compositedobj <|-- rowBlockMat
+chunk <|-- rowChunk
+rowBlockMat o-- rowChunk
 
-compositeChunk <|-- olist
-compositeChunk <|-- set
+compositedobj <|-- olistChunk
+compositedobj <|-- uolistChunk
+compositedobj <|-- setChunk
 
-olist o-- atomicChunk
-set o-- atomicChunk
+olistChunk o-- chunk
+uolistChunk o-- chunk
+setChunk o-- chunk
 
 @enduml

@@ -1,22 +1,26 @@
 @startuml
 
 class chunk {
-    -dataState
+    -data
     -doState
     {abstract} +data() : <data>
     {abstract} +do(function, ...chunk) : chunk
 }
 
-abstract class dataState {
+abstract class data {
+	-id
         +data()
 }
 
 class dataRequested {
+	-id
     +data() : <data>
 }
 
 class dataFixed {
+    -id
     -dataAddr
+    -data : <data>
     +data() : <data>
 }
 
@@ -41,12 +45,12 @@ class noReqs {
     +do()
 }
 
-chunk o-- dataState
+chunk o-- data
 chunk o-- doState
 doState <|-- reqBackup
 doState <|-- noReqs
 doState <|-- reqRestore
-dataState <|-- dataFixed
-dataState <|-- dataRequested
+data <|-- dataFixed
+data <|-- dataRequested
 
 @enduml

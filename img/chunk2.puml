@@ -1,29 +1,29 @@
 @startuml
 
 class chunk {
-        -dataState
         {abstract} +data() : <data>
         {abstract} +do(function, ...chunk) : chunk
 }
 
-abstract class dataState {
+abstract class data {
+	-id
         +data()
 }
 
 class dataComputed {
+	-id
+	-dataAddr
         +data() : <data>
 }
 
 class dataFixed {
+	-id
+	-data : <data>
         +data() : <data>
 }
 
-chunk o-- dataState
-dataState <|-- dataFixed
-dataState <|-- dataComputed
-
-note right of chunk::data()
-    data(dataState)
-end note
+chunk o-- data
+data <|-- dataFixed
+data <|-- dataComputed
 
 @enduml

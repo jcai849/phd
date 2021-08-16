@@ -1,19 +1,19 @@
 @startuml
-abstract chunk {
+abstract data {
+	{abstract} -id
 	{abstract} +data() : <data>
-	{abstract} +do(function, ...chunk) : chunk
 }
 
-class fixedChunk {
+class fixedData {
+	-id
 	+data() : <data>
-	+do(function, ...chunk) : chunk
 }
 
-class computedChunk {
+class computedData {
+	-id
 	+data() : <data>
-	+do(function, ...chunk) : chunk
 }
 
-chunk <|-- fixedChunk
-chunk <|-- computedChunk
+data <|-- fixedData
+data <|-- computedData
 @enduml
