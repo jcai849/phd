@@ -31,7 +31,8 @@ Distributed Hash Table algorithm generally share a few features in common, beyon
 	\item Dynamic introduction and exit of nodes is a principal distinguishing feature of DHT's with respect to regular hash tables using nodes as buckets.
 		Resizing of naive hash tables often involves a complete rehashing and remapping of values to the buckets, whereas DHT's expect frequent resizing, and can't afford the remapping.
 		DHT's then have some hashing function that doesn't require system-wide remapping when nodes/buckets are added or removed.
-	\item Nodes typically have some node ID that of the same length as keys (or some variation on keys, such as their SHA-1 hash), in order to allow for some direct comparison between them. Keys are usually hashed to particular nodes based on some measure of distance, choosing the node with the lowest distance to store the value on.
+	\item Nodes usually keep some routing table that is used to optimise lookups.
+	\item Nodes typically have some node ID of the same length as keys (or some variation on keys, such as their SHA-1 hash), in order to allow for some direct comparison between them. Keys are usually hashed to particular nodes based on some measure of distance, choosing the node with the lowest distance to store the value on.
 	\item Minimisation of route length and minimisation of degree are principal objectives in the analysis of DHT's, with most DHT's sporting \bigO{\log n} lookup time in the worst case.
 	\item Susceptibility to Byzantine faults such as the Sybil attack; given that the \lsr{} system is expected to run in a non-adverserial environment, this consideration doesn't factor too heavily into choice of DHT algorithm.
 \end{itemize}
@@ -47,46 +48,104 @@ Chord builds on the consistent hashing algorithm, adding linear lookup and finge
 
 Consistent hashing is a hashing scheme with a high probability of load balancing and minimisation of key remapping upon node exit and joining of the network, with only \bigO{\frac{1}{N}} expected key movement.
 Consistent hashing relies upon an identifier circle, as a form of modulo ring.
-The identifier ring exists conceptually at the size $2^m$, $m$ simply being large enough to make the probability of hash collision negligable.
+The identifier ring exists conceptually at the size $2^m$, $m$ simply being large enough to make the probability of hash collision negligable, typically the same as the number of bits in the node/key ID hash.
 Each node is hashed to the identifier ring based upon it's node ID, typically with the SHA-1 hash.
-Keys are then assigned to nodes by determining their to point on the ring, using the same hash function used for nodes, and specifying that their node assignment is to be the first node clockwise on the ring following that key, with that node termed as the key's successor.
+Keys are then assigned to nodes by determining their point on the ring, using the same hash function as used for nodes, and specifying that their node assignment is to be the first node clockwise on the ring following that key, with that node termed as the key's successor.
 
-Based on the description of key-node assignments given by consistent hashing, the Chord algorithm allows decentralised coordination over the ring through provision of the single lookup ability, which can be used to return either a node or a key.
+Based on the description of key-node assignments given by consistent hashing, the Chord algorithm allows decentralised coordination over the ring through provision of a lookup routine, which can be used to return either a node or a key.
 The central requirement is that each node knows it's successor.
-With this in place, finding a node, or a key, involves recursively successors, with successors forwarding the query to their own successors in a recursive manner, until the node or value is found.
+With this in place, finding a node or a key involves the initiating node querying it's successor, with successors forwarding the query to their own successors in a recursive manner, until the node or value is found.
 As this is \bigO{N} in terms of route length, an additional stipulation is given that nodes carry a finger table, wherein addresses of nodes in exponentially increasing intervals are stored, and finger tables are consulted for routing instead of bare successors.
-The nodes in the finger table are the successors to the points at increasing values of $2^k, 1 \leq k \leq m$.
+Specifically, the entries in a node's finger table are the successors to the points relative to the node at increasing values of $2^{k-1} \mod 2^m, 1 \leq k \leq m$.
 Successors to points are found based on querying the maximal node less than the point in the existing finger table, and recursively passing the query, until a queried node finds that the queried point lies between itself and it's own successor, at which point it returns it's own successor.
 
 Nodes join the network by finding their successor through querying any arbitrary node in the network.
 The arrival of new nodes has the potential to throw off existing finger tables, and as such a stabilisation routine must be run periodically to maintain the system, by checking consistency of successors and predecessors.
-The need for a regular (hourly in the original paper) stabilisation routine is a source of lookup failure, and is not aided by the fact that the distance measure is asymmetric, so new node information is not transmitted through the network without the periodic stabilisation routines.
+The need for a regular stabilisation and finger table fixing routine is not amenable to arbitrary churn rates.
+If stabilisation occurs less than churn, then node lookups have higher potential for failure, as nodes may have incorrect successor pointers, or keys may not have been migrated to new nodes.
+If stabilisation occurs more than churn, then most stabilisation cycles are idempotent and unnecessary.
+
+If Chord is used in a variety of heterogeneous environments, it is almost certain to not match churn in all of them.
+Given that this is the case, a variation on Chord is essential for reliability.
+Furthermore, the fact that the distance measure is asymmetric means that new node information is not transmitted through the network without the periodic stabilisation routines.
 This drawback is significant and cause for pursuing a more complex algorithm in the hope of gaining more guarantees.
+
+A manner of removing all background periodic procedures is given by the following:
+\begin{enumerate}
+	\item Node joins occur sequentially and force stabilisation procedures on both the successor and predecessor, with migration of keys occuring prior to predecessor stabilisation, and requiring checks from successor to predecessor that the pointer is correct and that no queries are pending, before successor deletes data.
+	\item Node joins force finger fixes on all existing nodes, broadcasting the new node's existence and ID recursively along finger tables, with the space of each recursive call bound by successors.
+		This is additional work, but for the datacentre-like applications, as lsr{}, rather than transient IM chat applications, the lower churn minimises the additional work, and is sufficient to justify the stability.
+\end{enumerate}
 
 \subsection{Kademlia}
 
-Kademlia is a more complex algorithm than Chord, though possesses certain features that make it more amenable to a truly dynamic distributed system.
+Kademlia is a more complex algorithm than Chord, though possesses certain features that make it more amenable to a large dynamic distributed system.
 Kademlia sees use by the Ethereum cryptocurrency, the Tox messaging protocol, and the gnutella file sharing system.
-Also has potential for lookup failure if newly added nodes are closer to key, and keyholder not updated accordingly
+
+Kademlia makes use of a different distance metric to Chord.
+XOR serves as the Kademlia distance measure, which, though non-Euclidean, satisfies several useful properties, including symmetricality and the triangle inequality, thereby preserving relative distances and allowing propagation of knowledge of new nodes via the very act of lookup.
+The routing table, known as $k$-buckets in the Kademlia literature, is a list of $m$ elements, again matching the number of bits in node and key ID's.
+Each element in the $k$-buckets is a list of $k$ nodes, where $k$ is some pre-decided number shared amongst all nodes, indicated at a recommended 20.
+
+To determine the correct bucket to store the node information in the $k$-buckets, it is XOR'ed with the node ID performing the check, and the location of the first differing bit directs the bucket to which the node is sent.
+In this way, nodes retain more knowledge on nodes closer to them than nodes further.
+Keys are stored by performing a node lookup of the closest nodes within it's corresponding $k$-bucket, and querying the top $\alpha$ nodes of that list in parallel.
+The query is run recursively on the results from those nodes, until the results are constant.
+
+Nodes join the network by contacting one existing node in the network, and performing a quest for their own ID, which propagates their address through the network.
+
+Further features include taking advantage of the fact that node lifetime follows a power law, and longer-running nodes are kept at the top of the $k$-bucket lists.
+As nodes are encountered, they are added dynamically to $k$-bucket lists.
+
+Kademlia has the potential for lookup failure if newly added nodes are closer to key, and the keyholder not updated accordingly
+The authors recommend periodic key republishing, but this periodicity suffers many of the same problems that Chord has;
+Therefore it is better to force a copy of all closest keys upon joining - this is not too difficult, as the distance space is single dimensional, so a node only needs to contact it's two nearest (or equivalent) neighbours in order to copy from them.
+It may have to go through a similar strict ordering as Chord, of copies and checks before declaring a complete migration.
+
+Nodes departing the network may render lookup failures, as in Chord, however this can be mitigated by stipulating that all nodes must be ``owned'', and write to disk, so they can be pulled back online and restored if they depart the network.
 
 \section{Alternatives to Standard DHT Approaches}
 
-non-internet scale network so could just maintain table of all nodes - \bigO{N} routing table not bad ifN < 1000, and will aid in routing. mesh? skipgraph?
-skipgraph;
+The two DHT approaches outlined above are surprisingly simple for the amount of power they provide as a decentralised basis for the system.
+However, it is important to keep in mind that they are intended for extremely high-scale internet-based file-sharing applications, and \lsr{} can get away with an even simpler setup.
+
+For instance, the routing table could maintain a dynamic list of all nodes, permitting joins and departures, and provide \bigO{1} lookup cost, at the expense of an \bigO{N} routing table.
+This mesh algorithm would scale to a reasonable number of nodes, though is likely to flounder past several hundred.
+
+DHT's also aren't the only means of implementing a distributed associative array, which is really the base data type that is sought after for our purposes;
+Skipgraph is a distributed version of the skiplist probabilistic data structure, with simple operations and impressive access costs; indeed, Redis makes use of skiplist in it's implementation of ordered sets.
 redis uses skiplist for ordered sets: % https://github.com/redis/redis/blob/unstable/src/t_zset.c
-Mesh DHT
 
 \section{Value and Key Descriptions}
 
-\section{Relation to System}
-bilayer
+Aside from determining the form of the base associative array, the structure of the keys and values to be stored in it require consideration.
+The information to be kept is the dependency graph, including chunk locations.
+The values are to be mutable, in order to allow marking as part of the checkpointing and deletion process.
+Upon chunk creation, a chunk is assigned a 128 bit ID, which is sufficient to uniquely identify it.
+References to other chunks in the dependency graph describe the chunk ID of the prerequisites/targets, and these can be looked up directly.
 
-Return address or values?
+\section{Relation to System}
+
+The dependency graph and DHT hosting it are separate, though depended upon, by the working \lsr{} system.
+For all intents, the DHT may be accessed through a simple \hsrc{read()} and \hsrc{execute()} interface at the top level, with perhaps some middle layer communicating storage details and garbage collection information to the DHT.
+The question remains how much responsibility should be held by the DHT with respect to how much responsibility should be held by the operating \lsr{} system.
+For instance, should the DHT return the address of a chunk when queried, or go beyond that and return the very value of the chunk?
+Initial inclination is toward the DHT returning the address, with some thin adaptor returning the value, and the system having no further knowledge than the bare minimum of the interface.
+This information hiding aids in modularity and will hopefully result in less code changes necessary when changing out components in the future.
 
 \section{Variations}
-avoiding republishing by relaying new node joins around the network
-replication/caching? not yet
-master must have invalid node id; add -NONPARTICIPANT flag to RPC's
+
+In-memory replication, or caching, is the standard means by which DHT's prevent data loss.
+A challenge this brings is to mutable values;
+Attaining distributed consensus on changes to existing data is exceptionally difficult, though not impossible.
+Given that all nodes in the system are owned, it is better to mirror all data to disk, at least for now.
+That way, when failures occur, it is a reboot and restore back to functionality -- claiming the network to be non-adversarial has it's advantages.
+
+A second, and important variation, is that while all worker nodes in the system sit above DHT nodes, the master node must not be a full participant in the DHT network, as the processing burden may be too much, given that the master machine must be the most responsive in the network.
+The master must have some mechanism of adding a non-participant flag to it's RPC's in order to not be taken in by the network.
+Furthermore, multiple master nodes may be allowed in the system, potentially operating on the same chunks.
+If this is to be the case, some means of communication between masters must be devised, though this should ideally be delayed until following the implementation of the network itself.
+The flexibility for multiple masters leads to decreased reliance on the single master not failing, with references to chunks stored in the DHT, rather than sunk to the master's disk.
 
 \bib{bibliography}
 \end{document}
