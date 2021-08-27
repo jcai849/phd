@@ -16,7 +16,7 @@ The intended comonent is a reification of dependencies between chunks as an abst
 Each chunk comes into being either from manipulation of other chunks, or direct reading from external system such as a read from HDFS.
 In this fashion, a graph of dependencies can be defined over the set of chunks that exist as a part of the system at any one point in time.
 Each node in this graph may represent a single chunk, with directed edges pointing from each node to the nodes representing that chunk's prerequisites.
-This can be represented as a diagram, as in XXX, or in textual notation, with makefile rules being a popular example\cite{shal2009build}.
+This can be represented as a diagram, or in textual notation, with makefile rules being a popular example\cite{shal2009build}.
 The terminology of makefiles will be used in this document for clarity, with 'target' referring to a node representing some chunk that depends on any number of chunks, themselves represented by 'prerequisite' nodes. 
 The connection with the diagram has 'target' nodes pointing back to their 'prerequisite' nodes.
 A 'prerequisite' may also be referred to as a 'dependency'.
@@ -75,7 +75,7 @@ With such a description, it will grow excessively large, creating memory and tra
 In conjunction with checkpointing, I consider a means of pruning the graph, keeping it to the minimum size necessary for recovery of the current state of the system.
 
 First, it is necessary to recognise that nodes representing unreferenced chunks still serve the bare purpose of delineating an intermediate (delta) transformation to target referenced chunks at some point further along the dependency path\cite{mogul2002deltahttp}.
-If some checkpointed nodes are placed in the path of one of these unreferenced delta nodes and all of the delta's target referenced chunks, the unreferenced delta node is no longer necessary, and may be pruned, as per Figure XXX.
+If some checkpointed nodes are placed in the path of one of these unreferenced delta nodes and all of the delta's target referenced chunks, the unreferenced delta node is no longer necessary, and may be pruned.
 
 The task then becomes one of determining the unreferenced delta nodes that have all their dependency paths, if followed backwards, resulting in a checkpoint.
 A reference counting algorithm suffices to reveal these nodes, when combined with the important observation that checkpoints shouldn't count as references.
@@ -87,7 +87,6 @@ There are then four rules for algorithm for node removal:
 	\item Unreferenced nodes with a target counter of zero are to be removed.
 \end{itemize}
 With these rules followed, unreferenced nodes with all targets resulting in checkpoints are immediately removed from the graph, thereby preserving the graph as being the minimum size required for restoration at the current point in time.
-An example is given in the diagram XXX, with a state diagram in figure XXX.
 
 \bib{bibliography}
 \end{document}
