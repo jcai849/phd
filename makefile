@@ -11,6 +11,7 @@ REMOTE	= japeca:/var/www/htdocs/japeca.com
 DOCS   != find ${DOCDIR} -maxdepth 1 -name '*.tex' -exec basename {} \;
 REPORTS	= ${DOCS:S/.tex/.pdf/g}
 PROGS	= mktexdep
+PLANTUML= java -jar ~/plantuml/plantuml.jar -pipe
 
 .PHONY: all depend clean
 .SUFFIXES: .gv .puml .pdf
@@ -38,7 +39,7 @@ ${BINDIR}/${PROG}: ${PROGSRC}
 	dot -Tpdf -Gsize=4,6\! -Gdpi=100 ${.IMPSRC} >${.TARGET}
 
 .puml.pdf:
-	cat ${.IMPSRC} | plantuml -tpdf >${.TARGET}
+	cat ${.IMPSRC} | ${PLANTUML} -tpdf >${.TARGET}
 
 depend: bin/mktexdep
 	@./bin/mktexdep ${DOCS:S/^/doc\//g} >.depend

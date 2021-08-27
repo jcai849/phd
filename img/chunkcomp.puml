@@ -34,12 +34,12 @@ compositedobj <|-- rowBlockMat
 chunk <|-- rowChunk
 rowBlockMat o-- rowChunk
 
-compositedobj <|-- olistChunk
-compositedobj <|-- uolistChunk
-compositedobj <|-- setChunk
+compositedobj <|-- olistDobj
+compositedobj <|-- uolistDobj
+compositedobj <|-- setDobj
 
-olistChunk o-- chunk
-uolistChunk o-- chunk
-setChunk o-- chunk
+olistDobj o-- chunk
+uolistDobj o-- chunk
+setDobj o-- chunk
 
 @enduml
