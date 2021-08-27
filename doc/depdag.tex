@@ -7,16 +7,16 @@
 
 \section{Introduction}
 Granting only immutable chunks to the \lsr{} system gains both guarantees and challenges for it.
-The guarantees involve easier reasoning about the system and consistency of chunk-related transactions.
+The guarantees involve easier reasoning about the system and consistency of chunk-related transactions\cite{goetz2006java}.
 Challenges grow alongside additional memory usage from copying of data, as compared to in-place data modification.
-Much of the memory growth of immutable objects is optimised away within \R{}, but this is difficult to rely upon once the system becomes distributed.
+Much of the memory growth of immutable objects is optimised away within \R{}, but this is difficult to rely upon once the system becomes distributed\cite{rcore2020lang}.
 
 This report suggests the addition of a significant component to the \lsr{} system, which has positive implications for backup/checkpointing, as well as solving the memory problem, and it finally gains the system fault-tolerance.
 The intended comonent is a reification of dependencies between chunks as an abstract Directed Acyclic Graph (DAG), which sees it's distributed realisation described in an associated document, \href{https://www.japeca.com/dhtinfo.pdf}{Distributed Hash Table for the Dependency Graph}.
 Each chunk comes into being either from manipulation of other chunks, or direct reading from external system such as a read from HDFS.
 In this fashion, a graph of dependencies can be defined over the set of chunks that exist as a part of the system at any one point in time.
 Each node in this graph may represent a single chunk, with directed edges pointing from each node to the nodes representing that chunk's prerequisites.
-This can be represented as a diagram, as in XXX, or in textual notation, with makefile rules being a popular example.
+This can be represented as a diagram, as in XXX, or in textual notation, with makefile rules being a popular example\cite{shal2009build}.
 The terminology of makefiles will be used in this document for clarity, with 'target' referring to a node representing some chunk that depends on any number of chunks, themselves represented by 'prerequisite' nodes. 
 The connection with the diagram has 'target' nodes pointing back to their 'prerequisite' nodes.
 A 'prerequisite' may also be referred to as a 'dependency'.
@@ -40,42 +40,41 @@ Upon garbage collection of a chunk in the relevant R process referring to it, th
 
 \section{Checkpointing and Checkpoint Triggers}
 
-In order to back up data, which may be later restored in the face of machine failure, checkpoints of individual chunks may be taken.
+In order to back up data, which may be later restored in the face of machine failure, checkpoints of individual chunks may be taken\cite{elnozahy2002recovery}.
 
 For all practical purposes, not every single chunk can be checkpointed.
 The amount of time spent writing to disk, or replicating across machines, is significant and will slow the system.
 As such, the non-trivial decision of which chunks to checkpoint, and how to to restore from sparse checkpoints, serves as the basis of this discussion.
 
 A variety of mechanisms may be used to trigger the designation of a node as a checkpoint, as well as methods of checkpointing.
-The methods of checkpointing include replication along the cluster, or dumping the data structure to disk; dumping is favoured in this discussion due to the easier reasoning, but either could be considered or even combined without loss in generality.
+The methods of checkpointing include redundancy along the cluster, or dumping the data structure to disk; dumping is favoured in this discussion due to the easier reasoning, but either could be considered or even combined without loss in generality\cite{walters2009replication}.
 Triggers for checkpointing may be classified into whether they occur at the creation of the node, or during it's lifetime.
 
 Given that each node retains a reference to it's direct prerequisites, information on the dependencies is easily accessed, and may be propagated along the graph as each new node is added.
 This fact can be taken advantage of in order to implement creation-based checkpointing, in aid of fault-tolerance.
 
-A time-to-recover checkpointing scheme attempts to checkpoint based on reaching a certain limit for how long it would take for the system to recover in the face of a worst-case fault, such as a total power outage.
+I suggest a time-to-recover checkpointing scheme, which attempts to checkpoint based on reaching a certain limit for how long it would take for the system to recover in the face of a worst-case fault, such as a total power outage.
 This is performed through recording how long it takes to independently generate each chunk, and recording that information in the node associated with the chunk.
-Each chunk also takes the maximum generation time from each of it's direct prerequisites and adds that to it's own time, in order to create a cumulative generation time, in a similar fashion to a Merkle tree or blockchain where properties of nodes accumulate along references, though without the cryptographic properties.
+Each chunk also takes the maximum generation time from each of it's direct prerequisites and adds that to it's own time, in order to create a cumulative generation time, in a similar fashion to a Merkle tree or blockchain where properties of nodes accumulate along references, though without the cryptographic properties\cite{merkle1988tree}\cite{nakamoto2008bitcoin}.
 When the pre-defined cumulative generation time limit is reached, the chunk at which the recorded limit is reached is designated for checkpointing, and the cumulative generation time resets (zeroes) for it's dependencies.
 
 Limits on chain length can be placed similarly, where instead of time, a maximum count of nodes forming the path back to the originating checkpoint can be taken, with checkpointing taking place upon reaching the limit.
 
 Dynamic checkpointing, taking place after node creation, may be used to checkpoint upon certain memory thresholds being reached in the chunk host, with a full dump to disk and system stall, before any system crash.
 
-The restoration of the system to current working state following node failure, from sparse checkpoints can be performed in the following manner;
-If each node retains a record of the precise function used to create it's chunk, along with references to the chunks required by the function (it's immediate prerequisites), then it has an effective delta encoding to represent means of attaining one chunk from a prerequisite, and the graph of dependencies can be seen as a complete record of the construction of chunks, somewhat akin to a function-based, rather than line-based, git.
+My suggestion for the restoration of the system to current working state following node failure, from sparse checkpoints, can be performed in the following manner;
+If each node retains a record of the precise function used to create it's chunk, along with references to the chunks required by the function (it's immediate prerequisites), then it has an effective delta encoding to represent means of attaining one chunk from a prerequisite, and the graph of dependencies can be seen as a complete record of the construction of chunks, somewhat akin to a function-based, rather than line-based, git\cite{chacon2014progit}.
 As such, any given node may be reconstructed by recursively walking back over the graph along the dependencies of nodes, collecting the required difference functions in a stack, until arriving at checkpoints, or leaf nodes representing file reads.
 Upon reaching the checkpoints or leaves, ordered application of all of the accumulated difference functions through popping the stack, should result in the recreation of the node to be restored, assuming referential transparency.
 Restoration from checkpoints serves effectively for enabling fault-tolerance in this respect.
-
 
 \section{Self-Pruning of Dependency DAG's}
 
 Up to this point, the graph as described has been append-only.
 With such a description, it will grow excessively large, creating memory and traversal issues.
-In conjunction with checkpointing, it is possible to prune the graph, keeping it to the minimum size necessary for recovery of the current state of the system.
+In conjunction with checkpointing, I consider a means of pruning the graph, keeping it to the minimum size necessary for recovery of the current state of the system.
 
-First, it is necessary to recognise that nodes representing unreferenced chunks still serve the bare purpose of delineating an intermediate (delta) transformation to target referenced chunks at some point further along the dependency path.
+First, it is necessary to recognise that nodes representing unreferenced chunks still serve the bare purpose of delineating an intermediate (delta) transformation to target referenced chunks at some point further along the dependency path\cite{mogul2002deltahttp}.
 If some checkpointed nodes are placed in the path of one of these unreferenced delta nodes and all of the delta's target referenced chunks, the unreferenced delta node is no longer necessary, and may be pruned, as per Figure XXX.
 
 The task then becomes one of determining the unreferenced delta nodes that have all their dependency paths, if followed backwards, resulting in a checkpoint.
