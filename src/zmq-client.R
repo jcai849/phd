@@ -1,0 +1,11 @@
+library(rzmq)
+name <- "Client"
+context <- init.context()
+socket <- init.socket(context,"ZMQ_REQ")
+connect.socket(socket,"tcp://localhost:5555")
+send.socket(socket, name)
+msg <- receive.socket(socket)
+cat(msg, "\n")
+send.socket(socket, name)
+msg <- receive.socket(socket)
+cat(msg, "\n")

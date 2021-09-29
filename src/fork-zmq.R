@@ -1,0 +1,23 @@
+library(rzmq)
+library(parallel)
+name <- "Server"
+context <- init.context()
+clientsocket <- init.socket(context,"ZMQ_REP")
+forksocket <- init.socket(context, "ZMQ_REP")
+bind.socket(clientsocket, "tcp://*:5555")
+forkpath <- tempfile(pattern="fork")
+bind.socket(forksocket, paste0("ipc://", forkpath))
+fork <- eval(bquote(mcparallel({
+	name <- "Fork"
+	context <- init.context()
+	socket <- init.socket(context, "ZMQ_REQ")
+	connect.socket(socket, .(paste0("ipc://", forkpath)))
+	send.socket(socket, name)
+})))
+clientmsg <- receive.socket(clientsocket)
+cat(clientmsg, "\n")
+send.socket(clientsocket, name)
+forkmsg <- receive.socket(forksocket)
+cat(forkmsg, "\n")
+clientmsg <- receive.socket(clientsocket)
+send.socket(clientsocket, forkmsg)
