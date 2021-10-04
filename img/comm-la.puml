@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam style strictuml
+skinparam LifelineStrategy nosolid
+title Initiation of Work, Prerequisite Pending Locally to the Store
+
+box "Node x" #ffffff
+participant Client as client
+end box
+box "Node y" #ffffff
+participant Store as store
+participant Worker as worker
+end box
+
+client -> store ++: Work
+activate client
+store -> store: Set work: locally PEND
+store --> client: ACK
+deactivate client
+store -> store: Check prereqs: locally AVAIL
+store -> worker **: Work & data
+activate worker
+deactivate store
+note over worker
+Work
+end note
+worker -> store: data
+deactivate worker
+activate store
+note over store
+Store Data
+end note
+store --> worker !!: ACK
+store -> store: set data: locally AVAIL
+deactivate store
+|||
+@enduml
