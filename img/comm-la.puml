@@ -3,7 +3,7 @@ skinparam monochrome true
 skinparam shadowing false
 skinparam style strictuml
 skinparam LifelineStrategy nosolid
-title Initiation of Work, Prerequisite Pending Locally to the Store
+title Initiation of Work, Prerequisite Available Locally to the Store
 
 box "Node x" #ffffff
 participant Client as client
