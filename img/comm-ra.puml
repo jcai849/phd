@@ -3,7 +3,8 @@ skinparam monochrome true
 skinparam shadowing false
 skinparam style strictuml
 skinparam LifelineStrategy nosolid
-title Work Request, Prerequisite Available Externally to the Store
+skinparam sequenceMessageAlign center
+title Work Request,\nPrerequisite Available Externally to the Store
 
 box "Node x" #ffffff
 participant Client as client
@@ -20,18 +21,18 @@ database "Location Service" as ls
 client -> store ++: Request work
 activate client
 store -> store ++--: Set work state: PEND
-store -> client: ACK
+store --> client: ACK
 deactivate client
 store -> store ++: Get prereq state
 return UNAVAIL
-store -> store ++--: Set prereq state association: AVAIL -> Launch work
+store -> store ++--: Set prereq state association:\nAVAIL -> Launch work
 store -> ls ++: Locate prerequisite
 return Location of prerequisite
 store -> pstore ++: Request prereq data
-pstore -> store: Prereq data AVAIL
+pstore --> store: Prereq data AVAIL
 deactivate store
 ...
-pstore -> store --: Prereq data
+pstore --> store --: Prereq data
 activate store
 store -> store ++: Store data
 store -> store ++: Set prereq data state: AVAIL

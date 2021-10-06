@@ -3,7 +3,8 @@ skinparam monochrome true
 skinparam shadowing false
 skinparam style strictuml
 skinparam LifelineStrategy nosolid
-title Work Request, Prerequisite Pending Externally to the Store
+skinparam sequenceMessageAlign center
+title Work Request,\nPrerequisite Pending Externally to the Store
 
 box "Node x" #ffffff
 participant Client as client
@@ -22,17 +23,17 @@ activate pworker
 client -> store ++: Request work
 activate client
 store -> store ++--: Set work state: PEND
-store -> client: ACK
+store --> client: ACK
 deactivate client
 store -> store ++: Get prereq state
 return UNAVAIL
-store -> store ++--: Set prereq state association: AVAIL -> Launch work
+store -> store ++--: Set prereq state association:\nAVAIL -> Launch work
 store -> ls ++: Locate prerequisite
 return Location of prerequisite
 store -> pstore ++: Request prereq data
 pstore --> store: Prereq data state: PEND
 deactivate store
-pstore -> pstore ++--: Set prereq state association: AVAIL -> send to requester
+pstore -> pstore ++--: Set prereq state association:\nAVAIL -> send to requester
 deactivate pstore
 ...
 pworker -> pstore: Prereq data
@@ -50,7 +51,7 @@ activate store
 store -> store ++: Store data
 store -> store ++: Set prereq data state: AVAIL
 store -> store ++: Get prereq state associations
-store --> worker **: Launch work
+store -> worker **: Launch work
 deactivate store
 deactivate store
 deactivate store

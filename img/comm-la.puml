@@ -3,7 +3,8 @@ skinparam monochrome true
 skinparam shadowing false
 skinparam style strictuml
 skinparam LifelineStrategy nosolid
-title Work Request, Prerequisite Available Locally to the Store
+skinparam sequenceMessageAlign center
+title Work Request,\nPrerequisite Available Locally to the Requested Node
 
 box "Node x" #ffffff
 participant Client as client
@@ -16,14 +17,14 @@ end box
 client -> store ++: Request work
 activate client
 store -> store ++--: Set work state: PEND
-store -> client: ACK
+store --> client: ACK
 deactivate client
 store -> store ++: Get prereq state
 return AVAIL
 store -> worker **: Launch work
 deactivate store
 activate worker
-worker -> store: Data
+return Data
 destroy worker
 activate store
 store -> store ++: Store data
