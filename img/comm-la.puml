@@ -3,7 +3,7 @@ skinparam monochrome true
 skinparam shadowing false
 skinparam style strictuml
 skinparam LifelineStrategy nosolid
-title Initiation of Work, Prerequisite Available Locally to the Store
+title Work Request, Prerequisite Available Locally to the Store
 
 box "Node x" #ffffff
 participant Client as client
@@ -13,26 +13,21 @@ participant Store as store
 participant Worker as worker
 end box
 
-client -> store ++: Work
+client -> store ++: Request work
 activate client
-store -> store: Set work: locally PEND
-store --> client: ACK
+store -> store ++--: Set work state: PEND
+store -> client: ACK
 deactivate client
-store -> store: Check prereqs: locally AVAIL
-store -> worker **: Work & data
+store -> store ++: Get prereq state
+return AVAIL
+store -> worker **: Launch work
+deactivate store
 activate worker
-deactivate store
-note over worker
-Work
-end note
-worker -> store: data
-deactivate worker
+worker -> store: Data
+destroy worker
 activate store
-note over store
-Store Data
-end note
-store --> worker !!: ACK
-store -> store: set data: locally AVAIL
+store -> store ++: Store data
+store -> store ++--: Set data state: AVAIL
 deactivate store
-|||
+deactivate store
 @enduml

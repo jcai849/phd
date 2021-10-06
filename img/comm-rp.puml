@@ -3,16 +3,20 @@ skinparam monochrome true
 skinparam shadowing false
 skinparam style strictuml
 skinparam LifelineStrategy nosolid
-title Work Request, Prerequisite Pending Locally to the Store
+title Work Request, Prerequisite Pending Externally to the Store
 
 box "Node x" #ffffff
 participant Client as client
 end box
 box "Node y" #ffffff
 participant Store as store
-participant "Prerequsite Worker" as pworker
 participant Worker as worker
 end box
+box "Node z" #ffffff
+participant "Prerequsite Store" as pstore
+participant "Prerequsite Worker" as pworker
+end box
+database "Location Service" as ls
 
 activate pworker
 client -> store ++: Request work
@@ -21,17 +25,32 @@ store -> store ++--: Set work state: PEND
 store -> client: ACK
 deactivate client
 store -> store ++: Get prereq state
-return PEND
+return UNAVAIL
 store -> store ++--: Set prereq state association: AVAIL -> Launch work
+store -> ls ++: Locate prerequisite
+return Location of prerequisite
+store -> pstore ++: Request prereq data
+pstore --> store: Prereq data state: PEND
 deactivate store
+pstore -> pstore ++--: Set prereq state association: AVAIL -> send to requester
+deactivate pstore
 ...
-pworker -> store: Prereq data
+pworker -> pstore: Prereq data
 destroy pworker
+activate pstore
+pstore -> pstore ++: Store data
+pstore -> pstore ++: Set prereq data state: AVAIL
+pstore -> pstore ++: Get prereq state associations
+pstore --> store --: Prereq data
+deactivate pstore
+deactivate pstore
+deactivate pstore
+deactivate pstore
 activate store
 store -> store ++: Store data
 store -> store ++: Set prereq data state: AVAIL
 store -> store ++: Get prereq state associations
-store -> worker **: Launch work
+store --> worker **: Launch work
 deactivate store
 deactivate store
 deactivate store
