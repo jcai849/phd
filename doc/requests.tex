@@ -1,0 +1,23 @@
+\documentclass[a4paper, 10pt]{article}
+\begin{document}
+\title{Requests and Actions}
+\author{Jason Cairns}
+\day=18 \month=10 \year=2021
+\maketitle
+
+\begin{table}[h!]
+	\begin{tabular}{llll}
+		\hline
+		Action                       & Header & \multicolumn{2}{l}{Payload}             \\ \hline
+		Run Computation              & POST   & \multicolumn{2}{l}{Computation}         \\
+		Sync Index                   & POST   & \multicolumn{2}{l}{Index}               \\
+		Replicate Chunk              & PUT    & \multicolumn{2}{l}{Chunk}               \\
+		Signal Data Availability     & PUT    & \multicolumn{2}{l}{IdentifiedLocations} \\
+		Signal Location Availability & PUT    & \multicolumn{2}{l}{Location}            \\
+					     &        & Value             & Code                \\ \cline{3-4} 
+		Emerge  Chunk                & GET    & Identifier        & local\_emerge       \\
+		Locate Chunk                 & GET    & Identifier        & local\_locate      
+	\end{tabular}
+\end{table}
+
+\end{document}
