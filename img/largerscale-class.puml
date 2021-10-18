@@ -1,0 +1,108 @@
+skinparam monochrome true
+skinparam shadowing false
+skinparam style strictuml
+
+title Structure and Relationships of the Main Classes within the Source Files
+
+package identification.R {
+	class Identifier
+}
+
+package communication.R {
+	class Context
+		class Endpoint
+		class Connector
+		class Binder
+		class Requester
+		class Subscriber
+		class Replier
+		class Publisher
+		class Listener
+		class Speaker
+		class Communicator
+}
+
+Endpoint *-- Context
+Endpoint <|-- Connector
+Endpoint <|-- Binder
+Connector <|-- Requester
+Connector <|-- Subscriber
+Binder <|-- Replier
+Binder <|-- Publisher
+Listener *-- Replier
+Listener *-- Subscriber
+Speaker *-- Requester
+Speaker *-- Publisher
+Communicator *-- Listener
+Communicator *-- Speaker
+
+package interpellation.R {
+	class Payload
+		class GET_Payload
+		class Header
+		class Request
+		class GET_Request
+		class POST_Request
+		class PUT_Request
+}
+
+Payload *-- any
+Payload <|-- GET_Payload
+Request *-- Header
+Request *-- Payload
+GET_Request <|-- Request
+GET_Request *-- GET_Payload
+POST_Request <|-- Request
+PUT_Request <|-- Request
+
+package location.R {
+	class Location
+		class IdentifiedLocations
+		class ReplierLocation
+		class PublisherLocation
+		class Node
+		class Nodes
+		class Index
+}
+
+IdentifiedLocations *-- Identifier
+IdentifiedLocations *-- Location
+Location <|-- ReplierLocation
+Location <|-- PublisherLocation
+Node *-- ReplierLocation
+Node *-- PublisherLocation
+Nodes *-- Node
+Index *-- Nodes
+Index *-- IdentifiedLocations
+
+package information.R {
+	class Chunk
+		class Chunks
+		class Data
+		class Computation
+		Class IdentifiedEventuals
+}
+
+Chunk *-- Identifier
+Chunk *-- Chunks
+Chunks *-- Chunk
+Chunk <|-- Data
+Data *-- any
+Data <|-- Computation
+Computation *-- Identifier
+Computation *-- function
+IdentifiedEventuals *-- Identifier
+IdentifiedEventuals *-- Promise
+Promise *-- Data
+Promise *-- Computation
+
+package tabulation.R {
+	class Repository
+		class AssociativeArray
+}
+
+Repository *-- Index
+Repository *-- IdentifiedEventuals
+AssociativeArray <|-- IdentifiedLocations
+AssociativeArray <|-- IdentifiedEventuals
+@enduml
