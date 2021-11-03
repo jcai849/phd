@@ -1,0 +1,417 @@
+openapi: 3.0.0
+
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/j-c/largerscale/1.0.0
+
+info:
+  title: largerscale REST API
+  version: "1.0.0"
+  description: The REST API for the largerscale system
+  contact:
+    name: Jason Cairns
+    email: jason.cairns@auckland.ac.nz
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+tags:
+  - name: Worker
+    description: Operations involving moving data and computing with R
+  - name: Location
+    description: Location service operations indexing the components of the system
+
+paths:
+  /calls:
+    post:
+      operationId: sendComputation
+      summary: Run an R computation
+      description: >
+        Through passing in the appropriate function and input parameters,
+        the server will run the R computation and store the result under the data-id
+        given as part of the response by the server, with the computation itself
+        being stored under the computation-id.
+      parameters:
+        - in: query
+          name: function
+          description: The function to be called over the emerged input
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: input
+          description: >
+            The identifiers of the data to be passed as arguments to the
+            function, as given by an array of Chunk objects, allowing for
+            inclusion of their parameter names
+          schema:
+            $ref: '#/components/schemas/Arguments'
+        - in: query
+          name: alignment
+          description: >
+            Schema describing the indices of the respective inputs to be used
+            for the computation - top-level array length should match the length
+            of the 'input' array. As given by an array of Alignment objects.
+          schema:
+            type: array
+            minItems: 1
+            items:
+              $ref: '#/components/schemas/Alignment'
+      responses:
+        '202':
+          description: >
+            Accepted, with computation queued. Returning Chunk object to
+            reference the resulting chunk.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chunk'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+      tags:
+        - Worker
+  /data/{data-ids}:
+    parameters:
+      - $ref: '#/components/parameters/DataIdentifiers'
+    put:
+      operationId: sendData
+      summary: Replication of data to server
+      description: >
+        Replication of data, including initial data transfers as well as
+        replication of computation objects. Requires informing the server
+        of the identifier of the data.
+      requestBody:
+        description: The serialised data to be replicated.
+        required: true
+        content:
+          text/plain:
+            schema:
+              $ref: '#/components/schemas/Data'
+      responses:
+        '204':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '507':
+          description: Out of memory
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+      tags:
+        - Worker
+    get:
+      operationId: getData
+      summary: Retrieve data from server
+      description: >
+        Attempt to retrieve data from the server. If the data is still
+        being processed on the server, the header will be sent immediately,
+        with the data following after becoming available.
+      responses:
+        '200':
+          description: Success, sending data immediately
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Data'
+        '202':
+          description: Success, data still pending; sending when available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Data'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+      tags:
+        - Worker
+    head:
+      operationId: getDataStatus
+      summary: Determine data availability at a server directly
+      description: >
+        Determine data availability at a server directly, with the response
+        code being the same as that of the equivalent GET request
+      responses:
+        '200':
+          description: Success, data available
+        '202':
+          description: Success, data still pending
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+      tags:
+        - Worker
+    delete:
+      operationId: rmData
+      summary: Delete data at server
+      description: Delete data corresponding to data-ids at a server
+      responses:
+        '204':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+      tags:
+        - Worker
+  /location-service:
+    post:
+      operationId: sendLocationServiceAddress
+      summary: Inform node of the address of the location service to be used
+      description: >
+        Informs the node that the location service is located at the
+        address given as the request body
+      requestBody:
+        description: The address of the location service
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        '204':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+      tags:
+        - Worker
+  /nodes:
+    post:
+      operationId: signalLocation
+      summary: Signal node location availability
+      description: >
+        Informs the location service that a node is available for work,
+        and seeks a new node identifier.
+      requestBody:
+        description: >
+          The location of the node that is available for work and
+          seeking association to a node identifier
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        '200':
+          description: Success, returning a new node identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeIdentifier'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+      tags:
+        - Location
+    get:
+      operationId: getNodes
+      summary: Get locations of all nodes
+      description: >
+        Get all of the node locations and their identifiers known to the
+        location service, either for replication of the location service,
+        or for scheduling new computations.
+      responses:
+        '200':
+          description: Success, returning an array of node identifiers and locations
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Nodes'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+      tags:
+        - Location
+  /nodes/{node-id}/{data-ids}:
+    put:
+      operationId: signalData
+      summary: Signal data availability at node
+      description: >
+        Informs the location service that there is data available or
+        being processed at the location of node-id.
+      parameters:
+        - in: path
+          name: node-id
+          required: true
+          description: The identifier of the node at which data is available
+          schema:
+            $ref: '#/components/schemas/NodeIdentifier'
+        - $ref: '#/components/parameters/DataIdentifiers'
+      responses:
+        '204':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+      tags:
+        - Location
+  /location/{data-ids}:
+    get:
+      operationId: getLocation
+      summary: Determine the locations of some data
+      description: >
+        Attain the locations of the data referenced with the data-ids,
+        at which the data may be retrieved.
+      parameters:
+        - $ref: '#/components/parameters/DataIdentifiers'
+      responses:
+        '303':
+          description: Found, returning the locations containing the data
+          content:
+            application/json:
+              schema:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/Location'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '5XX':
+          $ref: '#/components/responses/UnexpectedError'
+      tags:
+        - Location
+
+components:
+  parameters:
+    DataIdentifiers:
+      in: path
+      name: data-ids
+      description: |
+        An array of data identifiers to operate upon.
+        All data must be available in order to carry out a successful
+        operation, otherwise no operation is carried out.
+      required: true
+      schema:
+        $ref: '#/components/schemas/ChunkIdentifiers'
+  schemas:
+    Location:
+      description: The URI of a specific location, typically with IP address and port
+      type: string
+      format: uri
+      example: 'http://127.0.0.1:3838'
+    Identifier:
+      description: Identifier, in the form of a UUID
+      type: string
+      pattern: '[0-9a-fA-F]{8}\-([0-9a-fA-F]{4}\-){3}[0-9a-fA-F]{12}'
+      minLength: 36
+      maxLength: 36
+    NodeIdentifier:
+      allOf:
+        - description: Node identifier, in the form of a UUID
+        - $ref: '#/components/schemas/Identifier'
+        - example: 'd90876ae-19ac-40e5-88f7-34e60ba44914'
+    ChunkIdentifier:
+      allOf:
+        - description: Chunk identifier, in the form of a UUID
+        - $ref: '#/components/schemas/Identifier'
+        - example: '07d3280b-26be-4940-8b21-27136df707b5'
+    ChunkIdentifiers:
+      description: Set of chunk identifiers
+      type: array
+      minItems: 1
+      items:
+        $ref: '#/components/schemas/ChunkIdentifier'
+    Data:
+      description: Set of serialised R data referenced by their identifiers
+      type: array
+      minItems: 1
+      items:
+        type: object
+        required:
+          - data-id
+          - datum
+        properties:
+          data-id:
+            $ref: '#/components/schemas/ChunkIdentifier'
+          value:
+            $ref: '#/components/schemas/SerializedRData'
+    Nodes:
+      description: Set of node locations referenced by their identifiers
+      type: array
+      minItems: 1
+      items:
+        type: object
+        required:
+          - identifier
+          - location
+        properties:
+          node-id:
+            $ref: '#/components/schemas/NodeIdentifier'
+          location:
+            $ref: '#/components/schemas/Location'
+    Arguments:
+      description: >
+        Set of chunks to serve as arguments, associated with optional parameter names
+      type: array
+      minItems: 1
+      items:
+        type: object
+        required:
+          - parameter
+          - chunk
+        properties:
+          parameter:
+            type: string
+          chunk:
+            $ref: '#/components/schemas/Chunk'
+    Chunk:
+      description: |
+        Chunk object, including the identifier of the generating computation,
+        as well as the identifier of the data resulting from the computation.
+      type: object
+      required:
+        - computation-id
+        - data-id
+      properties:
+        computation-id:
+          $ref: '#/components/schemas/ChunkIdentifier'
+        data-id:
+          $ref: '#/components/schemas/ChunkIdentifier'
+    Alignment:
+      description: The indices with which to select data for the purpose of alignment
+      type: object
+      required:
+        - start
+        - length
+      properties:
+        start:
+          type: integer
+          format: int32
+          minimum: 1
+          example: 23
+        length:
+          type: integer
+          format: int32
+          minimum: 1
+          example: 256
+    SerializedRData:
+      description: R data serialised according to some TBC protocol
+      type: string
+      format: binary
+  responses:
+    Success:
+      description: Success
+    BadRequest:
+      description: Bad Request
+    UnexpectedError:
+      description: Unexpected Error.
+    NotFound:
+      description: Not found
