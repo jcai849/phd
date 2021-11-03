@@ -208,7 +208,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NodeIdentifier'
+                $ref: '#/components/schemas/Identifier'
         '400':
           $ref: '#/components/responses/BadRequest'
         '5XX':
@@ -248,7 +248,7 @@ paths:
           required: true
           description: The identifier of the node at which data is available
           schema:
-            $ref: '#/components/schemas/NodeIdentifier'
+            $ref: '#/components/schemas/Identifier'
         - $ref: '#/components/parameters/DataIdentifiers'
       responses:
         '204':
@@ -300,7 +300,7 @@ components:
         operation, otherwise no operation is carried out.
       required: true
       schema:
-        $ref: '#/components/schemas/ChunkIdentifiers'
+        $ref: '#/components/schemas/Identifiers'
   schemas:
     Location:
       description: The URI of a specific location, typically with IP address and port
@@ -313,22 +313,13 @@ components:
       pattern: '[0-9a-fA-F]{8}\-([0-9a-fA-F]{4}\-){3}[0-9a-fA-F]{12}'
       minLength: 36
       maxLength: 36
-    NodeIdentifier:
-      allOf:
-        - description: Node identifier, in the form of a UUID
-        - $ref: '#/components/schemas/Identifier'
-        - example: 'd90876ae-19ac-40e5-88f7-34e60ba44914'
-    ChunkIdentifier:
-      allOf:
-        - description: Chunk identifier, in the form of a UUID
-        - $ref: '#/components/schemas/Identifier'
-        - example: '07d3280b-26be-4940-8b21-27136df707b5'
-    ChunkIdentifiers:
-      description: Set of chunk identifiers
+      example: '07d3280b-26be-4940-8b21-27136df707b5'
+    Identifiers:
+      description: Set of identifiers
       type: array
       minItems: 1
       items:
-        $ref: '#/components/schemas/ChunkIdentifier'
+        $ref: '#/components/schemas/Identifier'
     Data:
       description: Set of serialised R data referenced by their identifiers
       type: array
@@ -336,11 +327,11 @@ components:
       items:
         type: object
         required:
-          - data-id
-          - datum
+          - identifier
+          - value
         properties:
-          data-id:
-            $ref: '#/components/schemas/ChunkIdentifier'
+          identifier:
+            $ref: '#/components/schemas/Identifier'
           value:
             $ref: '#/components/schemas/SerializedRData'
     Nodes:
@@ -353,8 +344,8 @@ components:
           - identifier
           - location
         properties:
-          node-id:
-            $ref: '#/components/schemas/NodeIdentifier'
+          identifier:
+            $ref: '#/components/schemas/Identifier'
           location:
             $ref: '#/components/schemas/Location'
     Arguments:
@@ -378,13 +369,13 @@ components:
         as well as the identifier of the data resulting from the computation.
       type: object
       required:
-        - computation-id
-        - data-id
+        - computation-identifier
+        - data-identifier
       properties:
-        computation-id:
-          $ref: '#/components/schemas/ChunkIdentifier'
-        data-id:
-          $ref: '#/components/schemas/ChunkIdentifier'
+        computation-identifier:
+          $ref: '#/components/schemas/Identifier'
+        data-identifier:
+          $ref: '#/components/schemas/Identifier'
     Alignment:
       description: The indices with which to select data for the purpose of alignment
       type: object
