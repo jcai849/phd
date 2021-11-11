@@ -1,0 +1,31 @@
+\documentclass[10pt,a4paper]{article}
+\begin{document}
+    \title{Evaluation in a Distributed System for R}
+    \author{Jason Cairns}
+    \year=2020 \month=11 \day=11
+    \maketitle
+
+% How R does evaluation; promises and laziness; call by need (memoized call by
+    % name, theoreticaly beta-reduced with capture-avoiding substitution)
+    % delayed evaluation, as with haskell evaluation strategy - referring to the
+    % more specific parameter-passing strategy incl. evaluation order and
+    % binding strategy (binding strategy = kind of value passed to function),
+    % non-strict evaluation
+% Other mechanisms for lazy evaluation, normal order vs. applicative order, call by value/reference
+% Standard forms of evaluation
+% How we've been approaching evaluation - strict, in a sense. Call by future. still evaluated in R though
+% How this differs from R evaluation and what difference it makes
+    % short-circuit evaluation, efficiency & scheduling. Termination.
+    % e.g.	 > x = function(...) NULL
+    % 		 > x(Sys.sleep(Inf))
+    % call by future = parallel precompute, occasionally more efficient
+    % Infinite data structures, error avoidance etc.
+% Orthogonal side-point: substitution and do.call, reduction strategy, deparse
+% A suggestion for emulation of R-style evaluation, difficulties (normal-order), e.g. no debuggers due to complexity
+% Ease vs. equivalence vs. efficiency
+% Bib:
+% https://en.wikipedia.org/wiki/Lazy_evaluation
+% https://en.wikipedia.org/wiki/Evaluation_strategy
+% https://en.wikipedia.org/wiki/Thunk
+% https://cran.r-project.org/doc/manuals/r-release/R-ints.html#Argument-evaluation
+\end{document}
