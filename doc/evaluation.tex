@@ -11,28 +11,28 @@
 The evaluation of an expression in a programming language operates under a set of rules in which a rewriting of the original expression takes place.
 Of greatest interest when discussing evaluation strategies are the treatment of procedures, and in particular, the parameter-passing strategy and binding strategy for evaluation.
 
-The mechanism of parameter passing can take several different forms, but is categorised at the highest level by whether the parameters passed to a function must be fully evaluated before a function is applied or not.
+The mechanism of parameter passing can take several different forms, but is categorised at the highest level by whether the parameters passed to a function must be fully evaluated before a function is applied or not \cite{crank1991param}.
 A strategy requiring full evaluation before function application is termed ``strict'' evaluation, while the converse is termed ``non-strict'' evaluation.
-Alternative terminology is ``eager'' and ``lazy'' evaluation, respectively.
-Binding strategy is a dependent concept, in which the form of the parameters passed to the function are considered.
+Alternative terminology is ``eager'' and ``lazy'' evaluation, respectively\cite{henderson1976lazy}.
+Binding strategy is a dependent concept, in which the form of the parameters passed to the function are considered\cite{abelson1996sicp:order}.
 Binding strategies falling under strict evaluation involve passing to the function a fully evaluated value, an address to the value, or some other public interface.
 Non-strict binding strategies typically involve some variation on passing the name of a value that only resolves upon attempted access.
 
 The evaluation strategy doesn't make any difference to the outcome of an evaluation in many cases, especially among simple pure functions with constant inputs.
 Consideration of evaluation strategies only became a major research topic upon determining the compilation of a subroutine call with arbitrary expressions rather than pure constants.
 It becomes more relevant upon engaging in computation with side-effects, where the order of operations may be the inverse of expectations.
-Furthermore, the creation of ad-hoc control structures is only possible with non-strict binding strategies, as well as infinite data structures and avoidance of certain error conditions.
+Furthermore, the creation of ad-hoc control structures is only possible with non-strict binding strategies, as well as infinite data structures and avoidance of certain error conditions\cite{okasaki1998functional}.
 
 \section{Evaluation in R}\label{sec:evalinr}
 
 R possesses an evaluation system which is unusual among most programming languages.
-Of the discussed parameter passing strategies, it is non-strict, in that arguments are not evaluated before the function they are passed to is applied.
-The binding strategy falls into the category of ``call-by-need'', where parameters are only evaluated upon their reference during the evaluation of the body of the function.
+Of the discussed parameter passing strategies, it is non-strict, in that arguments are not evaluated before the function they are passed to is applied\cite{rcore2020ints:argeval}.
+The binding strategy falls into the category of ``call-by-need'', where parameters are only evaluated upon their reference during the evaluation of the body of the function\cite{ariola1995callbyneed}.
 Call-by-need is a variation of the more general ``call-by-name'' strategy.
-Call-by-name involves passing the name, in some form, to the function, where, in the terminology of lambda calculus, it is beta-reduced with capture-avoiding substitution.
+Call-by-name involves passing the name, in some form, to the function, where, in the terminology of lambda calculus, it is beta-reduced with capture-avoiding substitution\cite{fischer1972lambda}.
 Call-by-need is effectively an optimisation of call-by-name; while call-by-name requires evaluation of the parameter every time it is referenced, call-by-need engages in memoisation, caching the value of the first evaluation of each parameter for successive reference.
 
-Interestingly, call-by-need is more prevalent among functional programming languages, including Haskell, having roots in the lambda calculus, though it has been introduced more recently than other more common evaluation strategies.
+Interestingly, call-by-need is more prevalent among functional programming languages, including Haskell, having roots in the lambda calculus, though it has been introduced more recently than other more common evaluation strategies\cite{nita2017haskell}.
 Call-by-need gains unique abilities; most notably, the capacity for non-evaluation of parameters may bring performance improvements.
 In the extreme case, a function evaluated in a call-by-need manner may terminate in circumstances where strict evaluation will prevent termination.
 An example is given in Listing \ref{lst:eval}.
@@ -44,12 +44,12 @@ An example is given in Listing \ref{lst:eval}.
 
 Furthermore, the name of the passed parameter is made available through call-by-need and is commonly made use of in R, such as the \lstinline[language=R]{deparse(substitute())} employed for the implicit labelling of plot axes, among other uses.
 Other abilities granted by way of call-by-name include the potential to create control structures, short circuit evaluation as typified by boolean operations, and infinite data structures.
-Drawbacks to call-by-need include potential inefficiencies in the implementation of the strategy, as well as associated complexities and difficulties in debugging.
+Drawbacks to call-by-need include potential inefficiencies in the implementation of the strategy, as well as associated complexities and difficulties in debugging\cite{nilsson1999lazydebug}.
 
-The manner of implementation for call-by-need typically requires a data structure known as a ``thunk''.
+The manner of implementation for call-by-need typically requires a data structure known as a ``thunk''\cite{ingerman1961thunks}.
 A thunk is a variation on a closure, keeping reference to the passed expression and an environment in which to evaluate the expression upon the thunk being accessed in the body of the procedure.
 Upon evaluation, the thunk is effectively replaced by its computed value, with further references accessing that value directly.
-R makes use of this form of processing, with thunks being referred to as ``promises'', with the term ``promise'' not bearing any relation to the standard usage of ``promise'' to refer to the concurrent data structures associated with futures.
+R makes use of this form of processing, with thunks being referred to as ``promises'', with the term ``promise'' not bearing any relation to the standard usage of ``promise'' to refer to the concurrent data structures associated with futures\cite{rcore2020lang:promise}.
 A promise in R encapsulates pointers to the value, expression, and environment.
 Promises are introduced in R through a list of promises replacing the argument list upon a call to a closure.
 A new environment is constructed for the evaluation of the closure, and the promises are matched to the names of the formal parameters.
@@ -67,23 +67,23 @@ An exception to the evaluation strategy described here for R is that the ``built
 
 At this point it is worth discussing other mechanisms for evaluation, for context.
 
-Strict evaluation is typified by applicative order evaluation, which has rewrite rules corresponding to complete evaluation of all function arguments prior to evaluation of the function.
+Strict evaluation is typified by applicative order evaluation, which has rewrite rules corresponding to complete evaluation of all function arguments prior to evaluation of the function\cite{abelson1996sicp:order}.
 The principal binding strategies include call-by-value, call-by-reference, and object-oriented variations such as call-by-object.
-Call-by-value involves full evaluation of parameters, then calling the function with copies of the values of the parameters.
+Call-by-value involves full evaluation of parameters, then calling the function with copies of the values of the parameters\cite{plotkin1975callnameval}.
 It is commonly used, with an example being C's handling of non-pointer data.
-Call-by-reference requires passing parameter references to a procedure, allowing for mutability.
+Call-by-reference requires passing parameter references to a procedure, allowing for mutability\cite{turbak2008design}.
 Examples include C's handling of pointer data, as well as equivalent evaluations in Java and Rust.
 Notably, functional languages possessing immutable data have no difference in outcome between the two evaluation strategies.
-Call-by-object involves sharing an object passed as a parameter.
+Call-by-object involves sharing an object passed as a parameter \cite{liskov1979clu}.
 This evaluation strategy relates to call-by-reference, though differs in that passing a variable means passing access to the actual object, not access to the callers variable.
 In this way, a passed parameter is able to be mutated from within a function, though reassignment to the formal parameter doesn't change the binding in the caller.
 Many object-oriented languages engage in a call-by-object strategy, including Python and Ruby.
 
 Call-by-name and call-by-need are joined by other forms and mechanisms of lazy evaluation.
-One such strategy, known as optimistic evaluation, is a variation on call-by-need, wherein a functions parameters are evaluated under some time limit upon the application of that function, with any evaluations exceeding the time limit terminated and switched to a standard call-by-need evaluation strategy.
+One such strategy, known as optimistic evaluation, is a variation on call-by-need, wherein a functions parameters are evaluated under some time limit upon the application of that function, with any evaluations exceeding the time limit terminated and switched to a standard call-by-need evaluation strategy \cite{ennals2003optimistic}.
 This approach is intended to capture the efficiency benefits of both call-by-need as well as strict evaluation.
 Another optimisation in lazy evaluation is given by graph reduction.
-Graph reduction involves treating expressions not only as abstract syntax trees, but as directed acyclic graphs, where multiple invocations of the same expression are depicted once only in the graph and linked together to avoid re-evaluation of the same expression.
+Graph reduction involves treating expressions not only as abstract syntax trees, but as directed acyclic graphs, where multiple invocations of the same expression are depicted once only in the graph and linked together to avoid re-evaluation of the same expression\cite{hudak1989functional}.
 An equivalency exists with graph reduction and the memoisation of call-by-need.
 
 \section{Evaluation in R Distributed Systems}\label{sec:rdisteval}
@@ -91,7 +91,7 @@ An equivalency exists with graph reduction and the memoisation of call-by-need.
 Given that distributing computation necessitates a rearrangement of evaluative computation, a question arises: How does evaluation proceed in a distributed system for R?
 
 The SNOW package may be considered first for its pedigree.
-One of the fundamental procedures in SNOW is \lstinline[language=R]{clusterCall()}.
+One of the fundamental procedures in SNOW is \lstinline[language=R]{clusterCall()}\cite{tierney2018snow}.
 The evaluation of this procedure consists in first evaluating arguments on the master, with their values sent to slave nodes which execute the function call.
 This corresponds to a strict evaluation strategy, being an effective call-by-value.
 There is some nuance though, in that within the function being called on the slave node, a call-by-need strategy is still taking place, due to being applied by the R evaluator, but in practice with all arguments having been evaluated prior to function application, the ``strict'' classification is dominant.
@@ -131,7 +131,7 @@ There are already limitations, however;
 One example is the execution of a remote distributed call with local arguments -- if the call is to take place asynchronously, there is no immediate mechanism for the node executing the call to attain the local arguments as and when (and if) they are needed.
 This would require evaluation of the arguments before sending off the call.
 This may be able to be overcome if such local arguments were placed as promises in a local data store running asynchronously that evaluated the arguments prior to sending them off to requesters.
-All of this remains highly complex -- one of the original points of opposition to thunks among compiler constructors was the difficulty and complexity introduced through their usage, with the dearth of debuggers originally available as testament to this notion.
+All of this remains highly complex -- one of the original points of opposition to thunks \cite{ingerman1961thunks}among compiler constructors was the difficulty and complexity introduced through their usage, with the dearth of debuggers originally available as testament to this notion.
 
 Another point to consider is that lazy evaluation is capable of being emulated in strict languages supporting closures or generators, through caching of values upon the constructs being called.
 However, this is less relevant to the case under consideration here, as it would require explicit calling of arguments in the definitions of functions to be evaluated in a distributed manner, which is undesirable when aiming for an API with greater conformance to standard R usage.
@@ -139,9 +139,9 @@ However, this is less relevant to the case under consideration here, as it would
 An argument can be made for leaving distributed evaluation as it is, for the potential efficiency gains in parallel pre-computation over call-by-need, which is serial in the naive case.
 
 The side-point made about call construction in Section \ref{sec:rdisteval}, and illustrated in Listing \ref{lst:docall} may be met through capturing the original call and sending it along with references to the values to the executing node.
-Upon reception by the executing node, it may construct an outer evaluation frame with the passed variable names given as arguments in the captured expression being bound to their associated values (or distributed thunks), and the expression evaluated within this outer evaluation frame.
+Upon reception by the executing node, it may construct an outer evaluation frame with the passed variable names given as arguments in the captured expression being bound to their associated values (or distributed thunks)\cite{ingerman1961thunks}, and the expression evaluated within this outer evaluation frame.
 Variable names of passed parameters may be accessed for binding through code similar to the example given in Listing \ref{lst:varnames}.
-A drawback of the approach is evaluation of parameters prior to function application, but this may be sidestepped through the C API in a similar manner to the definition of \lstinline[language=R]{...length()}.
+A drawback of the approach is evaluation of parameters prior to function application, but this may be sidestepped through the C API in a similar manner to the definition of \lstinline[language=R]{...length()}\cite{abelson1996sicp:order}.
 
 \begin{lstlisting}[language=R,float,caption={Access to variable names given as formal parameters to a function call using x and y as defined in Listing \ref{lst:docall}},label=lst:varnames]
 > do.call2 <- function(what, ..., envir = parent.frame()) {
@@ -160,10 +160,7 @@ x(y)
 
 \section{Bibliography}
 
-% https://en.wikipedia.org/wiki/Lazy_evaluation
-% https://en.wikipedia.org/wiki/Evaluation_strategy
-% https://en.wikipedia.org/wiki/Thunk
-% https://cran.r-project.org/doc/manuals/r-release/R-ints.html#Argument-evaluation
-
+\bibliographystyle{plain}
 \bibliography{evaluation}
+
 \end{document}

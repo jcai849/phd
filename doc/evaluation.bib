@@ -1,1 +1,259 @@
+@inproceedings{crank1991param,
+author = {Crank, Erik and Felleisen, Matthias},
+title = {Parameter-Passing and the Lambda Calculus},
+year = {1991},
+isbn = {0897914198},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/99583.99616},
+doi = {10.1145/99583.99616},
+booktitle = {Proceedings of the 18th ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+pages = {233–244},
+numpages = {12},
+location = {Orlando, Florida, USA},
+series = {POPL '91}
+}
 
+@inproceedings{ariola1995callbyneed,
+author = {Ariola, Zena M. and Maraist, John and Odersky, Martin and Felleisen, Matthias and Wadler, Philip},
+title = {A Call-by-Need Lambda Calculus},
+year = {1995},
+isbn = {0897916921},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/199448.199507},
+doi = {10.1145/199448.199507},
+abstract = {The mismatch between the operational semantics of the lambda calculus and the actual
+behavior of implementations is a major obstacle for compiler writers. They cannot
+explain the behavior of their evaluator in terms of source level syntax, and they
+cannot easily compare distinct implementations of different lazy strategies. In this
+paper we derive an equational characterization of call-by-need and prove it correct
+with respect to the original lambda calculus. The theory is a strictly smaller theory
+than the lambda calculus. Immediate applications of the theory concern the correctness
+proofs of a number of implementation strategies, e.g., the call-by-need continuation
+passing transformation and the realization of sharing via assignments.},
+booktitle = {Proceedings of the 22nd ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+pages = {233–246},
+numpages = {14},
+location = {San Francisco, California, USA},
+series = {POPL '95}
+}
+
+@Inbook{nita2017haskell,
+author="Nita, Stefania Loredana
+and Mihailescu, Marius",
+title="Introduction",
+bookTitle="Practical Concurrent Haskell: With Big Data Applications",
+year="2017",
+publisher="Apress",
+address="Berkeley, CA",
+pages="3--11",
+abstract="The general goal of this book, Practical Concurrent Haskell: With Big Data Applications, is to give professionals, academics, and students comprehensive tips, hands-on examples, and case studies on the Haskell programming language, which is used to develop professional software solutions for business environments, such as cloud computing and big data. This book is not an introduction to programming in general. You should be familiar with your operating system and have a text editor.",
+isbn="978-1-4842-2781-7",
+doi="10.1007/978-1-4842-2781-7_1",
+url="https://doi.org/10.1007/978-1-4842-2781-7_1"
+}
+
+
+@inproceedings{nilsson1999lazydebug,
+author = {Nilsson, Henrik},
+title = {Tracing Piece by Piece: Affordable Debugging for Lazy Functional Languages},
+year = {1999},
+isbn = {1581131119},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/317636.317782},
+doi = {10.1145/317636.317782},
+abstract = {The advantage of lazy functional languages is that programs may be written declaratively
+without specifying the exact evaluation order. The ensuing order of evaluation can
+however be quite involved which makes it difficult to debug such programs using traditional,
+operational techniques. A solution is to trace the computation in a way which focuses
+on the declarative aspects and hides irrelevant operational details. The main problem
+with this approach is the immense cost in time and space of tracing large computations.
+Dealing with these performance issues is thus the key to practical, general purpose
+debuggers for lazy functional languages. In this paper we show that computing partial
+traces on demand by re-executing the traced program is a viable way to overcome these
+difficulties. This allows any program to be traced using only a fixed amount of extra
+storage. Since it takes a lot of time to build a complete trace, most of which is
+wasted since only a fraction of a typical trace is investigated during debugging,
+partial tracing and repeated re-execution is also attractive from a time perspective.
+Performance figures are presented to substantiate our claims.},
+booktitle = {Proceedings of the Fourth ACM SIGPLAN International Conference on Functional Programming},
+pages = {36–47},
+numpages = {12},
+location = {Paris, France},
+series = {ICFP '99}
+}
+
+@InProceedings{ennals2003optimistic,
+author = {Ennals, Robert and Peyton Jones, Simon},
+title = {Optimistic Evaluation: a fast evaluation strategy for non-strict programs},
+booktitle = {ACM International Conference on Functional Programming (ICFP'03)},
+year = {2003},
+month = {August},
+abstract = {Lazy programs are beautiful, but slow. A great deal of work has been done on static analyses (such as strictness analysis, or cheapness analysis) that conservatively estimate where call-by-need can be changed to call-by-value without changing the meaning of the program.
+
+Our measurements show that many of the thunks that remain after such analyses are in fact always evaluated, or are always cheap. In this paper we describe a new evaluation strategy, optimistic evaluation, that explores the space between call-by-need and call-by-value. Optimistic evaluation complements compile-time analyses with run-time experiments: it evaluates a thunk speculatively, but has an abortion mechanism to back out if it makes a bad choice. We add a run-time adaption mechanism so that the system can avoid making the same bad choice again.
+
+We have implemented optimistic evaluation in the Glasgow Haskell Compiler. The results are encouraging: many programs speed up significantly (5-25%), some are dramatically faster, and very few go slower.
+
+Adaptive evaluation of non-strict programs
+Robert Ennals, PhD thesis, University of Cambridge, 2004. This is Robert's PhD thesis, which goes into much more detail.
+
+ 	PhD thesis (PDF)},
+url = {https://www.microsoft.com/en-us/research/publication/optimistic-evaluation-fast-evaluation-strategy-non-strict-programs/},
+edition = {ACM International Conference on Functional Programming (ICFP'03)},
+}
+
+@techreport{liskov1979clu,
+  title={CLU Reference Manual.},
+  author={Liskov, Barbara and Atkinson, Russ and Bloom, Toby and Moss, Eliot and Schaffert, Craig},
+  year={1979},
+  institution={MASSACHUSETTS INST OF TECH CAMBRIDGE LAB FOR COMPUTER SCIENCE}
+}
+
+@article{ingerman1961thunks,
+author = {Ingerman, P. Z.},
+title = {Thunks: A Way of Compiling Procedure Statements with Some Comments on Procedure Declarations},
+year = {1961},
+issue_date = {Jan. 1961},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {4},
+number = {1},
+issn = {0001-0782},
+url = {https://doi.org/10.1145/366062.366084},
+doi = {10.1145/366062.366084},
+journal = {Commun. ACM},
+month = jan,
+pages = {55–58},
+numpages = {4}
+}
+
+@incollection{abelson1996sicp:order,
+ author = {Abelson, Harold and Sussman, Gerald J.},
+ title = {4.2.1  Normal Order and Applicative Order},
+ booktitle = {Structure and interpretation of computer programs},
+ publisher = {MIT Press McGraw-Hill},
+ year = {1996},
+ address = {Cambridge, Mass. New York},
+ isbn = {0262011530}
+}
+
+@article{fischer1972lambda,
+  title={Lambda calculus schemata},
+  author={Fischer, Michael J},
+  journal={ACM SIGPLAN Notices},
+  volume={7},
+  number={1},
+  pages={104--109},
+  year={1972},
+  publisher={ACM New York, NY, USA}
+}
+
+@Book{okasaki1998functional,
+ author = {Okasaki, Chris},
+ title = {Purely functional data structures},
+ publisher = {Cambridge University Press},
+ year = {1998},
+ address = {Cambridge, U.K. New York},
+ isbn = {0521663504}
+ }
+
+@incollection{rcore2020lang:promise,
+  author = {Team, R Core},
+  publisher = {r-project.org},
+  title = {Promise objects},
+  chapter = {2.1.8},
+  booktitle = {R Language Definition},
+  year = {2020}
+}
+
+@incollection{rcore2020ints:argeval,
+  author = {Team, R Core},
+  publisher = {r-project.org},
+  booktitle = {R Internals},
+  title = {Argument evaluation},
+  chapter = {1.5},
+  year = {2020}
+}
+
+@article{plotkin1975callnameval,
+  title={Call-by-name, call-by-value and the $\lambda$-calculus},
+  author={Plotkin, Gordon D.},
+  journal={Theoretical computer science},
+  volume={1},
+  number={2},
+  pages={125--159},
+  year={1975},
+  publisher={Elsevier}
+}
+
+@Book{turbak2008design,
+ author = {Turbak, Franklyn},
+ title = {Design concepts in programming languages},
+ publisher = {MIT Press},
+ year = {2008},
+ address = {Cambridge, Mass},
+ isbn = {9780262303156}
+ }
+
+
+@article{hudak1989functional,
+author = {Hudak, Paul},
+title = {Conception, Evolution, and Application of Functional Programming Languages},
+year = {1989},
+issue_date = {Sep. 1989},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {21},
+number = {3},
+issn = {0360-0300},
+url = {https://doi.org/10.1145/72551.72554},
+doi = {10.1145/72551.72554},
+abstract = {The foundations of functional programming languages are examined from both historical
+and technical perspectives. Their evolution is traced through several critical periods:
+early work on lambda calculus and combinatory calculus, Lisp, Iswim, FP, ML, and modern
+functional languages such as Miranda1 and Haskell. The fundamental premises on which
+the functional programming methodology stands are critically analyzed with respect
+to philosophical, theoretical, and pragmatic concerns. Particular attention is paid
+to the main features that characterize modern functional languages: higher-order functions,
+lazy evaluation, equations and pattern matching, strong static typing and type inference,
+and data abstraction. In addition, current research areas—such as parallelism, nondeterminism,
+input/output, and state-oriented computations—are examined with the goal of predicting
+the future development and application of functional languages.},
+journal = {ACM Comput. Surv.},
+month = sep,
+pages = {359–411},
+numpages = {53}
+}
+
+@book{tierney2018snow,
+  author = {Tierney, Luke and Rossini, A. J. and Li, Na and Sevcikova, H.},
+  publisher = {CRAN},
+  title = {{SNOW}: Simple Network of Workstations},
+  year = {2018},
+  note = {R package version 0.4-3}
+}
+
+@inproceedings{henderson1976lazy,
+author = {Henderson, Peter and Morris, James H.},
+title = {A Lazy Evaluator},
+year = {1976},
+isbn = {9781450374774},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/800168.811543},
+doi = {10.1145/800168.811543},
+abstract = {A different way to execute pure LISP programs is presented. It delays the evaluation
+of parameters and list structures without ever having to perform more evaluation steps
+than the usual method. Although the central idea can be found in earlier work this
+paper is of interest since it treats a rather well-known language and works out an
+algorithm which avoids full substitution. A partial correctness proof using Scott-Strachey
+semantics is sketched in a later section.},
+booktitle = {Proceedings of the 3rd ACM SIGACT-SIGPLAN Symposium on Principles on Programming Languages},
+pages = {95–103},
+numpages = {9},
+location = {Atlanta, Georgia},
+series = {POPL '76}
+}
