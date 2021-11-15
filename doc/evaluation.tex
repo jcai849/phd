@@ -126,6 +126,7 @@ Beyond the above point regarding call creation, the method of evaluation in larg
 In order to bring future prototypes of the project closer in line with standard R evaluation, a radically different evaluation mechanism is required.
 The evaluation or collection of the arguments to a function on a node would have to take place only upon those arguments being accessed in the evaluation of the function body.
 This implies a necessity to take advantage of promise objects.
+Such a capacity is already inherent in R, with \lstinline[language=R]{delayedAssign()} from the base package granting direct access to promise creation.
 Upon access of the promise objects, some operation should be enacted to emerge the underlying expression locally, including potential initiation of remote procedures.
 There are already limitations, however;
 One example is the execution of a remote distributed call with local arguments -- if the call is to take place asynchronously, there is no immediate mechanism for the node executing the call to attain the local arguments as and when (and if) they are needed.
