@@ -1,3 +1,5 @@
+#Implicit Asynchrony
+
 plist <- lapply(prerequisites(request),
        function(chunk)
            promise(function(resolve, reject)
@@ -8,3 +10,17 @@ worked <- then(pall,
                    promise(function(resolve, reject)
                                tryCatch(resolve(do.call(computation(request), value)),
                                         error=reject)))
+
+# Explicit Asynchrony
+plist <- lapply(prerequisites(request),
+       function(chunk)
+           promise(function(resolve, reject) mclapply(
+                           resolve(emerge(chunk)),
+                       detached=TRUE)))
+pall <- promise_all(p)
+worked <- then(pall,
+               onFulfilled=function(value)
+                   promise(function(resolve, reject) mclapply(
+                                   tryCatch(resolve(do.call(computation(request),value)),
+                                            error=reject)),
+                               detached=TRUE))
