@@ -7,4 +7,4 @@ worked <- then(pall,
                onFulfilled=function(value)
                    promise(function(resolve, reject)
                                tryCatch(resolve(do.call(computation(request), value)),
-                                        error=reject))
+                                        error=reject)))
