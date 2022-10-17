@@ -14,7 +14,7 @@ PROGS	= mktexdep
 PLANTUML= java -jar ~/plantuml/plantuml.jar -pipe
 
 .PHONY: all depend clean
-.SUFFIXES: .gv .puml .pdf
+.SUFFIXES: .gv .puml .pdf .svg
 
 all: depend programs reports
 
@@ -34,6 +34,9 @@ SRCS	+= PROGSRC
 ${BINDIR}/${PROG}: ${PROGSRC}
 	cd ${SRCDIR} && ${MAKE} ${PROG} && mv ${PROG} ../${BINDIR}
 .endfor
+
+.gv.svg:
+	dot -Tsvg -Gsize=4,6\! -Gdpi=100 ${.IMPSRC} >${.TARGET}
 
 .gv.pdf:
 	dot -Tpdf -Gsize=4,6\! -Gdpi=100 ${.IMPSRC} >${.TARGET}
